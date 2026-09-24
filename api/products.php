@@ -5,6 +5,10 @@ header('Content-Type: application/json');
 require_once '../config/database.php';
 require_once 'response.php';
 
+if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+    sendResponse(false, "Method not allowed", null, 405);
+}
+
 $sql = "SELECT id, name, description, price, unit, stock_quantity, image, is_available
         FROM products";
 
