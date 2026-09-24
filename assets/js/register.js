@@ -15,10 +15,10 @@ function selectRole(role) {
         document.getElementById('selected-role-icon');
 
     const businessField =
-        document.getElementById('business-name-field');
+        document.getElementById('stall-name-field');
 
     const businessInput =
-        document.getElementById('business_name');
+        document.getElementById('stall_name');
 
 
     if (role === 'customer') {
@@ -50,10 +50,10 @@ function changeRole() {
     document.getElementById('role-selection').hidden = false;
 
     const businessField =
-        document.getElementById('business-name-field');
+        document.getElementById('stall-name-field');
 
     const businessInput =
-        document.getElementById('business_name');
+        document.getElementById('stall_name');
 
     businessField.hidden = true;
     businessInput.required = false;

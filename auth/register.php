@@ -182,18 +182,18 @@ require_once 'register_process.php';
 
                     <div
                         class="form-field farmer-only"
-                        id="business-name-field"
+                        id="stall-name-field"
                         hidden
                     >
 
-                        <label for="business_name">
+                        <label for="stall_name">
                             Business / Stall Name
                         </label>
 
                         <input
                             type="text"
-                            name="business_name"
-                            id="business_name"
+                            name="stall_name"
+                            id="stall_name"
                             placeholder="Enter your business or stall name"
                             autocomplete="organization"
                         >
