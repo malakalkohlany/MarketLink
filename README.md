@@ -61,3 +61,14 @@ MarketLink/
 ├── uploads/
 │
 └── README.md
+```
+
+## Requirements
+
+Before running MarketLink, install:
+
+- XAMPP
+- Apache
+- MySQL
+- PHP 8.x or later
+- A modern web browser
