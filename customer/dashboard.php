@@ -38,6 +38,60 @@ while ($row = $result->fetch_assoc()) {
 $stmt->close();
 
 
+$featured_products = [];
+
+$stmt = $conn->prepare("
+    SELECT
+        p.id,
+        p.name,
+        p.price,
+        p.unit,
+        p.image,
+        f.id AS farmer_id,
+        f.stall_name
+    FROM products p
+    JOIN farmers f ON p.farmer_id = f.id
+    WHERE p.is_available = 1
+      AND p.moderation_status = 'approved'
+      AND f.approval_status = 'approved'
+    ORDER BY p.created_at DESC
+    LIMIT 4
+");
+
+$stmt->execute();
+
+$result = $stmt->get_result();
+
+while ($row = $result->fetch_assoc()) {
+    $featured_products[] = $row;
+}
+
+$stmt->close();
+
+$farmers = [];
+
+$stmt = $conn->prepare("
+    SELECT
+        id,
+        stall_name,
+        description,
+        address
+    FROM farmers
+    WHERE approval_status = 'approved'
+    ORDER BY created_at DESC
+    LIMIT 4
+");
+
+$stmt->execute();
+
+$result = $stmt->get_result();
+
+while ($row = $result->fetch_assoc()) {
+    $farmers[] = $row;
+}
+
+$stmt->close();
+
 ?>
 
 <!DOCTYPE html>
@@ -48,6 +102,7 @@ $stmt->close();
     <title>Dashboard</title>
     <link rel="stylesheet" href="../assets/css/base.css">
     <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
 </head>
 <body>
 
@@ -176,9 +231,75 @@ $stmt->close();
                 <a href="products.php">View all →</a>
             </div>
 
-            <div class="dashboard-grid">
-                <div class="product-card"></div>
-            </div>
+            <?php if (empty($featured_products)): ?>
+
+                <div class="dashboard-placeholder">
+                    <p>No products are available yet.</p>
+                </div>
+
+            <?php else: ?>
+
+                <div class="product-grid">
+
+                    <?php foreach ($featured_products as $product): ?>
+
+                        <a
+                            href="product_details.php?id=<?= (int) $product['id'] ?>"
+                            class="product-card"
+                        >
+
+                            <div class="product-image">
+
+                                <?php if (!empty($product['image'])): ?>
+
+                                    <img
+                                        src="../uploads/products/<?= htmlspecialchars($product['image']) ?>"
+                                        alt="<?= htmlspecialchars($product['name']) ?>"
+                                    >
+
+                                <?php else: ?>
+
+                                    <span>No image</span>
+
+                                <?php endif; ?>
+
+                            </div>
+
+
+                            <div class="product-info">
+
+                                <h3>
+                                    <?= htmlspecialchars($product['name']) ?>
+                                </h3>
+
+                                <p class="product-farmer">
+                                    <?= htmlspecialchars($product['stall_name']) ?>
+                                </p>
+
+                                <div class="product-price">
+
+                                    <strong>
+                                        $<?= number_format(
+                                            (float) $product['price'],
+                                            2
+                                        ) ?>
+                                    </strong>
+
+                                    <span>
+                                        / <?= htmlspecialchars($product['unit']) ?>
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </a>
+
+                    <?php endforeach; ?>
+
+                </div>
+
+            <?php endif; ?>
         
         </section>
 
@@ -189,9 +310,63 @@ $stmt->close();
                 <a href="farmers.php">View all →</a>
             </div>
 
-            <div class="dashboard-grid">
-                <div class="farmer-card"></div>
-            </div>
+            <?php if (empty($farmers)): ?>
+
+                <div class="dashboard-placeholder">
+                    <p>No approved farmers are available yet.</p>
+                </div>
+
+            <?php else: ?>
+
+                <div class="farmer-grid">
+
+                    <?php foreach ($farmers as $farmer): ?>
+
+                        <a
+                            href="farmer_details.php?id=<?= (int) $farmer['id'] ?>"
+                            class="farmer-card"
+                        >
+
+                            <div class="farmer-icon">
+                                <?= strtoupper(
+                                    substr($farmer['stall_name'], 0, 1)
+                                ) ?>
+                            </div>
+
+
+                            <div class="farmer-info">
+
+                                <h3>
+                                    <?= htmlspecialchars($farmer['stall_name']) ?>
+                                </h3>
+
+                                <?php if (!empty($farmer['address'])): ?>
+
+                                    <p class="farmer-address">
+                                        <?= htmlspecialchars($farmer['address']) ?>
+                                    </p>
+
+                                <?php endif; ?>
+
+                                <?php if (!empty($farmer['description'])): ?>
+
+                                    <p class="farmer-description">
+                                        <?= htmlspecialchars(
+                                            $farmer['description']
+                                        ) ?>
+                                    </p>
+
+                                <?php endif; ?>
+
+                            </div>
+
+                        </a>
+
+                    <?php endforeach; ?>
+
+                </div>
+
+            <?php endif; ?>
 
         </section>
 
@@ -210,6 +385,7 @@ $stmt->close();
 
     </main>
 
+    <script src="../assets/js/app.js"></script>
     <script src="../assets/js/dashboard.js"></script>
 
 </body>

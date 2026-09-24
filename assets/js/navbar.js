@@ -1,12 +1,3 @@
-function toggleSidebar() {
-    const sidebar = document.querySelector('.sidebar');
-    const navbar = document.querySelector('.navbar');
-
-    sidebar.classList.toggle('closed');
-    navbar.classList.toggle('expanded');
-}
-
-
 function toggleNotifications() {
 
     const dropdown = document.getElementById('notificationDropdown');
