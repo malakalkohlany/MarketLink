@@ -69,7 +69,7 @@ require_once __DIR__ . '/../includes/session.php';
                 title="Notifications"
                 onclick="toggleNotifications()"
             >
-                🔔
+                ♡
 
                 <?php if ($notification_count > 0): ?>
                     <span class="notification-badge">
