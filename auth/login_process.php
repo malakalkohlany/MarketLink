@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/../config/config.php';
+
 require_once __DIR__ .   '/../config/database.php';
 
 require_once __DIR__ . '/../includes/session.php';
@@ -74,29 +76,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['approval_status'] = $farmer['approval_status'];
 
                     if ($farmer['approval_status'] === 'approved') {
-                        header('Location: ../farmer/dashboard.php');
+                        header('Location: ' . BASE_URL . 'farmer/dashboard.php');
                         exit;
                     }
 
                     if ($farmer['approval_status'] === 'pending') {
-                        header('Location: ../farmer/pending.php');
+                        header('Location: ' . BASE_URL . 'farmer/pending.php');
                         exit;
                     }
 
                     if ($farmer['approval_status'] === 'rejected') {
-                        header('Location: ../farmer/rejected.php');
+                        header('Location: ' . BASE_URL . 'farmer/rejected.php');
                         exit;
                     }
                 }
 
             } elseif ($user['role'] === 'customer') {
 
-                header('Location: ../customer/dashboard.php');
+                header('Location: ' . BASE_URL . 'customer/dashboard.php');
                 exit;
 
             } elseif ($user['role'] === 'admin') {
 
-                header('Location: ../admin/dashboard.php');
+                header('Location: ' . BASE_URL . 'admin/dashboard.php');
                 exit;
             }
         }

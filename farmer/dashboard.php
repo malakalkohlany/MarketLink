@@ -5,6 +5,7 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/session.php';
 
 requireRole('farmer');
+requireApprovedFarmer();
 
 $user_id = getUserId();
 
