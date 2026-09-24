@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../config/database.php';
 
-require_once __DIR__ . '../includes/session.php';
+require_once __DIR__ . '/../includes/session.php';
 
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
