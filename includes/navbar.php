@@ -218,3 +218,4 @@ require_once __DIR__ . '/../includes/session.php';
 
     
     <script src="../assets/js/navbar.js"></script>
+    <script src="../assets/js/app.js"></script>

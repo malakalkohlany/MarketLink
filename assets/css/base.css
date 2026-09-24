@@ -1,0 +1,31 @@
+:root {
+    --barn-red: #8E2A1E;
+    --moss: #3E5A2C;
+    --seashell: #F9F4ED;
+    --butter: #EFCF97;
+    --butter-dark: #c3aa7e;
+
+    --white: #FFFFFF;
+    --text-muted: #766F67;
+}
+
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background-color: var(--seashell);
+}
+
+.main-content {
+    margin-left: 240px;
+    padding: 110px 40px 70px;
+
+    transition: margin-left .3s ease;
+}
+
+.main-content.expanded {
+    margin-left: 0;
+}

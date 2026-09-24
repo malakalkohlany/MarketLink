@@ -210,6 +210,7 @@ $stmt->close();
 
     </main>
 
+    <script src="../assets/js/app.js"></script>
     <script src="../assets/js/dashboard.js"></script>
 
 </body>
