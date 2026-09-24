@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $confirm_password = $_POST['confirm_password'] ?? '';
     $role = $_POST['role'] ?? '';
 
-    $business_name = trim($_POST['business_name'] ?? '');
+    $stall_name = trim($_POST['stall_name'] ?? '');
 
     $allowed_roles = ['customer', 'farmer'];
 
@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $error = 'Passwords do not match.';
 
-    } elseif ($role === 'farmer' && $business_name === '') {
+    } elseif ($role === 'farmer' && $stall_name === '') {
 
         $error = 'Please enter your business or stall name.';
 
@@ -105,14 +105,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     $stmt2 = $conn->prepare(
                         "INSERT INTO farmers
-                        (user_id, business_name, approval_status)
+                        (user_id, stall_name, approval_status)
                         VALUES (?, ?, 'pending')"
                     );
 
                     $stmt2->bind_param(
                         'is',
                         $user_id,
-                        $business_name
+                        $stall_name
                     );
 
                     $stmt2->execute();

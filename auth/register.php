@@ -1,5 +1,5 @@
 <?php
-require 'register_process.php';
+require_once 'register_process.php';
 ?>
 
 <!DOCTYPE html>
