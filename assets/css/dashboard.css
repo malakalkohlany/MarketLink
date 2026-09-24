@@ -9,10 +9,6 @@
     --text-muted: #766F67;
 }
 
-/* =========================
-   Welcome
-   ========================= */
-
 .welcome {
     margin-bottom: 28px;
 }
@@ -28,11 +24,6 @@
     color: var(--text-muted);
     font-size: 15px;
 }
-
-
-/* =========================
-   Quick Actions
-   ========================= */
 
 .quick-actions {
     display: grid;
@@ -69,11 +60,6 @@
     line-height: 1.5;
 }
 
-
-/* =========================
-   Dashboard Sections
-   ========================= */
-
 .dashboard-section {
     margin-bottom: 32px;
 }
@@ -102,11 +88,6 @@
     text-decoration: underline;
 }
 
-
-/* =========================
-   Placeholder
-   ========================= */
-
 .dashboard-placeholder {
     padding: 30px;
     background: var(--white);
@@ -126,11 +107,6 @@
     font-weight: 600;
     text-decoration: none;
 }
-
-
-/* =========================
-   Orders Table
-   ========================= */
 
 .orders-table-wrapper {
     overflow-x: auto;
@@ -167,11 +143,6 @@
     border-bottom: none;
 }
 
-
-/* =========================
-   Order Status
-   ========================= */
-
 .order-status {
     display: inline-block;
     padding: 5px 10px;
@@ -205,11 +176,6 @@
     color: var(--barn-red);
 }
 
-
-/* =========================
-   Responsive
-   ========================= */
-
 @media (max-width: 800px) {
 
     .main-content {
@@ -222,10 +188,6 @@
     }
 
 }
-
-/* =========================
-   Product Grid
-   ========================= */
 
 .product-grid {
     display: grid;
@@ -307,10 +269,6 @@
 
 }
 
-/* =========================
-   Farmer Grid
-   ========================= */
-
 .farmer-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -384,10 +342,6 @@
 
 }
 
-/* =========================
-   Recent Orders
-   ========================= */
-
 .orders-table-wrapper {
     width: 100%;
     overflow-x: auto;
@@ -428,11 +382,6 @@
     background: var(--seashell);
 }
 
-
-/* =========================
-   Order Status
-   ========================= */
-
 .order-status {
     display: inline-block;
     padding: 5px 10px;
@@ -441,31 +390,26 @@
     font-weight: 600;
 }
 
-/* Pending */
 .order-status.pending {
     background: #FFF3D9;
     color: #8A6A22;
 }
 
-/* Accepted */
 .order-status.accepted {
     background: #E8F0E2;
     color: var(--moss);
 }
 
-/* Preparing */
 .order-status.preparing {
     background: #F5E8C8;
     color: #80652F;
 }
 
-/* Ready */
 .order-status.ready {
     background: #E3EFE0;
     color: var(--moss);
 }
 
-/* Cancelled */
 .order-status.cancelled {
     background: #F4E1DE;
     color: var(--barn-red);
