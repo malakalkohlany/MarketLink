@@ -1,6 +1,6 @@
 function toggleSidebar() {
 
-    const sidebar = document.querySelector('.navbar');
+    const sidebar = document.querySelector('.sidebar');
     const navbar = document.querySelector('.navbar');
     const main = document.querySelector('.main-content');
 

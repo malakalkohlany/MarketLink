@@ -109,7 +109,7 @@ $role = $_SESSION['role'] ?? '';
                         href="<?= BASE_URL ?>customer/cart.php"
                         class="<?= $current_page === 'cart.php' ? 'active' : '' ?>"
                     >
-                        <span class="nav-icon">🛒</span>
+                        <span class="nav-icon">▣</span>
                         Cart
                     </a>
                 </li>

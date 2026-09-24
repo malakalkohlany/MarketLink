@@ -195,6 +195,7 @@ $stmt->close();
 
     <link rel="stylesheet" href="../assets/css/base.css">
     <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
     <link rel="stylesheet" href="../assets/css/dashboard.css">
 
 </head>
@@ -203,6 +204,7 @@ $stmt->close();
 <body>
 
     <?php include __DIR__ . '/../includes/navbar.php'; ?>
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
 
     <main class="main-content">
