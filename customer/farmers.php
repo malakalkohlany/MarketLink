@@ -7,6 +7,196 @@ require_once __DIR__ . '/../includes/session.php';
 
 requireRole('customer');
 
+$customerId = (int) getUserId();
+
+
+/*
+|--------------------------------------------------------------------------
+| Toggle Farmer Favorite
+|--------------------------------------------------------------------------
+*/
+
+if (
+    $_SERVER['REQUEST_METHOD'] === 'POST'
+    && isset($_POST['toggle_favorite'])
+) {
+    $farmerId = filter_input(
+        INPUT_POST,
+        'farmer_id',
+        FILTER_VALIDATE_INT
+    );
+
+    if (!$farmerId || !$customerId) {
+        header('Location: farmers.php');
+        exit;
+    }
+
+    $checkStmt = mysqli_prepare(
+        $conn,
+        "SELECT customer_id
+         FROM favorite_farmers
+         WHERE customer_id = ?
+           AND farmer_id = ?
+         LIMIT 1"
+    );
+
+    if (!$checkStmt) {
+        die(
+            'Favorite check prepare failed: '
+            . mysqli_error($conn)
+        );
+    }
+
+    mysqli_stmt_bind_param(
+        $checkStmt,
+        "ii",
+        $customerId,
+        $farmerId
+    );
+
+    if (!mysqli_stmt_execute($checkStmt)) {
+        die(
+            'Favorite check execute failed: '
+            . mysqli_stmt_error($checkStmt)
+        );
+    }
+
+    mysqli_stmt_store_result($checkStmt);
+
+    $exists = mysqli_stmt_num_rows($checkStmt) > 0;
+
+    mysqli_stmt_close($checkStmt);
+
+
+    if ($exists) {
+
+        // Remove favorite
+        $deleteStmt = mysqli_prepare(
+            $conn,
+            "DELETE FROM favorite_farmers
+             WHERE customer_id = ?
+               AND farmer_id = ?"
+        );
+
+        if (!$deleteStmt) {
+            die(
+                'Favorite delete prepare failed: '
+                . mysqli_error($conn)
+            );
+        }
+
+        mysqli_stmt_bind_param(
+            $deleteStmt,
+            "ii",
+            $customerId,
+            $farmerId
+        );
+
+        if (!mysqli_stmt_execute($deleteStmt)) {
+            die(
+                'Favorite delete failed: '
+                . mysqli_stmt_error($deleteStmt)
+            );
+        }
+
+        mysqli_stmt_close($deleteStmt);
+
+    } else {
+
+        // Add favorite
+        $insertStmt = mysqli_prepare(
+            $conn,
+            "INSERT INTO favorite_farmers
+            (
+                customer_id,
+                farmer_id,
+                created_at
+            )
+            VALUES (?, ?, NOW())"
+        );
+
+        if (!$insertStmt) {
+            die(
+                'Favorite insert prepare failed: '
+                . mysqli_error($conn)
+            );
+        }
+
+        mysqli_stmt_bind_param(
+            $insertStmt,
+            "ii",
+            $customerId,
+            $farmerId
+        );
+
+        if (!mysqli_stmt_execute($insertStmt)) {
+            die(
+                'Favorite insert failed: '
+                . mysqli_stmt_error($insertStmt)
+            );
+        }
+
+        mysqli_stmt_close($insertStmt);
+    }
+
+    header('Location: farmers.php');
+    exit;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Get Favorite Farmers
+|--------------------------------------------------------------------------
+*/
+
+$favoriteFarmers = [];
+
+$favoriteStmt = mysqli_prepare(
+    $conn,
+    "SELECT farmer_id
+     FROM favorite_farmers
+     WHERE customer_id = ?"
+);
+
+if (!$favoriteStmt) {
+    die(
+        'Favorite list prepare failed: '
+        . mysqli_error($conn)
+    );
+}
+
+mysqli_stmt_bind_param(
+    $favoriteStmt,
+    "i",
+    $customerId
+);
+
+if (!mysqli_stmt_execute($favoriteStmt)) {
+    die(
+        'Favorite list execute failed: '
+        . mysqli_stmt_error($favoriteStmt)
+    );
+}
+
+mysqli_stmt_bind_result(
+    $favoriteStmt,
+    $favoriteFarmerId
+);
+
+while (mysqli_stmt_fetch($favoriteStmt)) {
+    $favoriteFarmers[] = (int) $favoriteFarmerId;
+}
+
+mysqli_stmt_close($favoriteStmt);
+
+
+/*
+|--------------------------------------------------------------------------
+| Get Approved Farmers
+|--------------------------------------------------------------------------
+*/
+
 $farmers = [];
 
 $sql = "
@@ -47,180 +237,268 @@ if ($result) {
 
     <title>Farmers - MarketLink</title>
 
+
     <!-- Leaflet CSS -->
     <link
         rel="stylesheet"
         href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     >
 
-    <!-- Project CSS -->
+
+    <!-- Font Awesome -->
     <link
         rel="stylesheet"
-        href="../assets/css/base.css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+
+
+    <!-- Main CSS -->
+    <link
+        rel="stylesheet"
+        href="<?= BASE_URL ?>assets/css/base.css"
     >
 
     <link
         rel="stylesheet"
-        href="../assets/css/navbar.css"
+        href="<?= BASE_URL ?>assets/css/navbar.css"
     >
 
     <link
         rel="stylesheet"
-        href="../assets/css/sidebar.css"
+        href="<?= BASE_URL ?>assets/css/sidebar.css"
     >
+
 
     <style>
 
         .farmers-page {
-            padding: 30px;
+            padding: 24px;
         }
 
-        .farmers-page h1 {
-            margin-bottom: 8px;
-        }
-
-        .farmers-page > p {
-            margin-bottom: 25px;
-        }
 
         .map-container {
             width: 100%;
-            background: #ffffff;
-            border-radius: 14px;
-            padding: 15px;
-            box-sizing: border-box;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-            margin-bottom: 35px;
+            margin-bottom: 30px;
         }
+
 
         #map {
             width: 100%;
             height: 500px;
-            min-height: 500px;
-            border-radius: 10px;
-            z-index: 1;
+            border-radius: 12px;
+            overflow: hidden;
         }
 
+
         .farmer-count {
-            margin-bottom: 15px;
-            font-weight: 600;
+            margin-bottom: 20px;
+            font-size: 16px;
+            color: #666;
         }
+
 
         .section-title {
             font-size: 24px;
+            font-weight: 700;
             margin-bottom: 20px;
         }
 
+
         .farmers-grid {
             display: grid;
-            grid-template-columns: repeat(
-                auto-fit,
-                minmax(260px, 1fr)
-            );
+            grid-template-columns:
+                repeat(
+                    auto-fill,
+                    minmax(280px, 1fr)
+                );
             gap: 20px;
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Farmer Card
+        |--------------------------------------------------------------------------
+        */
+
         .farmer-card {
+            position: relative !important;
             background: #ffffff;
-            border-radius: 14px;
-            padding: 22px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-            display: flex;
-            flex-direction: column;
-            min-height: 220px;
-            box-sizing: border-box;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            padding: 20px;
+            transition: 0.2s ease;
         }
+
+
+        .farmer-card:hover {
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 4px 12px
+                rgba(0, 0, 0, 0.08);
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Favorite Button
+        |--------------------------------------------------------------------------
+        */
+
+        .farmer-favorite-form {
+            position: absolute !important;
+            top: 12px !important;
+            right: 12px !important;
+            z-index: 100 !important;
+            margin: 0 !important;
+        }
+
+
+        .farmer-favorite-button {
+            width: 36px !important;
+            height: 36px !important;
+
+            display: flex !important;
+
+            align-items: center !important;
+            justify-content: center !important;
+
+            border: none !important;
+            border-radius: 50% !important;
+
+            background: #ffffff !important;
+
+            cursor: pointer !important;
+
+            font-size: 20px !important;
+
+            padding: 0 !important;
+            margin: 0 !important;
+
+            box-shadow:
+                0 2px 6px
+                rgba(0, 0, 0, 0.10) !important;
+
+            transition: 0.2s ease;
+        }
+
+
+        .farmer-favorite-button.empty {
+            color: #555555 !important;
+        }
+
+
+        .farmer-favorite-button.filled {
+            color: #e53935 !important;
+        }
+
+
+        .farmer-favorite-button:hover {
+            transform: scale(1.08);
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Farmer Content
+        |--------------------------------------------------------------------------
+        */
 
         .farmer-card h3 {
-            margin: 0 0 10px;
-            font-size: 20px;
-        }
-
-        .farmer-card .contact-person {
-            font-weight: 600;
+            margin-top: 0;
             margin-bottom: 10px;
+            padding-right: 45px;
         }
 
-        .farmer-card .address {
-            margin-bottom: 12px;
-        }
 
-        .farmer-card .description {
+        .farmer-card p {
+            margin: 8px 0;
             color: #666;
+        }
+
+
+        .farmer-card .farmer-description {
+            margin-top: 12px;
             line-height: 1.5;
-            margin-bottom: 18px;
         }
 
-        .farmer-card .details-button {
-            margin-top: auto;
+
+        .farmer-card .view-details {
             display: inline-block;
-            text-align: center;
-            text-decoration: none;
-            padding: 11px 16px;
+            margin-top: 15px;
+            padding: 10px 16px;
             border-radius: 8px;
-            background: #2f6f4e;
-            color: #ffffff;
-            font-weight: 600;
-            transition: 0.2s;
+            text-decoration: none;
         }
 
-        .farmer-card .details-button:hover {
-            opacity: 0.9;
-        }
 
         .no-farmers {
-            background: #ffffff;
-            padding: 25px;
+            padding: 30px;
+            text-align: center;
+            color: #777;
+            background: #fff;
+            border: 1px solid #e5e5e5;
             border-radius: 12px;
-            color: #666;
         }
 
-        @media (max-width: 768px) {
 
-            .farmers-page {
-                padding: 20px;
-            }
+        /*
+        |--------------------------------------------------------------------------
+        | Leaflet Fix
+        |--------------------------------------------------------------------------
+        |
+        | This affects ONLY the Leaflet elements inside the map.
+        | Navbar and Sidebar are NOT changed.
+        |
+        */
 
-            #map {
-                height: 400px;
-                min-height: 400px;
-            }
+        #map .leaflet-pane {
+            z-index: 1 !important;
+        }
 
+        #map .leaflet-top,
+        #map .leaflet-bottom {
+            z-index: 2 !important;
         }
 
     </style>
 
 </head>
 
+
 <body>
 
-    <?php include __DIR__ . '/../includes/navbar.php'; ?>
 
-    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
+    <?php require_once __DIR__ . '/../includes/navbar.php'; ?>
+
+    <?php require_once __DIR__ . '/../includes/sidebar.php'; ?>
 
 
     <main class="main-content">
 
         <div class="farmers-page">
 
-            <h1>Farmers</h1>
 
-            <p>
-                Find farmers and view their stall locations.
-            </p>
+            <h1 class="section-title">
+                Farmers
+            </h1>
 
-
-            <!-- Farmers Count -->
 
             <div class="farmer-count">
 
-                Farmers found:
-                <?= count($farmers); ?>
+                <?= count($farmers) ?>
+
+                farmer<?= count($farmers) !== 1 ? 's' : '' ?>
+
+                available
 
             </div>
 
 
-            <!-- Map -->
+            <!-- =========================================================
+                 MAP
+                 ========================================================= -->
 
             <div class="map-container">
 
@@ -229,83 +507,175 @@ if ($result) {
             </div>
 
 
-            <!-- Farmers Section -->
+            <!-- =========================================================
+                 FARMERS
+                 ========================================================= -->
 
             <h2 class="section-title">
-                Our Farmers
+                All Farmers
             </h2>
 
 
             <?php if (!empty($farmers)): ?>
 
+
                 <div class="farmers-grid">
+
 
                     <?php foreach ($farmers as $farmer): ?>
 
-                        <div class="farmer-card">
+
+                        <?php
+
+                        $farmerId = (int) $farmer['id'];
+
+                        $isFavorite = in_array(
+                            $farmerId,
+                            $favoriteFarmers,
+                            true
+                        );
+
+                        ?>
+
+
+                        <div
+                            class="farmer-card"
+                            data-farmer-id="<?= $farmerId ?>"
+                        >
+
+
+                            <!-- Favorite Button -->
+
+                            <form
+                                method="POST"
+                                action="farmers.php"
+                                class="farmer-favorite-form"
+                            >
+
+                                <input
+                                    type="hidden"
+                                    name="farmer_id"
+                                    value="<?= $farmerId ?>"
+                                >
+
+
+                                <button
+                                    type="submit"
+                                    name="toggle_favorite"
+                                    class="farmer-favorite-button <?= $isFavorite ? 'filled' : 'empty' ?>"
+                                    title="<?= $isFavorite ? 'Remove from Favorites' : 'Add to Favorites' ?>"
+                                    aria-label="<?= $isFavorite ? 'Remove from Favorites' : 'Add to Favorites' ?>"
+                                >
+
+                                    <?php if ($isFavorite): ?>
+
+                                        <i class="fa-solid fa-heart"></i>
+
+                                    <?php else: ?>
+
+                                        <i class="fa-regular fa-heart"></i>
+
+                                    <?php endif; ?>
+
+                                </button>
+
+                            </form>
+
 
                             <h3>
-                                <?= e($farmer['stall_name']); ?>
+                                <?= e($farmer['stall_name']) ?>
                             </h3>
 
 
-                            <div class="contact-person">
+                            <?php if (!empty($farmer['contact_person'])): ?>
 
-                                Contact:
-                                <?= e($farmer['contact_person']); ?>
+                                <p>
 
-                            </div>
+                                    <strong>
+                                        Contact:
+                                    </strong>
+
+                                    <?= e(
+                                        $farmer['contact_person']
+                                    ) ?>
+
+                                </p>
+
+                            <?php endif; ?>
 
 
-                            <div class="address">
+                            <?php if (!empty($farmer['address'])): ?>
 
-                                📍
-                                <?= e($farmer['address']); ?>
+                                <p>
 
-                            </div>
+                                    <strong>
+                                        Address:
+                                    </strong>
+
+                                    <?= e(
+                                        $farmer['address']
+                                    ) ?>
+
+                                </p>
+
+                            <?php endif; ?>
 
 
-                            <div class="description">
+                            <?php if (!empty($farmer['description'])): ?>
 
-                                <?= e(
-                                    truncateText(
-                                        $farmer['description'],
-                                        120
-                                    )
-                                ); ?>
+                                <p class="farmer-description">
 
-                            </div>
+                                    <?= e(
+                                        $farmer['description']
+                                    ) ?>
+
+                                </p>
+
+                            <?php endif; ?>
 
 
                             <a
-                                href="farmer_details.php?id=<?= (int)$farmer['id']; ?>"
-                                class="details-button"
+                                href="farmer_details.php?id=<?= $farmerId ?>"
+                                class="view-details"
                             >
+
                                 View Details
+
                             </a>
+
 
                         </div>
 
+
                     <?php endforeach; ?>
 
+
                 </div>
+
 
             <?php else: ?>
 
+
                 <div class="no-farmers">
 
-                    No approved farmers are currently available.
+                    <p>
+                        No farmers are currently available.
+                    </p>
 
                 </div>
 
+
             <?php endif; ?>
+
 
         </div>
 
     </main>
 
 
-    <!-- Leaflet JS -->
+    <!-- =========================================================
+         Leaflet JS
+         ========================================================= -->
 
     <script
         src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
@@ -314,35 +684,24 @@ if ($result) {
 
     <script>
 
-        const farmers = <?= json_encode(
-            $farmers,
-            JSON_UNESCAPED_UNICODE |
-            JSON_UNESCAPED_SLASHES
-        ); ?>;
-
-
         /*
-         * Default map position.
-         */
-        const defaultLatitude = 42.3555;
-        const defaultLongitude = -71.0565;
+        |--------------------------------------------------------------------------
+        | Initialize Map
+        |--------------------------------------------------------------------------
+        */
 
-
-        /*
-         * Create map.
-         */
         const map = L.map('map').setView(
-            [
-                defaultLatitude,
-                defaultLongitude
-            ],
+            [42.3555, -71.0565],
             4
         );
 
 
         /*
-         * OpenStreetMap.
-         */
+        |--------------------------------------------------------------------------
+        | OpenStreetMap
+        |--------------------------------------------------------------------------
+        */
+
         L.tileLayer(
             'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
             {
@@ -355,99 +714,27 @@ if ($result) {
 
 
         /*
-         * Store valid markers.
-         */
-        const markers = [];
+        |--------------------------------------------------------------------------
+        | Farmers Data
+        |--------------------------------------------------------------------------
+        */
+
+        const farmers = <?= json_encode(
+            $farmers,
+            JSON_UNESCAPED_UNICODE |
+            JSON_UNESCAPED_SLASHES
+        ) ?>;
 
 
         /*
-         * Add farmers to map.
-         */
-        farmers.forEach(function (farmer) {
+        |--------------------------------------------------------------------------
+        | Escape HTML
+        |--------------------------------------------------------------------------
+        */
 
-            if (
-                farmer.latitude !== null &&
-                farmer.longitude !== null &&
-                farmer.latitude !== '' &&
-                farmer.longitude !== ''
-            ) {
-
-                const latitude =
-                    parseFloat(farmer.latitude);
-
-                const longitude =
-                    parseFloat(farmer.longitude);
-
-
-                if (
-                    !isNaN(latitude) &&
-                    !isNaN(longitude)
-                ) {
-
-                    const marker = L.marker([
-                        latitude,
-                        longitude
-                    ]).addTo(map);
-
-
-                    const stallName =
-                        farmer.stall_name ||
-                        'Farmer';
-
-
-                    const address =
-                        farmer.address ||
-                        'Address not available';
-
-
-                    marker.bindPopup(
-                        '<strong>' +
-                        escapeHtml(stallName) +
-                        '</strong><br>' +
-                        escapeHtml(address) +
-                        '<br><br>' +
-                        '<a href="farmer_details.php?id=' +
-                        encodeURIComponent(farmer.id) +
-                        '">' +
-                        'View Details' +
-                        '</a>'
-                    );
-
-
-                    markers.push(marker);
-
-                }
-
-            }
-
-        });
-
-
-        /*
-         * Automatically fit map
-         * around all farmers.
-         */
-        if (markers.length > 0) {
-
-            const group =
-                L.featureGroup(markers);
-
-            map.fitBounds(
-                group.getBounds(),
-                {
-                    padding: [40, 40]
-                }
-            );
-
-        }
-
-
-        /*
-         * Escape popup text.
-         */
         function escapeHtml(value) {
 
-            return String(value)
+            return String(value ?? '')
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;')
@@ -458,8 +745,105 @@ if ($result) {
 
 
         /*
-         * Fix Leaflet rendering.
-         */
+        |--------------------------------------------------------------------------
+        | Add Farmer Markers
+        |--------------------------------------------------------------------------
+        */
+
+        const markers = [];
+
+
+        farmers.forEach(function (farmer) {
+
+            const latitude = parseFloat(
+                farmer.latitude
+            );
+
+            const longitude = parseFloat(
+                farmer.longitude
+            );
+
+
+            if (
+                Number.isNaN(latitude) ||
+                Number.isNaN(longitude)
+            ) {
+                return;
+            }
+
+
+            const marker = L.marker([
+                latitude,
+                longitude
+            ]).addTo(map);
+
+
+            const popupContent = `
+                <div>
+
+                    <strong>
+                        ${escapeHtml(
+                            farmer.stall_name
+                        )}
+                    </strong>
+
+                    <br>
+
+                    ${escapeHtml(
+                        farmer.address || ''
+                    )}
+
+                    <br><br>
+
+                    <a
+                        href="farmer_details.php?id=${farmer.id}"
+                    >
+                        View Details
+                    </a>
+
+                </div>
+            `;
+
+
+            marker.bindPopup(
+                popupContent
+            );
+
+
+            markers.push(marker);
+
+        });
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Fit Map To Markers
+        |--------------------------------------------------------------------------
+        */
+
+        if (markers.length > 0) {
+
+            const group = L.featureGroup(
+                markers
+            );
+
+
+            map.fitBounds(
+                group.getBounds(),
+                {
+                    padding: [30, 30]
+                }
+            );
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Fix Map Size
+        |--------------------------------------------------------------------------
+        */
+
         setTimeout(function () {
 
             map.invalidateSize();
@@ -467,6 +851,7 @@ if ($result) {
         }, 300);
 
     </script>
+
 
 </body>
 
