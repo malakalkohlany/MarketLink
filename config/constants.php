@@ -35,4 +35,3 @@ define('O_CANCELLED', 'cancelled');
 // Default pagination
 define('ITEMS_PER_PAGE', 10);
 
-?>

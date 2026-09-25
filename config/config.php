@@ -2,5 +2,3 @@
 
 define('BASE_URL', '/MarketLink/');
 
-
-?>
