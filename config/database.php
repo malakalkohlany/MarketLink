@@ -4,7 +4,7 @@ $server = 'localhost';
 $user = 'root';
 $password = 'root';
 $db = 'marketlink';
-$port = 3306;
+$port = 8585;
 
 $conn = mysqli_connect($server, $user, $password, $db, $port);
 
