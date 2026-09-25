@@ -291,164 +291,174 @@ $categories = $category_stmt->get_result();
     >
 
     <title>Edit Product | MarketLink</title>
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
 
 </head>
 
 <body>
 
-    <h1>Edit Product</h1>
+    <?php include __DIR__ . '/../includes/navbar.php'; ?>
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-    <form
-        method="POST"
-        enctype="multipart/form-data"
-    >
+    <main class="main-content">
 
-        <label for="name">
-            Product Name
-        </label>
+        <h1>Edit Product</h1>
 
-        <input
-            type="text"
-            id="name"
-            name="name"
-            value="<?= htmlspecialchars($product['name']) ?>"
-            required
+        <form
+            method="POST"
+            enctype="multipart/form-data"
         >
 
-        <br><br>
+            <label for="name">
+                Product Name
+            </label>
 
-
-        <label for="category_id">
-            Category:
-        </label>
-
-        <select
-            id="category_id"
-            name="category_id"
-            required
-        >
-
-            <option value="">
-                Select Category
-            </option>
-
-            <?php while ($category = $categories->fetch_assoc()): ?>
-
-                <option
-                    value="<?= (int) $category['id'] ?>"
-                    <?= (int) $category['id'] === (int) $product['category_id']
-                        ? 'selected'
-                        : ''
-                    ?>
-                >
-                    <?= htmlspecialchars($category['name']) ?>
-                </option>
-
-            <?php endwhile; ?>
-
-        </select>
-
-        <br><br>
-
-
-        <label for="description">
-            Description:
-        </label>
-
-        <textarea
-            id="description"
-            name="description"
-            rows="5"
-        ><?= htmlspecialchars($product['description'] ?? '') ?></textarea>
-
-        <br><br>
-
-
-        <label for="price">
-            Price:
-        </label>
-
-        <input
-            type="number"
-            id="price"
-            name="price"
-            step="0.01"
-            min="0"
-            value="<?= htmlspecialchars($product['price']) ?>"
-            required
-        >
-
-        <br><br>
-
-
-        <label for="unit">
-            Unit:
-        </label>
-
-        <input
-            type="text"
-            id="unit"
-            name="unit"
-            value="<?= htmlspecialchars($product['unit']) ?>"
-            required
-        >
-
-        <br><br>
-
-
-        <label for="stock_quantity">
-            Stock Quantity:
-        </label>
-
-        <input
-            type="number"
-            id="stock_quantity"
-            name="stock_quantity"
-            step="0.01"
-            min="0"
-            value="<?= htmlspecialchars($product['stock_quantity']) ?>"
-            required
-        >
-
-        <br><br>
-
-
-        <label for="image">
-            Product Image:
-        </label>
-
-        <input
-            type="file"
-            id="image"
-            name="image"
-            accept="image/jpeg,image/png,image/webp"
-        >
-
-        <br><br>
-
-
-        <?php if (!empty($product['image'])): ?>
-
-            <p>
-                Current Image:
-            </p>
-
-            <img
-                src="../<?= htmlspecialchars($product['image']) ?>"
-                alt="Current product image"
-                width="120"
+            <input
+                type="text"
+                id="name"
+                name="name"
+                value="<?= htmlspecialchars($product['name']) ?>"
+                required
             >
 
-        <?php endif; ?>
-
-        <br><br>
+            <br><br>
 
 
-        <button type="submit">
-            Update Product
-        </button>
+            <label for="category_id">
+                Category:
+            </label>
 
-    </form>
+            <select
+                id="category_id"
+                name="category_id"
+                required
+            >
+
+                <option value="">
+                    Select Category
+                </option>
+
+                <?php while ($category = $categories->fetch_assoc()): ?>
+
+                    <option
+                        value="<?= (int) $category['id'] ?>"
+                        <?= (int) $category['id'] === (int) $product['category_id']
+                            ? 'selected'
+                            : ''
+                        ?>
+                    >
+                        <?= htmlspecialchars($category['name']) ?>
+                    </option>
+
+                <?php endwhile; ?>
+
+            </select>
+
+            <br><br>
+
+
+            <label for="description">
+                Description:
+            </label>
+
+            <textarea
+                id="description"
+                name="description"
+                rows="5"
+            ><?= htmlspecialchars($product['description'] ?? '') ?></textarea>
+
+            <br><br>
+
+
+            <label for="price">
+                Price:
+            </label>
+
+            <input
+                type="number"
+                id="price"
+                name="price"
+                step="0.01"
+                min="0"
+                value="<?= htmlspecialchars($product['price']) ?>"
+                required
+            >
+
+            <br><br>
+
+
+            <label for="unit">
+                Unit:
+            </label>
+
+            <input
+                type="text"
+                id="unit"
+                name="unit"
+                value="<?= htmlspecialchars($product['unit']) ?>"
+                required
+            >
+
+            <br><br>
+
+
+            <label for="stock_quantity">
+                Stock Quantity:
+            </label>
+
+            <input
+                type="number"
+                id="stock_quantity"
+                name="stock_quantity"
+                step="0.01"
+                min="0"
+                value="<?= htmlspecialchars($product['stock_quantity']) ?>"
+                required
+            >
+
+            <br><br>
+
+
+            <label for="image">
+                Product Image:
+            </label>
+
+            <input
+                type="file"
+                id="image"
+                name="image"
+                accept="image/jpeg,image/png,image/webp"
+            >
+
+            <br><br>
+
+
+            <?php if (!empty($product['image'])): ?>
+
+                <p>
+                    Current Image:
+                </p>
+
+                <img
+                    src="../<?= htmlspecialchars($product['image']) ?>"
+                    alt="Current product image"
+                    width="120"
+                >
+
+            <?php endif; ?>
+
+            <br><br>
+
+
+            <button type="submit">
+                Update Product
+            </button>
+
+        </form>
+        
+    </main>
 
 </body>
 
