@@ -1,9 +1,6 @@
 <?php 
 
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../includes/functions.php';
-require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/include.php';
 
 requireRole('farmer');
 requireApprovedFarmer();
@@ -110,11 +107,13 @@ $stmt->close();
     <title>Dashboard</title>
     <link rel="stylesheet" href="../assets/css/base.css">
     <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
     <link rel="stylesheet" href="../assets/css/dashboard.css">
 </head>
 <body>
 
     <?php include __DIR__ . '/../includes/navbar.php'; ?>
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
     <main class="main-content">
 
