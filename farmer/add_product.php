@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../includes/session.php';
+
+require_once __DIR__ . '/../includes/include.php';
 
 $default_categories = [
     'Vegetables',
@@ -113,53 +113,65 @@ $categories = $category_stmt->get_result();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Product</title>
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
 </head>
 <body>
-    <h1>Add New Product</h1>
 
-    <?php if (isset($success_message)): ?>
+    <?php include __DIR__ . '/../includes/navbar.php'; ?>
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
+    
+    <main class="main-content">
+        <h1>Add New Product</h1>
 
-    <p><?= htmlspecialchars($success_message) ?></p>
+        <?php if (isset($success_message)): ?>
 
-    <?php endif; ?>
+        <p><?= htmlspecialchars($success_message) ?></p>
 
-    <form action="" method="POST" enctype="multipart/form-data">
-        <label for="name">Product Name</label>
-        <input type="text" id="name" name="name" required>
-        <br><br>
+        <?php endif; ?>
 
-        <select id="category_id" name="category_id" required>
-        <option value="">Select Category</option>
+        <form action="" method="POST" enctype="multipart/form-data">
+            <label for="name">Product Name</label>
+            <input type="text" id="name" name="name" required>
+            <br><br>
 
-        <?php while ($category = $categories->fetch_assoc()): ?>
-        <option value="<?= $category['id'] ?>">
-            <?= htmlspecialchars($category['name']) ?>
-        </option>
-        <?php endwhile; ?>
-         </select>
-         <br><br>
+            <select id="category_id" name="category_id" required>
+            <option value="">Select Category</option>
 
-        <label for="unit">Unit</label>
-        <input type="text" id="unit" name="unit" placeholder="kg, piece, box" required>
-        <br><br>
+            <?php while ($category = $categories->fetch_assoc()): ?>
+            <option value="<?= $category['id'] ?>">
+                <?= htmlspecialchars($category['name']) ?>
+            </option>
+            <?php endwhile; ?>
+            </select>
+            <br><br>
 
-        <label for="stock_quantity">Stock Quantity</label>
-        <input type="number" id="stock_quantity" name="stock_quantity" step="0.01" min="0" required>
-        <br><br>        
+            <label for="unit">Unit</label>
+            <input type="text" id="unit" name="unit" placeholder="kg, piece, box" required>
+            <br><br>
 
-        <label for="image">Product image</label>
-        <input type="file" id="image" name="image" accept="image/*">
-        <br><br>
+            <label for="stock_quantity">Stock Quantity</label>
+            <input type="number" id="stock_quantity" name="stock_quantity" step="0.01" min="0" required>
+            <br><br>        
 
-        <label for="description">Description</label>
-        <textarea id="description" name="description"></textarea>
-        <br><br>
+            <label for="image">Product image</label>
+            <input type="file" id="image" name="image" accept="image/*">
+            <br><br>
 
-        <label for="price">Price</label>
-        <input type="number" id="price" name="price" step="0.01" min="0" required>
-        <br><br>
+            <label for="description">Description</label>
+            <textarea id="description" name="description"></textarea>
+            <br><br>
 
-        <button type="submit" name="add_product">Add Product</button>
-    </form>
+            <label for="price">Price</label>
+            <input type="number" id="price" name="price" step="0.01" min="0" required>
+            <br><br>
+
+            <button type="submit" name="add_product">Add Product</button>
+        </form>
+    </main>
+
+    <script src="../assets/js/app.js"></script>
+
 </body>
 </html>
