@@ -447,7 +447,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
     <?php include __DIR__ . '/../includes/navbar.php'; ?>
-
     <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
 

@@ -1,11 +1,8 @@
 <?php
 
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../includes/functions.php';
-require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/include.php';
 
-requireRole('admin');
+requireRole(R_ADMIN);
 
 
 
@@ -213,513 +210,453 @@ if ($result) {
 
     <title>Announcements | FreshFind</title>
 
-    <link
-        rel="stylesheet"
-        href="../assets/css/style.css"
-    >
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
 
 </head>
 
 <body>
 
-<div class="admin-container">
 
-    <aside class="sidebar">
+    <?php include __DIR__ . '/../includes/navbar.php'; ?>
 
-        <div class="logo">
-            FreshFind
-        </div>
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-        <nav>
+        <main class="main-content">
 
-            <a href="dashboard.php">
-                Dashboard
-            </a>
+                <div class="page-header">
 
-            <a href="markets.php">
-                Markets
-            </a>
+                    <div>
 
-            <a href="add_market.php">
-                Add Market
-            </a>
+                        <h1>
+                            Announcements
+                        </h1>
 
-            <a href="categories.php">
-                Categories
-            </a>
-
-            <a href="farmers.php">
-                Farmers
-            </a>
-
-            <a href="products.php">
-                Products
-            </a>
-
-            <a href="customers.php">
-                Customers
-            </a>
-
-            <a href="orders.php">
-                Orders
-            </a>
-
-            <a href="reviews.php">
-                Reviews
-            </a>
-
-            <a
-                href="announcements.php"
-                class="active"
-            >
-                Announcements
-            </a>
-
-            <a href="reports.php">
-                Reports
-            </a>
-
-            <a href="../logout.php">
-                Logout
-            </a>
-
-        </nav>
-
-    </aside>
-  <main class="main-content">
-
-        <div class="page-header">
-
-            <div>
-
-                <h1>
-                    Announcements
-                </h1>
-
-                <p>
-                    Manage announcements for users.
-                </p>
-
-            </div>
-
-        </div>
-
-        <?php if (!empty($errors)): ?>
-
-            <div class="alert alert-danger">
-
-                <?php foreach ($errors as $error): ?>
-
-                    <p>
-                        <?= htmlspecialchars($error) ?>
-                    </p>
-
-                <?php endforeach; ?>
-
-            </div>
-
-        <?php endif; ?>
-
-        <?php if ($success !== ''): ?>
-
-            <div class="alert alert-success">
-
-                <?= htmlspecialchars($success) ?>
-
-            </div>
-
-        <?php endif; ?>
-
-        <section class="form-section">
-
-            <div class="section-header">
-
-                <h2>
-                    Add Announcement
-                </h2>
-
-            </div>
-
-            <form
-                method="POST"
-                action="announcements.php"
-            >
-
-                <div class="form-group">
-
-                    <label for="title">
-                        Title
-                    </label>
-
-                    <input
-                        type="text"
-                        id="title"
-                        name="title"
-                        maxlength="150"
-                        value="<?= htmlspecialchars(
-                            $_POST['title'] ?? ''
-                        ) ?>"
-                        required
-                    >
-  </div>
-
-                <div class="form-group">
-
-                    <label for="message">
-                        Message
-                    </label>
-
-                    <textarea
-                        id="message"
-                        name="message"
-                        rows="5"
-                        required
-                    ><?= htmlspecialchars(
-                        $_POST['message'] ?? ''
-                    ) ?></textarea>
-
-                </div>
-
-                <div class="form-row">
-
-                    <div class="form-group">
-
-                        <label for="status">
-                            Status
-                        </label>
-
-                        <select
-                            id="status"
-                            name="status"
-                        >
-
-                            <option
-                                value="draft"
-                                <?= ($_POST['status'] ?? 'draft') === 'draft'
-                                    ? 'selected'
-                                    : '' ?>
-                            >
-                                Draft
-                            </option>
-
-                            <option
-                                value="published"
-                                <?= ($_POST['status'] ?? '') === 'published'
-                                    ? 'selected'
-                                    : '' ?>
-                            >
-                                Published
-                            </option>
-
-                            <option
-                                value="archived"
-                                <?= ($_POST['status'] ?? '') === 'archived'
-                                    ? 'selected'
-                                    : '' ?>
-                            >
-                                Archived
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                    <div class="form-group">
-
-                        <label for="expires_at">
-                            Expiration Date
-                        </label>
-
-                        <input
-                            type="datetime-local"
-                            id="expires_at"
-                            name="expires_at"
-                            value="<?= htmlspecialchars(
-                                $_POST['expires_at'] ?? ''
-                            ) ?>"
-                        >
+                        <p>
+                            Manage announcements for users.
+                        </p>
 
                     </div>
 
                 </div>
 
-                <div class="form-actions">
+                <?php if (!empty($errors)): ?>
 
-                    <button
-                        type="submit"
-                        name="add_announcement"
-                        class="btn btn-primary"
+                    <div class="alert alert-danger">
+
+                        <?php foreach ($errors as $error): ?>
+
+                            <p>
+                                <?= htmlspecialchars($error) ?>
+                            </p>
+
+                        <?php endforeach; ?>
+
+                    </div>
+
+                <?php endif; ?>
+
+                <?php if ($success !== ''): ?>
+
+                    <div class="alert alert-success">
+
+                        <?= htmlspecialchars($success) ?>
+
+                    </div>
+
+                <?php endif; ?>
+
+                <section class="form-section">
+
+                    <div class="section-header">
+
+                        <h2>
+                            Add Announcement
+                        </h2>
+
+                    </div>
+
+                    <form
+                        method="POST"
+                        action="announcements.php"
                     >
-                        Add Announcement
-                    </button>
 
-                </div>
+                        <div class="form-group">
 
-            </form>
+                            <label for="title">
+                                Title
+                            </label>
 
-        </section>
+                            <input
+                                type="text"
+                                id="title"
+                                name="title"
+                                maxlength="150"
+                                value="<?= htmlspecialchars(
+                                    $_POST['title'] ?? ''
+                                ) ?>"
+                                required
+                            >
+                        </div>
 
-        <section class="table-section">
+                        <div class="form-group">
 
-            <div class="section-header">
+                            <label for="message">
+                                Message
+                            </label>
 
-                <h2>
-                    All Announcements
-                </h2>
+                            <textarea
+                                id="message"
+                                name="message"
+                                rows="5"
+                                required
+                            ><?= htmlspecialchars(
+                                $_POST['message'] ?? ''
+                            ) ?></textarea>
 
-            </div>
+                        </div>
 
-                 <div class="table-responsive">
+                        <div class="form-row">
 
-                <table class="data-table">
+                            <div class="form-group">
 
-                    <thead>
+                                <label for="status">
+                                    Status
+                                </label>
 
-                        <tr>
+                                <select
+                                    id="status"
+                                    name="status"
+                                >
 
-                            <th>ID</th>
-                            <th>Title</th>
-                            <th>Message</th>
-                            <th>Status</th>
-                            <th>Created By</th>
-                            <th>Created At</th>
-                            <th>Expires At</th>
-                            <th>Actions</th>
+                                    <option
+                                        value="draft"
+                                        <?= ($_POST['status'] ?? 'draft') === 'draft'
+                                            ? 'selected'
+                                            : '' ?>
+                                    >
+                                        Draft
+                                    </option>
 
-                        </tr>
+                                    <option
+                                        value="published"
+                                        <?= ($_POST['status'] ?? '') === 'published'
+                                            ? 'selected'
+                                            : '' ?>
+                                    >
+                                        Published
+                                    </option>
 
-                    </thead>
+                                    <option
+                                        value="archived"
+                                        <?= ($_POST['status'] ?? '') === 'archived'
+                                            ? 'selected'
+                                            : '' ?>
+                                    >
+                                        Archived
+                                    </option>
 
-                    <tbody>
+                                </select>
 
-                        <?php if (!empty($announcements)): ?>
+                            </div>
 
-                            <?php foreach ($announcements as $announcement): ?>
+                            <div class="form-group">
+
+                                <label for="expires_at">
+                                    Expiration Date
+                                </label>
+
+                                <input
+                                    type="datetime-local"
+                                    id="expires_at"
+                                    name="expires_at"
+                                    value="<?= htmlspecialchars(
+                                        $_POST['expires_at'] ?? ''
+                                    ) ?>"
+                                >
+
+                            </div>
+
+                        </div>
+
+                        <div class="form-actions">
+
+                            <button
+                                type="submit"
+                                name="add_announcement"
+                                class="btn btn-primary"
+                            >
+                                Add Announcement
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </section>
+
+                <section class="table-section">
+
+                    <div class="section-header">
+
+                        <h2>
+                            All Announcements
+                        </h2>
+
+                    </div>
+
+                        <div class="table-responsive">
+
+                        <table class="data-table">
+
+                            <thead>
 
                                 <tr>
 
-                                    <td>
-                                        <?= (int) $announcement['id'] ?>
-                                    </td>
-
-                                    <td>
-                                        <?= htmlspecialchars(
-                                            $announcement['title']
-                                        ) ?>
-                                    </td>
-
-                                    <td>
-                                        <?= htmlspecialchars(
-                                            $announcement['message']
-                                        ) ?>
-                                    </td>
-
-                                    <td>
-
-                                        <span
-                                            class="status status-<?= htmlspecialchars(
-                                                $announcement['status']
-                                            ) ?>"
-                                        >
-                                            <?= ucfirst(
-                                                $announcement['status']
-                                            ) ?>
-                                        </span>
-
-                                    </td>
-
-                                    <td>
-                                        <?= htmlspecialchars(
-                                            $announcement['admin_name']
-                                        ) ?>
-                                    </td>
-
-                                    <td>
-                                        <?= date(
-                                            'Y-m-d H:i',
-                                            strtotime(
-                                                $announcement['created_at']
-                                            )
-                                        ) ?>
-                                    </td>
-
-                                    <td>
-
-                                        <?php if (
-                                            !empty($announcement['expires_at'])
-                                        ): ?>
-
-                                            <?= date(
-                                                'Y-m-d H:i',
-                                                strtotime(
-                                                    $announcement['expires_at']
-                                                )
-                                            ) ?>
-
-                                        <?php else: ?>
-
-                                            No expiration
-
-                                        <?php endif; ?>
-
-                                    </td>
-
-                                    <td>
-
-                                        <div class="action-buttons">
-
-                                            <?php if (
-                                                $announcement['status'] !== 'published'
-                                            ): ?>
-
-                                                <form
-                                                    method="POST"
-                                                    action="announcements.php"
-                                                >
-
-                                                    <input
-                                                        type="hidden"
-                                                        name="id"
-                                                        value="<?= (int) $announcement['id'] ?>"
-                                                    >
-
-                                                    <input
-                                                        type="hidden"
-                                                        name="status"
-                                                        value="published"
-                                                    >
-
-                                                    <button
-                                                        type="submit"
-                                                        name="update_status"
-                                                        class="btn btn-primary"
-                                                    >
-                                                        Publish
-                                                    </button>
-
-                                                </form>
-
-                                            <?php endif; ?>
-
-                                            <?php if (
-                                                $announcement['status'] !== 'archived'
-                                            ): ?>
-
-                                                <form
-                                                    method="POST"
-                                                    action="announcements.php"
-                                                >
-
-                                                    <input
-                                                        type="hidden"
-                                                        name="id"
-                                                        value="<?= (int) $announcement['id'] ?>"
-                                                    >
-
-                                                    <input
-                                                        type="hidden"
-                                                        name="status"
-                                                        value="archived"
-                                                    >
-
-                                                    <button
-                                                        type="submit"
-                                                        name="update_status"
-                                                        class="btn btn-secondary"
-                                                    >
-                                                        Archive
-                                                    </button>
-
-                                                </form>
-
-                                            <?php endif; ?>
-
-                                            <?php if (
-                                                $announcement['status'] !== 'draft'
-                                            ): ?>
-
-                                                <form
-                                                    method="POST"
-                                                    action="announcements.php"
-                                                >
-
-                                                    <input
-                                                        type="hidden"
-                                                        name="id"
-                                                        value="<?= (int) $announcement['id'] ?>"
-                                                    >
-
-                                                    <input
-                                                        type="hidden"
-                                                        name="status"
-                                                        value="draft"
-                                                    >
-
-                                                    <button
-                                                        type="submit"
-                                                        name="update_status"
-                                                        class="btn btn-secondary"
-                                                    >
-                                                        Draft
-                                                    </button>
-
-                                                </form>
-
-                                            <?php endif; ?>
-
-                                            <form
-                                                method="POST"
-                                                action="announcements.php"
-                                                onsubmit="return confirm('Are you sure you want to delete this announcement?');"
-                                            >
-
-                                                <input
-                                                    type="hidden"
-                                                    name="id"
-                                                    value="<?= (int) $announcement['id'] ?>"
-                                                >
-
-                                                <button
-                                                    type="submit"
-                                                    name="delete_announcement"
-                                                    class="btn btn-danger"
-                                                >
-                                                    Delete
-                                                </button>
-
-                                            </form>
-
-                                        </div>
-
-                                    </td>
+                                    <th>ID</th>
+                                    <th>Title</th>
+                                    <th>Message</th>
+                                    <th>Status</th>
+                                    <th>Created By</th>
+                                    <th>Created At</th>
+                                    <th>Expires At</th>
+                                    <th>Actions</th>
 
                                 </tr>
 
-                            <?php endforeach; ?>
+                            </thead>
 
-                        <?php else: ?>
+                            <tbody>
 
-                            <tr>
+                                <?php if (!empty($announcements)): ?>
 
-                                <td colspan="8">
-                                    No announcements found.
-                                </td>
+                                    <?php foreach ($announcements as $announcement): ?>
 
-                            </tr>
+                                        <tr>
 
-                        <?php endif; ?>
+                                            <td>
+                                                <?= (int) $announcement['id'] ?>
+                                            </td>
 
-                    </tbody>
+                                            <td>
+                                                <?= htmlspecialchars(
+                                                    $announcement['title']
+                                                ) ?>
+                                            </td>
 
-                </table>
+                                            <td>
+                                                <?= htmlspecialchars(
+                                                    $announcement['message']
+                                                ) ?>
+                                            </td>
 
-            </div>
+                                            <td>
 
-        </section>
+                                                <span
+                                                    class="status status-<?= htmlspecialchars(
+                                                        $announcement['status']
+                                                    ) ?>"
+                                                >
+                                                    <?= ucfirst(
+                                                        $announcement['status']
+                                                    ) ?>
+                                                </span>
 
-    </main>
+                                            </td>
 
-</div>
+                                            <td>
+                                                <?= htmlspecialchars(
+                                                    $announcement['admin_name']
+                                                ) ?>
+                                            </td>
+
+                                            <td>
+                                                <?= date(
+                                                    'Y-m-d H:i',
+                                                    strtotime(
+                                                        $announcement['created_at']
+                                                    )
+                                                ) ?>
+                                            </td>
+
+                                            <td>
+
+                                                <?php if (
+                                                    !empty($announcement['expires_at'])
+                                                ): ?>
+
+                                                    <?= date(
+                                                        'Y-m-d H:i',
+                                                        strtotime(
+                                                            $announcement['expires_at']
+                                                        )
+                                                    ) ?>
+
+                                                <?php else: ?>
+
+                                                    No expiration
+
+                                                <?php endif; ?>
+
+                                            </td>
+
+                                            <td>
+
+                                                <div class="action-buttons">
+
+                                                    <?php if (
+                                                        $announcement['status'] !== 'published'
+                                                    ): ?>
+
+                                                        <form
+                                                            method="POST"
+                                                            action="announcements.php"
+                                                        >
+
+                                                            <input
+                                                                type="hidden"
+                                                                name="id"
+                                                                value="<?= (int) $announcement['id'] ?>"
+                                                            >
+
+                                                            <input
+                                                                type="hidden"
+                                                                name="status"
+                                                                value="published"
+                                                            >
+
+                                                            <button
+                                                                type="submit"
+                                                                name="update_status"
+                                                                class="btn btn-primary"
+                                                            >
+                                                                Publish
+                                                            </button>
+
+                                                        </form>
+
+                                                    <?php endif; ?>
+
+                                                    <?php if (
+                                                        $announcement['status'] !== 'archived'
+                                                    ): ?>
+
+                                                        <form
+                                                            method="POST"
+                                                            action="announcements.php"
+                                                        >
+
+                                                            <input
+                                                                type="hidden"
+                                                                name="id"
+                                                                value="<?= (int) $announcement['id'] ?>"
+                                                            >
+
+                                                            <input
+                                                                type="hidden"
+                                                                name="status"
+                                                                value="archived"
+                                                            >
+
+                                                            <button
+                                                                type="submit"
+                                                                name="update_status"
+                                                                class="btn btn-secondary"
+                                                            >
+                                                                Archive
+                                                            </button>
+
+                                                        </form>
+
+                                                    <?php endif; ?>
+
+                                                    <?php if (
+                                                        $announcement['status'] !== 'draft'
+                                                    ): ?>
+
+                                                        <form
+                                                            method="POST"
+                                                            action="announcements.php"
+                                                        >
+
+                                                            <input
+                                                                type="hidden"
+                                                                name="id"
+                                                                value="<?= (int) $announcement['id'] ?>"
+                                                            >
+
+                                                            <input
+                                                                type="hidden"
+                                                                name="status"
+                                                                value="draft"
+                                                            >
+
+                                                            <button
+                                                                type="submit"
+                                                                name="update_status"
+                                                                class="btn btn-secondary"
+                                                            >
+                                                                Draft
+                                                            </button>
+
+                                                        </form>
+
+                                                    <?php endif; ?>
+
+                                                    <form
+                                                        method="POST"
+                                                        action="announcements.php"
+                                                        onsubmit="return confirm('Are you sure you want to delete this announcement?');"
+                                                    >
+
+                                                        <input
+                                                            type="hidden"
+                                                            name="id"
+                                                            value="<?= (int) $announcement['id'] ?>"
+                                                        >
+
+                                                        <button
+                                                            type="submit"
+                                                            name="delete_announcement"
+                                                            class="btn btn-danger"
+                                                        >
+                                                            Delete
+                                                        </button>
+
+                                                    </form>
+
+                                                </div>
+
+                                            </td>
+
+                                        </tr>
+
+                                    <?php endforeach; ?>
+
+                                <?php else: ?>
+
+                                    <tr>
+
+                                        <td colspan="8">
+                                            No announcements found.
+                                        </td>
+
+                                    </tr>
+
+                                <?php endif; ?>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
+            </main>
+
+        </div>
 
 </body>
 
