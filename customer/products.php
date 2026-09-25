@@ -1,26 +1,46 @@
 <?php
 
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../includes/functions.php';
-require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/include.php';
 
-requireRole('customer');
+requireRole(R_CUSTOMER);
 
 // Get approved and available products
 $sql = "
-    SELECT *
-    FROM products
-    WHERE is_available = 1
-      AND moderation_status = 'approved'
-    ORDER BY created_at DESC
+    SELECT
+        p.id,
+        p.name,
+        p.description,
+        p.price,
+        p.unit,
+        p.image,
+        p.stock_quantity,
+        p.farmer_id
+    FROM products p
+    INNER JOIN farmers f ON p.farmer_id = f.id
+    WHERE p.is_available = 1
+      AND p.moderation_status = ?
+      AND f.approval_status = ?
+    ORDER BY p.created_at DESC
 ";
 
-$result = $conn->query($sql);
+$stmt = $conn->prepare($sql);
 
-if (!$result) {
-    die("Database Error: " . $conn->error);
+if (!$stmt) {
+    die('Database Error: ' . $conn->error);
 }
+
+$moderation_status = M_APPROVED;
+$farmer_status = A_APPROVED;
+
+$stmt->bind_param(
+    'ss',
+    $moderation_status,
+    $farmer_status
+);
+
+$stmt->execute();
+
+$result = $stmt->get_result();
 
 ?>
 
@@ -230,10 +250,10 @@ if (!$result) {
 
                                 <img
                                     src="../uploads/products/<?php
-                                        echo htmlspecialchars($product['image']);
+                                        echo e($product['image']);
                                     ?>"
                                     alt="<?php
-                                        echo htmlspecialchars($product['name']);
+                                        echo e($product['name']);
                                     ?>"
                                     class="product-image"
                                 >
@@ -252,7 +272,7 @@ if (!$result) {
                                 <div class="product-name">
 
                                     <?php
-                                    echo htmlspecialchars($product['name']);
+                                    echo e($product['name']);
                                     ?>
 
                                 </div>
@@ -262,7 +282,7 @@ if (!$result) {
 
                                     <?php
 
-                                    echo htmlspecialchars(
+                                    echo e(
                                         $product['description']
                                         ?? 'No description available.'
                                     );
@@ -277,10 +297,8 @@ if (!$result) {
                                     $
 
                                     <?php
-                                    echo number_format(
-                                        (float)$product['price'],
-                                        2
-                                    );
+                                    echo formatPrice(
+                                        (float)$product['price']);
                                     ?>
 
                                 </div>
@@ -292,7 +310,7 @@ if (!$result) {
 
                                         Per
                                         <?php
-                                        echo htmlspecialchars(
+                                        echo e(
                                             $product['unit']
                                         );
                                         ?>
@@ -303,21 +321,18 @@ if (!$result) {
 
 
                                 <div class="product-stock">
-
-                                    Stock:
-
-                                    <?php
-                                    echo htmlspecialchars(
-                                        $product['stock_quantity']
-                                    );
-                                    ?>
-
+                                    <?php if ((int)$product['stock_quantity'] > 0): ?>
+                                        Stock:
+                                        <?php echo (int)$product['stock_quantity']; ?>
+                                    <?php else: ?>
+                                        Out of stock
+                                    <?php endif; ?>
                                 </div>
 
 
                                 <a
                                     href="product_details.php?id=<?php
-                                        echo $product['id'];
+                                        echo (int)$product['id'];
                                     ?>"
                                     class="view-button"
                                 >
