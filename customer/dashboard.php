@@ -114,7 +114,7 @@ $stmt->close();
 
     <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-    <main class="main-content"></main>
+    <main class="main-content">
 
         <section class="welcome">
 
