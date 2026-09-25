@@ -7,7 +7,6 @@ require_once __DIR__ . '/../includes/session.php';
 
 requireRole('admin');
 
-$user_id = getUserId();
 
 
 $stats = [
