@@ -1,15 +1,11 @@
 <?php 
 
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../includes/functions.php';
-require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/include.php';
 
-
-
-// requireRole('customer');
+requireRole(R_CUSTOMER);
 
 $user_id = getUserId();
+$user_name = getUserName();
 
 $orders = [];
 
@@ -55,11 +51,20 @@ $stmt = $conn->prepare("
     FROM products p
     JOIN farmers f ON p.farmer_id = f.id
     WHERE p.is_available = 1
-      AND p.moderation_status = 'approved'
-      AND f.approval_status = 'approved'
+      AND p.moderation_status = ?
+      AND f.approval_status = ?
     ORDER BY p.created_at DESC
     LIMIT 4
 ");
+
+$moderation_status = M_APPROVED;
+$approval_status = A_APPROVED;
+
+$stmt->bind_param(
+    "ss",
+    $moderation_status,
+    $approval_status
+);
 
 $stmt->execute();
 
@@ -80,10 +85,14 @@ $stmt = $conn->prepare("
         description,
         address
     FROM farmers
-    WHERE approval_status = 'approved'
+    WHERE approval_status = ?
     ORDER BY created_at DESC
     LIMIT 4
 ");
+
+$approval_status = A_APPROVED;
+
+$stmt->bind_param("s", $approval_status);
 
 $stmt->execute();
 
@@ -120,7 +129,7 @@ $stmt->close();
             <div>
                 <h1>
                     Welcome,
-                    <?= e($_SESSION['name']) ?>!
+                    <?= e($user_name) ?>!
                 </h1>
 
                 <p>
@@ -369,18 +378,6 @@ $stmt->close();
 
         </section>
 
-        <section class="dashboard-section">
-
-            <div class="section-heading">
-                <h2>Recently Added</h2>
-                <a href="products.php">View all →</a>
-            </div>
-
-            <div class="dashboard-grid">
-                <div class="dashboard-grid"></div>
-            </div>
-
-        </section>
 
     </main>
 
