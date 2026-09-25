@@ -18,6 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
     $contact_person = $_POST['contact_person'];
     $description = $_POST['description'];
     $farmer_address = $_POST['farmer_address'];
+    $latitude = $_POST['latitude'];
+    $longitude = $_POST['longitude'];
 
 $sql = "UPDATE users
         SET name = ?, phone = ?, email = ?, address = ?
@@ -31,16 +33,20 @@ $sql = "UPDATE farmers
          SET stall_name = ?,
          contact_person = ?,
          description = ?,
-         address = ?
+         address = ?,
+         latitude = ?,
+         longitude = ?
          WHERE user_id = ?";
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param(
-    "ssssi",
+    "ssssddi",
     $stall_name,
     $contact_person,
     $description,
     $farmer_address,
+    $latitude,
+    $longitude,
     $user_id
 );
 if ($stmt->execute()){
@@ -77,6 +83,10 @@ $farmer = $result->fetch_assoc();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Profile </title>
+    <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
 </head>
 <body>
      <h1>Edit Profile</h1>
@@ -143,9 +153,84 @@ $farmer = $result->fetch_assoc();
             name="farmer_address"
             value="<?php echo htmlspecialchars($farmer['farmer_address']); ?>">
         </div>
+        
+        <div>
+            <label>Farmer Location</label>
+            <p>Click on the map to select your stall location.</p>
+
+            <div id="map" style="width: 100%; height: 400px;"></div>
+        </div>
+
+        <div>
+            <label for="latitude">Latitude</label>
+            <input
+                type="text"
+                id="latitude"
+                name="latitude"
+                value="<?php echo htmlspecialchars($farmer['latitude'] ?? ''); ?>">
+        </div>
+
+        <div>
+            <label for="longitude">Longitude</label>
+            <input
+                type="text"
+                id="longitude"
+                name="longitude"
+                value="<?php echo htmlspecialchars($farmer['longitude'] ?? ''); ?>">
+        </div>
      </section>
      <button type="submit">Save Changes</button>
      <button type="button" onclick="window.location.href='profile.php'">Cancel</button>
      </form>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    const savedLatitude = <?php echo $farmer['latitude'] !== null ? $farmer['latitude'] : 15.3694; ?>;
+    const savedLongitude = <?php echo $farmer['longitude'] !== null ? $farmer['longitude'] : 44.1910; ?>;
+
+    const map = L.map('map').setView(
+        [savedLatitude, savedLongitude],
+        13
+    );
+
+    L.tileLayer(
+        'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
+        {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+        }
+    ).addTo(map);
+
+    let marker = L.marker([
+        savedLatitude,
+        savedLongitude
+    ]).addTo(map);
+
+    map.on('click', function(event) {
+
+        const latitude = event.latlng.lat;
+        const longitude = event.latlng.lng;
+
+        if (marker) {
+            marker.setLatLng([
+                latitude,
+                longitude
+            ]);
+        } else {
+            marker = L.marker([
+                latitude,
+                longitude
+            ]).addTo(map);
+        }
+
+        document.getElementById('latitude').value =
+            latitude.toFixed(8);
+
+        document.getElementById('longitude').value =
+            longitude.toFixed(8);
+    });
+</script>
+
 </body>
 </html>
