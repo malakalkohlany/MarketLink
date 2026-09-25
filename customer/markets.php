@@ -1,11 +1,8 @@
 <?php
 
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../includes/functions.php';
-require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/include.php';
 
-requireRole('customer');
+requireRole(R_CUSTOMER);
 
 $markets = [];
 
@@ -54,7 +51,6 @@ if ($result) {
 <body>
 
     <?php include __DIR__ . '/../includes/navbar.php'; ?>
-
     <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
     <main class="main-content">

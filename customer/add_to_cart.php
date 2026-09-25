@@ -1,7 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/include.php';
 
 requireRole('customer');
 
@@ -177,27 +176,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <title>Add to Cart - <?= htmlspecialchars($product['name']) ?></title>
 
-    <link
-        rel="stylesheet"
-        href="../assets/css/base.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="../assets/css/navbar.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="../assets/css/sidebar.css"
-    >
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
     
 </head>
 
 <body>
 
 <?php require_once __DIR__ . '/../includes/navbar.php'; ?>
-
 <?php require_once __DIR__ . '/../includes/sidebar.php'; ?>
 
 
