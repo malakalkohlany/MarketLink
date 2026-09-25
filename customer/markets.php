@@ -1,0 +1,97 @@
+<?php
+
+require_once '../config/database.php';
+
+$markets = [];
+
+$sql = "SELECT id, name, address, latitude, longitude, operating_days,
+               opening_time, closing_time
+        FROM markets
+        WHERE status = 'active'
+        ORDER BY name ASC";
+
+$result = mysqli_query($conn, $sql);
+
+if ($result) {
+    while ($row = mysqli_fetch_assoc($result)) {
+        $markets[] = $row;
+    }
+}
+
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Markets - MarketLink</title>
+
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+    <style>
+        #map {
+            width: 100%;
+            height: 500px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Markets</h1>
+
+    <p>Find nearby markets and view their locations.</p>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        const markets = <?php echo json_encode($markets); ?>;
+
+        const defaultLatitude = 42.3555;
+        const defaultLongitude = -71.0565;
+
+        const map = L.map('map').setView(
+            [defaultLatitude, defaultLongitude],
+            4
+        );
+
+        L.tileLayer(
+            'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
+            {
+                maxZoom: 19,
+                attribution:
+                    '&copy; OpenStreetMap contributors'
+            }
+        ).addTo(map);
+
+        markets.forEach(function(market) {
+
+            if (market.latitude !== null && market.longitude !== null) {
+
+                const latitude = parseFloat(market.latitude);
+                const longitude = parseFloat(market.longitude);
+
+                const marker = L.marker([
+                    latitude,
+                    longitude
+                ]).addTo(map);
+
+                marker.bindPopup(
+                    '<b>' + market.name + '</b><br>' +
+                    market.address
+                );
+            }
+        });
+    </script>
+
+</body>
+
+</html>
