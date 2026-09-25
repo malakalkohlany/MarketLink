@@ -1,6 +1,7 @@
 <?php
 
 require_once '../includes/include.php';
+require_once '../config/database.php';
 
 $stmt = $conn->prepare("
     SELECT
