@@ -7,19 +7,253 @@ require_once __DIR__ . '/../includes/session.php';
 
 requireRole('customer');
 
-// Get approved and available products
+$customerId = (int) getUserId();
+
+/*
+|--------------------------------------------------------------------------
+| Toggle Favorite Product
+|--------------------------------------------------------------------------
+*/
+
+if (
+    $_SERVER['REQUEST_METHOD'] === 'POST'
+    && isset($_POST['toggle_favorite'])
+) {
+
+    $productId = filter_input(
+        INPUT_POST,
+        'product_id',
+        FILTER_VALIDATE_INT
+    );
+
+    if (!$productId || !$customerId) {
+        header('Location: products.php');
+        exit;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Check if product already exists in favorites
+    |--------------------------------------------------------------------------
+    */
+
+    $checkStmt = mysqli_prepare(
+        $conn,
+        "SELECT customer_id
+         FROM favorite_products
+         WHERE customer_id = ?
+           AND product_id = ?
+         LIMIT 1"
+    );
+
+    if (!$checkStmt) {
+        die(
+            'Favorite check prepare failed: '
+            . mysqli_error($conn)
+        );
+    }
+
+    mysqli_stmt_bind_param(
+        $checkStmt,
+        "ii",
+        $customerId,
+        $productId
+    );
+
+    if (!mysqli_stmt_execute($checkStmt)) {
+        die(
+            'Favorite check execute failed: '
+            . mysqli_stmt_error($checkStmt)
+        );
+    }
+
+    mysqli_stmt_store_result($checkStmt);
+
+    $exists = mysqli_stmt_num_rows($checkStmt) > 0;
+
+    mysqli_stmt_close($checkStmt);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | If favorite exists -> DELETE
+    |--------------------------------------------------------------------------
+    */
+
+    if ($exists) {
+
+        $deleteStmt = mysqli_prepare(
+            $conn,
+            "DELETE FROM favorite_products
+             WHERE customer_id = ?
+               AND product_id = ?"
+        );
+
+        if (!$deleteStmt) {
+            die(
+                'Favorite delete prepare failed: '
+                . mysqli_error($conn)
+            );
+        }
+
+        mysqli_stmt_bind_param(
+            $deleteStmt,
+            "ii",
+            $customerId,
+            $productId
+        );
+
+        if (!mysqli_stmt_execute($deleteStmt)) {
+            die(
+                'Favorite delete failed: '
+                . mysqli_stmt_error($deleteStmt)
+            );
+        }
+
+        mysqli_stmt_close($deleteStmt);
+
+    /*
+    |--------------------------------------------------------------------------
+    | If favorite does not exist -> INSERT
+    |--------------------------------------------------------------------------
+    */
+
+    } else {
+
+        $insertStmt = mysqli_prepare(
+            $conn,
+            "INSERT INTO favorite_products
+            (
+                customer_id,
+                product_id,
+                created_at
+            )
+            VALUES (?, ?, NOW())"
+        );
+
+        if (!$insertStmt) {
+            die(
+                'Favorite insert prepare failed: '
+                . mysqli_error($conn)
+            );
+        }
+
+        mysqli_stmt_bind_param(
+            $insertStmt,
+            "ii",
+            $customerId,
+            $productId
+        );
+
+        if (!mysqli_stmt_execute($insertStmt)) {
+            die(
+                'Favorite insert failed: '
+                . mysqli_stmt_error($insertStmt)
+            );
+        }
+
+        mysqli_stmt_close($insertStmt);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Return to products page
+    |--------------------------------------------------------------------------
+    */
+
+    header('Location: products.php');
+    exit;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Get Current Customer Favorite Products
+|--------------------------------------------------------------------------
+*/
+
+$favoriteProducts = [];
+
+$favoriteStmt = mysqli_prepare(
+    $conn,
+    "SELECT product_id
+     FROM favorite_products
+     WHERE customer_id = ?"
+);
+
+if (!$favoriteStmt) {
+    die(
+        'Favorite list prepare failed: '
+        . mysqli_error($conn)
+    );
+}
+
+mysqli_stmt_bind_param(
+    $favoriteStmt,
+    "i",
+    $customerId
+);
+
+if (!mysqli_stmt_execute($favoriteStmt)) {
+    die(
+        'Favorite list execute failed: '
+        . mysqli_stmt_error($favoriteStmt)
+    );
+}
+
+mysqli_stmt_bind_result(
+    $favoriteStmt,
+    $favoriteProductId
+);
+
+while (mysqli_stmt_fetch($favoriteStmt)) {
+    $favoriteProducts[] = (int) $favoriteProductId;
+}
+
+mysqli_stmt_close($favoriteStmt);
+
+
+/*
+|--------------------------------------------------------------------------
+| Get Products
+|--------------------------------------------------------------------------
+*/
+
 $sql = "
-    SELECT *
+    SELECT
+        id,
+        farmer_id,
+        category_id,
+        name,
+        description,
+        price,
+        unit,
+        stock_quantity,
+        is_available,
+        moderation_status,
+        created_at
     FROM products
     WHERE is_available = 1
       AND moderation_status = 'approved'
     ORDER BY created_at DESC
 ";
 
-$result = $conn->query($sql);
+$result = mysqli_query($conn, $sql);
 
-if (!$result) {
-    die("Database Error: " . $conn->error);
+$products = [];
+
+if ($result) {
+
+    while ($row = mysqli_fetch_assoc($result)) {
+        $products[] = $row;
+    }
+
+} else {
+
+    die(
+        'Products query failed: '
+        . mysqli_error($conn)
+    );
 }
 
 ?>
@@ -37,31 +271,53 @@ if (!$result) {
     >
 
     <title>Products - MarketLink</title>
-    <link rel="stylesheet" href="../assets/css/base.css">
-    <link rel="stylesheet" href="../assets/css/navbar.css">
-    <link rel="stylesheet" href="../assets/css/sidebar.css">
+
+
+    <!-- Dashboard CSS -->
+    <link
+        rel="stylesheet"
+        href="../assets/css/dashboard.css"
+    >
+
+
+    <!-- Navbar CSS -->
+    <link
+        rel="stylesheet"
+        href="../assets/css/navbar.css"
+    >
+
+
+    <!-- Sidebar CSS -->
+    <link
+        rel="stylesheet"
+        href="../assets/css/sidebar.css"
+    >
+
+
+    <!-- Font Awesome -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+
 
     <style>
 
-        * {
-            box-sizing: border-box;
+        /* =====================================================
+           Main Content
+        ===================================================== */
+
+        .main-content {
+            padding: 30px;
         }
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f5f6fa;
-            color: #333;
-        }
 
-        .products-container {
-            width: 92%;
-            max-width: 1200px;
-            margin: 40px auto;
-        }
+        /* =====================================================
+           Page Header
+        ===================================================== */
 
         .page-header {
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
         .page-header h1 {
@@ -71,285 +327,479 @@ if (!$result) {
 
         .page-header p {
             margin: 0;
-            color: #777;
+            color: #666;
         }
+
+
+        /* =====================================================
+           Products Grid
+        ===================================================== */
 
         .products-grid {
             display: grid;
-            grid-template-columns:
-                repeat(auto-fill, minmax(240px, 1fr));
 
-            gap: 25px;
+            grid-template-columns:
+                repeat(
+                    auto-fill,
+                    minmax(250px, 1fr)
+                );
+
+            gap: 24px;
         }
 
+
+        /* =====================================================
+           Product Card
+        ===================================================== */
+
         .product-card {
-            background: white;
-            border-radius: 14px;
+            position: relative !important;
+
+            background: #ffffff;
+
+            border: 1px solid #e5e5e5;
+
+            border-radius: 12px;
+
             overflow: hidden;
 
-            box-shadow:
-                0 5px 20px rgba(0, 0, 0, 0.08);
-
-            transition: 0.2s;
+            transition: 0.2s ease;
         }
 
         .product-card:hover {
-            transform: translateY(-4px);
+            transform: translateY(-3px);
+
+            box-shadow:
+                0 8px 20px
+                rgba(0, 0, 0, 0.08);
         }
 
-        .product-image {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            background: #eee;
+
+        /* =====================================================
+           Empty Image Area
+        ===================================================== */
+
+        .product-image-container {
+            width: 100% !important;
+
+            height: 220px !important;
+
+            background: #f5f5f5 !important;
         }
 
-        .no-image {
-            width: 100%;
-            height: 200px;
 
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        /* =====================================================
+           Favorite Form
+        ===================================================== */
 
-            background: #eee;
-            color: #999;
+        .favorite-form {
+            position: absolute !important;
+
+            top: 12px !important;
+
+            right: 12px !important;
+
+            z-index: 100 !important;
+
+            margin: 0 !important;
         }
+
+
+        /* =====================================================
+           Favorite Button
+        ===================================================== */
+
+        .favorite-button {
+            width: 36px !important;
+
+            height: 36px !important;
+
+            display: flex !important;
+
+            align-items: center !important;
+
+            justify-content: center !important;
+
+            border: none !important;
+
+            border-radius: 50% !important;
+
+            background: #ffffff !important;
+
+            cursor: pointer !important;
+
+            font-size: 20px !important;
+
+            padding: 0 !important;
+
+            margin: 0 !important;
+
+            box-shadow:
+                0 2px 6px
+                rgba(0, 0, 0, 0.10) !important;
+
+            transition: 0.2s ease;
+        }
+
+
+        /* Empty heart */
+
+        .favorite-button.empty {
+            color: #555555 !important;
+        }
+
+
+        /* Filled heart */
+
+        .favorite-button.filled {
+            color: #e53935 !important;
+        }
+
+
+        /* Heart hover */
+
+        .favorite-button:hover {
+            transform: scale(1.08);
+        }
+
+
+        /* =====================================================
+           Product Information
+        ===================================================== */
 
         .product-info {
-            padding: 20px;
+            padding: 18px;
         }
 
         .product-name {
+            margin: 0 0 8px;
+
             font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 10px;
+
+            font-weight: 600;
+
+            color: #222;
         }
 
         .product-description {
-            color: #777;
+            color: #666;
+
             font-size: 14px;
+
             line-height: 1.5;
 
             min-height: 42px;
-            margin-bottom: 15px;
+
+            margin-bottom: 14px;
         }
 
         .product-price {
-            font-size: 20px;
-            font-weight: bold;
-            color: #27ae60;
+            font-size: 18px;
+
+            font-weight: 700;
+
+            margin-bottom: 8px;
         }
 
         .product-unit {
-            color: #777;
-            font-size: 13px;
-            margin-top: 4px;
+            font-size: 14px;
+
+            color: #666;
         }
 
         .product-stock {
-            margin-top: 10px;
             font-size: 14px;
+
             color: #555;
+
+            margin-bottom: 16px;
         }
 
-        .view-button {
+
+        /* =====================================================
+           View Details Button
+        ===================================================== */
+
+        .view-details-button {
             display: block;
 
-            margin-top: 18px;
-            padding: 11px;
+            width: 100%;
 
-            background: #3498db;
-            color: white;
+            box-sizing: border-box;
 
             text-align: center;
+
             text-decoration: none;
 
-            border-radius: 8px;
+            background: #222;
+
+            color: #ffffff;
+
+            padding: 11px 15px;
+
+            border-radius: 7px;
+
+            transition: 0.2s ease;
         }
 
-        .view-button:hover {
-            background: #2980b9;
+        .view-details-button:hover {
+            background: #444;
         }
+
+
+        /* =====================================================
+           Empty Products
+        ===================================================== */
 
         .empty-products {
-            background: white;
+            background: #ffffff;
 
-            padding: 60px 30px;
+            border: 1px solid #e5e5e5;
 
-            border-radius: 14px;
+            border-radius: 12px;
+
+            padding: 40px;
 
             text-align: center;
 
-            box-shadow:
-                0 5px 20px rgba(0, 0, 0, 0.05);
+            color: #666;
         }
 
-        .empty-products h2 {
-            margin-bottom: 10px;
-        }
 
-        .empty-products p {
-            color: #777;
-            margin: 0;
+        /* =====================================================
+           Mobile
+        ===================================================== */
+
+        @media (max-width: 700px) {
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+
         }
 
     </style>
 
 </head>
 
+
 <body>
+
 
     <?php include __DIR__ . '/../includes/navbar.php'; ?>
 
+
     <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
+
     <main class="main-content">
-        <div class="products-container">
 
-            <div class="page-header">
 
-                <h1>Products</h1>
+        <!-- Page Header -->
 
-                <p>
-                    Browse fresh products available on MarketLink.
-                </p>
+        <div class="page-header">
+
+            <h1>
+                Products
+            </h1>
+
+            <p>
+                Browse fresh products available from our farmers.
+            </p>
+
+        </div>
+
+
+        <?php if (empty($products)): ?>
+
+            <div class="empty-products">
+
+                No products are available at the moment.
+
+            </div>
+
+        <?php else: ?>
+
+
+            <div class="products-grid">
+
+
+                <?php foreach ($products as $product): ?>
+
+
+                    <?php
+
+                    $productId =
+                        (int) $product['id'];
+
+                    $productName =
+                        $product['name'];
+
+                    $description =
+                        $product['description'] ?? '';
+
+                    $price =
+                        (float) $product['price'];
+
+                    $unit =
+                        $product['unit'] ?? '';
+
+                    $stock =
+                        (float) $product['stock_quantity'];
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Check if Product is Favorite
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $isFavorite =
+                        in_array(
+                            $productId,
+                            $favoriteProducts,
+                            true
+                        );
+
+                    ?>
+
+
+                    <div class="product-card">
+
+
+                        <!-- Favorite Button -->
+
+                        <form
+                            method="POST"
+                            action="products.php"
+                            class="favorite-form"
+                        >
+
+                            <input
+                                type="hidden"
+                                name="product_id"
+                                value="<?= $productId ?>"
+                            >
+
+
+                            <button
+                                type="submit"
+                                name="toggle_favorite"
+                                class="favorite-button <?= $isFavorite ? 'filled' : 'empty' ?>"
+                                title="<?= $isFavorite ? 'Remove from Favorites' : 'Add to Favorites' ?>"
+                                aria-label="<?= $isFavorite ? 'Remove from Favorites' : 'Add to Favorites' ?>"
+                            >
+
+                                <?php if ($isFavorite): ?>
+
+                                    <i class="fa-solid fa-heart"></i>
+
+                                <?php else: ?>
+
+                                    <i class="fa-regular fa-heart"></i>
+
+                                <?php endif; ?>
+
+                            </button>
+
+                        </form>
+
+
+                        <!-- Empty Image Area -->
+
+                        <div class="product-image-container">
+                        </div>
+
+
+                        <!-- Product Information -->
+
+                        <div class="product-info">
+
+
+                            <h2 class="product-name">
+
+                                <?= e($productName) ?>
+
+                            </h2>
+
+
+                            <div class="product-description">
+
+                                <?= e(
+                                    truncateText(
+                                        $description,
+                                        90
+                                    )
+                                ) ?>
+
+                            </div>
+
+
+                            <div class="product-price">
+
+                                $<?= formatPrice($price) ?>
+
+
+                                <?php if ($unit !== ''): ?>
+
+                                    <span class="product-unit">
+
+                                        / <?= e($unit) ?>
+
+                                    </span>
+
+                                <?php endif; ?>
+
+                            </div>
+
+
+                            <div class="product-stock">
+
+                                Stock:
+
+                                <?= e($stock) ?>
+
+
+                                <?php if ($unit !== ''): ?>
+
+                                    <?= e($unit) ?>
+
+                                <?php endif; ?>
+
+                            </div>
+
+
+                            <a
+                                href="product_details.php?id=<?= $productId ?>"
+                                class="view-details-button"
+                            >
+
+                                View Details
+
+                            </a>
+
+
+                        </div>
+
+
+                    </div>
+
+
+                <?php endforeach; ?>
+
 
             </div>
 
 
-            <?php if ($result->num_rows > 0): ?>
-
-                <div class="products-grid">
-
-                    <?php while ($product = $result->fetch_assoc()): ?>
-
-                        <div class="product-card">
-
-                            <?php if (!empty($product['image'])): ?>
-
-                                <img
-                                    src="../uploads/products/<?php
-                                        echo htmlspecialchars($product['image']);
-                                    ?>"
-                                    alt="<?php
-                                        echo htmlspecialchars($product['name']);
-                                    ?>"
-                                    class="product-image"
-                                >
-
-                            <?php else: ?>
-
-                                <div class="no-image">
-                                    No Image
-                                </div>
-
-                            <?php endif; ?>
+        <?php endif; ?>
 
 
-                            <div class="product-info">
-
-                                <div class="product-name">
-
-                                    <?php
-                                    echo htmlspecialchars($product['name']);
-                                    ?>
-
-                                </div>
-
-
-                                <div class="product-description">
-
-                                    <?php
-
-                                    echo htmlspecialchars(
-                                        $product['description']
-                                        ?? 'No description available.'
-                                    );
-
-                                    ?>
-
-                                </div>
-
-
-                                <div class="product-price">
-
-                                    $
-
-                                    <?php
-                                    echo number_format(
-                                        (float)$product['price'],
-                                        2
-                                    );
-                                    ?>
-
-                                </div>
-
-
-                                <?php if (!empty($product['unit'])): ?>
-
-                                    <div class="product-unit">
-
-                                        Per
-                                        <?php
-                                        echo htmlspecialchars(
-                                            $product['unit']
-                                        );
-                                        ?>
-
-                                    </div>
-
-                                <?php endif; ?>
-
-
-                                <div class="product-stock">
-
-                                    Stock:
-
-                                    <?php
-                                    echo htmlspecialchars(
-                                        $product['stock_quantity']
-                                    );
-                                    ?>
-
-                                </div>
-
-
-                                <a
-                                    href="product_details.php?id=<?php
-                                        echo $product['id'];
-                                    ?>"
-                                    class="view-button"
-                                >
-                                    View Details
-                                </a>
-
-                            </div>
-
-                        </div>
-
-                    <?php endwhile; ?>
-
-                </div>
-
-
-            <?php else: ?>
-
-                <div class="empty-products">
-
-                    <h2>No Products Available</h2>
-
-                    <p>
-                        Products will appear here once farmers add
-                        and publish them.
-                    </p>
-
-                </div>
-
-            <?php endif; ?>
-
-        </div>
     </main>
+
 
 </body>
 
