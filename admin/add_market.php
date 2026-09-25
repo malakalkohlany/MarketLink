@@ -252,8 +252,9 @@ if (empty($errors)) {
             $errors[] = "Unable to add the market. Please try again.";
         }
     }
+?>
 
-    OCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -265,10 +266,10 @@ if (empty($errors)) {
         content="width=device-width, initial-scale=1.0"
     >
 
-    <meta
-        name="description"
-        content="FreshFind Admin - Add a new farmers market."
-    >
+    // <meta
+    //     name="description"
+    //     content="FreshFind Admin - Add a new farmers market."
+    // >
 
     <title>Add Market | FreshFind</title>
 
@@ -280,69 +281,6 @@ if (empty($errors)) {
 </head>
 
 <body>
-
-  <aside
-        class="sidebar"
-        aria-label="Admin navigation"
-    >
-
-        <div class="logo">
-            FreshFind
-        </div>
-
-        <nav>
-
-            <a href="dashboard.php">
-                Dashboard
-            </a>
-
-            <a
-                href="add_market.php"
-                class="active"
-                aria-current="page"
-            >
-                Add Market
-            </a>
-
-            <a href="markets.php">
-                Markets
-            </a>
-
-            <a href="farmers.php">
-                Farmers
-            </a>
-
-            <a href="products.php">
-                Products
-            </a>
-
-            <a href="users.php">
-                Users
-            </a>
-
-            <a href="orders.php">
-                Orders
-            </a>
-
-            <a href="reviews.php">
-                Reviews
-            </a>
-
-            <a href="announcements.php">
-                Announcements
-            </a>
-
-            <a href="reports.php">
-                Reports
-            </a>
-
-            <a href="../logout.php">
-                Logout
-            </a>
-
-        </nav>
-
-    </aside>
 
     <main class="main-content">
 
