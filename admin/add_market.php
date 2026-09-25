@@ -44,7 +44,7 @@ $allowedStatuses = [
 
 /*  form submission*/
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST')
 
 /*CSRF Validation */
 
