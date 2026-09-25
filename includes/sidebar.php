@@ -50,7 +50,7 @@ $role = $_SESSION['role'] ?? '';
             </div>
 
             <ul class="sidebar-list">
-
+           
                 <li>
                     <a
                         href="<?= BASE_URL ?>customer/dashboard.php"
