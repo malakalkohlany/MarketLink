@@ -4,7 +4,9 @@ require_once __DIR__ . '/../config/database.php';
 
 require_once __DIR__ . '/../includes/session.php';
 
-requireRole('customer');
+
+
+// requireRole('customer');
 
 $user_id = getUserId();
 
@@ -103,12 +105,15 @@ $stmt->close();
     <link rel="stylesheet" href="../assets/css/base.css">
     <link rel="stylesheet" href="../assets/css/navbar.css">
     <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
 </head>
 <body>
 
     <?php include __DIR__ . '/../includes/navbar.php'; ?>
 
-    <main class="main-content">
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
+
+    <main class="main-content"></main>
 
         <section class="welcome">
 
