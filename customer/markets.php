@@ -84,12 +84,45 @@ if ($result) {
                     longitude
                 ]).addTo(map);
 
+                const directionsLink =
+                    '<a href="#" onclick="getDirections(' +
+                    latitude + ',' + longitude +
+                    '); return false;">Get Directions</a>';
+
                 marker.bindPopup(
                     '<b>' + market.name + '</b><br>' +
-                    market.address
+                    market.address + '<br><br>' +
+                    directionsLink
                 );
             }
         });
+
+    function getDirections(destinationLatitude, destinationLongitude) {
+
+    if (!navigator.geolocation) {
+        alert('Location services are not supported by this browser.');
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
+
+            const userLatitude = position.coords.latitude;
+            const userLongitude = position.coords.longitude;
+
+            const directionsUrl =
+                'https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route=' +
+                userLatitude + ',' + userLongitude + ';' +
+                destinationLatitude + ',' + destinationLongitude;
+
+            window.open(directionsUrl, '_blank');
+        },
+        function() {
+            alert('Unable to get your location. Please allow location access.');
+        }
+    );
+}
+        
     </script>
 
 </body>
