@@ -16,8 +16,10 @@ $customerId = getUserId();
 |--------------------------------------------------------------------------
 */
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_product'])) {
-
+if (
+    $_SERVER['REQUEST_METHOD'] === 'POST'
+    && isset($_POST['remove_product'])
+) {
     $productId = filter_input(
         INPUT_POST,
         'product_id',
@@ -40,6 +42,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_product'])) {
             "ii",
             $customerId,
             $productId
+        );
+
+        if (!$stmt->execute()) {
+            die("Database Error: " . $stmt->error);
+        }
+
+        $stmt->close();
+    }
+
+    header('Location: favorites.php');
+    exit;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Remove Favorite Farmer
+|--------------------------------------------------------------------------
+*/
+
+if (
+    $_SERVER['REQUEST_METHOD'] === 'POST'
+    && isset($_POST['remove_farmer'])
+) {
+    $farmerId = filter_input(
+        INPUT_POST,
+        'farmer_id',
+        FILTER_VALIDATE_INT
+    );
+
+    if ($farmerId && $farmerId > 0) {
+
+        $stmt = $conn->prepare(
+            "DELETE FROM favorite_farmers
+             WHERE customer_id = ?
+               AND farmer_id = ?"
+        );
+
+        if (!$stmt) {
+            die("Database Error: " . $conn->error);
+        }
+
+        $stmt->bind_param(
+            "ii",
+            $customerId,
+            $farmerId
         );
 
         if (!$stmt->execute()) {
@@ -103,6 +151,53 @@ while ($row = $result->fetch_assoc()) {
 
 $stmt->close();
 
+
+/*
+|--------------------------------------------------------------------------
+| Get Favorite Farmers From Database
+|--------------------------------------------------------------------------
+*/
+
+$favoriteFarmers = [];
+
+$sql = "
+    SELECT
+        f.id,
+        f.stall_name,
+        f.contact_person,
+        f.description,
+        f.address
+    FROM favorite_farmers ff
+    INNER JOIN farmers f
+        ON ff.farmer_id = f.id
+    WHERE ff.customer_id = ?
+      AND f.approval_status = 'approved'
+    ORDER BY ff.created_at DESC
+";
+
+$stmt = $conn->prepare($sql);
+
+if (!$stmt) {
+    die("Database Error: " . $conn->error);
+}
+
+$stmt->bind_param(
+    "i",
+    $customerId
+);
+
+if (!$stmt->execute()) {
+    die("Database Error: " . $stmt->error);
+}
+
+$result = $stmt->get_result();
+
+while ($row = $result->fetch_assoc()) {
+    $favoriteFarmers[] = $row;
+}
+
+$stmt->close();
+
 ?>
 
 <!DOCTYPE html>
@@ -132,6 +227,12 @@ $stmt->close();
     <link
         rel="stylesheet"
         href="../assets/css/sidebar.css"
+    >
+
+    <!-- Font Awesome -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
     >
 
     <style>
@@ -167,12 +268,40 @@ $stmt->close();
             color: #777;
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Section Title
+        |--------------------------------------------------------------------------
+        */
+
+        .favorites-section {
+            margin-bottom: 50px;
+        }
+
+        .favorites-section-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Grid
+        |--------------------------------------------------------------------------
+        */
+
         .favorites-grid {
             display: grid;
             grid-template-columns:
                 repeat(auto-fill, minmax(240px, 1fr));
             gap: 25px;
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Favorite Card
+        |--------------------------------------------------------------------------
+        */
 
         .favorite-card {
             background: white;
@@ -189,9 +318,9 @@ $stmt->close();
 
 
         /*
-        =========================================================
-        Empty Image Area
-        =========================================================
+        |--------------------------------------------------------------------------
+        | Empty Image Area
+        |--------------------------------------------------------------------------
         */
 
         .product-image-area {
@@ -203,9 +332,9 @@ $stmt->close();
 
 
         /*
-        =========================================================
-        Remove Favorite
-        =========================================================
+        |--------------------------------------------------------------------------
+        | Remove Favorite
+        |--------------------------------------------------------------------------
         */
 
         .remove-favorite-form {
@@ -225,7 +354,7 @@ $stmt->close();
             box-shadow:
                 0 3px 12px rgba(0, 0, 0, 0.15);
             cursor: pointer;
-            font-size: 28px;
+            font-size: 20px;
             line-height: 44px;
             padding: 0;
             text-align: center;
@@ -238,9 +367,9 @@ $stmt->close();
 
 
         /*
-        =========================================================
-        Product Information
-        =========================================================
+        |--------------------------------------------------------------------------
+        | Product Information
+        |--------------------------------------------------------------------------
         */
 
         .product-info {
@@ -296,9 +425,40 @@ $stmt->close();
 
 
         /*
-        =========================================================
-        Empty Favorites
-        =========================================================
+        |--------------------------------------------------------------------------
+        | Farmer Information
+        |--------------------------------------------------------------------------
+        */
+
+        .farmer-info {
+            padding: 20px;
+        }
+
+        .farmer-name {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            padding-right: 10px;
+        }
+
+        .farmer-contact,
+        .farmer-address,
+        .farmer-description {
+            color: #777;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .farmer-description {
+            min-height: 42px;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Empty Favorites
+        |--------------------------------------------------------------------------
         */
 
         .empty-favorites {
@@ -315,6 +475,27 @@ $stmt->close();
         }
 
         .empty-favorites p {
+            color: #777;
+            margin: 0;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Farmer Empty Area
+        |--------------------------------------------------------------------------
+        */
+
+        .empty-section {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 14px;
+            text-align: center;
+            box-shadow:
+                0 5px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .empty-section p {
             color: #777;
             margin: 0;
         }
@@ -336,7 +517,9 @@ $stmt->close();
         <div class="favorites-container">
 
 
-            <!-- Page Header -->
+            <!-- =========================================================
+                 PAGE HEADER
+                 ========================================================= -->
 
             <div class="page-header">
 
@@ -345,100 +528,131 @@ $stmt->close();
                 </h1>
 
                 <p>
-                    Products you have saved to your favorites.
+                    Products and farmers you have saved to your favorites.
                 </p>
 
             </div>
 
 
-            <?php if (count($favoriteProducts) > 0): ?>
+
+            <!-- =========================================================
+                 FAVORITE PRODUCTS
+                 ========================================================= -->
+
+            <div class="favorites-section">
+
+                <h2 class="favorites-section-title">
+                    Favorite Products
+                </h2>
 
 
-                <div class="favorites-grid">
+                <?php if (count($favoriteProducts) > 0): ?>
+
+                    <div class="favorites-grid">
 
 
-                    <?php foreach ($favoriteProducts as $product): ?>
+                        <?php foreach ($favoriteProducts as $product): ?>
 
 
-                        <div class="favorite-card">
+                            <div class="favorite-card">
 
 
-                            <!-- Empty Image Area -->
+                                <!-- Empty Image Area -->
 
-                            <div class="product-image-area">
+                                <div class="product-image-area">
 
 
-                                <!-- Remove Favorite -->
+                                    <!-- Remove Favorite -->
 
-                                <form
-                                    method="POST"
-                                    action="favorites.php"
-                                    class="remove-favorite-form"
-                                >
-
-                                    <input
-                                        type="hidden"
-                                        name="product_id"
-                                        value="<?= (int) $product['id'] ?>"
+                                    <form
+                                        method="POST"
+                                        action="favorites.php"
+                                        class="remove-favorite-form"
                                     >
 
-                                    <button
-                                        type="submit"
-                                        name="remove_product"
-                                        class="remove-favorite-button"
-                                        title="Remove from Favorites"
-                                        aria-label="Remove from Favorites"
-                                    >
-                                        ♥
-                                    </button>
+                                        <input
+                                            type="hidden"
+                                            name="product_id"
+                                            value="<?= (int) $product['id'] ?>"
+                                        >
 
-                                </form>
+                                        <button
+                                            type="submit"
+                                            name="remove_product"
+                                            class="remove-favorite-button"
+                                            title="Remove from Favorites"
+                                            aria-label="Remove from Favorites"
+                                        >
 
+                                            <i class="fa-solid fa-heart"></i>
 
-                            </div>
+                                        </button>
 
+                                    </form>
 
-                            <!-- Product Information -->
-
-                            <div class="product-info">
-
-
-                                <div class="product-name">
-
-                                    <?= htmlspecialchars(
-                                        $product['name']
-                                    ) ?>
 
                                 </div>
 
 
-                                <div class="product-description">
+                                <!-- Product Information -->
 
-                                    <?= htmlspecialchars(
-                                        $product['description']
-                                        ?? 'No description available.'
-                                    ) ?>
-
-                                </div>
+                                <div class="product-info">
 
 
-                                <div class="product-price">
+                                    <div class="product-name">
 
-                                    $
+                                        <?= htmlspecialchars(
+                                            $product['name']
+                                        ) ?>
 
-                                    <?= number_format(
-                                        (float) $product['price'],
-                                        2
-                                    ) ?>
-
-                                </div>
+                                    </div>
 
 
-                                <?php if (!empty($product['unit'])): ?>
+                                    <div class="product-description">
 
-                                    <div class="product-unit">
+                                        <?= htmlspecialchars(
+                                            $product['description']
+                                            ?? 'No description available.'
+                                        ) ?>
 
-                                        Per
+                                    </div>
+
+
+                                    <div class="product-price">
+
+                                        $
+
+                                        <?= number_format(
+                                            (float) $product['price'],
+                                            2
+                                        ) ?>
+
+                                    </div>
+
+
+                                    <?php if (!empty($product['unit'])): ?>
+
+                                        <div class="product-unit">
+
+                                            Per
+
+                                            <?= htmlspecialchars(
+                                                $product['unit']
+                                            ) ?>
+
+                                        </div>
+
+                                    <?php endif; ?>
+
+
+                                    <div class="product-stock">
+
+                                        Stock:
+
+                                        <?= number_format(
+                                            (float) $product['stock_quantity'],
+                                            2
+                                        ) ?>
 
                                         <?= htmlspecialchars(
                                             $product['unit']
@@ -446,62 +660,211 @@ $stmt->close();
 
                                     </div>
 
-                                <?php endif; ?>
 
+                                    <a
+                                        href="product_details.php?id=<?= (int) $product['id'] ?>"
+                                        class="view-button"
+                                    >
 
-                                <div class="product-stock">
+                                        View Details
 
-                                    Stock:
+                                    </a>
 
-                                    <?= number_format(
-                                        (float) $product['stock_quantity'],
-                                        2
-                                    ) ?>
-
-                                    <?= htmlspecialchars(
-                                        $product['unit']
-                                    ) ?>
 
                                 </div>
-
-
-                                <a
-                                    href="product_details.php?id=<?= (int) $product['id'] ?>"
-                                    class="view-button"
-                                >
-                                    View Details
-                                </a>
 
 
                             </div>
 
 
-                        </div>
+                        <?php endforeach; ?>
 
 
-                    <?php endforeach; ?>
+                    </div>
 
 
-                </div>
+                <?php else: ?>
 
 
-            <?php else: ?>
+                    <div class="empty-favorites">
+
+                        <h2>
+                            No Favorite Products
+                        </h2>
+
+                        <p>
+                            Products you add to your favorites will appear here.
+                        </p>
+
+                    </div>
 
 
-                <div class="empty-favorites">
+                <?php endif; ?>
 
-                    <h2>
-                        No Favorite Products
-                    </h2>
-
-                    <p>
-                        Products you add to your favorites will appear here.
-                    </p>
-
-                </div>
+            </div>
 
 
-            <?php endif; ?>
+
+            <!-- =========================================================
+                 FAVORITE FARMERS
+                 ========================================================= -->
+
+            <div class="favorites-section">
+
+                <h2 class="favorites-section-title">
+                    Favorite Farmers
+                </h2>
+
+
+                <?php if (count($favoriteFarmers) > 0): ?>
+
+
+                    <div class="favorites-grid">
+
+
+                        <?php foreach ($favoriteFarmers as $farmer): ?>
+
+
+                            <div class="favorite-card">
+
+
+                                <!-- Farmer Top Area -->
+
+                                <div class="product-image-area">
+
+
+                                    <!-- Remove Favorite Farmer -->
+
+                                    <form
+                                        method="POST"
+                                        action="favorites.php"
+                                        class="remove-favorite-form"
+                                    >
+
+                                        <input
+                                            type="hidden"
+                                            name="farmer_id"
+                                            value="<?= (int) $farmer['id'] ?>"
+                                        >
+
+                                        <button
+                                            type="submit"
+                                            name="remove_farmer"
+                                            class="remove-favorite-button"
+                                            title="Remove from Favorites"
+                                            aria-label="Remove from Favorites"
+                                        >
+
+                                            <i class="fa-solid fa-heart"></i>
+
+                                        </button>
+
+                                    </form>
+
+
+                                </div>
+
+
+                                <!-- Farmer Information -->
+
+                                <div class="farmer-info">
+
+
+                                    <div class="farmer-name">
+
+                                        <?= htmlspecialchars(
+                                            $farmer['stall_name']
+                                        ) ?>
+
+                                    </div>
+
+
+                                    <?php if (!empty($farmer['contact_person'])): ?>
+
+                                        <div class="farmer-contact">
+
+                                            <strong>
+                                                Contact:
+                                            </strong>
+
+                                            <?= htmlspecialchars(
+                                                $farmer['contact_person']
+                                            ) ?>
+
+                                        </div>
+
+                                    <?php endif; ?>
+
+
+                                    <?php if (!empty($farmer['address'])): ?>
+
+                                        <div class="farmer-address">
+
+                                            <strong>
+                                                Address:
+                                            </strong>
+
+                                            <?= htmlspecialchars(
+                                                $farmer['address']
+                                            ) ?>
+
+                                        </div>
+
+                                    <?php endif; ?>
+
+
+                                    <div class="farmer-description">
+
+                                        <?= htmlspecialchars(
+                                            $farmer['description']
+                                            ?? 'No description available.'
+                                        ) ?>
+
+                                    </div>
+
+
+                                    <a
+                                        href="farmer_details.php?id=<?= (int) $farmer['id'] ?>"
+                                        class="view-button"
+                                    >
+
+                                        View Details
+
+                                    </a>
+
+
+                                </div>
+
+
+                            </div>
+
+
+                        <?php endforeach; ?>
+
+
+                    </div>
+
+
+                <?php else: ?>
+
+
+                    <div class="empty-section">
+
+                        <h2>
+                            No Favorite Farmers
+                        </h2>
+
+                        <p>
+                            Farmers you add to your favorites will appear here.
+                        </p>
+
+                    </div>
+
+
+                <?php endif; ?>
+
+
+            </div>
 
 
         </div>
