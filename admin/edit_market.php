@@ -1,11 +1,14 @@
-<<?php
+<?php
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/session.php';
 
-requireRole('admin');
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    header('Location: ../auth/login.php');
+    exit;
+}
 
 $id = filter_input(
     INPUT_GET,
@@ -13,70 +16,330 @@ $id = filter_input(
     FILTER_VALIDATE_INT
 );
 
-$farmer = null;
-$products = [];
-$errors = [];
-
 if (!$id) {
-    die('Invalid farmer ID.');
+    die('Invalid market ID.');
 }
+
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+$csrfToken = $_SESSION['csrf_token'];
+
+$allowedDays = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday'
+];
+
+$allowedMapProviders = [
+    'OpenStreetMap',
+    'Google Maps'
+];
+
+$allowedStatuses = [
+    'active',
+    'inactive'
+];
+
+$errors = [];
+$successMessage = '';
+
+$name = '';
+$description = '';
+$address = '';
+$latitude = '';
+$longitude = '';
+$openingTime = '';
+$closingTime = '';
+$operatingDays = [];
+$mapProvider = 'OpenStreetMap';
+$status = 'active';
+
+
+/*
+|--------------------------------------------------------------------------
+| Load Market
+|--------------------------------------------------------------------------
+*/
 
 $stmt = $conn->prepare("
     SELECT
         id,
-        stall_name,
-        email,
-        phone,
+        name,
+        description,
         address,
-        status,
-        created_at,
-        updated_at
-    FROM farmers
+        latitude,
+        longitude,
+        opening_time,
+        closing_time,
+        operating_days,
+        map_provider,
+        status
+    FROM markets
     WHERE id = ?
+    LIMIT 1
 ");
 
-if ($stmt) {
-
-    $stmt->bind_param('i', $id);
-    $stmt->execute();
-
-    $result = $stmt->get_result();
-    $farmer = $result->fetch_assoc();
-
-    $stmt->close();
+if (!$stmt) {
+    die('Failed to load market.');
 }
 
-if (!$farmer) {
-    die('Farmer not found.');
+$stmt->bind_param('i', $id);
+$stmt->execute();
+
+$result = $stmt->get_result();
+$market = $result->fetch_assoc();
+
+$stmt->close();
+
+if (!$market) {
+    die('Market not found.');
 }
 
-$stmt = $conn->prepare("
-    SELECT
-        p.id,
-        p.name,
-        p.price,
-        p.status,
-        p.created_at,
-        c.name AS category_name
-    FROM products p
-    LEFT JOIN categories c
-        ON p.category_id = c.id
-    WHERE p.farmer_id = ?
-    ORDER BY p.created_at DESC
-");
 
-if ($stmt) {
+/*
+|--------------------------------------------------------------------------
+| Populate Form
+|--------------------------------------------------------------------------
+*/
 
-    $stmt->bind_param('i', $id);
-    $stmt->execute();
+$name = $market['name'] ?? '';
+$description = $market['description'] ?? '';
+$address = $market['address'] ?? '';
+$latitude = $market['latitude'] !== null
+    ? (string) $market['latitude']
+    : '';
+$longitude = $market['longitude'] !== null
+    ? (string) $market['longitude']
+    : '';
+$openingTime = $market['opening_time'] ?? '';
+$closingTime = $market['closing_time'] ?? '';
 
-    $result = $stmt->get_result();
-    $products = $result->fetch_all(MYSQLI_ASSOC);
+if (!empty($market['operating_days'])) {
+    $operatingDays = array_map(
+        'trim',
+        explode(',', $market['operating_days'])
+    );
+}
 
-    $stmt->close();
+$mapProvider = $market['map_provider'] ?? 'OpenStreetMap';
+$status = $market['status'] ?? 'active';
+
+
+/*
+|--------------------------------------------------------------------------
+| Handle Form Submission
+|--------------------------------------------------------------------------
+*/
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $submittedToken = $_POST['csrf_token'] ?? '';
+
+    if (
+        empty($submittedToken) ||
+        !hash_equals($_SESSION['csrf_token'], $submittedToken)
+    ) {
+        $errors[] = 'Invalid security token. Please try again.';
+    }
+
+    $name = trim($_POST['name'] ?? '');
+    $description = trim($_POST['description'] ?? '');
+    $address = trim($_POST['address'] ?? '');
+    $latitude = trim($_POST['latitude'] ?? '');
+    $longitude = trim($_POST['longitude'] ?? '');
+    $openingTime = trim($_POST['opening_time'] ?? '');
+    $closingTime = trim($_POST['closing_time'] ?? '');
+    $operatingDays = $_POST['operating_days'] ?? [];
+    $mapProvider = $_POST['map_provider'] ?? 'OpenStreetMap';
+    $status = $_POST['status'] ?? 'active';
+
+    if (!is_array($operatingDays)) {
+        $operatingDays = [];
+    }
+
+    $operatingDays = array_values(
+        array_intersect($operatingDays, $allowedDays)
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Validation
+    |--------------------------------------------------------------------------
+    */
+
+    if (empty($errors)) {
+
+        if ($name === '') {
+            $errors[] = 'Market name is required.';
+        }
+
+        elseif (mb_strlen($name) > 150) {
+            $errors[] = 'Market name cannot exceed 150 characters.';
+        }
+
+        elseif ($address === '') {
+            $errors[] = 'Address is required.';
+        }
+
+        elseif (mb_strlen($address) > 255) {
+            $errors[] = 'Address cannot exceed 255 characters.';
+        }
+
+        elseif (
+            $latitude !== '' &&
+            (!is_numeric($latitude) ||
+            $latitude < -90 ||
+            $latitude > 90)
+        ) {
+            $errors[] =
+                'Please enter a valid latitude between -90 and 90.';
+        }
+
+        elseif (
+            $longitude !== '' &&
+            (!is_numeric($longitude) ||
+            $longitude < -180 ||
+            $longitude > 180)
+        ) {
+            $errors[] =
+                'Please enter a valid longitude between -180 and 180.';
+        }
+
+        elseif (
+            $openingTime !== '' &&
+            !preg_match(
+                '/^(?:[01]\d|2[0-3]):[0-5]\d$/',
+                $openingTime
+            )
+        ) {
+            $errors[] = 'Please enter a valid opening time.';
+        }
+
+        elseif (
+            $closingTime !== '' &&
+            !preg_match(
+                '/^(?:[01]\d|2[0-3]):[0-5]\d$/',
+                $closingTime
+            )
+        ) {
+            $errors[] = 'Please enter a valid closing time.';
+        }
+
+        elseif (
+            !in_array(
+                $mapProvider,
+                $allowedMapProviders,
+                true
+            )
+        ) {
+            $errors[] = 'Invalid map provider.';
+        }
+
+        elseif (
+            !in_array(
+                $status,
+                $allowedStatuses,
+                true
+            )
+        ) {
+            $errors[] = 'Invalid market status.';
+        }
+
+        elseif (
+            mb_strlen(
+                implode(', ', $operatingDays)
+            ) > 100
+        ) {
+            $errors[] =
+                'The selected operating days are too long.';
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Update Market
+    |--------------------------------------------------------------------------
+    */
+
+    if (empty($errors)) {
+
+        $latitudeValue = $latitude !== ''
+            ? (float) $latitude
+            : null;
+
+        $longitudeValue = $longitude !== ''
+            ? (float) $longitude
+            : null;
+
+        $openingTimeValue = $openingTime !== ''
+            ? $openingTime
+            : null;
+
+        $closingTimeValue = $closingTime !== ''
+            ? $closingTime
+            : null;
+
+        $operatingDaysValue = !empty($operatingDays)
+            ? implode(', ', $operatingDays)
+            : null;
+
+        try {
+
+            $stmt = $conn->prepare("
+                UPDATE markets
+                SET
+                    name = ?,
+                    description = ?,
+                    address = ?,
+                    latitude = ?,
+                    longitude = ?,
+                    opening_time = ?,
+                    closing_time = ?,
+                    operating_days = ?,
+                    map_provider = ?,
+                    status = ?
+                WHERE id = ?
+            ");
+
+            $stmt->bind_param(
+                'sssddsssssi',
+                $name,
+                $description,
+                $address,
+                $latitudeValue,
+                $longitudeValue,
+                $openingTimeValue,
+                $closingTimeValue,
+                $operatingDaysValue,
+                $mapProvider,
+                $status,
+                $id
+            );
+
+            $stmt->execute();
+            $stmt->close();
+
+            $successMessage =
+                'Market updated successfully.';
+
+        } catch (mysqli_sql_exception $e) {
+
+            $errors[] =
+                'Unable to update the market. Please try again.';
+        }
+    }
 }
 
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -89,91 +352,36 @@ if ($stmt) {
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Farmer Details | FreshFind</title>
+    <title>Edit Market - MarketLink</title>
 
     <link
         rel="stylesheet"
-        href="../assets/css/style.css"
+        href="../assets/css/base.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     >
 
 </head>
 
 <body>
 
-<div class="admin-container">
+<?php require_once __DIR__ . '/../includes/navbar.php'; ?>
 
-    <aside class="sidebar">
+<main class="main-content">
 
-        <div class="logo">
-            FreshFind
-        </div>
-
-        <nav>
-
- <a href="dashboard.php">
-                Dashboard
-            </a>
-
-            <a href="markets.php">
-                Markets
-            </a>
-
-            <a href="add_market.php">
-                Add Market
-            </a>
-
-            <a href="categories.php">
-                Produce Categories
-            </a>
-
-            <a href="farmers.php" class="active">
-                Farmers
-            </a>
-
-            <a href="products.php">
-                Produce
-            </a>
-
-            <a href="users.php">
-                Users
-            </a>
-
-            <a href="orders.php">
-                Orders
-            </a>
-
-            <a href="reviews.php">
-                Reviews
-            </a>
-
-            <a href="announcements.php">
-                Announcements
-            </a>
-
-            <a href="reports.php">
-                Reports
-            </a>
-
-            <a href="../logout.php">
-                Logout
-            </a>
-
-        </nav>
-
-    </aside>
-
-    <main class="main-content">
+    <div class="page-container">
 
         <div class="page-header">
 
             <div>
 
-                <h1>
-                    Farmer Details
-                </h1>
+                <h1>Edit Market</h1>
 
                 <p>
-                    View farmer information and products.
+                    Update market information and location.
                 </p>
 
             </div>
@@ -183,7 +391,7 @@ if ($stmt) {
 
         <?php if (!empty($errors)): ?>
 
-            <div class="alert alert-danger">
+            <div class="alert alert-error">
 
                 <?php foreach ($errors as $error): ?>
 
@@ -198,301 +406,356 @@ if ($stmt) {
         <?php endif; ?>
 
 
-        <section class="form-section">
+        <?php if ($successMessage !== ''): ?>
 
-            <div class="section-header">
+            <div class="alert alert-success">
 
-                <h2>
-                    <?= htmlspecialchars($farmer['stall_name']) ?>
-                </h2>
+                <?= htmlspecialchars($successMessage) ?>
+
+            </div>
+
+        <?php endif; ?>
+
+
+        <form
+            method="POST"
+            action=""
+            class="form-container"
+        >
+
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="<?= htmlspecialchars($csrfToken) ?>"
+            >
+
+
+            <div class="form-group">
+
+                <label for="name">
+                    Market Name
+                </label>
+
+                <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    maxlength="150"
+                    required
+                    value="<?= htmlspecialchars($name) ?>"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="description">
+                    Description
+                </label>
+
+                <textarea
+                    id="description"
+                    name="description"
+                    rows="4"
+                ><?= htmlspecialchars($description) ?></textarea>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="address">
+                    Address
+                </label>
+
+                <input
+                    type="text"
+                    id="address"
+                    name="address"
+                    maxlength="255"
+                    required
+                    value="<?= htmlspecialchars($address) ?>"
+                >
+
+            </div>
+
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="latitude">
+                        Latitude
+                    </label>
+
+                    <input
+                        type="number"
+                        id="latitude"
+                        name="latitude"
+                        step="0.00000001"
+                        min="-90"
+                        max="90"
+                        value="<?= htmlspecialchars($latitude) ?>"
+                        placeholder="e.g. 15.3694"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="longitude">
+                        Longitude
+                    </label>
+
+                    <input
+                        type="number"
+                        id="longitude"
+                        name="longitude"
+                        step="0.00000001"
+                        min="-180"
+                        max="180"
+                        value="<?= htmlspecialchars($longitude) ?>"
+                        placeholder="e.g. 44.1910"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Market Location
+                </label>
+
+                <div
+                    id="market-map"
+                    style="width: 100%; height: 400px;"
+                ></div>
+
+                <small>
+                    Click on the map to select the market location.
+                </small>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="map_provider">
+                    Map Provider
+                </label>
+
+                <select
+                    id="map_provider"
+                    name="map_provider"
+                >
+
+                    <?php foreach ($allowedMapProviders as $provider): ?>
+
+                        <option
+                            value="<?= htmlspecialchars($provider) ?>"
+                            <?= $mapProvider === $provider
+                                ? 'selected'
+                                : '' ?>
+                        >
+                            <?= htmlspecialchars($provider) ?>
+                        </option>
+
+                    <?php endforeach; ?>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="opening_time">
+                        Opening Time
+                    </label>
+
+                    <input
+                        type="time"
+                        id="opening_time"
+                        name="opening_time"
+                        value="<?= htmlspecialchars($openingTime) ?>"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="closing_time">
+                        Closing Time
+                    </label>
+
+                    <input
+                        type="time"
+                        id="closing_time"
+                        name="closing_time"
+                        value="<?= htmlspecialchars($closingTime) ?>"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Operating Days
+                </label>
+
+                <div class="checkbox-group">
+
+                    <?php foreach ($allowedDays as $day): ?>
+
+                        <label class="checkbox-label">
+
+                            <input
+                                type="checkbox"
+                                name="operating_days[]"
+                                value="<?= htmlspecialchars($day) ?>"
+                                <?= in_array(
+                                    $day,
+                                    $operatingDays,
+                                    true
+                                )
+                                    ? 'checked'
+                                    : '' ?>
+                            >
+
+                            <?= htmlspecialchars($day) ?>
+
+                        </label>
+
+                    <?php endforeach; ?>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="status">
+                    Status
+                </label>
+
+                <select
+                    id="status"
+                    name="status"
+                >
+
+                    <?php foreach ($allowedStatuses as $marketStatus): ?>
+
+                        <option
+                            value="<?= htmlspecialchars($marketStatus) ?>"
+                            <?= $status === $marketStatus
+                                ? 'selected'
+                                : '' ?>
+                        >
+                            <?= ucfirst($marketStatus) ?>
+                        </option>
+
+                    <?php endforeach; ?>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-actions">
 
                 <a
-                    href="farmers.php"
-                    class="btn btn-secondary"
+                    href="markets.php"
+                    class="button button-secondary"
                 >
-                    Back to Farmers
+                    Cancel
                 </a>
-                 </div>
 
-
-            <div class="details-grid">
-
-                <div class="form-group">
-
-                    <label>
-                        Farmer ID
-                    </label>
-
-                    <p>
-                        <?= (int)$farmer['id'] ?>
-                    </p>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Stall Name
-                    </label>
-
-                    <p>
-                        <?= htmlspecialchars(
-                            $farmer['stall_name']
-                        ) ?>
-                    </p>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Email
-                    </label>
-
-                    <p>
-                        <?= htmlspecialchars(
-                            $farmer['email'] ?? 'Not provided'
-                        ) ?>
-                    </p>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Phone
-                    </label>
-
-                    <p>
-                        <?= htmlspecialchars(
-                            $farmer['phone'] ?? 'Not provided'
-                        ) ?>
-                    </p>
-
-                </div>
-                
-                <div class="form-group">
-
-                    <label>
-                        Address
-                    </label>
-
-                    <p>
-                        <?= htmlspecialchars(
-                            $farmer['address'] ?? 'Not provided'
-                        ) ?>
-                    </p>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Status
-                    </label>
-
-                    <p>
-
-                        <span
-                            class="status status-<?= htmlspecialchars(
-                                $farmer['status'] ?? ''
-                            ) ?>"
-                        >
-                            <?= ucfirst(
-                                htmlspecialchars(
-                                    $farmer['status'] ?? 'N/A'
-                                )
-                            ) ?>
-                        </span>
-
-                    </p>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Joined
-                    </label>
-
-                    <p>
-                        <?= !empty($farmer['created_at'])
-                            ? date(
-                                'Y-m-d H:i',
-                                strtotime(
-                                    $farmer['created_at']
-                                )
-                            )
-                            : 'N/A'
-                        ?>
-                    </p>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Last Updated
-                    </label>
-
-                    <p>
-                        <?= !empty($farmer['updated_at'])
-                            ? date(
-                                'Y-m-d H:i',
-                                strtotime(
-                                    $farmer['updated_at']
-                                )
-                            )
-                            : 'N/A'
-                        ?>
-                    </p>
-
-                </div>
+                <button
+                    type="submit"
+                    class="button button-primary"
+                >
+                    Update Market
+                </button>
 
             </div>
 
-        </section>
-          <section class="table-section">
+        </form>
 
-            <div class="section-header">
+    </div>
 
-                <h2>
-                    Farmer Products
-                </h2>
-
-            </div>
+</main>
 
 
-            <div class="table-responsive">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-                <table class="data-table">
+<script>
 
-                    <thead>
+const savedLatitude =
+    <?= $latitude !== ''
+        ? (float) $latitude
+        : 15.3694 ?>;
 
-                        <tr>
-
-                            <th>
-                                Product ID
-                            </th>
-
-                            <th>
-                                Product
-                            </th>
-
-                            <th>
-                                Category
-                            </th>
-
-                            <th>
-                                Price
-                            </th>
-
-                            <th>
-                                Status
-                            </th>
-
-                            <th>
-                                Created
-                            </th>
-
-                        </tr>
-
-                    </thead>
+const savedLongitude =
+    <?= $longitude !== ''
+        ? (float) $longitude
+        : 44.1910 ?>;
 
 
-                    <tbody>
+const map = L.map('market-map').setView(
+    [savedLatitude, savedLongitude],
+    13
+);
 
-                        <?php if (!empty($products)): ?>
 
-                            <?php foreach ($products as $product): ?>
+L.tileLayer(
+    'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
+    {
+        maxZoom: 19,
+        attribution:
+            '&copy; OpenStreetMap contributors'
+    }
+).addTo(map);
 
-                                <tr>
 
-                                    <td>
-                                        <?= (int)$product['id'] ?>
-                                    </td>
+let marker = L.marker([
+    savedLatitude,
+    savedLongitude
+]).addTo(map);
 
-                                    <td>
-                                        <?= htmlspecialchars(
-                                            $product['name']
-                                        ) ?>
-                                    </td>
 
-                                    <td>
-                                        <?= htmlspecialchars(
-                                            $product['category_name']
-                                            ?? 'N/A'
-                                        ) ?>
-                                    </td>
+map.on('click', function(event) {
 
-                                    <td>
-                                        <?= number_format(
-                                            (float)$product['price'],
-                                            2
-                                        ) ?>
-                                    </td>
+    const latitude = event.latlng.lat;
+    const longitude = event.latlng.lng;
 
-                                    <td>
 
-                                        <span
-                                            class="status status-<?= htmlspecialchars(
-                                                $product['status'] ?? ''
-                                            ) ?>"
-                                        >
-                                            <?= ucfirst(
-                                                htmlspecialchars(
-                                                    $product['status'] ?? 'N/A'
-                                                )
-                                            ) ?>
-                                        </span>
+    marker.setLatLng([
+        latitude,
+        longitude
+    ]);
 
-                                    </td>
 
-                                    <td>
-                                        <?= !empty($product['created_at'])
-                                            ? date(
-                                                'Y-m-d',
-                                                strtotime(
-                                                    $product['created_at']
-                                                )
-                                            )
-                                            : 'N/A'
-                                        ?>
-                                    </td>
+    document.getElementById('latitude').value =
+        latitude.toFixed(8);
 
-                                </tr>
+    document.getElementById('longitude').value =
+        longitude.toFixed(8);
 
-                            <?php endforeach; ?>
+});
 
-                        <?php else: ?>
-
-                            <tr>
-
-                                <td colspan="6">
-                                    No products found for this farmer.
-                                </td>
-
-                            </tr>
-
-                        <?php endif; ?>
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </section>
-
-    </main>
-
-</div>
+</script>
 
 </body>
 
