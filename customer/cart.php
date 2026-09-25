@@ -1,9 +1,8 @@
 <?php
 
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/include.php';
 
-requireRole('customer');
+requireRole(R_CUSTOMER);
 
 
 // --------------------------------------------------
@@ -17,6 +16,12 @@ if (
     is_array($_SESSION['cart'])
 ) {
     $cart = $_SESSION['cart'];
+}
+
+$totalItems = 0;
+
+foreach ($cart as $item) {
+    $totalItems += (float)($item['quantity'] ?? 0);
 }
 
 
@@ -65,10 +70,6 @@ foreach ($cart as $item) {
         href="../assets/css/sidebar.css"
     >
 
-    <link
-        rel="stylesheet"
-        href="../assets/css/dashboard.css"
-    >
 
     <style>
 
@@ -387,11 +388,11 @@ foreach ($cart as $item) {
 
                         <?php
 
-                        $productId = (int) $item['product_id'];
+                        $productId = (int) $item['product_id'] ?? 0;
 
-                        $quantity = (float) $item['quantity'];
+                        $quantity = (float) $item['quantity'] ?? 0;
 
-                        $price = (float) $item['price'];
+                        $price = (float) $item['price'] ?? 0;
 
                         $subtotal = $quantity * $price;
 
@@ -405,8 +406,8 @@ foreach ($cart as $item) {
                             <?php if (!empty($item['image'])): ?>
 
                                 <img
-                                    src="../uploads/products/<?= htmlspecialchars($item['image']) ?>"
-                                    alt="<?= htmlspecialchars($item['name']) ?>"
+                                    src="../uploads/products/<?= e($item['image']) ?>"
+                                    alt="<?= e($item['name']) ?>"
                                     class="cart-item-image"
                                 >
 
@@ -425,20 +426,20 @@ foreach ($cart as $item) {
 
                                 <div class="cart-item-name">
 
-                                    <?= htmlspecialchars($item['name']) ?>
+                                    <?= e($item['name']) ?>
 
                                 </div>
 
                                 <div class="cart-item-price">
 
-                                    <?= number_format($price, 2) ?>
+                                    <?= formatPrice($price) ?>
 
                                 </div>
 
                                 <div class="cart-item-unit">
 
                                     per
-                                    <?= htmlspecialchars($item['unit']) ?>
+                                    <?= e($item['unit']) ?>
 
                                 </div>
 
@@ -462,7 +463,7 @@ foreach ($cart as $item) {
 
                                 <span class="quantity-value">
 
-                                    <?= htmlspecialchars($quantity) ?>
+                                    <?= $quantity ?>
 
                                 </span>
 
@@ -484,7 +485,7 @@ foreach ($cart as $item) {
 
                             <div class="cart-item-subtotal">
 
-                                <?= number_format($subtotal, 2) ?>
+                                <?= formatPrice($subtotal) ?>
 
                             </div>
 
@@ -521,7 +522,7 @@ foreach ($cart as $item) {
                         </span>
 
                         <span>
-                            <?= count($cart) ?>
+                            <?= $totalItems ?>
                         </span>
 
                     </div>
@@ -534,7 +535,7 @@ foreach ($cart as $item) {
                         </span>
 
                         <span>
-                            <?= number_format($cartSubtotal, 2) ?>
+                            <?= formatPrice($cartSubtotal) ?>
                         </span>
 
                     </div>
