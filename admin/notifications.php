@@ -2,9 +2,9 @@
 
 require_once __DIR__ . '/../includes/include.php';
 
-requireRole('admin');
+requireRole(R_ADMIN);
 
-$notifications = [];
+$adminNotifications = [];
 $errors = [];
 
 $stmt = $conn->prepare("
@@ -19,27 +19,25 @@ $stmt = $conn->prepare("
     FROM notifications
     ORDER BY created_at DESC
 ");
+
 if ($stmt) {
-
     if ($stmt->execute()) {
-
         $result = $stmt->get_result();
 
-        $notifications = $result->fetch_all(MYSQLI_ASSOC);
-
+        while ($row = $result->fetch_assoc()) {
+            $adminNotifications[] = $row;
+        }
     } else {
-
-        $errors[] = 'Failed to load notifications.';
+        $errors[] = 'Failed to load notifications: ' . $stmt->error;
     }
 
     $stmt->close();
-
 } else {
-
-    $errors[] = 'Failed to prepare notifications query.';
+    $errors[] = 'Failed to prepare notifications query: ' . $conn->error;
 }
 
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -64,69 +62,11 @@ if ($stmt) {
 
 <div class="admin-container">
 
-    <aside class="sidebar">
+    <?php include __DIR__ . '/../includes/navbar.php'; ?>
 
-        <div class="logo">
-            MarketLink
-        </div>
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-        <nav>
 
-            <a href="dashboard.php">
-                Dashboard
-            </a>
-
-            <a href="markets.php">
-                Markets
-            </a>
-
-            <a href="add_market.php">
-                Add Market
-            </a>
-
-            <a href="categories.php">
-                Produce Categories
-            </a>
-
-            <a href="farmers.php">
-                Farmers
-            </a>
-
-            <a href="products.php">
-                Produce
-            </a>
-
-            <a href="users.php">
-                Users
-            </a>
-
-            <a href="orders.php">
-                Orders
-            </a>
-
-            <a href="reviews.php">
-                Reviews
-            </a>
-
-            <a href="announcements.php">
-                Announcements
-            </a>
-
-            <a href="notifications.php" class="active">
-                Notifications
-            </a>
-
-            <a href="reports.php">
-                Reports
-            </a>
-
-            <a href="../logout.php">
-                Logout
-            </a>
-
-        </nav>
-
-    </aside>
     <main class="main-content">
 
         <div class="page-header">
@@ -179,113 +119,56 @@ if ($stmt) {
                 <table class="data-table">
 
                     <thead>
-
                         <tr>
-
-                            <th>
-                                ID
-                            </th>
-
-                            <th>
-                                User ID
-                            </th>
-
-                            <th>
-                                Title
-                            </th>
-
-                            <th>
-                                Message
-                            </th>
-
-                            <th>
-                                Type
-                            </th>
-
-                            <th>
-                                Status
-                            </th>
-
-                            <th>
-                                Date
-                            </th>
-
+                            <th>ID</th>
+                            <th>User ID</th>
+                            <th>Title</th>
+                            <th>Message</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Date</th>
                         </tr>
-
                     </thead>
-                     <tbody>
 
-                        <?php if (!empty($notifications)): ?>
 
-                            <?php foreach ($notifications as $notification): ?>
+                    <tbody>
 
+                        <?php if (!empty($adminNotifications)): ?>
+
+                            <?php foreach ($adminNotifications as $notification): ?>
                                 <tr>
-
                                     <td>
-                                        <?= (int)$notification['id'] ?>
+                                        <?= (int) $notification['id'] ?>
                                     </td>
 
                                     <td>
-                                        <?= (int)$notification['user_id'] ?>
+                                        <?= (int) $notification['user_id'] ?>
                                     </td>
 
                                     <td>
-                                        <?= htmlspecialchars(
-                                            $notification['title'] ?? 'N/A'
-                                        ) ?>
+                                        <?= htmlspecialchars($notification['title'] ?? 'N/A') ?>
                                     </td>
 
                                     <td>
-                                        <?= htmlspecialchars(
-                                            $notification['message'] ?? 'N/A'
-                                        ) ?>
+                                        <?= htmlspecialchars($notification['message'] ?? 'N/A') ?>
                                     </td>
 
                                     <td>
-                                        <?= htmlspecialchars(
-                                            $notification['type'] ?? 'N/A'
-                                        ) ?>
+                                        <?= htmlspecialchars($notification['type'] ?? 'N/A') ?>
                                     </td>
 
                                     <td>
-
-                                        <?php if ((int)$notification['is_read'] === 1): ?>
-
-                                            <span class="status status-active">
-                                                Read
-                                            </span>
-
+                                        <?php if ((int) $notification['is_read'] === 1): ?>
+                                            <span class="status status-active">Read</span>
                                         <?php else: ?>
-
-                                            <span class="status status-pending">
-                                                Unread
-                                            </span>
-
+                                            <span class="status status-pending">Unread</span>
                                         <?php endif; ?>
-
                                     </td>
 
                                     <td>
-
-                                        <?php if (!empty($notification['created_at'])): ?>
-
-                                            <?= date(
-                                                'Y-m-d H:i',
-                                                strtotime(
-                                                    $notification['created_at']
-                                                )
-                                            ) ?>
-
-                                        <?php else: ?>
-
-                                            N/A
-
-                                        <?php endif; ?>
-
+                                        <?= htmlspecialchars($notification['created_at'] ?? 'N/A') ?>
                                     </td>
-
                                 </tr>
-
                             <?php endforeach; ?>
 
                         <?php else: ?>

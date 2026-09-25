@@ -1,11 +1,8 @@
 <?php
 
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../includes/functions.php';
-require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/include.php';
 
-requireRole('customer');
+requireRole(R_CUSTOMER);
 
 /*
 |--------------------------------------------------------------------------
@@ -86,6 +83,8 @@ if (!$farmer) {
         >
 
         <title>Farmer Not Found - MarketLink</title>
+
+
 
         <style>
 
@@ -245,20 +244,9 @@ $productStmt->close();
 
     <!-- Project CSS -->
 
-    <link
-        rel="stylesheet"
-        href="../assets/css/base.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="../assets/css/navbar.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="../assets/css/sidebar.css"
-    >
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
 
 
     <style>
@@ -912,8 +900,6 @@ $productStmt->close();
 
 
 <?php include __DIR__ . '/../includes/navbar.php'; ?>
-
-
 <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
 

@@ -1,8 +1,8 @@
 <?php
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../includes/session.php';
 
-$user_id = $_SESSION['user_id'];
+require_once __DIR__ . '/../includes/include.php';
+
+$user_id = getUserId();
 
 $stmt = $conn->prepare("
     SELECT id
@@ -51,64 +51,73 @@ $products = $product_stmt->get_result();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventory</title>
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
 </head>
 <body>
-    <h1>My Inventory</h1>
-     
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Image</th>
-                <th>Product Name</th>
-                <th>Category</th>
-                <th>Price</th>
-                <th>Unit</th>
-                <th>Stock Quantity</th>
-                <th>Status</th>
-                <th>Availability</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
 
-        <?php while ($product = $products->fetch_assoc()): ?>
+    <?php include __DIR__ . '/../includes/navbar.php'; ?>
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
+    
+    <main class="main-content">
+        <h1>My Inventory</h1>
+        
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Product Name</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Unit</th>
+                    <th>Stock Quantity</th>
+                    <th>Status</th>
+                    <th>Availability</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
 
-    <tr>
+            <?php while ($product = $products->fetch_assoc()): ?>
 
-        <td>
-            <?php if (!empty($product['image'])): ?>
-                <img src="../<?= htmlspecialchars($product['image']) ?>" width="80">
-            <?php else: ?>
-                No Image
-            <?php endif; ?>
-        </td>
+        <tr>
 
-        <td><?= htmlspecialchars($product['name']) ?></td>
+            <td>
+                <?php if (!empty($product['image'])): ?>
+                    <img src="../<?= e($product['image']) ?>" width="80">
+                <?php else: ?>
+                    No Image
+                <?php endif; ?>
+            </td>
 
-        <td><?= htmlspecialchars($product['category_name']) ?></td>
+            <td><?= e($product['name']) ?></td>
 
-        <td><?= htmlspecialchars($product['price']) ?></td>
+            <td><?= e($product['category_name']) ?></td>
 
-        <td><?= htmlspecialchars($product['unit']) ?></td>
+            <td><?= e($product['price']) ?></td>
 
-        <td><?= htmlspecialchars($product['stock_quantity']) ?></td>
+            <td><?= e($product['unit']) ?></td>
 
-        <td><?= htmlspecialchars($product['moderation_status']) ?></td>
+            <td><?= e($product['stock_quantity']) ?></td>
 
-        <td>
-            <?php if ($product['is_available']): ?>
-                Available
-            <?php else: ?>
-                Unavailable
-            <?php endif; ?>
-        </td>
+            <td><?= e($product['moderation_status']) ?></td>
 
-        <td>
-            <a href="edit_product.php?id=<?=$product['id']?>">Edit</a>
-        </td>
+            <td>
+                <?php if ($product['is_available']): ?>
+                    Available
+                <?php else: ?>
+                    Unavailable
+                <?php endif; ?>
+            </td>
 
-    </tr>
-    <?php endwhile; ?>
-    </table>
+            <td>
+                <a href="edit_product.php?id=<?=$product['id']?>">Edit</a>
+            </td>
+
+        </tr>
+        <?php endwhile; ?>
+        </table>
+    </main>
 
 
 </body>

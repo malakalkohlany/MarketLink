@@ -1,20 +1,14 @@
 <?php
 
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/include.php';
 
-requireRole('customer');
+requireRole(R_CUSTOMER);
 
 // ===============================
 // Get Logged-in Customer ID
 // ===============================
 
 $customerId = getUserId();
-
-if (!$customerId) {
-    header('Location: ../auth/login.php');
-    exit;
-}
 
 // ===============================
 // Get Customer Orders
@@ -100,6 +94,10 @@ unset($order);
     >
 
     <title>My Orders - MarketLink</title>
+
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
 
 
     <style>
@@ -485,215 +483,94 @@ unset($order);
 
 <body>
 
+    <?php include __DIR__ . '/../includes/navbar.php'; ?>
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-<div class="orders-container">
+    <main class="main-content">
 
-
-    <!-- ===============================
-         Page Header
-    =============================== -->
-
-    <div class="page-header">
-
-        <h1>
-            My Orders
-        </h1>
-
-        <p>
-            View your previous and current orders.
-        </p>
-
-    </div>
+        <div class="orders-container">
 
 
-    <?php if (empty($orders)): ?>
+            <!-- ===============================
+                Page Header
+            =============================== -->
+
+            <div class="page-header">
+
+                <h1>
+                    My Orders
+                </h1>
+
+                <p>
+                    View your previous and current orders.
+                </p>
+
+            </div>
 
 
-        <!-- ===============================
-             No Orders
-        =============================== -->
-
-        <div class="empty-orders">
-
-            <h2>
-                No Orders Yet
-            </h2>
-
-            <p>
-                You have not placed any orders yet.
-            </p>
-
-            <a
-                href="products.php"
-                class="browse-button"
-            >
-                Browse Products
-            </a>
-
-        </div>
+            <?php if (empty($orders)): ?>
 
 
-    <?php else: ?>
+                <!-- ===============================
+                    No Orders
+                =============================== -->
 
+                <div class="empty-orders">
 
-        <!-- ===============================
-             Orders
-        =============================== -->
+                    <h2>
+                        No Orders Yet
+                    </h2>
 
-        <?php foreach ($orders as $order): ?>
+                    <p>
+                        You have not placed any orders yet.
+                    </p>
 
-
-            <div class="order-card">
-
-
-                <!-- Order Header -->
-
-                <div class="order-header">
-
-                    <div>
-
-                        <div class="order-number">
-
-                            Order #<?php
-                            echo (int) $order['id'];
-                            ?>
-
-                        </div>
-
-                        <div class="order-date">
-
-                            <?php
-
-                            echo date(
-                                'M d, Y - h:i A',
-                                strtotime(
-                                    $order['created_at']
-                                )
-                            );
-
-                            ?>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- Status -->
-
-                    <?php
-
-                    $status = strtolower(
-                        $order['status']
-                    );
-
-                    $statusClass =
-                        'status-' . $status;
-
-                    ?>
-
-                    <span
-                        class="status <?php echo htmlspecialchars($statusClass); ?>"
+                    <a
+                        href="products.php"
+                        class="browse-button"
                     >
-
-                        <?php
-
-                        echo htmlspecialchars(
-                            ucfirst($status)
-                        );
-
-                        ?>
-
-                    </span>
+                        Browse Products
+                    </a>
 
                 </div>
 
 
-                <!-- Items Title -->
-
-                <div class="items-title">
-
-                    Order Items
-
-                </div>
+            <?php else: ?>
 
 
-                <!-- Items -->
+                <!-- ===============================
+                    Orders
+                =============================== -->
 
-                <?php if (!empty($order['items'])): ?>
-
-
-                    <?php foreach ($order['items'] as $item): ?>
-
-
-                        <div class="order-item">
+                <?php foreach ($orders as $order): ?>
 
 
-                            <!-- Product Image -->
-
-                            <?php if (!empty($item['product_image'])): ?>
-
-                                <img
-                                    src="../uploads/products/<?php echo htmlspecialchars($item['product_image']); ?>"
-                                    alt="<?php echo htmlspecialchars($item['product_name']); ?>"
-                                    class="product-image"
-                                >
-
-                            <?php else: ?>
-
-                                <div class="no-image">
-                                    No Image
-                                </div>
-
-                            <?php endif; ?>
+                    <div class="order-card">
 
 
-                            <!-- Product Info -->
+                        <!-- Order Header -->
 
-                            <div class="item-info">
+                        <div class="order-header">
 
-                                <div class="product-name">
+                            <div>
 
-                                    <?php
+                                <div class="order-number">
 
-                                    echo htmlspecialchars(
-                                        $item['product_name']
-                                        ?? 'Product'
-                                    );
-
+                                    Order #<?php
+                                    echo (int) $order['id'];
                                     ?>
 
                                 </div>
 
-
-                                <div class="product-quantity">
-
-                                    Quantity:
+                                <div class="order-date">
 
                                     <?php
 
-                                    echo number_format(
-                                        (float) $item['quantity'],
-                                        2
-                                    );
-
-                                    ?>
-
-                                    <?php
-
-                                    echo htmlspecialchars(
-                                        $item['product_unit']
-                                        ?? ''
-                                    );
-
-                                    ?>
-
-                                    × $
-
-                                    <?php
-
-                                    echo number_format(
-                                        (float) $item['unit_price'],
-                                        2
+                                    echo date(
+                                        'M d, Y - h:i A',
+                                        strtotime(
+                                            $order['created_at']
+                                        )
                                     );
 
                                     ?>
@@ -703,102 +580,228 @@ unset($order);
                             </div>
 
 
-                            <!-- Item Subtotal -->
+                            <!-- Status -->
 
-                            <div class="item-price">
+                            <?php
 
-                                $
+                            $status = strtolower(
+                                $order['status']
+                            );
+
+                            $statusClass =
+                                'status-' . $status;
+
+                            ?>
+
+                            <span
+                                class="status <?php echo htmlspecialchars($statusClass); ?>"
+                            >
 
                                 <?php
 
-                                echo number_format(
-                                    (float) $item['subtotal'],
-                                    2
+                                echo htmlspecialchars(
+                                    ucfirst($status)
+                                );
+
+                                ?>
+
+                            </span>
+
+                        </div>
+
+
+                        <!-- Items Title -->
+
+                        <div class="items-title">
+
+                            Order Items
+
+                        </div>
+
+
+                        <!-- Items -->
+
+                        <?php if (!empty($order['items'])): ?>
+
+
+                            <?php foreach ($order['items'] as $item): ?>
+
+
+                                <div class="order-item">
+
+
+                                    <!-- Product Image -->
+
+                                    <?php if (!empty($item['product_image'])): ?>
+
+                                        <img
+                                            src="../uploads/products/<?php echo htmlspecialchars($item['product_image']); ?>"
+                                            alt="<?php echo htmlspecialchars($item['product_name']); ?>"
+                                            class="product-image"
+                                        >
+
+                                    <?php else: ?>
+
+                                        <div class="no-image">
+                                            No Image
+                                        </div>
+
+                                    <?php endif; ?>
+
+
+                                    <!-- Product Info -->
+
+                                    <div class="item-info">
+
+                                        <div class="product-name">
+
+                                            <?php
+
+                                            echo htmlspecialchars(
+                                                $item['product_name']
+                                                ?? 'Product'
+                                            );
+
+                                            ?>
+
+                                        </div>
+
+
+                                        <div class="product-quantity">
+
+                                            Quantity:
+
+                                            <?php
+
+                                            echo number_format(
+                                                (float) $item['quantity'],
+                                                2
+                                            );
+
+                                            ?>
+
+                                            <?php
+
+                                            echo htmlspecialchars(
+                                                $item['product_unit']
+                                                ?? ''
+                                            );
+
+                                            ?>
+
+                                            × $
+
+                                            <?php
+
+                                            echo number_format(
+                                                (float) $item['unit_price'],
+                                                2
+                                            );
+
+                                            ?>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- Item Subtotal -->
+
+                                    <div class="item-price">
+
+                                        $
+
+                                        <?php
+
+                                        echo number_format(
+                                            (float) $item['subtotal'],
+                                            2
+                                        );
+
+                                        ?>
+
+                                    </div>
+
+
+                                </div>
+
+
+                            <?php endforeach; ?>
+
+
+                        <?php else: ?>
+
+
+                            <p>
+                                No items found for this order.
+                            </p>
+
+
+                        <?php endif; ?>
+
+
+                        <!-- Notes -->
+
+                        <?php if (!empty($order['notes'])): ?>
+
+                            <div class="order-notes">
+
+                                <span class="notes-label">
+                                    Note:
+                                </span>
+
+                                <?php
+
+                                echo nl2br(
+                                    htmlspecialchars(
+                                        $order['notes']
+                                    )
                                 );
 
                                 ?>
 
                             </div>
 
+                        <?php endif; ?>
+
+
+                        <!-- Footer -->
+
+                        <div class="order-footer">
+
+                            <span class="total-label">
+                                Order Total:
+                            </span>
+
+                            <span class="total-price">
+
+                                $
+
+                                <?php
+
+                                echo number_format(
+                                    (float) $order['subtotal'],
+                                    2
+                                );
+
+                                ?>
+
+                            </span>
 
                         </div>
 
 
-                    <?php endforeach; ?>
-
-
-                <?php else: ?>
-
-
-                    <p>
-                        No items found for this order.
-                    </p>
-
-
-                <?php endif; ?>
-
-
-                <!-- Notes -->
-
-                <?php if (!empty($order['notes'])): ?>
-
-                    <div class="order-notes">
-
-                        <span class="notes-label">
-                            Note:
-                        </span>
-
-                        <?php
-
-                        echo nl2br(
-                            htmlspecialchars(
-                                $order['notes']
-                            )
-                        );
-
-                        ?>
-
                     </div>
 
-                <?php endif; ?>
+
+                <?php endforeach; ?>
 
 
-                <!-- Footer -->
-
-                <div class="order-footer">
-
-                    <span class="total-label">
-                        Order Total:
-                    </span>
-
-                    <span class="total-price">
-
-                        $
-
-                        <?php
-
-                        echo number_format(
-                            (float) $order['subtotal'],
-                            2
-                        );
-
-                        ?>
-
-                    </span>
-
-                </div>
+            <?php endif; ?>
 
 
-            </div>
-
-
-        <?php endforeach; ?>
-
-
-    <?php endif; ?>
-
-
-</div>
+        </div>
+    </main>
 
 
 </body>
