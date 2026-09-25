@@ -1,10 +1,8 @@
 <?php
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ .'/../config/config.php';
-require_once __DIR__ . '/../includes/session.php';
-require_once __DIR__ . '/../includes/functions.php';
 
-$user_id = $_SESSION['user_id'];
+require_once __DIR__ . '/../includes/include.php';
+
+$user_id = getUserId();
 
 $stmt = $conn->prepare("
     SELECT id
@@ -55,51 +53,61 @@ $total_orders = $orders->num_rows;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Orders</title>
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
 </head>
 <body>
-    <h1>My Orders</h1>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Order ID</th>
-                <th>Customer</th>
-                <th>Status</th>
-                <th>Subtotal</th>
-                <th>Notes</th>
-                <th>Date</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
 
-    <?php while ($order = $orders->fetch_assoc()): ?>
+    <?php include __DIR__ . '/../includes/navbar.php'; ?>
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-        <tr>
+    <main class="main-content">
 
-            <td><?= e($order['id']) ?></td>
+        <h1>My Orders</h1>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Status</th>
+                    <th>Subtotal</th>
+                    <th>Notes</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
 
-            <td><?= e($order['customer_name']) ?></td>
+                <?php while ($order = $orders->fetch_assoc()): ?>
 
-            <td><?= e($order['status']) ?></td>
+                    <tr>
 
-            <td><?= formatPrice($order['subtotal']) ?></td>
+                        <td><?= e($order['id']) ?></td>
 
-            <td><?= e($order['notes'] ?? '') ?></td>
+                        <td><?= e($order['customer_name']) ?></td>
 
-            <td><?= formatDateTime($order['created_at']) ?></td>
+                        <td><?= e($order['status']) ?></td>
 
-            <td>
-                <a href="order_details.php?id=<?= $order['id'] ?>">
-                    View Details
-                </a>
-            </td>
+                        <td><?= formatPrice($order['subtotal']) ?></td>
 
-        </tr>
+                        <td><?= e($order['notes'] ?? '') ?></td>
 
-    <?php endwhile; ?>
+                        <td><?= formatDateTime($order['created_at']) ?></td>
 
-</tbody>
+                        <td>
+                            <a href="order_details.php?id=<?= $order['id'] ?>">
+                                View Details
+                            </a>
+                        </td>
 
-    </table>
+                    </tr>
+
+                <?php endwhile; ?>
+
+            </tbody>
+
+        </table>
+    </main>
 </body>
 </html>

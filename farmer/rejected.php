@@ -1,7 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/include.php';
 
 requireLogin();
 
@@ -32,42 +31,46 @@ if ($_SESSION['approval_status'] !== 'rejected') {
 
     <title>Application Not Approved | MarketLink</title>
 
-    <link rel="stylesheet"
-          href="<?= BASE_URL ?>assets/css/base.css">
-
-    <link rel="stylesheet"
-          href="<?= BASE_URL ?>assets/css/dashboard.css">
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
 </head>
 
 <body>
 
-<div class="approval-page">
+    <?php include __DIR__ . '/../includes/navbar.php'; ?>
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-    <div class="approval-card">
+    <main class="main-content">
 
-        <h1>Application Not Approved</h1>
+        <div class="approval-page">
 
-        <p>
-            Hi <?= htmlspecialchars($_SESSION['name']) ?>,
-        </p>
+            <div class="approval-card">
 
-        <p>
-            Unfortunately, your farmer application was not approved.
-        </p>
+                <h1>Application Not Approved</h1>
 
-        <p>
-            Please contact MarketLink support if you believe this
-            decision was made in error.
-        </p>
+                <p>
+                    Hi <?= htmlspecialchars($_SESSION['name']) ?>,
+                </p>
 
-        <a href="<?= BASE_URL ?>auth/logout.php"
-           class="btn btn-secondary">
-            Log Out
-        </a>
+                <p>
+                    Unfortunately, your farmer application was not approved.
+                </p>
 
-    </div>
+                <p>
+                    Please contact MarketLink support if you believe this
+                    decision was made in error.
+                </p>
 
-</div>
+                <a href="<?= BASE_URL ?>auth/logout.php"
+                class="btn btn-secondary">
+                    Log Out
+                </a>
+
+            </div>
+
+        </div>
+    </main>
 
 </body>
 </html>

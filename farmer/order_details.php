@@ -1,8 +1,6 @@
 <?php
-require_once __DIR__ .'/../config/database.php';
-require_once __DIR__ .'/../config/config.php';
-require_once __DIR__ .'/../includes/session.php';
-require_once __DIR__ .'/../includes/functions.php';
+
+require_once __DIR__ .'/../includes/include.php';
 
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     die("Invalid order ID.");
@@ -10,7 +8,7 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 
 $order_id = (int) $_GET['id'];
 
-$user_id = $_SESSION['user_id'];
+$user_id = getUserId();
 
 $stmt = $conn->prepare("
     SELECT id
@@ -89,62 +87,72 @@ $items = $item_stmt->get_result();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Details</title>
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
 </head>
 <body>
-    <h1>Order Details</h1>
-    <h2>Order Information</h2>
 
-    <p><strong>Order ID:</strong><?= e($order['id']) ?></p>
-    <p><strong>Status:</strong><?= e($order['status']) ?></p>
-    <p><strong>Subtotal:</strong><?= e($order['subtotal']) ?></p>
-    <p><strong>Notes:</strong><?= e($order['notes'] ?? '') ?></p>
-    <p><strong>Date:</strong><?= formatDateTime($order['created_at']) ?></p>
+    <?php include __DIR__ . '/../includes/navbar.php'; ?>
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-    <h2>Customer Information</h2>
-    <p><strong>Name:</strong><?= e($order['customer_name']) ?></p>
-    <p><strong>Email:</strong><?= e($order['customer_email']) ?></p>
-    <p><strong>Phone:</strong><?= e($order['customer_phone']) ?></p>
-    <p><strong>Address:</strong><?= e($order['customer_address']) ?></p>
+    <main class="main-content">
 
-        <h2>Order Items</h2>
+        <h1>Order Details</h1>
+        <h2>Order Information</h2>
 
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Product</th>
-                <th>Unit</th>
-                <th>Quantity</th>
-                <th>Unit Price</th>
-                <th>Subtotal</th>
-            </tr>
-        </thead>
+        <p><strong>Order ID:</strong><?= e($order['id']) ?></p>
+        <p><strong>Status:</strong><?= e($order['status']) ?></p>
+        <p><strong>Subtotal:</strong><?= e($order['subtotal']) ?></p>
+        <p><strong>Notes:</strong><?= e($order['notes'] ?? '') ?></p>
+        <p><strong>Date:</strong><?= formatDateTime($order['created_at']) ?></p>
 
-        <tbody>
+        <h2>Customer Information</h2>
+        <p><strong>Name:</strong><?= e($order['customer_name']) ?></p>
+        <p><strong>Email:</strong><?= e($order['customer_email']) ?></p>
+        <p><strong>Phone:</strong><?= e($order['customer_phone']) ?></p>
+        <p><strong>Address:</strong><?= e($order['customer_address']) ?></p>
 
-            <?php while ($item = $items->fetch_assoc()): ?>
+            <h2>Order Items</h2>
 
+        <table border="1">
+            <thead>
                 <tr>
-
-                    <td><?= e($item['product_name']) ?></td>
-
-                    <td><?= e($item['unit']) ?></td>
-
-                    <td><?= e($item['quantity']) ?></td>
-
-                    <td><?= formatPrice($item['unit_price']) ?></td>
-
-                    <td><?= formatPrice($item['subtotal']) ?></td>
-
+                    <th>Product</th>
+                    <th>Unit</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                    <th>Subtotal</th>
                 </tr>
+            </thead>
 
-            <?php endwhile; ?>
+            <tbody>
 
-        </tbody>
-    </table>
+                <?php while ($item = $items->fetch_assoc()): ?>
 
-    <br>
+                    <tr>
 
-    <a href="orders.php">Back to Orders</a>
+                        <td><?= e($item['product_name']) ?></td>
+
+                        <td><?= e($item['unit']) ?></td>
+
+                        <td><?= e($item['quantity']) ?></td>
+
+                        <td><?= formatPrice($item['unit_price']) ?></td>
+
+                        <td><?= formatPrice($item['subtotal']) ?></td>
+
+                    </tr>
+
+                <?php endwhile; ?>
+
+            </tbody>
+        </table>
+
+        <br>
+
+        <a href="orders.php">Back to Orders</a>
+    </main>
 
 </body>
 </html>
