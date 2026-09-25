@@ -1,6 +1,11 @@
 <?php
 
-require_once '../config/database.php';
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/session.php';
+
+requireRole('customer');
 
 $markets = [];
 
@@ -34,6 +39,10 @@ if ($result) {
         href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     >
 
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
+
     <style>
         #map {
             width: 100%;
@@ -44,11 +53,18 @@ if ($result) {
 
 <body>
 
-    <h1>Markets</h1>
+    <?php include __DIR__ . '/../includes/navbar.php'; ?>
 
-    <p>Find nearby markets and view their locations.</p>
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-    <div id="map"></div>
+    <main class="main-content">
+
+        <h1>Markets</h1>
+
+        <p>Find nearby markets and view their locations.</p>
+
+        <div id="map"></div>
+    </main>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
