@@ -7,144 +7,98 @@ require_once __DIR__ . '/../includes/session.php';
 
 requireRole('admin');
 
-$total_customers = 0;
-$total_farmers = 0;
-$total_markets = 0;
-$total_products = 0;
-$total_orders = 0;
-$completed_orders = 0;
-$total_sales = 0;
-$recent_orders = [];
-$top_farmers = [];
-
 $stmt = $conn->prepare("
-    SELECT COUNT(*) AS total
+    SELECT COUNT(*)
     FROM users
     WHERE role = 'customer'
 ");
 
+$stmt->execute();
 
-if ($stmt) {
+$result = $stmt->get_result();
+$row = $result->fetch_row();
 
-    $stmt->execute();
-
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
-
-    $total_customers = (int)$row['total'];
-
-    $stmt->close();
-}
+$total_customers = (int) $row[0];
 
 
 $stmt = $conn->prepare("
-    SELECT COUNT(*) AS total
+    SELECT COUNT(*)
     FROM farmers
 ");
 
-if ($stmt) {
+$stmt->execute();
 
-    $stmt->execute();
+$result = $stmt->get_result();
+$row = $result->fetch_row();
 
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
-
-    $total_farmers = (int)$row['total'];
-
-    $stmt->close();
-}
+$total_farmers = (int) $row[0];
 
 
 $stmt = $conn->prepare("
-    SELECT COUNT(*) AS total
+    SELECT COUNT(*)
     FROM markets
 ");
 
-if ($stmt) {
+$stmt->execute();
 
-    $stmt->execute();
+$result = $stmt->get_result();
+$row = $result->fetch_row();
 
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
-
-    $total_markets = (int)$row['total'];
-
-    $stmt->close();
-}
+$total_markets = (int) $row[0];
 
 
 $stmt = $conn->prepare("
-    SELECT COUNT(*) AS total
+    SELECT COUNT(*)
     FROM products
 ");
 
-if ($stmt) {
+$stmt->execute();
 
-    $stmt->execute();
+$result = $stmt->get_result();
+$row = $result->fetch_row();
 
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
+$total_products = (int) $row[0];
 
-    $total_products = (int)$row['total'];
 
-    $stmt->close();
-}
 $stmt = $conn->prepare("
-    SELECT COUNT(*) AS total
+    SELECT COUNT(*)
     FROM orders
 ");
 
-if ($stmt) {
+$stmt->execute();
 
-    $stmt->execute();
+$result = $stmt->get_result();
+$row = $result->fetch_row();
 
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
-
-    $total_orders = (int)$row['total'];
-
-    $stmt->close();
-}
+$total_orders = (int) $row[0];
 
 
 $stmt = $conn->prepare("
-    SELECT COUNT(*) AS total
+    SELECT COUNT(*)
     FROM orders
     WHERE status = 'completed'
 ");
 
-if ($stmt) {
+$stmt->execute();
 
-    $stmt->execute();
+$result = $stmt->get_result();
+$row = $result->fetch_row();
 
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
-
-    $completed_orders = (int)$row['total'];
-
-    $stmt->close();
-}
+$completed_orders = (int) $row[0];
 
 
 $stmt = $conn->prepare("
-    SELECT COALESCE(SUM(subtotal), 0) AS total
+    SELECT COALESCE(SUM(subtotal), 0)
     FROM orders
     WHERE status = 'completed'
 ");
 
-if ($stmt) {
+$stmt->execute();
 
-    $stmt->execute();
+$result = $stmt->get_result();
+$row = $result->fetch_row();
 
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
-
-    $total_sales = (float)$row['total'];
-
-    $stmt->close();
-}
-
-
+$total_sales = (float) $row[0];
 $stmt = $conn->prepare("
     SELECT
         o.id,
@@ -162,15 +116,10 @@ $stmt = $conn->prepare("
     LIMIT 10
 ");
 
-if ($stmt) {
+$stmt->execute();
 
-    $stmt->execute();
-
-    $result = $stmt->get_result();
-    $recent_orders = $result->fetch_all(MYSQLI_ASSOC);
-
-    $stmt->close();
-}
+$result = $stmt->get_result();
+$recent_orders = $result->fetch_all(MYSQLI_ASSOC);
 
 
 $stmt = $conn->prepare("
@@ -188,17 +137,13 @@ $stmt = $conn->prepare("
     LIMIT 10
 ");
 
-if ($stmt) {
+$stmt->execute();
 
-    $stmt->execute();
-
-    $result = $stmt->get_result();
-    $top_farmers = $result->fetch_all(MYSQLI_ASSOC);
-
-    $stmt->close();
-}
+$result = $stmt->get_result();
+$top_farmers = $result->fetch_all(MYSQLI_ASSOC);
 
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
