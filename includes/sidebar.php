@@ -318,8 +318,8 @@ $role = $_SESSION['role'] ?? '';
 
                 <li>
                     <a
-                        href="<?= BASE_URL ?>admin/users.php"
-                        class="<?= $current_page === 'users.php' ? 'active' : '' ?>"
+                        href="<?= BASE_URL ?>admin/customers.php"
+                        class="<?= $current_page === 'customers.php' ? 'active' : '' ?>"
                     >
                         <span class="nav-icon">●</span>
                         Users
