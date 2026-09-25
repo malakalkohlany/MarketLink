@@ -1,6 +1,10 @@
 <?php
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/session.php';
 
-require_once '../includes/include.php';
+requireRole('admin');
 
 $stmt = $conn->prepare("
     SELECT
@@ -15,10 +19,9 @@ $stmt = $conn->prepare("
     WHERE role = 'customer'
     ORDER BY created_at DESC
 ");
-
-$stmt->execute();
-
-$customers = $stmt->fetchAll();
+$result = $stmt->get_result();
+$markets = $result->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
 
 ?>
 

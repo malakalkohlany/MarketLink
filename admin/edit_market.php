@@ -1,9 +1,11 @@
-edit_market.php
+<<?php
 
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/session.php';
 
-<?php
-
-require_once '../includes/include.php';
+requireRole('admin');
 
 $id = filter_input(
     INPUT_GET,
@@ -11,461 +13,487 @@ $id = filter_input(
     FILTER_VALIDATE_INT
 );
 
-$market = null;
+$farmer = null;
+$products = [];
 $errors = [];
-$success = '';
 
-if ($id) {
-
-   $stmt = $conn->prepare("
-        SELECT
-            id,
-            name,
-            description,
-            address,
-            latitude,
-            longitude,
-            opening_time,
-            closing_time,
-            operating_days,
-            map_provider,
-            status,
-            created_at,
-            updated_at
-        FROM markets
-        WHERE id = ?
-    ");
-
-    $stmt->execute([$id]);
-
-    $market = $stmt->fetch();
+if (!$id) {
+    die('Invalid farmer ID.');
 }
 
-if (!$market) {
-    die("Market not found.");
+$stmt = $conn->prepare("
+    SELECT
+        id,
+        stall_name,
+        email,
+        phone,
+        address,
+        status,
+        created_at,
+        updated_at
+    FROM farmers
+    WHERE id = ?
+");
+
+if ($stmt) {
+
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+    $farmer = $result->fetch_assoc();
+
+    $stmt->close();
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    $name = trim($_POST['name'] ?? '');
-    $description = trim($_POST['description'] ?? '');
-    $address = trim($_POST['address'] ?? '');
-
-    $latitude = trim($_POST['latitude'] ?? '');
-    $longitude = trim($_POST['longitude'] ?? '');
-
-    $opening_time = $_POST['opening_time'] ?? '';
-    $closing_time = $_POST['closing_time'] ?? '';
-
-    $operating_days = $_POST['operating_days'] ?? [];
-
-    $map_provider = $_POST['map_provider'] ?? 'OpenStreetMap';
-    $status = $_POST['status'] ?? 'active';
-
-   if ($name === '') {
-        $errors[] = "Market name is required.";
-    }
-
-    if ($address === '') {
-        $errors[] = "Market address is required.";
-    }
-    if (empty($errors)) {
-
-        $stmt = $conn->prepare("
-            UPDATE markets
-            SET
-                name = ?,
-                description = ?,
-                address = ?,
-                latitude = ?,
-                longitude = ?,
-                opening_time = ?,
-                closing_time = ?,
-                operating_days = ?,
-                map_provider = ?,
-                status = ?,
-                updated_at = CURRENT_TIMESTAMP
-            WHERE id = ?
-        ");
-
-        $stmt->execute([
-            $name,
-            $description,
-            $address,
-            $latitude,
-            $longitude,
-            $opening_time,
-            $closing_time,
-            json_encode(
-                $operating_days,
-                JSON_UNESCAPED_UNICODE
-            ),
-            $map_provider,
-            $status,
-            $id
-        ]);
-
-        $success = "Market updated successfully.";
- $stmt = $conn->prepare("
-            SELECT
-                id,
-                name,
-                description,
-                address,
-                latitude,
-                longitude,
-                opening_time,
-                closing_time,
-                operating_days,
-                map_provider,
-                status,
-                created_at,
-                updated_at
-            FROM markets
-            WHERE id = ?
-        ");
-
-        $stmt->execute([$id]);
-
-        $market = $stmt->fetch();
-    }
+if (!$farmer) {
+    die('Farmer not found.');
 }
 
-$current_days = [];
+$stmt = $conn->prepare("
+    SELECT
+        p.id,
+        p.name,
+        p.price,
+        p.status,
+        p.created_at,
+        c.name AS category_name
+    FROM products p
+    LEFT JOIN categories c
+        ON p.category_id = c.id
+    WHERE p.farmer_id = ?
+    ORDER BY p.created_at DESC
+");
 
-if (!empty($market['operating_days'])) {
+if ($stmt) {
 
-    $decoded_days = json_decode(
-        $market['operating_days'],
-        true
-    );
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
 
-    if (is_array($decoded_days)) {
-        $current_days = $decoded_days;
-    }
+    $result = $stmt->get_result();
+    $products = $result->fetch_all(MYSQLI_ASSOC);
+
+    $stmt->close();
 }
 
 ?>
+<!DOCTYPE html>
+<html lang="en">
 
-<div class="page-header">
+<head>
 
-    <h1>
-        Edit Market
-    </h1>
+    <meta charset="UTF-8">
 
-    <p>
-        Update market information.
-    </p>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-</div>
+    <title>Farmer Details | FreshFind</title>
 
+    <link
+        rel="stylesheet"
+        href="../assets/css/style.css"
+    >
 
-<?php if (!empty($errors)): ?>
+</head>
 
-    <section class="table-section">
+<body>
 
-        <?php foreach ($errors as $error): ?>
+<div class="admin-container">
 
-            <p>
-                <?= htmlspecialchars($error) ?>
-            </p>
+    <aside class="sidebar">
 
-        <?php endforeach; ?>
-
-    </section>
-
-<?php endif; ?>
-
-
-<?php if ($success): ?>
-
-    <section class="table-section">
-
-        <p>
-            <?= htmlspecialchars($success) ?>
-        </p>
-
-    </section>
-
-<?php endif; ?>
-
-
-<section class="form-section">
-
-    <div class="section-header">
-
-        <h2>
-            Market Information
-        </h2>
-
-        <a
-            href="markets.php"
-            class="btn btn-secondary"
-        >
-            Back to Markets
-        </a>
-
-    </div>
-
-
-    <form method="POST">
-
-
-        <div class="details-grid">
-
-
-            <div class="form-group">
-
-                <label for="name">
-                    Market Name
-                </label>
-
-                <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value="<?= htmlspecialchars(
-                        $market['name']
-                    ) ?>"
-                    required
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label for="address">
-                    Address
-                </label>
-
-                <input
-                    type="text"
-                    id="address"
-                    name="address"
-                    value="<?= htmlspecialchars(
-                        $market['address'] ?? ''
-                    ) ?>"
-                    required
-                >
-
-            </div>
-
-     <div class="form-group">
-
-                <label for="latitude">
-                    Latitude
-                </label>
-
-                <input
-                    type="text"
-                    id="latitude"
-                    name="latitude"
-                    value="<?= htmlspecialchars(
-                        $market['latitude'] ?? ''
-                    ) ?>"
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label for="longitude">
-                    Longitude
-                </label>
-
-                <input
-                    type="text"
-                    id="longitude"
-                    name="longitude"
-                    value="<?= htmlspecialchars(
-                        $market['longitude'] ?? ''
-                    ) ?>"
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label for="opening_time">
-                    Opening Time
-                </label>
-
-                <input
-                    type="time"
-                    id="opening_time"
-                    name="opening_time"
-                    value="<?= htmlspecialchars(
-                        $market['opening_time'] ?? ''
-                    ) ?>"
-                >
-
-            </div>
-             <div class="form-group">
-
-                <label for="closing_time">
-                    Closing Time
-                </label>
-
-                <input
-                    type="time"
-                    id="closing_time"
-                    name="closing_time"
-                    value="<?= htmlspecialchars(
-                        $market['closing_time'] ?? ''
-                    ) ?>"
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label for="map_provider">
-                    Map Provider
-                </label>
-
-                <select
-                    id="map_provider"
-                    name="map_provider"
-                >
-
-                    <option
-                        value="OpenStreetMap"
-                        <?= (
-                            $market['map_provider']
-                            === 'OpenStreetMap'
-                        ) ? 'selected' : '' ?>
-                    >
-                        OpenStreetMap
-                    </option>
-
-                    <option
-                        value="Google Maps"
-                        <?= (
-                            $market['map_provider']
-                            === 'Google Maps'
-                        ) ? 'selected' : '' ?>
-                    >
-                        Google Maps
-                    </option>
-
-                </select>
-
-            </div>
-   <div class="form-group">
-
-                <label for="status">
-                    Status
-                </label>
-
-                <select
-                    id="status"
-                    name="status"
-                >
-
-                    <option
-                        value="active"
-                        <?= (
-                            $market['status']
-                            === 'active'
-                        ) ? 'selected' : '' ?>
-                    >
-                        Active
-                    </option>
-
-                    <option
-                        value="inactive"
-                        <?= (
-                            $market['status']
-                            === 'inactive'
-                        ) ? 'selected' : '' ?>
-                    >
-                        Inactive
-                    </option>
-
-                </select>
-
-            </div>
-
-
+        <div class="logo">
+            FreshFind
         </div>
 
+        <nav>
 
-        <div class="form-group">
+ <a href="dashboard.php">
+                Dashboard
+            </a>
 
-            <label for="description">
-                Description
-            </label>
+            <a href="markets.php">
+                Markets
+            </a>
 
-            <textarea
-                id="description"
-                name="description"
-                rows="5"
-            ><?= htmlspecialchars(
-                $market['description'] ?? ''
-            ) ?></textarea>
+            <a href="add_market.php">
+                Add Market
+            </a>
 
-        </div>
-         <div class="form-group">
+            <a href="categories.php">
+                Produce Categories
+            </a>
 
-            <label>
-                Operating Days
-            </label>
+            <a href="farmers.php" class="active">
+                Farmers
+            </a>
 
+            <a href="products.php">
+                Produce
+            </a>
 
-            <?php
+            <a href="users.php">
+                Users
+            </a>
 
-            $days = [
-                'Sunday',
-                'Monday',
-                'Tuesday',
-                'Wednesday',
-                'Thursday',
-                'Friday',
-                'Saturday'
-            ];
+            <a href="orders.php">
+                Orders
+            </a>
 
-            ?>
+            <a href="reviews.php">
+                Reviews
+            </a>
 
+            <a href="announcements.php">
+                Announcements
+            </a>
+
+            <a href="reports.php">
+                Reports
+            </a>
+
+            <a href="../logout.php">
+                Logout
+            </a>
+
+        </nav>
+
+    </aside>
+
+    <main class="main-content">
+
+        <div class="page-header">
 
             <div>
 
-                <?php foreach ($days as $day): ?>
+                <h1>
+                    Farmer Details
+                </h1>
 
-                    <label>
+                <p>
+                    View farmer information and products.
+                </p>
 
-                        <input
-                            type="checkbox"
-                            name="operating_days[]"
-                            value="<?= $day ?>"
-                            <?= in_array(
-                                $day,
-                                $current_days
-                            ) ? 'checked' : '' ?>
-                        >
+            </div>
 
-                        <?= $day ?>
+        </div>
 
-                    </label>
+
+        <?php if (!empty($errors)): ?>
+
+            <div class="alert alert-danger">
+
+                <?php foreach ($errors as $error): ?>
+
+                    <p>
+                        <?= htmlspecialchars($error) ?>
+                    </p>
 
                 <?php endforeach; ?>
 
             </div>
 
-        </div>
+        <?php endif; ?>
 
 
-        <button
-            type="submit"
-            class="btn btn-primary"
-        >
-            Update Market
-        </button>
+        <section class="form-section">
+
+            <div class="section-header">
+
+                <h2>
+                    <?= htmlspecialchars($farmer['stall_name']) ?>
+                </h2>
+
+                <a
+                    href="farmers.php"
+                    class="btn btn-secondary"
+                >
+                    Back to Farmers
+                </a>
+                 </div>
 
 
-    </form>
+            <div class="details-grid">
 
-</section>
+                <div class="form-group">
+
+                    <label>
+                        Farmer ID
+                    </label>
+
+                    <p>
+                        <?= (int)$farmer['id'] ?>
+                    </p>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Stall Name
+                    </label>
+
+                    <p>
+                        <?= htmlspecialchars(
+                            $farmer['stall_name']
+                        ) ?>
+                    </p>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Email
+                    </label>
+
+                    <p>
+                        <?= htmlspecialchars(
+                            $farmer['email'] ?? 'Not provided'
+                        ) ?>
+                    </p>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Phone
+                    </label>
+
+                    <p>
+                        <?= htmlspecialchars(
+                            $farmer['phone'] ?? 'Not provided'
+                        ) ?>
+                    </p>
+
+                </div>
+                
+                <div class="form-group">
+
+                    <label>
+                        Address
+                    </label>
+
+                    <p>
+                        <?= htmlspecialchars(
+                            $farmer['address'] ?? 'Not provided'
+                        ) ?>
+                    </p>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Status
+                    </label>
+
+                    <p>
+
+                        <span
+                            class="status status-<?= htmlspecialchars(
+                                $farmer['status'] ?? ''
+                            ) ?>"
+                        >
+                            <?= ucfirst(
+                                htmlspecialchars(
+                                    $farmer['status'] ?? 'N/A'
+                                )
+                            ) ?>
+                        </span>
+
+                    </p>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Joined
+                    </label>
+
+                    <p>
+                        <?= !empty($farmer['created_at'])
+                            ? date(
+                                'Y-m-d H:i',
+                                strtotime(
+                                    $farmer['created_at']
+                                )
+                            )
+                            : 'N/A'
+                        ?>
+                    </p>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Last Updated
+                    </label>
+
+                    <p>
+                        <?= !empty($farmer['updated_at'])
+                            ? date(
+                                'Y-m-d H:i',
+                                strtotime(
+                                    $farmer['updated_at']
+                                )
+                            )
+                            : 'N/A'
+                        ?>
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+          <section class="table-section">
+
+            <div class="section-header">
+
+                <h2>
+                    Farmer Products
+                </h2>
+
+            </div>
+
+
+            <div class="table-responsive">
+
+                <table class="data-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Product ID
+                            </th>
+
+                            <th>
+                                Product
+                            </th>
+
+                            <th>
+                                Category
+                            </th>
+
+                            <th>
+                                Price
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Created
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        <?php if (!empty($products)): ?>
+
+                            <?php foreach ($products as $product): ?>
+
+                                <tr>
+
+                                    <td>
+                                        <?= (int)$product['id'] ?>
+                                    </td>
+
+                                    <td>
+                                        <?= htmlspecialchars(
+                                            $product['name']
+                                        ) ?>
+                                    </td>
+
+                                    <td>
+                                        <?= htmlspecialchars(
+                                            $product['category_name']
+                                            ?? 'N/A'
+                                        ) ?>
+                                    </td>
+
+                                    <td>
+                                        <?= number_format(
+                                            (float)$product['price'],
+                                            2
+                                        ) ?>
+                                    </td>
+
+                                    <td>
+
+                                        <span
+                                            class="status status-<?= htmlspecialchars(
+                                                $product['status'] ?? ''
+                                            ) ?>"
+                                        >
+                                            <?= ucfirst(
+                                                htmlspecialchars(
+                                                    $product['status'] ?? 'N/A'
+                                                )
+                                            ) ?>
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+                                        <?= !empty($product['created_at'])
+                                            ? date(
+                                                'Y-m-d',
+                                                strtotime(
+                                                    $product['created_at']
+                                                )
+                                            )
+                                            : 'N/A'
+                                        ?>
+                                    </td>
+
+                                </tr>
+
+                            <?php endforeach; ?>
+
+                        <?php else: ?>
+
+                            <tr>
+
+                                <td colspan="6">
+                                    No products found for this farmer.
+                                </td>
+
+                            </tr>
+
+                        <?php endif; ?>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+
+</html>
