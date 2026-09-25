@@ -1,74 +1,149 @@
 <?php
 
-require_once '../includes/include.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/session.php';
 
-/*Customers*/
+requireRole('admin');
+
+$total_customers = 0;
+$total_farmers = 0;
+$total_markets = 0;
+$total_products = 0;
+$total_orders = 0;
+$completed_orders = 0;
+$total_sales = 0;
+$recent_orders = [];
+$top_farmers = [];
 
 $stmt = $conn->prepare("
-    SELECT COUNT(*)
+    SELECT COUNT(*) AS total
     FROM users
     WHERE role = 'customer'
 ");
 
-$total_customers = (int) $stmt->fetchColumn();
 
-/*Farmers*/
+if ($stmt) {
+
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+
+    $total_customers = (int)$row['total'];
+
+    $stmt->close();
+}
+
 
 $stmt = $conn->prepare("
-    SELECT COUNT(*)
+    SELECT COUNT(*) AS total
     FROM farmers
 ");
 
-$total_farmers = (int) $stmt->fetchColumn();
+if ($stmt) {
 
-/*Markets*/
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+
+    $total_farmers = (int)$row['total'];
+
+    $stmt->close();
+}
+
 
 $stmt = $conn->prepare("
-    SELECT COUNT(*)
+    SELECT COUNT(*) AS total
     FROM markets
 ");
 
-$total_markets = (int) $stmt->fetchColumn();
+if ($stmt) {
 
-/*Products */
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+
+    $total_markets = (int)$row['total'];
+
+    $stmt->close();
+}
+
 
 $stmt = $conn->prepare("
-    SELECT COUNT(*)
+    SELECT COUNT(*) AS total
     FROM products
 ");
 
-$total_products = (int) $stmt->fetchColumn();
+if ($stmt) {
 
-/*Orders */
+    $stmt->execute();
 
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+
+    $total_products = (int)$row['total'];
+
+    $stmt->close();
+}
 $stmt = $conn->prepare("
-    SELECT COUNT(*)
+    SELECT COUNT(*) AS total
     FROM orders
 ");
 
-$total_orders = (int) $stmt->fetchColumn();
+if ($stmt) {
 
-/* Completed Orders*/
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+
+    $total_orders = (int)$row['total'];
+
+    $stmt->close();
+}
+
 
 $stmt = $conn->prepare("
-    SELECT COUNT(*)
+    SELECT COUNT(*) AS total
     FROM orders
     WHERE status = 'completed'
 ");
 
-$completed_orders = (int) $stmt->fetchColumn();
+if ($stmt) {
 
-/*Total Sales */
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+
+    $completed_orders = (int)$row['total'];
+
+    $stmt->close();
+}
+
 
 $stmt = $conn->prepare("
-    SELECT COALESCE(SUM(subtotal), 0)
+    SELECT COALESCE(SUM(subtotal), 0) AS total
     FROM orders
     WHERE status = 'completed'
 ");
 
-$total_sales = (float) $stmt->fetchColumn();
+if ($stmt) {
 
-/*Recent Orders */
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+
+    $total_sales = (float)$row['total'];
+
+    $stmt->close();
+}
+
 
 $stmt = $conn->prepare("
     SELECT
@@ -87,9 +162,16 @@ $stmt = $conn->prepare("
     LIMIT 10
 ");
 
-$recent_orders = $stmt->fetchAll();
+if ($stmt) {
 
-/*Top Farmers */
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+    $recent_orders = $result->fetch_all(MYSQLI_ASSOC);
+
+    $stmt->close();
+}
+
 
 $stmt = $conn->prepare("
     SELECT
@@ -106,301 +188,443 @@ $stmt = $conn->prepare("
     LIMIT 10
 ");
 
-$top_farmers = $stmt->fetchAll();
+if ($stmt) {
+
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+    $top_farmers = $result->fetch_all(MYSQLI_ASSOC);
+
+    $stmt->close();
+}
 
 ?>
+<!DOCTYPE html>
+<html lang="en">
 
-<div class="page-header">
+<head>
 
-    <h1>
-        Reports
-    </h1>
+    <meta charset="UTF-8">
 
-    <p>
-        View system statistics and reports.
-    </p>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Reports | MarketLink</title>
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/style.css"
+    >
+
+</head>
+
+<body>
+
+<div class="admin-container">
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            MarketLink
+        </div>
+
+        <nav>
+
+            <a href="dashboard.php">
+                Dashboard
+            </a>
+
+            <a href="markets.php">
+                Markets
+            </a>
+
+            <a href="add_market.php">
+                Add Market
+            </a>
+
+            <a href="categories.php">
+                Produce Categories
+            </a>
+
+            <a href="farmers.php">
+                Farmers
+            </a>
+
+            <a href="products.php">
+                Produce
+            </a>
+
+            <a href="users.php">
+                Users
+            </a>
+
+            <a href="orders.php">
+                Orders
+            </a>
+
+            <a href="reviews.php">
+                Reviews
+            </a>
+
+            <a href="announcements.php">
+                Announcements
+            </a>
+
+            <a href="notifications.php">
+                Notifications
+            </a>
+
+            <a href="reports.php" class="active">
+                Reports
+            </a>
+
+            <a href="../logout.php">
+                Logout
+            </a>
+
+        </nav>
+
+    </aside>
+    <main class="main-content">
+
+        <div class="page-header">
+
+            <div>
+
+                <h1>
+                    Reports
+                </h1>
+
+                <p>
+                    View system statistics and reports.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <section class="details-grid">
+
+
+            <div class="form-group">
+
+                <label>
+                    Total Customers
+                </label>
+
+                <p>
+                    <?= $total_customers ?>
+                </p>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Total Farmers
+                </label>
+
+                <p>
+                    <?= $total_farmers ?>
+                </p>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Total Markets
+                </label>
+
+                <p>
+                    <?= $total_markets ?>
+                </p>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Total Products
+                </label>
+
+                <p>
+                    <?= $total_products ?>
+                </p>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Total Orders
+                </label>
+
+                <p>
+                    <?= $total_orders ?>
+                </p>
+
+            </div>
+            <div class="form-group">
+
+                <label>
+                    Completed Orders
+                </label>
+
+                <p>
+                    <?= $completed_orders ?>
+                </p>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Total Sales
+                </label>
+
+                <p>
+                    <?= number_format(
+                        $total_sales,
+                        2
+                    ) ?>
+                </p>
+
+            </div>
+
+
+        </section>
+
+
+        <section class="table-section">
+
+            <div class="section-header">
+
+                <h2>
+                    Recent Orders
+                </h2>
+
+            </div>
+
+
+            <div class="table-responsive">
+
+                <table class="data-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Order ID
+                            </th>
+
+                            <th>
+                                Customer
+                            </th>
+
+                            <th>
+                                Market
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Subtotal
+                            </th>
+
+                            <th>
+                                Date
+                            </th>
+
+                        </tr>
+
+                    </thead>
+                    <tbody>
+
+                        <?php if (!empty($recent_orders)): ?>
+
+                            <?php foreach ($recent_orders as $order): ?>
+
+                                <tr>
+
+                                    <td>
+                                        #<?= (int)$order['id'] ?>
+                                    </td>
+
+                                    <td>
+                                        <?= htmlspecialchars(
+                                            $order['customer_name'] ?? 'N/A'
+                                        ) ?>
+                                    </td>
+
+                                    <td>
+                                        <?= htmlspecialchars(
+                                            $order['market_name'] ?? 'N/A'
+                                        ) ?>
+                                    </td>
+
+                                    <td>
+
+                                        <span
+                                            class="status status-<?= htmlspecialchars(
+                                                $order['status'] ?? ''
+                                            ) ?>"
+                                        >
+                                            <?= ucfirst(
+                                                htmlspecialchars(
+                                                    $order['status'] ?? 'N/A'
+                                                )
+                                            ) ?>
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+                                        <?= number_format(
+                                            (float)$order['subtotal'],
+                                            2
+                                        ) ?>
+                                    </td>
+
+                                    <td>
+
+                                        <?php if (!empty($order['created_at'])): ?>
+
+                                            <?= date(
+                                                'Y-m-d H:i',
+                                                strtotime(
+                                                    $order['created_at']
+                                                )
+                                            ) ?>
+
+                                        <?php else: ?>
+
+                                            N/A
+
+                                        <?php endif; ?>
+
+                                    </td>
+
+                                </tr>
+
+                            <?php endforeach; ?>
+
+                        <?php else: ?>
+
+                            <tr>
+
+                                <td colspan="6">
+                                    No orders found.
+                                </td>
+
+                            </tr>
+
+                        <?php endif; ?>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <section class="table-section">
+
+            <div class="section-header">
+
+                <h2>
+                    Farmers by Orders
+                </h2>
+
+            </div>
+
+
+            <div class="table-responsive">
+
+                <table class="data-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                ID
+                            </th>
+
+                            <th>
+                                Farmer
+                            </th>
+
+                            <th>
+                                Orders
+                            </th>
+
+                        </tr>
+
+                    </thead>
+                     <tbody>
+
+                        <?php if (!empty($top_farmers)): ?>
+
+                            <?php foreach ($top_farmers as $farmer): ?>
+
+                                <tr>
+
+                                    <td>
+                                        <?= (int)$farmer['id'] ?>
+                                    </td>
+
+                                    <td>
+                                        <?= htmlspecialchars(
+                                            $farmer['stall_name']
+                                        ) ?>
+                                    </td>
+
+                                    <td>
+                                        <?= (int)$farmer['orders_count'] ?>
+                                    </td>
+
+                                </tr>
+
+                            <?php endforeach; ?>
+
+                        <?php else: ?>
+
+                            <tr>
+
+                                <td colspan="3">
+                                    No farmers found.
+                                </td>
+
+                            </tr>
+
+                        <?php endif; ?>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
 
 </div>
-<section class="details-grid">
 
+</body>
 
-    <div class="form-group">
-
-        <label>
-            Total Customers
-        </label>
-
-        <p>
-            <?= $total_customers ?>
-        </p>
-
-    </div>
-<div class="form-group">
-
-        <label>
-            Total Farmers
-        </label>
-
-        <p>
-            <?= $total_farmers ?>
-        </p>
-
-    </div>
-     <div class="form-group">
-
-        <label>
-            Total Markets
-        </label>
-
-        <p>
-            <?= $total_markets ?>
-        </p>
-
-    </div>
-
-
-    <div class="form-group">
-
-        <label>
-            Total Products
-        </label>
-
-        <p>
-            <?= $total_products ?>
-        </p>
-
-    </div>
-
-
-    <div class="form-group">
-
-        <label>
-            Total Orders
-        </label>
-
-        <p>
-            <?= $total_orders ?>
-        </p>
-
-    </div>
-
-
-    <div class="form-group">
-
-        <label>
-            Completed Orders
-        </label>
-
-        <p>
-            <?= $completed_orders ?>
-        </p>
-
-    </div>
-
-
-    <div class="form-group">
-
-        <label>
-            Total Sales
-        </label>
-
-        <p>
-            <?= number_format(
-                $total_sales,
-                2
-            ) ?>
-        </p>
-
-    </div>
-
-
-</section>
-<section class="table-section">
-
-    <div class="section-header">
-
-        <h2>
-            Recent Orders
-        </h2>
-
-    </div>
-
-
-    <table class="data-table">
-
-        <thead>
-
-            <tr>
-
-                <th>
-                    Order ID
-                </th>
-
-                <th>
-                    Customer
-                </th>
-
-                <th>
-                    Market
-                </th>
-
-                <th>
-                    Status
-                </th>
-
-                <th>
-                    Subtotal
-                </th>
-
-                <th>
-                    Date
-                </th>
-
-            </tr>
-
-        </thead>
-
-          <tbody>
-
-            <?php if (!empty($recent_orders)): ?>
-
-                <?php foreach ($recent_orders as $order): ?>
-
-                    <tr>
-
-                        <td>
-                            #<?= $order['id'] ?>
-                        </td>
-
-                        <td>
-                            <?= htmlspecialchars(
-                                $order['customer_name'] ?? 'N/A'
-                            ) ?>
-                        </td>
-
-                        <td>
-                            <?= htmlspecialchars(
-                                $order['market_name'] ?? 'N/A'
-                            ) ?>
-                        </td>
-
-                        <td>
-                            <?= htmlspecialchars(
-                                $order['status']
-                            ) ?>
-                        </td>
-
-                        <td>
-                            <?= number_format(
-                                $order['subtotal'],
-                                2
-                            ) ?>
-                        </td>
-
-                        <td>
-                            <?= date(
-                                'Y-m-d H:i',
-                                strtotime(
-                                    $order['created_at']
-                                )
-                            ) ?>
-                        </td>
-
-                    </tr>
-
-                <?php endforeach; ?>
-
-            <?php else: ?>
-
-                <tr>
-
-                    <td colspan="6">
-                        No orders found.
-                    </td>
-
-                </tr>
-
-            <?php endif; ?>
-
-        </tbody>
-
-    </table>
-
-</section>
-
-
-<section class="table-section">
-
-    <div class="section-header">
-
-        <h2>
-            Farmers by Orders
-        </h2>
-
-    </div>
-    <table class="data-table">
-
-        <thead>
-
-            <tr>
-
-                <th>
-                    ID
-                </th>
-
-                <th>
-                    Farmer
-                </th>
-
-                <th>
-                    Orders
-                </th>
-
-            </tr>
-
-        </thead>
-
-
-        <tbody>
-
-            <?php if (!empty($top_farmers)): ?>
-
-                <?php foreach ($top_farmers as $farmer): ?>
-
-                    <tr>
-
-                        <td>
-                            <?= $farmer['id'] ?>
-                        </td>
-
-                        <td>
-                            <?= htmlspecialchars(
-                                $farmer['stall_name']
-                            ) ?>
-                        </td>
-
-                        <td>
-                            <?= $farmer['orders_count'] ?>
-                        </td>
-
-                    </tr>
-
-                <?php endforeach; ?>
-
-            <?php else: ?>
-
-                <tr>
-
-                    <td colspan="3">
-                        No farmers found.
-                    </td>
-
-                </tr>
-
-            <?php endif; ?>
-
-        </tbody>
-
-    </table>
-
-</section>
+</html>

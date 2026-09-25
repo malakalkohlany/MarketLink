@@ -1,57 +1,77 @@
 <?php
 
-require_once '../includes/include.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/session.php';
+
+requireRole('admin');
 
 $id = filter_input(
     INPUT_GET,
     'id',
     FILTER_VALIDATE_INT
 );
-
 $farmer = null;
 $products = [];
 
-if ($id) {
+if (!$id) {
+    die('Invalid farmer ID.');
+}
 
-    $stmt = $conn->prepare("
-        SELECT
-            id,
-            stall_name,
-            email,
-            phone,
-            address,
-            status,
-            created_at,
-            updated_at
-        FROM farmers
-        WHERE id = ?
-    ");
+$stmt = $conn->prepare("
+    SELECT
+        id,
+        stall_name,
+        email,
+        phone,
+        address,
+        status,
+        created_at,
+        updated_at
+    FROM farmers
+    WHERE id = ?
+");
 
-    $stmt->execute([$id]);
+if ($stmt) {
 
-    $farmer = $stmt->fetch();
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
 
-    if ($farmer) {
+    $result = $stmt->get_result();
+    $farmer = $result->fetch_assoc();
 
-        $stmt = $conn->prepare("
-            SELECT
-                p.id,
-                p.name,
-                p.price,
-                p.status,
-                p.created_at,
-                c.name AS category_name
-            FROM products p
-            LEFT JOIN categories c
-                ON p.category_id = c.id
-            WHERE p.farmer_id = ?
-            ORDER BY p.created_at DESC
-        ");
+    $stmt->close();
+}
 
-        $stmt->execute([$id]);
+if (!$farmer) {
+    die('Farmer not found.');
+}
 
-        $products = $stmt->fetchAll();
-    }
+$stmt = $conn->prepare("
+    SELECT
+        p.id,
+        p.name,
+        p.price,
+        p.status,
+        p.created_at,
+        c.name AS category_name
+    FROM products p
+    LEFT JOIN categories c
+        ON p.category_id = c.id
+    WHERE p.farmer_id = ?
+    ORDER BY p.created_at DESC
+");
+
+if ($stmt) {
+
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+    $products = $result->fetch_all(MYSQLI_ASSOC);
+
+    $stmt->close();
 }
 
 ?>

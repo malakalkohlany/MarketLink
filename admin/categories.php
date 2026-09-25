@@ -1,16 +1,18 @@
 <?php
 
-require_once '../includes/include.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/session.php';
 
-if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
-    header('Location: ../auth/login.php');
-    exit;
-}
+requireRole('admin');
 
 $errors = [];
 $success = '';
 $categories = [];
 $edit_category = null;
+
+
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

@@ -1,6 +1,14 @@
 <?php
 
-require_once '../includes/include.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/session.php';
+
+requireRole('admin');
+
+$reviews = [];
+$errors = [];
 
 $stmt = $conn->prepare("
     SELECT
@@ -19,152 +27,300 @@ $stmt = $conn->prepare("
     ORDER BY r.created_at DESC
 ");
 
-$stmt->execute();
+if ($stmt) {
 
-$reviews = $stmt->fetchAll();
+    if ($stmt->execute()) {
+
+        $result = $stmt->get_result();
+
+        $reviews = $result->fetch_all(MYSQLI_ASSOC);
+
+    } else {
+
+        $errors[] = 'Failed to load reviews.';
+    }
+
+    $stmt->close();
+
+} else {
+
+    $errors[] = 'Failed to prepare reviews query.';
+}
 
 ?>
+<!DOCTYPE html>
+<html lang="en">
 
-<div class="page-header">
+<head>
 
-    <h1>
-        Reviews
-    </h1>
+    <meta charset="UTF-8">
 
-    <p>
-        View customer reviews and ratings.
-    </p>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-</div>
+    <title>Reviews | MarketLink</title>
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/style.css"
+    >
+
+</head>
+
+<body>
+
+<div class="admin-container">
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            MarketLink
+        </div>
+
+        <nav>
+
+            <a href="dashboard.php">
+                Dashboard
+            </a>
+
+            <a href="markets.php">
+                Markets
+            </a>
+
+            <a href="add_market.php">
+                Add Market
+            </a>
+
+            <a href="categories.php">
+                Produce Categories
+            </a>
+
+            <a href="farmers.php">
+                Farmers
+            </a>
+
+            <a href="products.php">
+                Produce
+            </a>
+
+            <a href="users.php">
+                Users
+            </a>
+
+            <a href="orders.php">
+                Orders
+            </a>
+
+            <a href="reviews.php" class="active">
+                Reviews
+            </a>
+
+            <a href="announcements.php">
+                Announcements
+            </a>
+
+            <a href="notifications.php">
+                Notifications
+            </a>
+
+            <a href="reports.php">
+                Reports
+            </a>
+
+            <a href="../logout.php">
+                Logout
+            </a>
+
+        </nav>
+
+    </aside>
+     <main class="main-content">
+
+        <div class="page-header">
+
+            <div>
+
+                <h1>
+                    Reviews
+                </h1>
+
+                <p>
+                    View customer reviews and ratings.
+                </p>
+
+            </div>
+
+        </div>
 
 
-<section class="table-section">
+        <?php if (!empty($errors)): ?>
 
-    <div class="section-header">
+            <div class="alert alert-danger">
 
-        <h2>
-            Customer Reviews
-        </h2>
+                <?php foreach ($errors as $error): ?>
 
-    </div>
-
-
-    <table class="data-table">
-
-        <thead>
-
-            <tr>
-
-                <th>
-                    ID
-                </th>
-
-                <th>
-                    Customer
-                </th>
-
-                <th>
-                    Product
-                </th>
-
-                <th>
-                    Rating
-                </th>
-
-                <th>
-                    Comment
-                </th>
-
-                <th>
-                    Status
-                </th>
-
-                <th>
-                    Date
-                </th>
-
-            </tr>
-
-        </thead>
-
-
-        <tbody>
-
-            <?php if (!empty($reviews)): ?>
-
-                <?php foreach ($reviews as $review): ?>
-
-                    <tr>
-
-                        <td>
-                            <?= $review['id'] ?>
-                        </td>
-
-                        <td>
-                            <?= htmlspecialchars(
-                                $review['customer_name'] ?? 'N/A'
-                            ) ?>
-                        </td>
-
-                        <td>
-                            <?= htmlspecialchars(
-                                $review['product_name'] ?? 'N/A'
-                            ) ?>
-                        </td>
-
-                        <td>
-                            <?= htmlspecialchars(
-                                $review['rating']
-                            ) ?>/5
-                        </td>
-
-                        <td>
-                            <?= htmlspecialchars(
-                                $review['comment'] ?? ''
-                            ) ?>
-                        </td>
-
-                        <td>
-
-                            <span
-                                class="status status-<?= htmlspecialchars(
-                                    $review['status'] ?? 'pending'
-                                ) ?>"
-                            >
-                                <?= ucfirst(
-                                    $review['status'] ?? 'pending'
-                                ) ?>
-                            </span>
-
-                        </td>
-
-                        <td>
-                            <?= date(
-                                'Y-m-d H:i',
-                                strtotime(
-                                    $review['created_at']
-                                )
-                            ) ?>
-                        </td>
-
-                    </tr>
+                    <p>
+                        <?= htmlspecialchars($error) ?>
+                    </p>
 
                 <?php endforeach; ?>
 
-            <?php else: ?>
+            </div>
 
-                <tr>
+        <?php endif; ?>
 
-                    <td colspan="7">
-                        No reviews found.
-                    </td>
 
-                </tr>
+        <section class="table-section">
 
-            <?php endif; ?>
+            <div class="section-header">
 
-        </tbody>
+                <h2>
+                    Customer Reviews
+                </h2>
 
-    </table>
+            </div>
 
-</section>
+
+            <div class="table-responsive">
+
+                <table class="data-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                ID
+                            </th>
+
+                            <th>
+                                Customer
+                            </th>
+
+                            <th>
+                                Product
+                            </th>
+
+                            <th>
+                                Rating
+                            </th>
+
+                            <th>
+                                Comment
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Date
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        <?php if (!empty($reviews)): ?>
+
+                            <?php foreach ($reviews as $review): ?>
+
+                                <tr>
+
+                                    <td>
+                                        <?= (int)$review['id'] ?>
+                                    </td>
+
+                                    <td>
+                                        <?= htmlspecialchars(
+                                            $review['customer_name'] ?? 'N/A'
+                                        ) ?>
+                                    </td>
+
+                                    <td>
+                                        <?= htmlspecialchars(
+                                            $review['product_name'] ?? 'N/A'
+                                        ) ?>
+                                    </td>
+
+                                    <td>
+                                        <?= (int)$review['rating'] ?>/5
+                                    </td>
+
+                                    <td>
+                                        <?= htmlspecialchars(
+                                            $review['comment'] ?? ''
+                                        ) ?>
+                                    </td>
+
+                                    <td>
+
+                                        <span
+                                            class="status status-<?= htmlspecialchars(
+                                                $review['status'] ?? 'pending'
+                                            ) ?>"
+                                        >
+                                            <?= ucfirst(
+                                                htmlspecialchars(
+                                                    $review['status'] ?? 'pending'
+                                                )
+                                            ) ?>
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+
+                                        <?php if (!empty($review['created_at'])): ?>
+
+                                            <?= date(
+                                                'Y-m-d H:i',
+                                                strtotime(
+                                                    $review['created_at']
+                                                )
+                                            ) ?>
+
+                                        <?php else: ?>
+
+                                            N/A
+
+                                        <?php endif; ?>
+
+                                    </td>
+
+                                </tr>
+
+                            <?php endforeach; ?>
+
+                        <?php else: ?>
+
+                            <tr>
+
+                                <td colspan="7">
+                                    No reviews found.
+                                </td>
+
+                            </tr>
+
+                        <?php endif; ?>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+
+</html>
