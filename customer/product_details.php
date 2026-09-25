@@ -758,14 +758,6 @@ if (isset($_GET['error'])) {
 
                     <?php if ((float) $product['stock_quantity'] > 0): ?>
 
-                        <!-- <button
-                            type="button"
-                            class="button cart-button"
-                            onclick="showQuantityBox()"
-                        >
-                            Add to Cart
-                        </button> -->
-
                         <a
                             href="add_to_cart.php?id=<?= (int) $product['id'] ?>"
                             class="button cart-button"
