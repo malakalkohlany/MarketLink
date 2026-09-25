@@ -1,6 +1,11 @@
 <?php
 
-require_once '../config/database.php';
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/session.php';
+
+requireRole('customer');
 
 $farmers = [];
 
@@ -32,6 +37,9 @@ if ($result) {
         rel="stylesheet"
         href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     >
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
 
     <style>
         #map {
@@ -43,11 +51,18 @@ if ($result) {
 
 <body>
 
-    <h1>Farmers</h1>
+    <?php include __DIR__ . '/../includes/navbar.php'; ?>
 
-    <p>Find farmers and view their stall locations.</p>
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-    <div id="map"></div>
+    <main class="main-content">
+
+        <h1>Farmers</h1>
+
+        <p>Find farmers and view their stall locations.</p>
+
+        <div id="map"></div>
+    </main>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 

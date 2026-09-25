@@ -139,82 +139,6 @@ if (!$product) {
     exit;
 }
 
-// ===============================
-// Add Product To Cart
-// ===============================
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_to_cart'])) {
-
-    $quantity = isset($_POST['quantity'])
-        ? (float) $_POST['quantity']
-        : 0;
-
-    // Validate quantity
-    if ($quantity <= 0) {
-        header(
-            'Location: product_details.php?id='
-            . $productId
-            . '&error=invalid_quantity'
-        );
-        exit;
-    }
-
-    // Check stock
-    if ($quantity > (float) $product['stock_quantity']) {
-        header(
-            'Location: product_details.php?id='
-            . $productId
-            . '&error=stock'
-        );
-        exit;
-    }
-
-    // Create cart session
-    if (!isset($_SESSION['cart']) || !is_array($_SESSION['cart'])) {
-        $_SESSION['cart'] = [];
-    }
-
-    // Product already exists in cart
-    if (isset($_SESSION['cart'][$productId])) {
-
-        $newQuantity =
-            (float) $_SESSION['cart'][$productId]['quantity']
-            + $quantity;
-
-        // Make sure total quantity does not exceed stock
-        if ($newQuantity > (float) $product['stock_quantity']) {
-            header(
-                'Location: product_details.php?id='
-                . $productId
-                . '&error=stock'
-            );
-            exit;
-        }
-
-        $_SESSION['cart'][$productId]['quantity'] = $newQuantity;
-
-        $_SESSION['cart'][$productId]['subtotal'] =
-            $newQuantity * (float) $product['price'];
-
-    } else {
-
-        // Add new product to cart
-        $_SESSION['cart'][$productId] = [
-            'product_id' => (int) $product['id'],
-            'name' => $product['name'],
-            'price' => (float) $product['price'],
-            'unit' => $product['unit'],
-            'quantity' => $quantity,
-            'image' => $product['image'],
-            'farmer_id' => (int) $product['farmer_id'],
-            'subtotal' => $quantity * (float) $product['price']
-        ];
-    }
-
-    // Go to cart
-    header('Location: cart.php?added=1');
-    exit;
-}
 
 // ===============================
 // Error Message
@@ -834,13 +758,12 @@ if (isset($_GET['error'])) {
 
                     <?php if ((float) $product['stock_quantity'] > 0): ?>
 
-                        <button
-                            type="button"
+                        <a
+                            href="add_to_cart.php?id=<?= (int) $product['id'] ?>"
                             class="button cart-button"
-                            onclick="showQuantityBox()"
                         >
                             Add to Cart
-                        </button>
+                        </a>
 
                     <?php else: ?>
 
@@ -857,103 +780,7 @@ if (isset($_GET['error'])) {
 
                 </div>
 
-                <?php if ((float) $product['stock_quantity'] > 0): ?>
-
-                    <div
-                        id="quantityBox"
-                        class="quantity-box"
-                    >
-
-                        <div class="quantity-title">
-                            How much do you want?
-                        </div>
-
-                        <form
-                            method="POST"
-                            action="product_details.php?id=<?php echo (int) $product['id']; ?>"
-                        >
-
-                            <input
-                                type="hidden"
-                                name="add_to_cart"
-                                value="1"
-                            >
-
-                            <label
-                                for="quantity"
-                                class="quantity-label"
-                            >
-                                Quantity
-                            </label>
-
-                            <input
-                                type="number"
-                                id="quantity"
-                                name="quantity"
-                                class="quantity-input"
-                                min="0.01"
-                                max="<?php echo htmlspecialchars($product['stock_quantity']); ?>"
-                                step="0.01"
-                                value="1"
-                                required
-                                oninput="calculateTotal()"
-                            >
-
-                            <span class="quantity-help">
-
-                                Available:
-                                <?php
-                                echo number_format(
-                                    (float) $product['stock_quantity'],
-                                    2
-                                );
-                                ?>
-
-                                <?php
-                                echo htmlspecialchars(
-                                    $product['unit']
-                                );
-                                ?>
-
-                            </span>
-
-                            <div class="selected-total">
-
-                                Total: $
-
-                                <span id="totalPrice">
-
-                                    <?php
-                                    echo number_format(
-                                        (float) $product['price'],
-                                        2
-                                    );
-                                    ?>
-
-                                </span>
-
-                            </div>
-
-                            <button
-                                type="submit"
-                                class="confirm-button"
-                            >
-                                Confirm & Add to Cart
-                            </button>
-
-                            <button
-                                type="button"
-                                class="cancel-button"
-                                onclick="hideQuantityBox()"
-                            >
-                                Cancel
-                            </button>
-
-                        </form>
-
-                    </div>
-
-                <?php endif; ?>
+                
 
             </div>
 
