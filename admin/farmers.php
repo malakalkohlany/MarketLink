@@ -1,11 +1,8 @@
 <?php
 
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../includes/functions.php';
-require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/include.php';
 
-requireRole('admin');
+requireRole(R_ADMIN);
 
 $errors = [];
 $farmers = [];
@@ -13,28 +10,29 @@ $farmers = [];
 
 $stmt = $conn->prepare("
     SELECT
-        id,
-        stall_name,
-        phone,
-        email,
-        status,
-        created_at
-    FROM farmers
-    ORDER BY created_at DESC
+        f.id,
+        f.stall_name,
+        f.contact_person,
+        f.address,
+        u.email,
+        f.approval_status,
+        f.created_at
+    FROM farmers f
+    LEFT JOIN users u ON f.user_id = u.id
+    ORDER BY f.created_at DESC
 ");
 
 if ($stmt) {
-
-    $stmt->execute();
-
-    $result = $stmt->get_result();
-    $farmers = $result->fetch_all(MYSQLI_ASSOC);
+    if ($stmt->execute()) {
+        $result = $stmt->get_result();
+        $farmers = $result->fetch_all(MYSQLI_ASSOC);
+    } else {
+        $errors[] = 'Failed to load farmers: ' . $stmt->error;
+    }
 
     $stmt->close();
-
 } else {
-
-    $errors[] = 'Failed to load farmers.';
+    $errors[] = 'Failed to prepare farmer query: ' . $conn->error;
 }
 
 ?>
@@ -52,76 +50,21 @@ if ($stmt) {
 
     <title>Farmers | FreshFind</title>
 
-    <link
-        rel="stylesheet"
-        href="../assets/css/style.css"
-    >
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
 
 </head>
 
 <body>
 
+    <?php include __DIR__ . '/../includes/navbar.php'; ?>
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
+
 <div class="admin-container">
 
-    <aside class="sidebar">
 
-        <div class="logo">
-            FreshFind
-        </div>
-
-        <nav>
-
-            <a href="dashboard.php">
-                Dashboard
-            </a>
-
-            <a href="markets.php">
-                Markets
-            </a>
-
-            <a href="add_market.php">
-                Add Market
-            </a>
-
-            <a href="categories.php">
-                Produce Categories
-            </a>
-
-            <a href="farmers.php" class="active">
-                Farmers
-            </a>
-
-            <a href="products.php">
-                Produce
-            </a>
-
-            <a href="users.php">
-                Users
-            </a>
-
-            <a href="orders.php">
-                Orders
-            </a>
-
-            <a href="reviews.php">
-                Reviews
-            </a>
-
-            <a href="announcements.php">
-                Announcements
-            </a>
-
-            <a href="reports.php">
-                Reports
-            </a>
-
-            <a href="../logout.php">
-                Logout
-            </a>
-
-        </nav>
-
-    </aside>
 <main class="main-content">
 
         <div class="page-header">
@@ -174,33 +117,14 @@ if ($stmt) {
 
                         <tr>
 
-                            <th>
-                                ID
-                            </th>
-
-                            <th>
-                                Stall Name
-                            </th>
-
-                            <th>
-                                Phone
-                            </th>
-
-                            <th>
-                                Email
-                            </th>
-
-                            <th>
-                                Status
-                            </th>
-
-                            <th>
-                                Joined
-                            </th>
-
-                            <th>
-                                Action
-                            </th>
+                            <th>ID</th>
+                            <th>Stall Name</th>
+                            <th>Contact Person</th>
+                            <th>Email</th>
+                            <th>Address</th>
+                            <th>Status</th>
+                            <th>Joined</th>
+                            <th>Action</th>
 
                         </tr>
 
@@ -212,67 +136,47 @@ if ($stmt) {
                             <?php foreach ($farmers as $farmer): ?>
 
                                 <tr>
-
                                     <td>
-                                        <?= (int)$farmer['id'] ?>
+                                        <?= (int) $farmer['id'] ?>
                                     </td>
 
                                     <td>
-                                        <?= htmlspecialchars(
-                                            $farmer['stall_name']
-                                        ) ?>
+                                        <?= htmlspecialchars($farmer['stall_name']) ?>
                                     </td>
 
                                     <td>
-                                        <?= htmlspecialchars(
-                                            $farmer['phone'] ?? 'N/A'
-                                        ) ?>
+                                        <?= htmlspecialchars($farmer['contact_person'] ?? 'N/A') ?>
                                     </td>
 
                                     <td>
-                                        <?= htmlspecialchars(
-                                            $farmer['email'] ?? 'N/A'
-                                        ) ?>
+                                        <?= htmlspecialchars($farmer['email'] ?? 'N/A') ?>
                                     </td>
 
                                     <td>
+                                        <?= htmlspecialchars($farmer['address'] ?? 'N/A') ?>
+                                    </td>
 
-                                        <span
-                                            class="status status-<?= htmlspecialchars(
-                                                $farmer['status'] ?? ''
-                                            ) ?>"
-                                        >
-                                            <?= ucfirst(
-                                                htmlspecialchars(
-                                                    $farmer['status'] ?? 'N/A'
-                                                )
-                                            ) ?>
+                                    <td>
+                                        <span class="status status-<?= htmlspecialchars($farmer['approval_status']) ?>">
+                                            <?= ucfirst(htmlspecialchars($farmer['approval_status'])) ?>
                                         </span>
-
                                     </td>
 
                                     <td>
                                         <?= !empty($farmer['created_at'])
-                                            ? date(
-                                                'Y-m-d',
-                                                strtotime(
-                                                    $farmer['created_at']
-                                                )
-                                            )
+                                            ? date('Y-m-d', strtotime($farmer['created_at']))
                                             : 'N/A'
                                         ?>
                                     </td>
-                                      <td>
 
+                                    <td>
                                         <a
-                                            href="farmer_details.php?id=<?= (int)$farmer['id'] ?>"
+                                            href="farmer_details.php?id=<?= (int) $farmer['id'] ?>"
                                             class="btn btn-sm btn-secondary"
                                         >
                                             View
                                         </a>
-
                                     </td>
-
                                 </tr>
 
                             <?php endforeach; ?>
@@ -281,7 +185,7 @@ if ($stmt) {
 
                             <tr>
 
-                                <td colspan="7">
+                                <td colspan="8">
                                     No farmers found.
                                 </td>
 

@@ -7,9 +7,6 @@ require_once __DIR__ . '/../includes/session.php';
 
 requireRole('admin');
 
-$reviews = [];
-$errors = [];
-
 $stmt = $conn->prepare("
     SELECT
         r.id,
@@ -27,25 +24,12 @@ $stmt = $conn->prepare("
     ORDER BY r.created_at DESC
 ");
 
-if ($stmt) {
+$stmt->execute();
 
-    if ($stmt->execute()) {
+$reviews = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
-        $result = $stmt->get_result();
+?>
 
-        $reviews = $result->fetch_all(MYSQLI_ASSOC);
-
-    } else {
-
-        $errors[] = 'Failed to load reviews.';
-    }
-
-    $stmt->close();
-
-} else {
-
-    $errors[] = 'Failed to prepare reviews query.';
-}
 
 ?>
 <!DOCTYPE html>
