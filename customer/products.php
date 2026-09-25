@@ -218,7 +218,6 @@ mysqli_stmt_close($favoriteStmt);
 
 $sql = "
     SELECT
-<<<<<<< HEAD
         p.id,
         p.name,
         p.description,
@@ -239,41 +238,6 @@ $stmt = $conn->prepare($sql);
 
 if (!$stmt) {
     die('Database Error: ' . $conn->error);
-=======
-        id,
-        farmer_id,
-        category_id,
-        name,
-        description,
-        price,
-        unit,
-        stock_quantity,
-        is_available,
-        moderation_status,
-        created_at
-    FROM products
-    WHERE is_available = 1
-      AND moderation_status = 'approved'
-    ORDER BY created_at DESC
-";
-
-$result = mysqli_query($conn, $sql);
-
-$products = [];
-
-if ($result) {
-
-    while ($row = mysqli_fetch_assoc($result)) {
-        $products[] = $row;
-    }
-
-} else {
-
-    die(
-        'Products query failed: '
-        . mysqli_error($conn)
-    );
->>>>>>> a59190373394e25577f367d565c6c5091e1559b8
 }
 
 $moderation_status = M_APPROVED;
@@ -288,6 +252,12 @@ $stmt->bind_param(
 $stmt->execute();
 
 $result = $stmt->get_result();
+
+$products = [];
+
+while ($row = $result->fetch_assoc()) {
+    $products[] = $row;
+}
 
 ?>
 
@@ -826,140 +796,7 @@ $result = $stmt->get_result();
 
 
             </div>
-
-
-<<<<<<< HEAD
-            <?php if ($result->num_rows > 0): ?>
-
-                <div class="products-grid">
-
-                    <?php while ($product = $result->fetch_assoc()): ?>
-
-                        <div class="product-card">
-
-                            <?php if (!empty($product['image'])): ?>
-
-                                <img
-                                    src="../uploads/products/<?php
-                                        echo e($product['image']);
-                                    ?>"
-                                    alt="<?php
-                                        echo e($product['name']);
-                                    ?>"
-                                    class="product-image"
-                                >
-
-                            <?php else: ?>
-
-                                <div class="no-image">
-                                    No Image
-                                </div>
-
-                            <?php endif; ?>
-
-
-                            <div class="product-info">
-
-                                <div class="product-name">
-
-                                    <?php
-                                    echo e($product['name']);
-                                    ?>
-
-                                </div>
-
-
-                                <div class="product-description">
-
-                                    <?php
-
-                                    echo e(
-                                        $product['description']
-                                        ?? 'No description available.'
-                                    );
-
-                                    ?>
-
-                                </div>
-
-
-                                <div class="product-price">
-
-                                    $
-
-                                    <?php
-                                    echo formatPrice(
-                                        (float)$product['price']);
-                                    ?>
-
-                                </div>
-
-
-                                <?php if (!empty($product['unit'])): ?>
-
-                                    <div class="product-unit">
-
-                                        Per
-                                        <?php
-                                        echo e(
-                                            $product['unit']
-                                        );
-                                        ?>
-
-                                    </div>
-
-                                <?php endif; ?>
-
-
-                                <div class="product-stock">
-                                    <?php if ((int)$product['stock_quantity'] > 0): ?>
-                                        Stock:
-                                        <?php echo (int)$product['stock_quantity']; ?>
-                                    <?php else: ?>
-                                        Out of stock
-                                    <?php endif; ?>
-                                </div>
-
-
-                                <a
-                                    href="product_details.php?id=<?php
-                                        echo (int)$product['id'];
-                                    ?>"
-                                    class="view-button"
-                                >
-                                    View Details
-                                </a>
-
-                            </div>
-
-                        </div>
-
-                    <?php endwhile; ?>
-
-                </div>
-
-
-            <?php else: ?>
-
-                <div class="empty-products">
-
-                    <h2>No Products Available</h2>
-
-                    <p>
-                        Products will appear here once farmers add
-                        and publish them.
-                    </p>
-
-                </div>
-
-            <?php endif; ?>
-
-        </div>
-=======
-        <?php endif; ?>
-
-
->>>>>>> a59190373394e25577f367d565c6c5091e1559b8
+                    <?php endif; ?>
     </main>
 
 
