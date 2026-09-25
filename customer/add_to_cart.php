@@ -5,11 +5,6 @@ require_once __DIR__ . '/../includes/session.php';
 
 requireRole('customer');
 
-
-// --------------------------------------------------
-// Get Product ID
-// --------------------------------------------------
-
 $productId = isset($_GET['id'])
     ? (int) $_GET['id']
     : (int) ($_POST['product_id'] ?? 0);
