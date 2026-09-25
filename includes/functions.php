@@ -85,19 +85,3 @@ function old(
 ): string {
     return e($data[$key] ?? $default);
 }
-
-function requireRole(string $requiredRole): void
-{
-    if (
-        !isset($_SESSION['user_id']) ||
-        !isset($_SESSION['role'])
-    ) {
-        header('Location: ../auth/login.php');
-        exit;
-    }
-
-    if ($_SESSION['role'] !== $requiredRole) {
-        http_response_code(403);
-        die('Access denied.');
-    }
-}

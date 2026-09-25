@@ -2,7 +2,10 @@
 
 require_once __DIR__ . '/../includes/include.php';
 
-requireRole('admin');
+requireRole(R_ADMIN);
+
+$errors = [];
+$customers = [];
 
 $stmt = $conn->prepare("
     SELECT
@@ -17,90 +20,236 @@ $stmt = $conn->prepare("
     WHERE role = 'customer'
     ORDER BY created_at DESC
 ");
-$result = $stmt->get_result();
-$markets = $result->fetch_all(MYSQLI_ASSOC);
-$stmt->close();
+
+if ($stmt) {
+
+    if ($stmt->execute()) {
+
+        $result = $stmt->get_result();
+        $customers = $result->fetch_all(MYSQLI_ASSOC);
+
+    } else {
+
+        $errors[] = 'Failed to load customers: ' . $stmt->error;
+    }
+
+    $stmt->close();
+
+} else {
+
+    $errors[] = 'Failed to prepare customer query: ' . $conn->error;
+}
 
 ?>
 
-<div class="page-header">
+<!DOCTYPE html>
+<html lang="en">
 
-    <h1>Customers</h1>
+<head>
 
-    <p>Manage all customers.</p>
+    <meta charset="UTF-8">
 
-</div>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-<section class="table-section">
+    <title>Customers | MarketLink</title>
 
-    <div class="section-header">
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
 
-        <h2>Customers</h2>
+</head>
+
+<body>
+
+    <?php include __DIR__ . '/../includes/navbar.php'; ?>
+
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
+
+    <div class="admin-container">
+
+        <main class="main-content">
+
+            <div class="page-header">
+
+                <div>
+
+                    <h1>
+                        Customers
+                    </h1>
+
+                    <p>
+                        Manage all customers.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <?php if (!empty($errors)): ?>
+
+                <div class="alert alert-danger">
+
+                    <?php foreach ($errors as $error): ?>
+
+                        <p>
+                            <?= htmlspecialchars($error) ?>
+                        </p>
+
+                    <?php endforeach; ?>
+
+                </div>
+
+            <?php endif; ?>
+
+
+            <section class="table-section">
+
+                <div class="section-header">
+
+                    <h2>
+                        Customers
+                    </h2>
+
+                </div>
+
+
+                <div class="table-responsive">
+
+                    <table class="data-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Address</th>
+                                <th>Status</th>
+                                <th>Joined</th>
+                                <th>Action</th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            <?php if (!empty($customers)): ?>
+
+                                <?php foreach ($customers as $customer): ?>
+
+                                    <?php
+                                    $status = ((int) $customer['status'] === 1)
+                                        ? 'active'
+                                        : 'inactive';
+                                    ?>
+
+                                    <tr>
+
+                                        <td>
+                                            <?= (int) $customer['id'] ?>
+                                        </td>
+
+
+                                        <td>
+                                            <?= htmlspecialchars(
+                                                $customer['name'] ?? 'N/A'
+                                            ) ?>
+                                        </td>
+
+
+                                        <td>
+                                            <?= htmlspecialchars(
+                                                $customer['email'] ?? 'N/A'
+                                            ) ?>
+                                        </td>
+
+
+                                        <td>
+                                            <?= htmlspecialchars(
+                                                $customer['phone'] ?? 'N/A'
+                                            ) ?>
+                                        </td>
+
+
+                                        <td>
+                                            <?= htmlspecialchars(
+                                                $customer['address'] ?? 'N/A'
+                                            ) ?>
+                                        </td>
+
+
+                                        <td>
+
+                                            <span class="status status-<?= $status ?>">
+
+                                                <?= ucfirst($status) ?>
+
+                                            </span>
+
+                                        </td>
+
+
+                                        <td>
+
+                                            <?= !empty($customer['created_at'])
+                                                ? date(
+                                                    'Y-m-d',
+                                                    strtotime($customer['created_at'])
+                                                )
+                                                : 'N/A'
+                                            ?>
+
+                                        </td>
+
+
+                                        <td>
+
+                                            <a
+                                                href="customer_details.php?id=<?= (int) $customer['id'] ?>"
+                                                class="btn btn-sm btn-secondary"
+                                            >
+                                                View
+                                            </a>
+
+                                        </td>
+
+                                    </tr>
+
+                                <?php endforeach; ?>
+
+                            <?php else: ?>
+
+                                <tr>
+
+                                    <td colspan="8">
+                                        No customers found.
+                                    </td>
+
+                                </tr>
+
+                            <?php endif; ?>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </main>
 
     </div>
 
-    <table class="data-table">
+</body>
 
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Status</th>
-                <th>Joined</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-
-        <tbody>
-
-            <?php foreach ($customers as $customer): ?>
-
-                <tr>
-
-                    <td>
-                        <?= $customer['id'] ?>
-                    </td>
-
-                    <td>
-                        <?= htmlspecialchars($customer['name']) ?>
-                    </td>
-
-                    <td>
-                        <?= htmlspecialchars($customer['email']) ?>
-                    </td>
-
-                    <td>
-                        <?= htmlspecialchars($customer['phone'] ?? 'N/A') ?>
-                    </td>
-
-                    <td>
-                        <?= htmlspecialchars($customer['status']) ?>
-                    </td>
-
-                    <td>
-                        <?= date(
-                            'Y-m-d',
-                            strtotime($customer['created_at'])
-                        ) ?>
-                    </td>
-
-                    <td>
-                        <a
-                            href="customer_details.php?id=<?= $customer['id'] ?>"
-                            class="btn btn-secondary"
-                        >
-                            View
-                        </a>
-                    </td>
-
-                </tr>
-
-            <?php endforeach; ?>
-
-        </tbody>
-
-    </table>
-
-</section>
+</html>
