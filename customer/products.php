@@ -1,6 +1,8 @@
 <?php
 
+require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/session.php';
 
 requireRole('customer');
@@ -35,6 +37,9 @@ if (!$result) {
     >
 
     <title>Products - MarketLink</title>
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
 
     <style>
 
@@ -195,150 +200,156 @@ if (!$result) {
 
 <body>
 
-<div class="products-container">
+    <?php include __DIR__ . '/../includes/navbar.php'; ?>
 
-    <div class="page-header">
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-        <h1>Products</h1>
+    <main class="main-content">
+        <div class="products-container">
 
-        <p>
-            Browse fresh products available on MarketLink.
-        </p>
+            <div class="page-header">
 
-    </div>
+                <h1>Products</h1>
 
+                <p>
+                    Browse fresh products available on MarketLink.
+                </p>
 
-    <?php if ($result->num_rows > 0): ?>
-
-        <div class="products-grid">
-
-            <?php while ($product = $result->fetch_assoc()): ?>
-
-                <div class="product-card">
-
-                    <?php if (!empty($product['image'])): ?>
-
-                        <img
-                            src="../uploads/products/<?php
-                                echo htmlspecialchars($product['image']);
-                            ?>"
-                            alt="<?php
-                                echo htmlspecialchars($product['name']);
-                            ?>"
-                            class="product-image"
-                        >
-
-                    <?php else: ?>
-
-                        <div class="no-image">
-                            No Image
-                        </div>
-
-                    <?php endif; ?>
+            </div>
 
 
-                    <div class="product-info">
+            <?php if ($result->num_rows > 0): ?>
 
-                        <div class="product-name">
+                <div class="products-grid">
 
-                            <?php
-                            echo htmlspecialchars($product['name']);
-                            ?>
+                    <?php while ($product = $result->fetch_assoc()): ?>
 
-                        </div>
+                        <div class="product-card">
 
+                            <?php if (!empty($product['image'])): ?>
 
-                        <div class="product-description">
+                                <img
+                                    src="../uploads/products/<?php
+                                        echo htmlspecialchars($product['image']);
+                                    ?>"
+                                    alt="<?php
+                                        echo htmlspecialchars($product['name']);
+                                    ?>"
+                                    class="product-image"
+                                >
 
-                            <?php
+                            <?php else: ?>
 
-                            echo htmlspecialchars(
-                                $product['description']
-                                ?? 'No description available.'
-                            );
+                                <div class="no-image">
+                                    No Image
+                                </div>
 
-                            ?>
-
-                        </div>
-
-
-                        <div class="product-price">
-
-                            $
-
-                            <?php
-                            echo number_format(
-                                (float)$product['price'],
-                                2
-                            );
-                            ?>
-
-                        </div>
+                            <?php endif; ?>
 
 
-                        <?php if (!empty($product['unit'])): ?>
+                            <div class="product-info">
 
-                            <div class="product-unit">
+                                <div class="product-name">
 
-                                Per
-                                <?php
-                                echo htmlspecialchars(
-                                    $product['unit']
-                                );
-                                ?>
+                                    <?php
+                                    echo htmlspecialchars($product['name']);
+                                    ?>
+
+                                </div>
+
+
+                                <div class="product-description">
+
+                                    <?php
+
+                                    echo htmlspecialchars(
+                                        $product['description']
+                                        ?? 'No description available.'
+                                    );
+
+                                    ?>
+
+                                </div>
+
+
+                                <div class="product-price">
+
+                                    $
+
+                                    <?php
+                                    echo number_format(
+                                        (float)$product['price'],
+                                        2
+                                    );
+                                    ?>
+
+                                </div>
+
+
+                                <?php if (!empty($product['unit'])): ?>
+
+                                    <div class="product-unit">
+
+                                        Per
+                                        <?php
+                                        echo htmlspecialchars(
+                                            $product['unit']
+                                        );
+                                        ?>
+
+                                    </div>
+
+                                <?php endif; ?>
+
+
+                                <div class="product-stock">
+
+                                    Stock:
+
+                                    <?php
+                                    echo htmlspecialchars(
+                                        $product['stock_quantity']
+                                    );
+                                    ?>
+
+                                </div>
+
+
+                                <a
+                                    href="product_details.php?id=<?php
+                                        echo $product['id'];
+                                    ?>"
+                                    class="view-button"
+                                >
+                                    View Details
+                                </a>
 
                             </div>
 
-                        <?php endif; ?>
-
-
-                        <div class="product-stock">
-
-                            Stock:
-
-                            <?php
-                            echo htmlspecialchars(
-                                $product['stock_quantity']
-                            );
-                            ?>
-
                         </div>
 
-
-                        <a
-                            href="product_details.php?id=<?php
-                                echo $product['id'];
-                            ?>"
-                            class="view-button"
-                        >
-                            View Details
-                        </a>
-
-                    </div>
+                    <?php endwhile; ?>
 
                 </div>
 
-            <?php endwhile; ?>
+
+            <?php else: ?>
+
+                <div class="empty-products">
+
+                    <h2>No Products Available</h2>
+
+                    <p>
+                        Products will appear here once farmers add
+                        and publish them.
+                    </p>
+
+                </div>
+
+            <?php endif; ?>
 
         </div>
-
-
-    <?php else: ?>
-
-        <div class="empty-products">
-
-            <h2>No Products Available</h2>
-
-            <p>
-                Products will appear here once farmers add
-                and publish them.
-            </p>
-
-        </div>
-
-    <?php endif; ?>
-
-</div>
+    </main>
 
 </body>
 
