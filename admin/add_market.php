@@ -1,14 +1,8 @@
 <?php
 
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../includes/functions.php';
-require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/include.php';
 
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    header('Location: ../auth/login.php');
-    exit;
-}
+requireRole(R_ADMIN);
 
 /*
 |--------------------------------------------------------------------------
@@ -39,7 +33,6 @@ $closingTime = '';
 $operatingDays = [];
 $mapProvider = 'OpenStreetMap';
 $status = 'active';
-
 $errorMessage = '';
 
 
@@ -88,11 +81,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (
         empty($submittedToken) ||
+        empty($_SESSION['csrf_token']) ||
         !hash_equals($_SESSION['csrf_token'], $submittedToken)
     ) {
         $errorMessage = 'Invalid security token. Please try again.';
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -103,15 +96,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name'] ?? '');
     $description = trim($_POST['description'] ?? '');
     $address = trim($_POST['address'] ?? '');
-
     $latitude = trim($_POST['latitude'] ?? '');
     $longitude = trim($_POST['longitude'] ?? '');
-
     $openingTime = trim($_POST['opening_time'] ?? '');
     $closingTime = trim($_POST['closing_time'] ?? '');
-
     $operatingDays = $_POST['operating_days'] ?? [];
-
     $mapProvider = $_POST['map_provider'] ?? 'OpenStreetMap';
     $status = $_POST['status'] ?? 'active';
 
@@ -126,10 +115,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $operatingDays = [];
     }
 
-    $operatingDays = array_values(
-        array_intersect($operatingDays, $allowedDays)
-    );
-
 
     /*
     |--------------------------------------------------------------------------
@@ -139,59 +124,137 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($errorMessage === '') {
 
+        // Name
         if ($name === '') {
+
             $errorMessage = 'Market name is required.';
-        }
 
-        elseif (mb_strlen($name) > 150) {
+        } elseif (mb_strlen($name) > 150) {
+
             $errorMessage = 'Market name cannot exceed 150 characters.';
-        }
 
-        elseif ($address === '') {
+
+        // Description
+        } elseif (mb_strlen($description) > 1000) {
+
+            $errorMessage = 'Description cannot exceed 1000 characters.';
+
+
+        // Address
+        } elseif ($address === '') {
+
             $errorMessage = 'Address is required.';
-        }
 
-        elseif (mb_strlen($address) > 255) {
+        } elseif (mb_strlen($address) > 255) {
+
             $errorMessage = 'Address cannot exceed 255 characters.';
-        }
 
-        elseif (
+
+        // Latitude
+        } elseif (
             $latitude !== '' &&
-            (!is_numeric($latitude) || $latitude < -90 || $latitude > 90)
+            (
+                !is_numeric($latitude) ||
+                (float) $latitude < -90 ||
+                (float) $latitude > 90
+            )
         ) {
+
             $errorMessage = 'Please enter a valid latitude between -90 and 90.';
-        }
 
-        elseif (
+
+        // Longitude
+        } elseif (
             $longitude !== '' &&
-            (!is_numeric($longitude) || $longitude < -180 || $longitude > 180)
+            (
+                !is_numeric($longitude) ||
+                (float) $longitude < -180 ||
+                (float) $longitude > 180
+            )
         ) {
+
             $errorMessage = 'Please enter a valid longitude between -180 and 180.';
-        }
 
-        elseif (
+
+        // Opening time
+        } elseif (
             $openingTime !== '' &&
-            !preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/', $openingTime)
+            !preg_match(
+                '/^(?:[01]\d|2[0-3]):[0-5]\d$/',
+                $openingTime
+            )
         ) {
+
             $errorMessage = 'Please enter a valid opening time.';
-        }
 
-        elseif (
+
+        // Closing time
+        } elseif (
             $closingTime !== '' &&
-            !preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/', $closingTime)
+            !preg_match(
+                '/^(?:[01]\d|2[0-3]):[0-5]\d$/',
+                $closingTime
+            )
         ) {
+
             $errorMessage = 'Please enter a valid closing time.';
-        }
 
-        elseif (!in_array($mapProvider, $allowedMapProviders, true)) {
+
+        // Opening/closing relationship
+        } elseif (
+            $openingTime !== '' &&
+            $closingTime !== '' &&
+            $closingTime <= $openingTime
+        ) {
+
+            $errorMessage = 'Closing time must be later than opening time.';
+
+
+        // Map provider
+        } elseif (
+            !in_array($mapProvider, $allowedMapProviders, true)
+        ) {
+
             $errorMessage = 'Invalid map provider.';
-        }
 
-        elseif (!in_array($status, $allowedStatuses, true)) {
+
+        // Status
+        } elseif (
+            !in_array($status, $allowedStatuses, true)
+        ) {
+
             $errorMessage = 'Invalid market status.';
+
+
+        // Operating days must exist
+        } elseif (empty($operatingDays)) {
+
+            $errorMessage = 'Please select at least one operating day.';
+
+
+        // Validate operating days
+        } else {
+
+            foreach ($operatingDays as $day) {
+
+                if (!in_array($day, $allowedDays, true)) {
+                    $errorMessage = 'Invalid operating day.';
+                    break;
+                }
+            }
         }
 
-        elseif (mb_strlen(implode(', ', $operatingDays)) > 100) {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Operating Days Length
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            $errorMessage === '' &&
+            mb_strlen(implode(', ', $operatingDays)) > 100
+        ) {
             $errorMessage = 'The selected operating days are too long.';
         }
     }
@@ -206,13 +269,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($errorMessage === '') {
 
         /*
-         * Convert empty optional values to NULL.
-         *
-         * latitude      -> DECIMAL(10,8)
-         * longitude     -> DECIMAL(11,8)
-         * opening_time  -> TIME
-         * closing_time  -> TIME
-         */
+        |--------------------------------------------------------------------------
+        | Convert Optional Values to NULL
+        |--------------------------------------------------------------------------
+        */
 
         $latitudeValue = $latitude !== ''
             ? (float) $latitude
@@ -235,71 +295,129 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             : null;
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | MySQLi Prepared Statement
-        |--------------------------------------------------------------------------
-        */
-
         try {
-
-            $stmt = $conn->prepare("
-                INSERT INTO markets (
-                    name,
-                    description,
-                    address,
-                    latitude,
-                    longitude,
-                    opening_time,
-                    closing_time,
-                    operating_days,
-                    map_provider,
-                    status
-                )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ");
-
-            $stmt->bind_param(
-                "sssddsssss",
-                $name,
-                $description,
-                $address,
-                $latitudeValue,
-                $longitudeValue,
-                $openingTimeValue,
-                $closingTimeValue,
-                $operatingDaysValue,
-                $mapProvider,
-                $status
-            );
-
-            $stmt->execute();
-
-            $stmt->close();
-
 
             /*
             |--------------------------------------------------------------------------
-            | Success
+            | Check For Duplicate Market
             |--------------------------------------------------------------------------
             */
 
-            $_SESSION['success_message'] = 'Market added successfully.';
+            $duplicateStmt = $conn->prepare("
+                SELECT id
+                FROM markets
+                WHERE name = ?
+                  AND address = ?
+                LIMIT 1
+            ");
 
-            header('Location: markets.php');
-            exit;
+            $duplicateStmt->bind_param(
+                "ss",
+                $name,
+                $address
+            );
+
+            $duplicateStmt->execute();
+
+            $duplicateResult = $duplicateStmt->get_result();
+
+            if ($duplicateResult->num_rows > 0) {
+
+                $duplicateStmt->close();
+
+                $errorMessage = 'A market with the same name and address already exists.';
+
+            } else {
+
+                $duplicateStmt->close();
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Insert Market
+                |--------------------------------------------------------------------------
+                */
+
+                $stmt = $conn->prepare("
+                    INSERT INTO markets (
+                        name,
+                        description,
+                        address,
+                        latitude,
+                        longitude,
+                        opening_time,
+                        closing_time,
+                        operating_days,
+                        map_provider,
+                        status
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ");
+
+                /*
+                |--------------------------------------------------------------------------
+                | MySQLi Binding
+                |--------------------------------------------------------------------------
+                |
+                | We bind latitude/longitude as doubles.
+                | Empty values are represented as NULL.
+                |
+                */
+
+                $stmt->bind_param(
+                    "sssddsssss",
+                    $name,
+                    $description,
+                    $address,
+                    $latitudeValue,
+                    $longitudeValue,
+                    $openingTimeValue,
+                    $closingTimeValue,
+                    $operatingDaysValue,
+                    $mapProvider,
+                    $status
+                );
+
+                $stmt->execute();
+
+                $stmt->close();
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Regenerate CSRF Token
+                |--------------------------------------------------------------------------
+                */
+
+                $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Success
+                |--------------------------------------------------------------------------
+                */
+
+                $_SESSION['success_message'] = 'Market added successfully.';
+
+                header('Location: markets.php');
+                exit;
+            }
 
         } catch (mysqli_sql_exception $e) {
 
-            $errorMessage = 'Unable to add the market. Please try again.';
-
             /*
-             * For development only, you can temporarily use:
-             *
-             * $errorMessage = $e->getMessage();
-             *
-             * Do NOT display database errors on the deployed competition site.
-             */
+            |--------------------------------------------------------------------------
+            | Log Database Error
+            |--------------------------------------------------------------------------
+            */
+
+            error_log(
+                'MarketLink - Add Market Error: ' .
+                $e->getMessage()
+            );
+
+            $errorMessage = 'Unable to add the market. Please try again.';
         }
     }
 }
@@ -320,16 +438,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <title>Add Market - MarketLink</title>
 
-    <link
-        rel="stylesheet"
-        href="../assets/css/base.css"
-    >
-
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
 </head>
 
 <body>
 
-<?php require_once __DIR__ . '/../includes/navbar.php'; ?>
+
+    <?php include __DIR__ . '/../includes/navbar.php'; ?>
+
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
 
 <main class="main-content">
@@ -339,11 +458,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="page-header">
 
             <div>
+
                 <h1>Add Market</h1>
 
                 <p>
                     Add a new market location to MarketLink.
                 </p>
+
             </div>
 
         </div>
@@ -352,7 +473,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php if ($errorMessage !== ''): ?>
 
             <div class="alert alert-error">
-                <?php echo htmlspecialchars($errorMessage); ?>
+
+                <?= htmlspecialchars(
+                    $errorMessage,
+                    ENT_QUOTES,
+                    'UTF-8'
+                ); ?>
+
             </div>
 
         <?php endif; ?>
@@ -360,14 +487,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <form
             method="POST"
-            action=""
             class="form-container"
         >
 
             <input
                 type="hidden"
                 name="csrf_token"
-                value="<?php echo htmlspecialchars($csrfToken); ?>"
+                value="<?= htmlspecialchars(
+                    $csrfToken,
+                    ENT_QUOTES,
+                    'UTF-8'
+                ); ?>"
             >
 
 
@@ -385,7 +515,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     name="name"
                     maxlength="150"
                     required
-                    value="<?php echo htmlspecialchars($name); ?>"
+                    value="<?= htmlspecialchars(
+                        $name,
+                        ENT_QUOTES,
+                        'UTF-8'
+                    ); ?>"
                     placeholder="Enter market name"
                 >
 
@@ -404,8 +538,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     id="description"
                     name="description"
                     rows="4"
+                    maxlength="1000"
                     placeholder="Describe the market"
-                ><?php echo htmlspecialchars($description); ?></textarea>
+                ><?= htmlspecialchars(
+                    $description,
+                    ENT_QUOTES,
+                    'UTF-8'
+                ); ?></textarea>
 
             </div>
 
@@ -424,7 +563,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     name="address"
                     maxlength="255"
                     required
-                    value="<?php echo htmlspecialchars($address); ?>"
+                    value="<?= htmlspecialchars(
+                        $address,
+                        ENT_QUOTES,
+                        'UTF-8'
+                    ); ?>"
                     placeholder="Enter market address"
                 >
 
@@ -448,7 +591,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         step="0.00000001"
                         min="-90"
                         max="90"
-                        value="<?php echo htmlspecialchars($latitude); ?>"
+                        value="<?= htmlspecialchars(
+                            $latitude,
+                            ENT_QUOTES,
+                            'UTF-8'
+                        ); ?>"
                         placeholder="e.g. 15.3694"
                     >
 
@@ -468,7 +615,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         step="0.00000001"
                         min="-180"
                         max="180"
-                        value="<?php echo htmlspecialchars($longitude); ?>"
+                        value="<?= htmlspecialchars(
+                            $longitude,
+                            ENT_QUOTES,
+                            'UTF-8'
+                        ); ?>"
                         placeholder="e.g. 44.1910"
                     >
 
@@ -493,10 +644,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?php foreach ($allowedMapProviders as $provider): ?>
 
                         <option
-                            value="<?php echo htmlspecialchars($provider); ?>"
-                            <?php echo $mapProvider === $provider ? 'selected' : ''; ?>
+                            value="<?= htmlspecialchars(
+                                $provider,
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ); ?>"
+                            <?= $mapProvider === $provider
+                                ? 'selected'
+                                : ''; ?>
                         >
-                            <?php echo htmlspecialchars($provider); ?>
+
+                            <?= htmlspecialchars(
+                                $provider,
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ); ?>
+
                         </option>
 
                     <?php endforeach; ?>
@@ -520,7 +683,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         type="time"
                         id="opening_time"
                         name="opening_time"
-                        value="<?php echo htmlspecialchars($openingTime); ?>"
+                        value="<?= htmlspecialchars(
+                            $openingTime,
+                            ENT_QUOTES,
+                            'UTF-8'
+                        ); ?>"
                     >
 
                 </div>
@@ -536,7 +703,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         type="time"
                         id="closing_time"
                         name="closing_time"
-                        value="<?php echo htmlspecialchars($closingTime); ?>"
+                        value="<?= htmlspecialchars(
+                            $closingTime,
+                            ENT_QUOTES,
+                            'UTF-8'
+                        ); ?>"
                     >
 
                 </div>
@@ -561,15 +732,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <input
                                 type="checkbox"
                                 name="operating_days[]"
-                                value="<?php echo htmlspecialchars($day); ?>"
-                                <?php echo in_array(
+                                value="<?= htmlspecialchars(
+                                    $day,
+                                    ENT_QUOTES,
+                                    'UTF-8'
+                                ); ?>"
+                                <?= in_array(
                                     $day,
                                     $operatingDays,
                                     true
-                                ) ? 'checked' : ''; ?>
+                                )
+                                    ? 'checked'
+                                    : ''; ?>
                             >
 
-                            <?php echo htmlspecialchars($day); ?>
+                            <?= htmlspecialchars(
+                                $day,
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ); ?>
 
                         </label>
 
@@ -596,10 +777,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?php foreach ($allowedStatuses as $marketStatus): ?>
 
                         <option
-                            value="<?php echo htmlspecialchars($marketStatus); ?>"
-                            <?php echo $status === $marketStatus ? 'selected' : ''; ?>
+                            value="<?= htmlspecialchars(
+                                $marketStatus,
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ); ?>"
+                            <?= $status === $marketStatus
+                                ? 'selected'
+                                : ''; ?>
                         >
-                            <?php echo ucfirst($marketStatus); ?>
+
+                            <?= htmlspecialchars(
+                                ucfirst($marketStatus),
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ); ?>
+
                         </option>
 
                     <?php endforeach; ?>
@@ -636,4 +829,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </main>
 
 </body>
+
 </html>
