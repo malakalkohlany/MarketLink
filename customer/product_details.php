@@ -34,26 +34,19 @@ $stmt = $conn->prepare("
         p.is_available,
         p.moderation_status,
         p.created_at,
-
         c.name AS category_name,
-
         f.stall_name AS farmer_name,
         f.contact_person AS farmer_contact,
         f.description AS farmer_description,
         f.address AS farmer_address
-
     FROM products p
-
     LEFT JOIN categories c
         ON p.category_id = c.id
-
     LEFT JOIN farmers f
         ON p.farmer_id = f.id
-
     WHERE p.id = ?
       AND p.is_available = 1
       AND p.moderation_status = 'approved'
-
     LIMIT 1
 ");
 
@@ -71,18 +64,15 @@ $stmt->close();
 
 if (!$product) {
     ?>
-
     <!DOCTYPE html>
     <html lang="en">
 
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
         <title>Product Not Found - MarketLink</title>
 
         <style>
-
             body {
                 margin: 0;
                 font-family: Arial, sans-serif;
@@ -122,9 +112,7 @@ if (!$product) {
             .back-button:hover {
                 background: #219150;
             }
-
         </style>
-
     </head>
 
     <body>
@@ -149,6 +137,101 @@ if (!$product) {
 
     <?php
     exit;
+}
+
+// ===============================
+// Add Product To Cart
+// ===============================
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_to_cart'])) {
+
+    $quantity = isset($_POST['quantity'])
+        ? (float) $_POST['quantity']
+        : 0;
+
+    // Validate quantity
+    if ($quantity <= 0) {
+        header(
+            'Location: product_details.php?id='
+            . $productId
+            . '&error=invalid_quantity'
+        );
+        exit;
+    }
+
+    // Check stock
+    if ($quantity > (float) $product['stock_quantity']) {
+        header(
+            'Location: product_details.php?id='
+            . $productId
+            . '&error=stock'
+        );
+        exit;
+    }
+
+    // Create cart session
+    if (!isset($_SESSION['cart']) || !is_array($_SESSION['cart'])) {
+        $_SESSION['cart'] = [];
+    }
+
+    // Product already exists in cart
+    if (isset($_SESSION['cart'][$productId])) {
+
+        $newQuantity =
+            (float) $_SESSION['cart'][$productId]['quantity']
+            + $quantity;
+
+        // Make sure total quantity does not exceed stock
+        if ($newQuantity > (float) $product['stock_quantity']) {
+            header(
+                'Location: product_details.php?id='
+                . $productId
+                . '&error=stock'
+            );
+            exit;
+        }
+
+        $_SESSION['cart'][$productId]['quantity'] = $newQuantity;
+
+        $_SESSION['cart'][$productId]['subtotal'] =
+            $newQuantity * (float) $product['price'];
+
+    } else {
+
+        // Add new product to cart
+        $_SESSION['cart'][$productId] = [
+            'product_id' => (int) $product['id'],
+            'name' => $product['name'],
+            'price' => (float) $product['price'],
+            'unit' => $product['unit'],
+            'quantity' => $quantity,
+            'image' => $product['image'],
+            'farmer_id' => (int) $product['farmer_id'],
+            'subtotal' => $quantity * (float) $product['price']
+        ];
+    }
+
+    // Go to cart
+    header('Location: cart.php?added=1');
+    exit;
+}
+
+// ===============================
+// Error Message
+// ===============================
+
+$errorMessage = '';
+
+if (isset($_GET['error'])) {
+
+    if ($_GET['error'] === 'invalid_quantity') {
+        $errorMessage = 'Please enter a valid quantity.';
+    }
+
+    if ($_GET['error'] === 'stock') {
+        $errorMessage =
+            'The selected quantity is greater than the available stock.';
+    }
 }
 
 ?>
@@ -189,10 +272,6 @@ if (!$product) {
             margin: 40px auto 60px;
         }
 
-        /* ===============================
-           Back Link
-        =============================== */
-
         .back-link {
             display: inline-block;
             margin-bottom: 20px;
@@ -205,10 +284,6 @@ if (!$product) {
             text-decoration: underline;
         }
 
-        /* ===============================
-           Main Card
-        =============================== */
-
         .product-card {
             background: white;
             border-radius: 18px;
@@ -216,20 +291,12 @@ if (!$product) {
             box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
         }
 
-        /* ===============================
-           Top Section
-        =============================== */
-
         .top-section {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 40px;
             padding: 35px;
         }
-
-        /* ===============================
-           Image
-        =============================== */
 
         .product-image-container {
             width: 100%;
@@ -252,10 +319,6 @@ if (!$product) {
             color: #999;
             font-size: 18px;
         }
-
-        /* ===============================
-           Product Information
-        =============================== */
 
         .product-info {
             padding: 5px 0;
@@ -285,10 +348,6 @@ if (!$product) {
             margin-bottom: 25px;
         }
 
-        /* ===============================
-           Price
-        =============================== */
-
         .price {
             font-size: 31px;
             font-weight: bold;
@@ -300,10 +359,6 @@ if (!$product) {
             color: #777;
             margin-bottom: 25px;
         }
-
-        /* ===============================
-           Product Information Box
-        =============================== */
 
         .info-box {
             border-top: 1px solid #eeeeee;
@@ -328,10 +383,6 @@ if (!$product) {
             text-align: right;
         }
 
-        /* ===============================
-           Availability
-        =============================== */
-
         .stock-available {
             color: #27ae60;
             font-weight: bold;
@@ -341,10 +392,6 @@ if (!$product) {
             color: #e74c3c;
             font-weight: bold;
         }
-
-        /* ===============================
-           Farmer Section
-        =============================== */
 
         .farmer-section {
             background: #f8f9fb;
@@ -392,10 +439,6 @@ if (!$product) {
             margin-top: 15px;
         }
 
-        /* ===============================
-           Actions
-        =============================== */
-
         .actions {
             display: flex;
             gap: 12px;
@@ -434,8 +477,109 @@ if (!$product) {
         }
 
         /* ===============================
-           Mobile
+           Quantity Box
         =============================== */
+
+        .quantity-box {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fb;
+            border: 1px solid #e1e5e8;
+            border-radius: 12px;
+        }
+
+        .quantity-box.show {
+            display: block;
+        }
+
+        .quantity-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .quantity-label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #444;
+        }
+
+        .quantity-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .quantity-input:focus {
+            border-color: #27ae60;
+        }
+
+        .quantity-help {
+            display: block;
+            margin-top: 7px;
+            color: #777;
+            font-size: 13px;
+        }
+
+        .selected-total {
+            margin-top: 15px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            font-size: 17px;
+            font-weight: bold;
+            color: #27ae60;
+        }
+
+        .confirm-button {
+            width: 100%;
+            margin-top: 15px;
+            padding: 13px;
+            border: none;
+            border-radius: 8px;
+            background: #27ae60;
+            color: white;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .confirm-button:hover {
+            background: #219150;
+        }
+
+        .cancel-button {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: #95a5a6;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .cancel-button:hover {
+            background: #7f8c8d;
+        }
+
+        .error-message {
+            margin-bottom: 20px;
+            padding: 12px 15px;
+            background: #fdecea;
+            border: 1px solid #f5c6cb;
+            color: #c0392b;
+            border-radius: 8px;
+            font-size: 14px;
+        }
 
         @media (max-width: 768px) {
 
@@ -460,7 +604,6 @@ if (!$product) {
             .actions {
                 flex-direction: column;
             }
-
         }
 
     </style>
@@ -471,8 +614,6 @@ if (!$product) {
 
 <div class="details-container">
 
-    <!-- Back to Products -->
-
     <a
         href="products.php"
         class="back-link"
@@ -480,20 +621,17 @@ if (!$product) {
         ← Back to Products
     </a>
 
+    <?php if ($errorMessage): ?>
 
-    <!-- Main Product Card -->
+        <div class="error-message">
+            <?php echo htmlspecialchars($errorMessage); ?>
+        </div>
+
+    <?php endif; ?>
 
     <div class="product-card">
 
-
-        <!-- ===============================
-             Product Top Section
-        ================================ -->
-
         <div class="top-section">
-
-
-            <!-- Product Image -->
 
             <div class="product-image-container">
 
@@ -515,101 +653,65 @@ if (!$product) {
 
             </div>
 
-
-            <!-- Product Information -->
-
             <div class="product-info">
-
-
-                <!-- Category -->
 
                 <?php if (!empty($product['category_name'])): ?>
 
                     <div class="category-badge">
-
                         <?php
                         echo htmlspecialchars(
                             $product['category_name']
                         );
                         ?>
-
                     </div>
 
                 <?php endif; ?>
 
-
-                <!-- Product Name -->
-
                 <h1 class="product-name">
-
                     <?php
                     echo htmlspecialchars(
                         $product['name']
                     );
                     ?>
-
                 </h1>
-
-
-                <!-- Description -->
 
                 <div class="product-description">
 
                     <?php
-
                     echo nl2br(
                         htmlspecialchars(
                             $product['description']
                             ?? 'No description available.'
                         )
                     );
-
                     ?>
 
                 </div>
-
-
-                <!-- Price -->
 
                 <div class="price">
 
                     $
-
                     <?php
-
                     echo number_format(
                         (float) $product['price'],
                         2
                     );
-
                     ?>
 
                 </div>
-
-
-                <!-- Unit -->
 
                 <div class="unit">
 
                     Price per
-
                     <?php
-
                     echo htmlspecialchars(
                         $product['unit']
                     );
-
                     ?>
 
                 </div>
 
-
-                <!-- Product Information -->
-
                 <div class="info-box">
-
-
-                    <!-- Stock -->
 
                     <div class="info-row">
 
@@ -620,12 +722,10 @@ if (!$product) {
                         <span class="info-value">
 
                             <?php
-
                             echo number_format(
                                 (float) $product['stock_quantity'],
                                 2
                             );
-
                             ?>
 
                             <?php
@@ -637,9 +737,6 @@ if (!$product) {
                         </span>
 
                     </div>
-
-
-                    <!-- Availability -->
 
                     <div class="info-row">
 
@@ -667,9 +764,6 @@ if (!$product) {
 
                     </div>
 
-
-                    <!-- Product ID -->
-
                     <div class="info-row">
 
                         <span class="info-label">
@@ -679,7 +773,6 @@ if (!$product) {
                         <span class="info-value">
 
                             #
-
                             <?php
                             echo (int) $product['id'];
                             ?>
@@ -687,9 +780,6 @@ if (!$product) {
                         </span>
 
                     </div>
-
-
-                    <!-- Category -->
 
                     <div class="info-row">
 
@@ -700,20 +790,15 @@ if (!$product) {
                         <span class="info-value">
 
                             <?php
-
                             echo htmlspecialchars(
                                 $product['category_name']
                                 ?? 'Not specified'
                             );
-
                             ?>
 
                         </span>
 
                     </div>
-
-
-                    <!-- Added Date -->
 
                     <div class="info-row">
 
@@ -724,28 +809,21 @@ if (!$product) {
                         <span class="info-value">
 
                             <?php
-
                             echo date(
                                 'M d, Y',
                                 strtotime(
                                     $product['created_at']
                                 )
                             );
-
                             ?>
 
                         </span>
 
                     </div>
 
-
                 </div>
 
-
-                <!-- Actions -->
-
                 <div class="actions">
-
 
                     <a
                         href="products.php"
@@ -754,28 +832,132 @@ if (!$product) {
                         Back
                     </a>
 
+                    <?php if ((float) $product['stock_quantity'] > 0): ?>
 
-                    <!-- Visual Button Only For Now -->
+                        <button
+                            type="button"
+                            class="button cart-button"
+                            onclick="showQuantityBox()"
+                        >
+                            Add to Cart
+                        </button>
 
-                    <a
-                        href="#"
-                        class="button cart-button"
-                        onclick="return false;"
-                    >
-                        Add to Cart
-                    </a>
+                    <?php else: ?>
 
+                        <button
+                            type="button"
+                            class="button"
+                            style="background:#e74c3c;color:white;cursor:not-allowed;"
+                            disabled
+                        >
+                            Out of Stock
+                        </button>
+
+                    <?php endif; ?>
 
                 </div>
+
+                <?php if ((float) $product['stock_quantity'] > 0): ?>
+
+                    <div
+                        id="quantityBox"
+                        class="quantity-box"
+                    >
+
+                        <div class="quantity-title">
+                            How much do you want?
+                        </div>
+
+                        <form
+                            method="POST"
+                            action="product_details.php?id=<?php echo (int) $product['id']; ?>"
+                        >
+
+                            <input
+                                type="hidden"
+                                name="add_to_cart"
+                                value="1"
+                            >
+
+                            <label
+                                for="quantity"
+                                class="quantity-label"
+                            >
+                                Quantity
+                            </label>
+
+                            <input
+                                type="number"
+                                id="quantity"
+                                name="quantity"
+                                class="quantity-input"
+                                min="0.01"
+                                max="<?php echo htmlspecialchars($product['stock_quantity']); ?>"
+                                step="0.01"
+                                value="1"
+                                required
+                                oninput="calculateTotal()"
+                            >
+
+                            <span class="quantity-help">
+
+                                Available:
+                                <?php
+                                echo number_format(
+                                    (float) $product['stock_quantity'],
+                                    2
+                                );
+                                ?>
+
+                                <?php
+                                echo htmlspecialchars(
+                                    $product['unit']
+                                );
+                                ?>
+
+                            </span>
+
+                            <div class="selected-total">
+
+                                Total: $
+
+                                <span id="totalPrice">
+
+                                    <?php
+                                    echo number_format(
+                                        (float) $product['price'],
+                                        2
+                                    );
+                                    ?>
+
+                                </span>
+
+                            </div>
+
+                            <button
+                                type="submit"
+                                class="confirm-button"
+                            >
+                                Confirm & Add to Cart
+                            </button>
+
+                            <button
+                                type="button"
+                                class="cancel-button"
+                                onclick="hideQuantityBox()"
+                            >
+                                Cancel
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                <?php endif; ?>
 
             </div>
 
         </div>
-
-
-        <!-- ===============================
-             Farmer Information
-        ================================ -->
 
         <div class="farmer-section">
 
@@ -783,27 +965,18 @@ if (!$product) {
                 Farmer Information
             </h2>
 
-
             <div class="farmer-card">
-
-
-                <!-- Farmer Name -->
 
                 <div class="farmer-name">
 
                     <?php
-
                     echo htmlspecialchars(
                         $product['farmer_name']
                         ?? 'Unknown Farmer'
                     );
-
                     ?>
 
                 </div>
-
-
-                <!-- Contact Person -->
 
                 <div class="farmer-row">
 
@@ -814,20 +987,15 @@ if (!$product) {
                     <span class="farmer-value">
 
                         <?php
-
                         echo htmlspecialchars(
                             $product['farmer_contact']
                             ?? 'Not available'
                         );
-
                         ?>
 
                     </span>
 
                 </div>
-
-
-                <!-- Address -->
 
                 <div class="farmer-row">
 
@@ -838,20 +1006,15 @@ if (!$product) {
                     <span class="farmer-value">
 
                         <?php
-
                         echo htmlspecialchars(
                             $product['farmer_address']
                             ?? 'Not available'
                         );
-
                         ?>
 
                     </span>
 
                 </div>
-
-
-                <!-- Farmer Description -->
 
                 <?php if (!empty($product['farmer_description'])): ?>
 
@@ -864,28 +1027,86 @@ if (!$product) {
                         <br>
 
                         <?php
-
                         echo nl2br(
                             htmlspecialchars(
                                 $product['farmer_description']
                             )
                         );
-
                         ?>
 
                     </div>
 
                 <?php endif; ?>
 
-
             </div>
 
         </div>
 
-
     </div>
 
 </div>
+
+<script>
+
+    const productPrice =
+        <?php echo (float) $product['price']; ?>;
+
+    const maxStock =
+        <?php echo (float) $product['stock_quantity']; ?>;
+
+    function showQuantityBox() {
+
+        const box =
+            document.getElementById('quantityBox');
+
+        box.classList.add('show');
+
+        const quantityInput =
+            document.getElementById('quantity');
+
+        quantityInput.focus();
+
+        calculateTotal();
+    }
+
+    function hideQuantityBox() {
+
+        const box =
+            document.getElementById('quantityBox');
+
+        box.classList.remove('show');
+    }
+
+    function calculateTotal() {
+
+        const quantityInput =
+            document.getElementById('quantity');
+
+        const totalPrice =
+            document.getElementById('totalPrice');
+
+        let quantity =
+            parseFloat(quantityInput.value);
+
+        if (isNaN(quantity) || quantity < 0) {
+            quantity = 0;
+        }
+
+        if (quantity > maxStock) {
+
+            quantity = maxStock;
+
+            quantityInput.value = maxStock;
+        }
+
+        const total =
+            quantity * productPrice;
+
+        totalPrice.textContent =
+            total.toFixed(2);
+    }
+
+</script>
 
 </body>
 
