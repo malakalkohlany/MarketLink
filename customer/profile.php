@@ -1,9 +1,8 @@
 <?php
 
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/include.php';
 
-// requireRole('customer');
+requireRole(R_CUSTOMER);
 
 $userId = getUserId();
 
@@ -225,6 +224,10 @@ if (!$user) {
 
     <title>My Profile - MarketLink</title>
 
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
+
     <style>
 
         * {
@@ -398,302 +401,306 @@ if (!$user) {
 
 <body>
 
+    <?php include __DIR__ . '/../includes/navbar.php'; ?>
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-<div class="profile-container">
+    <main class="main-content">
 
-    <div class="profile-card">
+        <div class="profile-container">
 
-        <?php if ($message !== ''): ?>
+            <div class="profile-card">
 
-            <div class="message">
-                <?php echo htmlspecialchars($message); ?>
-            </div>
+                <?php if ($message !== ''): ?>
 
-        <?php endif; ?>
+                    <div class="message">
+                        <?php echo htmlspecialchars($message); ?>
+                    </div>
 
+                <?php endif; ?>
 
-        <?php if ($error !== ''): ?>
 
-            <div class="error">
-                <?php echo htmlspecialchars($error); ?>
-            </div>
+                <?php if ($error !== ''): ?>
 
-        <?php endif; ?>
+                    <div class="error">
+                        <?php echo htmlspecialchars($error); ?>
+                    </div>
 
+                <?php endif; ?>
 
-        <?php if ($section === 'profile'): ?>
 
+                <?php if ($section === 'profile'): ?>
 
-            <!-- ===============================
-                 MAIN PROFILE
-            ================================ -->
 
-            <h1 class="profile-title">
-                My Profile
-            </h1>
+                    <!-- ===============================
+                        MAIN PROFILE
+                    ================================ -->
 
+                    <h1 class="profile-title">
+                        My Profile
+                    </h1>
 
-            <div class="profile-icon">
-                👤
-            </div>
 
+                    <div class="profile-icon">
+                        👤
+                    </div>
 
-            <div class="profile-info">
 
-                <div class="info-row">
-                    <span class="info-label">Name:</span>
-                    <?php echo htmlspecialchars($user['name']); ?>
-                </div>
+                    <div class="profile-info">
 
+                        <div class="info-row">
+                            <span class="info-label">Name:</span>
+                            <?php echo htmlspecialchars($user['name']); ?>
+                        </div>
 
-                <div class="info-row">
-                    <span class="info-label">Email:</span>
-                    <?php echo htmlspecialchars($user['email']); ?>
-                </div>
 
+                        <div class="info-row">
+                            <span class="info-label">Email:</span>
+                            <?php echo htmlspecialchars($user['email']); ?>
+                        </div>
 
-                <div class="info-row">
-                    <span class="info-label">Phone:</span>
-                    <?php
-                    echo htmlspecialchars(
-                        $user['phone'] ?? ''
-                    );
-                    ?>
-                </div>
 
+                        <div class="info-row">
+                            <span class="info-label">Phone:</span>
+                            <?php
+                            echo htmlspecialchars(
+                                $user['phone'] ?? ''
+                            );
+                            ?>
+                        </div>
 
-                <div class="info-row">
-                    <span class="info-label">Address:</span>
-                    <?php
-                    echo htmlspecialchars(
-                        $user['address'] ?? ''
-                    );
-                    ?>
-                </div>
 
-            </div>
+                        <div class="info-row">
+                            <span class="info-label">Address:</span>
+                            <?php
+                            echo htmlspecialchars(
+                                $user['address'] ?? ''
+                            );
+                            ?>
+                        </div>
 
+                    </div>
 
-            <div class="buttons">
 
-                <a
-                    href="profile.php?section=edit"
-                    class="profile-button edit-button"
-                >
-                    Edit
-                </a>
+                    <div class="buttons">
 
+                        <a
+                            href="profile.php?section=edit"
+                            class="profile-button edit-button"
+                        >
+                            Edit
+                        </a>
 
-                <a
-                    href="profile.php?section=password"
-                    class="profile-button password-button"
-                >
-                    Change Password
-                </a>
 
+                        <a
+                            href="profile.php?section=password"
+                            class="profile-button password-button"
+                        >
+                            Change Password
+                        </a>
 
-                <a
-                    href="../auth/logout.php"
-                    class="profile-button logout-button"
-                >
-                    Logout
-                </a>
 
-            </div>
+                        <a
+                            href="../auth/logout.php"
+                            class="profile-button logout-button"
+                        >
+                            Logout
+                        </a>
 
+                    </div>
 
-        <?php elseif ($section === 'edit'): ?>
 
+                <?php elseif ($section === 'edit'): ?>
 
-            <!-- ===============================
-                 EDIT PROFILE
-            ================================ -->
 
-            <h1 class="profile-title">
-                Edit Profile
-            </h1>
+                    <!-- ===============================
+                        EDIT PROFILE
+                    ================================ -->
 
+                    <h1 class="profile-title">
+                        Edit Profile
+                    </h1>
 
-            <form method="POST" autocomplete="off">
 
-                <div class="form-group">
+                    <form method="POST" autocomplete="off">
 
-                    <label>Name</label>
+                        <div class="form-group">
 
-                    <input
-                        type="text"
-                        name="name"
-                        value="<?php echo htmlspecialchars($user['name']); ?>"
-                        autocomplete="name"
-                        required
-                    >
+                            <label>Name</label>
 
-                </div>
+                            <input
+                                type="text"
+                                name="name"
+                                value="<?php echo htmlspecialchars($user['name']); ?>"
+                                autocomplete="name"
+                                required
+                            >
 
+                        </div>
 
-                <div class="form-group">
 
-                    <label>Email</label>
+                        <div class="form-group">
 
-                    <input
-                        type="email"
-                        value="<?php echo htmlspecialchars($user['email']); ?>"
-                        readonly
-                        autocomplete="off"
-                    >
+                            <label>Email</label>
 
-                </div>
+                            <input
+                                type="email"
+                                value="<?php echo htmlspecialchars($user['email']); ?>"
+                                readonly
+                                autocomplete="off"
+                            >
 
+                        </div>
 
-                <div class="form-group">
 
-                    <label>Phone</label>
+                        <div class="form-group">
 
-                    <input
-                        type="text"
-                        name="phone"
-                        value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>"
-                        autocomplete="tel"
-                    >
+                            <label>Phone</label>
 
-                </div>
+                            <input
+                                type="text"
+                                name="phone"
+                                value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>"
+                                autocomplete="tel"
+                            >
 
+                        </div>
 
-                <div class="form-group">
 
-                    <label>Address</label>
+                        <div class="form-group">
 
-                    <input
-                        type="text"
-                        name="address"
-                        value="<?php echo htmlspecialchars($user['address'] ?? ''); ?>"
-                        autocomplete="street-address"
-                    >
+                            <label>Address</label>
 
-                </div>
+                            <input
+                                type="text"
+                                name="address"
+                                value="<?php echo htmlspecialchars($user['address'] ?? ''); ?>"
+                                autocomplete="street-address"
+                            >
 
+                        </div>
 
-                <div class="form-buttons">
 
-                    <button
-                        type="submit"
-                        name="update_profile"
-                        class="profile-button save-button"
-                    >
-                        Save Changes
-                    </button>
+                        <div class="form-buttons">
 
+                            <button
+                                type="submit"
+                                name="update_profile"
+                                class="profile-button save-button"
+                            >
+                                Save Changes
+                            </button>
 
-                    <a
-                        href="profile.php"
-                        class="profile-button cancel-button"
-                    >
-                        Cancel
-                    </a>
 
-                </div>
+                            <a
+                                href="profile.php"
+                                class="profile-button cancel-button"
+                            >
+                                Cancel
+                            </a>
 
-            </form>
+                        </div>
 
+                    </form>
 
-        <?php elseif ($section === 'password'): ?>
 
+                <?php elseif ($section === 'password'): ?>
 
-            <!-- ===============================
-                 CHANGE PASSWORD
-            ================================ -->
 
-            <h1 class="profile-title">
-                Change Password
-            </h1>
+                    <!-- ===============================
+                        CHANGE PASSWORD
+                    ================================ -->
 
-
-            <form
-                method="POST"
-                autocomplete="off"
-                novalidate
-            >
-
-                <div class="form-group">
-
-                    <label>
-                        Current Password
-                    </label>
-
-                    <input
-                        type="password"
-                        name="current_password"
-                        autocomplete="current-password"
-                        required
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        New Password
-                    </label>
-
-                    <input
-                        type="password"
-                        name="new_password"
-                        autocomplete="new-password"
-                        minlength="6"
-                        required
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Confirm New Password
-                    </label>
-
-                    <input
-                        type="password"
-                        name="confirm_password"
-                        autocomplete="new-password"
-                        minlength="6"
-                        required
-                    >
-
-                </div>
-
-
-                <div class="form-buttons">
-
-                    <button
-                        type="submit"
-                        name="change_password"
-                        class="profile-button save-button"
-                    >
+                    <h1 class="profile-title">
                         Change Password
-                    </button>
+                    </h1>
 
 
-                    <a
-                        href="profile.php"
-                        class="profile-button cancel-button"
+                    <form
+                        method="POST"
+                        autocomplete="off"
+                        novalidate
                     >
-                        Cancel
-                    </a>
 
-                </div>
+                        <div class="form-group">
 
-            </form>
+                            <label>
+                                Current Password
+                            </label>
+
+                            <input
+                                type="password"
+                                name="current_password"
+                                autocomplete="current-password"
+                                required
+                            >
+
+                        </div>
 
 
-        <?php endif; ?>
+                        <div class="form-group">
+
+                            <label>
+                                New Password
+                            </label>
+
+                            <input
+                                type="password"
+                                name="new_password"
+                                autocomplete="new-password"
+                                minlength="6"
+                                required
+                            >
+
+                        </div>
 
 
-    </div>
+                        <div class="form-group">
 
-</div>
+                            <label>
+                                Confirm New Password
+                            </label>
 
+                            <input
+                                type="password"
+                                name="confirm_password"
+                                autocomplete="new-password"
+                                minlength="6"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-buttons">
+
+                            <button
+                                type="submit"
+                                name="change_password"
+                                class="profile-button save-button"
+                            >
+                                Change Password
+                            </button>
+
+
+                            <a
+                                href="profile.php"
+                                class="profile-button cancel-button"
+                            >
+                                Cancel
+                            </a>
+
+                        </div>
+
+                    </form>
+
+
+                <?php endif; ?>
+
+
+            </div>
+
+        </div>
+    </main>
 
 </body>
 
