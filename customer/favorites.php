@@ -1,13 +1,10 @@
 <?php
 
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../includes/functions.php';
-require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/include.php';
 
-requireRole('customer');
+requireRole(R_CUSTOMER);
 
-$customerId = (int) $_SESSION['user_id'];
+$customerId = getUserId();
 
 
 /*
