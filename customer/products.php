@@ -1092,37 +1092,13 @@ $stmt->close();
                                      Same Market / Can Add
                                 ------------------------------------------ -->
 
-                                <form
-                                    method="POST"
-                                    action="add_to_cart.php"
-                                    class="add-to-cart-form"
+                                <a
+                                    href="add_to_cart.php?id=<?= $productId ?>"
+                                    class="add-to-cart-button"
                                 >
-
-                                    <input
-                                        type="hidden"
-                                        name="product_id"
-                                        value="<?= $productId ?>"
-                                    >
-
-                                    <input
-                                        type="hidden"
-                                        name="quantity"
-                                        value="1"
-                                    >
-
-
-                                    <button
-                                        type="submit"
-                                        class="add-to-cart-button"
-                                    >
-
-                                        <i class="fa-solid fa-cart-plus"></i>
-
-                                        Add to Cart
-
-                                    </button>
-
-                                </form>
+                                    <i class="fa-solid fa-cart-plus"></i>
+                                    Add to Cart
+                                </a>
 
 
 

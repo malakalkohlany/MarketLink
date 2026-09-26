@@ -423,7 +423,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 id="quantity"
                                 name="quantity"
                                 class="quantity-input"
-                                min="0.01"
+                                min="0.1"
                                 max="<?= htmlspecialchars($product['stock_quantity']) ?>"
                                 step="0.1"
                                 value="1"
@@ -575,7 +575,7 @@ function calculateTotal() {
         parseFloat(quantityInput.value);
 
 
-    if (isNaN(quantity) || quantity < 0) {
+    if (isNaN(quantity) || quantity < 0.1) {
 
         quantity = 0;
     }
