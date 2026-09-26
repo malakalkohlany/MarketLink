@@ -103,6 +103,7 @@ $reviews = $review_stmt->get_result();
     <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
     <main class="main-content">
+
         <h1>Customer Reviews</h1>
         <?php if ($reviews->num_rows === 0): ?>
             <p>No Reviews found.</p>
@@ -110,7 +111,7 @@ $reviews = $review_stmt->get_result();
 
             <?php while ($review = $reviews->fetch_assoc()): ?>
             
-            <div>
+            <div class="review-card">
                 <h2><?= e($review['product_name']) ?></h2>
                 <p>Customer:<?= e($review['customer_name']) ?></p>
                 <p>Rating:<?= e($review['rating']) ?>/5</p>
@@ -139,7 +140,7 @@ $reviews = $review_stmt->get_result();
             <?php endwhile; ?>
 
         <?php endif; ?>
-        
+
     </main>
 </body>
 </html>

@@ -104,7 +104,7 @@ function markAllNotificationsRead() {
 
 
 function updateNotificationBadge() {
-    fetch('/MarketLink/actions/get_notification_count.php')
+    fetch('/MarketLink/actions/get_notifications_count.php')
         .then(response => response.json())
         .then(data => {
 

@@ -33,6 +33,11 @@ MarketLink/
 │   ├── sidebar.php
 │   └── validation.php
 │
+├── actions/
+│   ├── get_notifications_count.php
+│   ├── mark_all_notifications_read.php
+│   └── mark_notifications_read.php
+│
 ├── auth/
 │   ├── register.php
 │   ├── register_process.php
@@ -42,6 +47,7 @@ MarketLink/
 │   └── logout.php
 │
 ├── customer/
+│   ├── add_to_cart.php
 │   ├── cart.php
 │   ├── checkout.php
 │   ├── dashboard.php
@@ -52,10 +58,11 @@ MarketLink/
 │   ├── market_details.php
 │   ├── notifications.php
 │   ├── orders.php
-│   ├── order_details.php
 │   ├── products.php
 │   ├── product_details.php
 │   ├── profile.php
+│   ├── remove_from_cart.php
+│   ├── update_cart.php
 │   └── reviews.php
 │
 ├── farmer/
@@ -63,29 +70,69 @@ MarketLink/
 │   ├── analytics.php
 │   ├── dashboard.php
 │   ├── edit_product.php
+│   ├── edit_profile.php
 │   ├── inventory.php
 │   ├── markets.php
 │   ├── notifications.php
 │   ├── orders.php
 │   ├── order_details.php
-│   ├── orders.php
-│   ├── order_details.php
-│   ├── products.php
-│   ├── product_details.php
-│   ├── profile.php
 │   ├── pending.php
+│   ├── pickup_slots.php
+│   ├── products.php
+│   ├── profile.php
+│   ├── stall.php
 │   └── rejected.php
 │
 ├── admin/
-│   └── dashboard.php
+│   ├── add_market.php
+│   ├── announcements.php
+│   ├── categories.php
+│   ├── customer_details.php
+│   ├── customers.php
+│   ├── dashboard.php
+│   ├── edit_market.php
+│   ├── farmers.php
+│   ├── farmer_details.php
+│   ├── markets.php
+│   ├── notifications.php
+│   ├── products.php
+│   ├── reports.php
+│   └── reviews.php
+│
+├── database/
+│   ├── marketlink.sql
+│   └── seed.sql
+│
+├── public/
+│   ├── about.php
+│   ├── contact.php
+│   ├── farmers.php
+│   └── markets.php
 │
 ├── assets/
 │   ├── css/
+│   │   ├── auth.css
+│   │   ├── base.css
+│   │   ├── components.css
+│   │   ├── dashboard.css
+│   │   ├── leaflet.css
+│   │   ├── navbar.css
+│   │   └── sidebar.css
+│   │
 │   ├── js/
+│   │   ├── app.js
+│   │   ├── cart.js
+│   │   ├── dashboard.js
+│   │   ├── leaflet.js
+│   │   ├── login.js
+│   │   ├── navbar.css
+│   │   └── register.js
+│   │
 │   └── images/
 │
 ├── uploads/
 │
+├── index.php
 └── README.md
 ```
 
