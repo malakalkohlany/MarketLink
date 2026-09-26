@@ -8,6 +8,8 @@ function toggleNotifications() {
 }
 
 
+// Close when clicking outside
+
 document.addEventListener('click', function (event) {
 
     const wrapper = document.querySelector('.notification-wrapper');
@@ -23,8 +25,7 @@ document.addEventListener('click', function (event) {
 
 
 function openNotification(notificationId) {
-
-    fetch('mark_notification_read.php', {
+    fetch('/MarketLink/actions/mark_notification_read.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -33,9 +34,7 @@ function openNotification(notificationId) {
     })
     .then(response => response.json())
     .then(data => {
-
         if (data.success) {
-
             const item = document.querySelector(
                 '.notification-item[data-id="' + notificationId + '"]'
             );
@@ -45,9 +44,9 @@ function openNotification(notificationId) {
             }
 
             updateNotificationBadge();
-
+        } else {
+            console.error('Failed to mark notification:', data.message);
         }
-
     })
     .catch(error => {
         console.error('Notification error:', error);
@@ -56,13 +55,11 @@ function openNotification(notificationId) {
 
 
 function markAllNotificationsRead() {
-
-    fetch('mark_all_notifications_read.php', {
+    fetch('/MarketLink/actions/mark_all_notifications_read.php', {
         method: 'POST'
     })
     .then(response => response.json())
     .then(data => {
-
         if (data.success) {
 
             document
@@ -77,20 +74,28 @@ function markAllNotificationsRead() {
                 badge.remove();
             }
 
-            const unreadText = document.querySelector('.notification-header span');
+            const unreadText = document.querySelector(
+                '.notification-header span'
+            );
 
             if (unreadText) {
                 unreadText.remove();
             }
 
-            const markButton = document.querySelector('.notification-header button');
+            const markButton = document.querySelector(
+                '.notification-header button'
+            );
 
             if (markButton) {
                 markButton.remove();
             }
 
+        } else {
+            console.error(
+                'Failed to mark all notifications:',
+                data.message
+            );
         }
-
     })
     .catch(error => {
         console.error('Notification error:', error);
@@ -99,36 +104,42 @@ function markAllNotificationsRead() {
 
 
 function updateNotificationBadge() {
-
-    fetch('get_notification_count.php')
+    fetch('/MarketLink/actions/get_notifications_count.php')
         .then(response => response.json())
         .then(data => {
 
-            const button = document.querySelector('.notification-button');
+            const button = document.querySelector(
+                '.notification-button'
+            );
 
             if (!button) return;
 
-            let badge = button.querySelector('.notification-badge');
+            let badge = button.querySelector(
+                '.notification-badge'
+            );
 
             if (data.count > 0) {
 
                 if (!badge) {
-
                     badge = document.createElement('span');
                     badge.className = 'notification-badge';
-
                     button.appendChild(badge);
                 }
 
-                badge.textContent = data.count > 99
-                    ? '99+'
-                    : data.count;
+                badge.textContent =
+                    data.count > 99
+                        ? '99+'
+                        : data.count;
 
             } else if (badge) {
 
                 badge.remove();
-
             }
-
+        })
+        .catch(error => {
+            console.error(
+                'Notification count error:',
+                error
+            );
         });
 }

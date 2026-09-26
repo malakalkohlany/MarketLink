@@ -1,18 +1,36 @@
+/* =========================================================
+   MARKETLINK — EARTHY RETRO SIDEBAR
+   ========================================================= */
+
 :root {
-    --barn-red: #8E2A1E;
-    --moss: #2d3d23;
-    --seashell: #F9F4ED;
-    --butter: #EFCF97;
-    --butter-dark: #c3aa7e;
-
-    --white: #FFFFFF;
-    --text-muted: #766F67;
-
     --sidebar-width: 240px;
+
+    --sidebar-bg: #3E3026;
+    --sidebar-bg-light: #4C3B2F;
+
+    --sidebar-text: #F8F1E5;
+    --sidebar-text-soft: rgba(248, 241, 229, 0.76);
+    --sidebar-text-muted: rgba(248, 241, 229, 0.50);
+
+    --sidebar-border: rgba(248, 241, 229, 0.12);
+
+    --sidebar-terracotta: #87483d;
+    --sidebar-terracotta-dark: #63261b;
+
+    --sidebar-sage: #6F7C59;
+
+    --sidebar-marigold: #DFA62F;
+    --sidebar-cream: #F8F1E5;
 }
+
+
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
 
 .sidebar {
     position: fixed;
+
     top: 0;
     left: 0;
 
@@ -21,8 +39,9 @@
 
     box-sizing: border-box;
 
-    background: var(--moss);
-    border-right: 1px solid rgba(249, 244, 237, 0.15);
+    background: var(--sidebar-bg);
+
+    border-right: 1px solid var(--sidebar-border);
 
     display: flex;
     flex-direction: column;
@@ -37,22 +56,29 @@
 }
 
 
+/* =========================================================
+   BRAND
+   ========================================================= */
+
 .sidebar-brand {
     display: flex;
     align-items: center;
+
     gap: 12px;
 
     padding: 6px 10px 30px;
 }
 
+
 .brand-mark {
-    width: 38px;
-    height: 38px;
+    width: 40px;
+    height: 40px;
 
-    border-radius: 12px;
+    border-radius: 13px;
 
-    background: var(--butter);
-    color: var(--moss);
+    background: var(--sidebar-marigold);
+
+    color: var(--sidebar-bg);
 
     display: flex;
     align-items: center;
@@ -62,38 +88,48 @@
     font-weight: 700;
 
     flex-shrink: 0;
+
+    box-shadow:
+        0 4px 12px rgba(223, 166, 47, 0.15);
 }
+
 
 .brand-name {
-    font-size: 20px;
+    font-size: 21px;
     font-weight: 700;
 
-    color: var(--seashell);
+    color: var(--sidebar-cream);
 
-    letter-spacing: -0.3px;
+    letter-spacing: -0.5px;
 }
 
+
+/* =========================================================
+   ROLE INDICATOR
+   ========================================================= */
 
 .sidebar-role {
     display: flex;
     align-items: center;
+
     gap: 10px;
 
     padding: 11px 13px;
 
     margin-bottom: 25px;
 
-    background: rgba(249, 244, 237, 0.10);
+    background: rgba(248, 241, 229, 0.07);
 
-    border: 1px solid rgba(249, 244, 237, 0.08);
+    border: 1px solid rgba(248, 241, 229, 0.09);
 
-    border-radius: 12px;
+    border-radius: 13px;
 
-    color: var(--butter);
+    color: var(--sidebar-marigold);
 
     font-size: 13px;
     font-weight: 600;
 }
+
 
 .role-dot {
     width: 8px;
@@ -101,29 +137,43 @@
 
     border-radius: 50%;
 
-    background: var(--butter);
+    background: var(--sidebar-marigold);
 
     flex-shrink: 0;
+
+    box-shadow:
+        0 0 0 3px rgba(223, 166, 47, 0.12);
 }
 
+
+/* =========================================================
+   SIDEBAR SECTIONS
+   ========================================================= */
 
 .sidebar-section {
     margin-bottom: 25px;
 }
+
 
 .sidebar-section-title {
     padding: 0 12px;
 
     margin-bottom: 8px;
 
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
 
-    color: rgba(239, 207, 151, 0.75);
+    color: rgba(223, 166, 47, 0.72);
 
     text-transform: uppercase;
-    letter-spacing: 1.2px;
+
+    letter-spacing: 1.4px;
 }
+
+
+/* =========================================================
+   NAVIGATION LIST
+   ========================================================= */
 
 .sidebar-list {
     list-style: none;
@@ -132,9 +182,15 @@
     margin: 0;
 }
 
+
 .sidebar-list li {
     margin-bottom: 3px;
 }
+
+
+/* =========================================================
+   NAVIGATION LINKS
+   ========================================================= */
 
 .sidebar a {
     display: flex;
@@ -144,11 +200,11 @@
 
     padding: 11px 12px;
 
-    color: rgba(249, 244, 237, 0.78);
+    color: var(--sidebar-text-soft);
 
     text-decoration: none;
 
-    border-radius: 12px;
+    border-radius: 13px;
 
     font-size: 14px;
     font-weight: 500;
@@ -159,21 +215,42 @@
         transform 0.2s ease;
 }
 
-.sidebar a:hover {
-    background: rgba(249, 244, 237, 0.10);
 
-    color: var(--white);
+.sidebar a:hover {
+    background: rgba(248, 241, 229, 0.08);
+
+    color: var(--sidebar-cream);
 
     transform: translateX(2px);
 }
 
-.sidebar a.active {
-    background: #5d7051;
 
-    color: var(--white);
+/* =========================================================
+   ACTIVE LINK
+   ========================================================= */
+
+.sidebar a.active {
+    background: var(--sidebar-terracotta);
+
+    color: var(--white, #FFFFFF);
 
     font-weight: 600;
+
+    box-shadow:
+        0 5px 14px rgba(184, 79, 60, 0.18);
 }
+
+
+.sidebar a.active:hover {
+    background: var(--sidebar-terracotta-dark);
+
+    transform: translateX(2px);
+}
+
+
+/* =========================================================
+   NAVIGATION ICON
+   ========================================================= */
 
 .nav-icon {
     width: 20px;
@@ -182,56 +259,99 @@
 
     font-size: 14px;
 
-    opacity: 0.75;
+    opacity: 0.70;
 
     flex-shrink: 0;
+
+    transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
 }
+
+
+.sidebar a:hover .nav-icon {
+    opacity: 0.95;
+}
+
 
 .sidebar a.active .nav-icon {
     opacity: 1;
 }
 
 
+/* =========================================================
+   BOTTOM SECTION
+   ========================================================= */
+
 .sidebar-bottom {
     margin-top: auto;
 
     padding-top: 20px;
 
-    border-top: 1px solid rgba(249, 244, 237, 0.15);
+    border-top:
+        1px solid var(--sidebar-border);
 }
 
+
+/* =========================================================
+   LOGOUT
+   ========================================================= */
 
 .sidebar .logout-link {
-    color: rgba(249, 244, 237, 0.70);
+    color: rgba(248, 241, 229, 0.68);
 }
+
 
 .sidebar .logout-link:hover {
-    color: var(--white);
-    background: rgba(142, 42, 30, 0.85);
+    color: var(--sidebar-cream);
+
+    background:
+        rgba(184, 79, 60, 0.85);
 }
 
+
+/* =========================================================
+   SCROLLBAR
+   ========================================================= */
 
 .sidebar::-webkit-scrollbar {
     width: 5px;
 }
 
+
 .sidebar::-webkit-scrollbar-track {
     background: transparent;
 }
 
+
 .sidebar::-webkit-scrollbar-thumb {
-    background: rgba(249, 244, 237, 0.20);
+    background: rgba(248, 241, 229, 0.18);
+
     border-radius: 10px;
 }
+
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(248, 241, 229, 0.28);
+}
+
+
+/* =========================================================
+   CLOSED STATE
+   ========================================================= */
 
 .sidebar.closed {
     transform: translateX(-100%);
 }
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
 
 @media (max-width: 800px) {
 
     .sidebar {
         width: 230px;
     }
-
 }
