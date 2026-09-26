@@ -121,7 +121,12 @@ if ($approvalStatus === 'rejected') {
 
     <link
         rel="stylesheet"
-        href="<?= BASE_URL ?>assets/css/dashboard.css"
+        href="<?= BASE_URL ?>assets/css/components.css"
+    >
+
+        <link
+        rel="stylesheet"
+        href="<?= BASE_URL ?>assets/css/auth.css"
     >
 
 </head>
@@ -129,44 +134,57 @@ if ($approvalStatus === 'rejected') {
 
 <body>
 
-<div class="approval-page">
+    <main class="auth-container">
 
-    <div class="card">
+        <div class="approval-page">
 
-        <h1>
-            Application Under Review
-        </h1>
+            <div class="card">
 
-
-        <p>
-            Hi
-            <?= htmlspecialchars($_SESSION['name'] ?? 'there') ?>,
-        </p>
+                <h1>
+                    Application Under Review
+                </h1>
 
 
-        <p>
-            Your farmer application has been submitted successfully
-            and is currently waiting for admin approval.
-        </p>
+                <p>
+                    Hi
+                    <?= htmlspecialchars($_SESSION['name'] ?? 'there') ?>,
+                </p>
 
 
-        <p>
-            You will be able to access your farmer dashboard once
-            your application has been approved.
-        </p>
+                <p>
+                    Your farmer application has been submitted successfully
+                    and is currently waiting for admin approval.
+                </p>
 
 
-        <a
-            href="<?= BASE_URL ?>auth/logout.php"
-            class="btn btn-secondary"
-        >
-            Log Out
-        </a>
+                <p>
+                    You will be able to access your farmer dashboard once
+                    your application has been approved.
+                </p>
 
-    </div>
 
-</div>
+                <div class="approval-actions">
 
+                    <a
+                        href="<?= BASE_URL ?>farmer/pending.php"
+                        class="btn btn-primary"
+                    >
+                        Check Application Status
+                    </a>
+
+                    <a
+                        href="<?= BASE_URL ?>auth/logout.php"
+                        class="btn btn-secondary"
+                    >
+                        Log Out
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+    </main>
 </body>
 
 </html>
