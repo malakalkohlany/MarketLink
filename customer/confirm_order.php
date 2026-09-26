@@ -669,6 +669,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($error)) {
 
             $conn->commit();
 
+
+            // Notify the farmer about the new order
+            $farmerUserStmt = $conn->prepare("
+                SELECT user_id
+                FROM farmers
+                WHERE id = ?
+                LIMIT 1
+            ");
+
+            if ($farmerUserStmt) {
+                $farmerUserStmt->bind_param("i", $farmerId);
+                $farmerUserStmt->execute();
+
+                $farmerUserResult = $farmerUserStmt->get_result();
+                $farmerUser = $farmerUserResult->fetch_assoc();
+
+                $farmerUserStmt->close();
+
+                if ($farmerUser) {
+                    createNotification(
+                        $conn,
+                        (int)$farmerUser['user_id'],
+                        'new_order',
+                        'New Order Received',
+                        "You received a new order (#{$orderId}). Please review it and prepare it for pickup."
+                    );
+                }
+            }
+
             // ===============================
             // Empty Cart
             // ===============================

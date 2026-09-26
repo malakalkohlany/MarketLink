@@ -93,70 +93,91 @@ $markets = $market_stmt->get_result();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Markets</title>
+    <link
+        rel="stylesheet"
+        href="../assets/css/base.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/navbar.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/sidebar.css"
+    >
 </head>
 <body>
 
-    <h1>My Markets</h1>
-    <p>Total Markets: <?= e($total_markets) ?></p>
+    <?php include __DIR__ . '/../includes/navbar.php'; ?>
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-    <?php if ($total_markets === 0): ?>
-        <p>No markets have been assigned to you yet.</p>
-    <?php else: ?>
+    <main class="main-content">
 
-        <table border="1">
-            <thead>
-                <tr>
-                    <th>Market Name</th>
-                    <th>Description</th>
-                    <th>Address</th>
-                    <th>Opening Time</th>
-                    <th>Closing Time</th>
-                    <th>Operating Days</th>
-                    <th>Map Provider</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
+        <h1>My Markets</h1>
+        <p>Total Markets: <?= e($total_markets) ?></p>
 
-                <?php while ($market = $markets->fetch_assoc()): ?>
+        <?php if ($total_markets === 0): ?>
+            <p>No markets have been assigned to you yet.</p>
+        <?php else: ?>
+
+            <table border="1">
+                <thead>
                     <tr>
-                        <td><?= e($market['name']) ?></td>
-                        <td><?= e($market['description'] ?? '') ?></td>
-                        <td><?= e($market['address']) ?></td>
-                        <td><?= e($market['opening_time'] ?? '') ?></td>
-                        <td><?= e($market['closing_time'] ?? '') ?></td>
-                        <td><?= e($market['operating_days'] ?? '') ?></td>
-                        <td><?= e($market['map_provider']) ?></td>
-                        <td><?= e(ucfirst($market['status'])) ?></td>
+                        <th>Market Name</th>
+                        <th>Description</th>
+                        <th>Address</th>
+                        <th>Opening Time</th>
+                        <th>Closing Time</th>
+                        <th>Operating Days</th>
+                        <th>Map Provider</th>
+                        <th>Status</th>
                     </tr>
-                <?php endwhile; ?>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
 
-        <?php if ($total_pages > 1): ?>
+                    <?php while ($market = $markets->fetch_assoc()): ?>
+                        <tr>
+                            <td><?= e($market['name']) ?></td>
+                            <td><?= e($market['description'] ?? '') ?></td>
+                            <td><?= e($market['address']) ?></td>
+                            <td><?= e($market['opening_time'] ?? '') ?></td>
+                            <td><?= e($market['closing_time'] ?? '') ?></td>
+                            <td><?= e($market['operating_days'] ?? '') ?></td>
+                            <td><?= e($market['map_provider']) ?></td>
+                            <td><?= e(ucfirst($market['status'])) ?></td>
+                        </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
 
-    <div class="pagination">
+            <?php if ($total_pages > 1): ?>
 
-        <?php if ($page > 1): ?>
-            <a href="?page=<?= $page - 1 ?>">Previous</a>
+                <div class="pagination">
+
+                    <?php if ($page > 1): ?>
+                        <a href="?page=<?= $page - 1 ?>">Previous</a>
+                    <?php endif; ?>
+
+                    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                        <a href="?page=<?= $i ?>"
+                        <?= $i == $page ? 'class="active"' : '' ?>>
+                            <?= $i ?>
+                        </a>
+                    <?php endfor; ?>
+
+                    <?php if ($page < $total_pages): ?>
+                        <a href="?page=<?= $page + 1 ?>">Next</a>
+                    <?php endif; ?>
+
+                </div>
+            <?php endif; ?>
+
+
         <?php endif; ?>
-
-        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-            <a href="?page=<?= $i ?>"
-               <?= $i == $page ? 'class="active"' : '' ?>>
-                <?= $i ?>
-            </a>
-        <?php endfor; ?>
-
-        <?php if ($page < $total_pages): ?>
-            <a href="?page=<?= $page + 1 ?>">Next</a>
-        <?php endif; ?>
-
-    </div>
-   <?php endif; ?>
-
-
-    <?php endif; ?>
+    
+    </main>
 
 </body>
 </html>
