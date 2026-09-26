@@ -17,7 +17,6 @@ $stmt = $conn->prepare("
         p.stock_quantity,
         p.image,
         p.is_available,
-        p.moderation_status,
         p.created_at,
         f.stall_name AS farmer_name,
         c.name AS category_name
@@ -124,7 +123,7 @@ if ($stmt) {
                     <?php foreach ($errors as $error): ?>
 
                         <p>
-                            <?= htmlspecialchars($error) ?>
+                            <?= e($error) ?>
                         </p>
 
                     <?php endforeach; ?>
@@ -189,9 +188,6 @@ if ($stmt) {
                                             ? 'Available'
                                             : 'Unavailable';
 
-                                    $moderation =
-                                        $product['moderation_status']
-                                            ?? 'pending';
 
                                     ?>
 
@@ -209,7 +205,7 @@ if ($stmt) {
                                         <td>
 
                                             <strong>
-                                                <?= htmlspecialchars(
+                                                <?= e(
                                                     $product['name'] ?? 'N/A'
                                                 ) ?>
                                             </strong>
@@ -221,7 +217,7 @@ if ($stmt) {
 
                                         <td>
 
-                                            <?= htmlspecialchars(
+                                            <?= e(
                                                 $product['farmer_name'] ?? 'N/A'
                                             ) ?>
 
@@ -232,7 +228,7 @@ if ($stmt) {
 
                                         <td>
 
-                                            <?= htmlspecialchars(
+                                            <?= e(
                                                 $product['category_name'] ?? 'N/A'
                                             ) ?>
 
@@ -255,7 +251,7 @@ if ($stmt) {
 
                                         <td>
 
-                                            <?= htmlspecialchars(
+                                            <?= e(
                                                 $product['unit'] ?? 'N/A'
                                             ) ?>
 
@@ -294,11 +290,6 @@ if ($stmt) {
 
                                             <br>
 
-                                            <small>
-                                                <?= ucfirst(
-                                                    htmlspecialchars($moderation)
-                                                ) ?>
-                                            </small>
 
                                         </td>
 
