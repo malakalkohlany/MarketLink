@@ -1473,7 +1473,15 @@ if (
                     ================================================== -->
                         <div class="product-image-container">
 
+<div class="product-image-container">
     <?php if (!empty($product['image'])): ?>
+        <img
+            src="../<?= e($product['image']) ?>"
+            alt="<?= e($productName) ?>"
+            style="width: 100%; height: 100%; object-fit: cover;"
+        >
+    <?php endif; ?>
+</div>
 
         <img
             src="../<?= e($product['image']) ?>"
