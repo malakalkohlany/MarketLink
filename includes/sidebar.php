@@ -258,6 +258,16 @@ $role = $_SESSION['role'] ?? '';
                     </a>
                 </li>
 
+                <li>
+                    <a
+                        href="<?= BASE_URL ?>farmer/reviews.php"
+                        class="<?= $current_page === 'reviews.php' ? 'active' : '' ?>"
+                    >
+                        <span class="nav-icon">X</span>
+                        Reviews
+                    </a>
+                </li>
+
             </ul>
 
         </div>
