@@ -1,29 +1,40 @@
 <?php
 
-require_once __DIR__ . '/../config/config.php';
-
-require_once __DIR__ . '/../config/database.php';
-
-require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/include.php';
 
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
-
 $error = '';
 
+/*
+|--------------------------------------------------------------------------
+| Handle Registration
+|--------------------------------------------------------------------------
+*/
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    // --------------------------------------------------
+    // Get submitted values
+    // --------------------------------------------------
 
     $name = trim($_POST['name'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $phone = trim($_POST['phone'] ?? '');
     $address = trim($_POST['address'] ?? '');
+
     $password = $_POST['password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
-    $role = $_POST['role'] ?? '';
 
+    $role = $_POST['role'] ?? '';
     $stall_name = trim($_POST['stall_name'] ?? '');
 
     $allowed_roles = ['customer', 'farmer'];
+
+
+    // --------------------------------------------------
+    // Validation
+    // --------------------------------------------------
 
     if (!in_array($role, $allowed_roles, true)) {
 
@@ -59,6 +70,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     } else {
 
+        // --------------------------------------------------
+        // Check whether email already exists
+        // --------------------------------------------------
+
         $check = $conn->prepare(
             "SELECT id FROM users WHERE email = ? LIMIT 1"
         );
@@ -74,18 +89,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         } else {
 
+            // --------------------------------------------------
+            // Create password hash
+            // --------------------------------------------------
+
             $password_hash = password_hash(
                 $password,
                 PASSWORD_DEFAULT
             );
 
+
+            // --------------------------------------------------
+            // Start transaction
+            // --------------------------------------------------
+
             mysqli_begin_transaction($conn);
 
             try {
 
+                // --------------------------------------------------
+                // Create user
+                // --------------------------------------------------
+
                 $stmt = $conn->prepare(
                     "INSERT INTO users
-                    (name, email, password_hash, phone, address, role, status)
+                    (
+                        name,
+                        email,
+                        password_hash,
+                        phone,
+                        address,
+                        role,
+                        status
+                    )
                     VALUES (?, ?, ?, ?, ?, ?, 'active')"
                 );
 
@@ -104,11 +140,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $user_id = $conn->insert_id;
 
 
+                // --------------------------------------------------
+                // Create farmer record
+                // --------------------------------------------------
+
                 if ($role === 'farmer') {
 
                     $stmt2 = $conn->prepare(
                         "INSERT INTO farmers
-                        (user_id, stall_name, approval_status)
+                        (
+                            user_id,
+                            stall_name,
+                            approval_status
+                        )
                         VALUES (?, ?, 'pending')"
                     );
 
@@ -124,8 +168,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
 
+                // --------------------------------------------------
+                // Commit transaction
+                // --------------------------------------------------
 
                 mysqli_commit($conn);
+
+
+                // --------------------------------------------------
+                // Create session
+                // --------------------------------------------------
 
                 session_regenerate_id(true);
 
@@ -134,18 +186,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['role'] = $role;
 
 
+                // --------------------------------------------------
+                // Redirect based on role
+                // --------------------------------------------------
+
                 if ($role === 'customer') {
 
-                    header('Location: ' . BASE_URL . 'customer/dashboard.php');
-                    exit;
+                    header(
+                        'Location: ' .
+                        BASE_URL .
+                        'customer/dashboard.php'
+                    );
 
+                    exit;
                 }
+
 
                 if ($role === 'farmer') {
 
                     $_SESSION['farmer_id'] = $farmer_id;
 
-                    header('Location: ' . BASE_URL . 'farmer/dashboard.php');
+                    header(
+                        'Location: ' .
+                        BASE_URL .
+                        'farmer/dashboard.php'
+                    );
+
                     exit;
                 }
 
@@ -158,5 +224,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-
 ?>
