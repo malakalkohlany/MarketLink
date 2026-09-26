@@ -84,7 +84,7 @@ MarketLink/
 │   └── rejected.php
 │
 ├── admin/
-│   ├── add_market.php
+│   ├── add_market.php 
 │   ├── announcements.php
 │   ├── categories.php
 │   ├── customer_details.php
@@ -115,8 +115,10 @@ MarketLink/
 │   │   ├── base.css
 │   │   ├── components.css
 │   │   ├── dashboard.css
+│   │   ├── homepage.css
 │   │   ├── leaflet.css
 │   │   ├── navbar.css
+│   │   ├── notifications.css
 │   │   └── sidebar.css
 │   │
 │   ├── js/
