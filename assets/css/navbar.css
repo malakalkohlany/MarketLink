@@ -1,40 +1,49 @@
-:root {
-    --barn-red: #8E2A1E;
-    --moss: #2d3d23;
-    --seashell: #F9F4ED;
-    --butter: #EFCF97;
-    --butter-dark: #c3aa7e;
-
-    --white: #FFFFFF;
-    --text-muted: #766F67;
-}
+/* =========================================================
+   MARKETLINK — EARTHY RETRO NAVBAR
+   ========================================================= */
 
 .navbar {
     position: fixed;
-    top: 0;
-    left: 240px;
-    right: 0;
-    height: 70px;
 
-    background: var(--moss);
-    border-bottom: 1px solid rgba(249, 244, 237, 0.15);
+    top: 0;
+    left: var(--sidebar-width);
+    right: 0;
+
+    height: var(--navbar-height);
+
+    background: var(--sidebar-bg, #3E3026);
+
+    border-bottom: 1px solid rgba(248, 241, 229, 0.12);
 
     display: flex;
     align-items: center;
     justify-content: space-between;
 
     padding: 0 28px;
+
     box-sizing: border-box;
 
     z-index: 100;
-    transition: left 0.3s ease;
+
+    transition: left var(--transition-normal, 0.25s ease);
 }
+
+
+/* =========================================================
+   LEFT SIDE
+   ========================================================= */
 
 .navbar-left {
     display: flex;
     align-items: center;
+
     gap: 14px;
 }
+
+
+/* =========================================================
+   MENU BUTTON
+   ========================================================= */
 
 .navbar-menu {
     width: 38px;
@@ -45,33 +54,58 @@
     justify-content: center;
 
     border: none;
+
     background: transparent;
 
-    color: var(--butter);
+    color: var(--marigold, #DFA62F);
+
     font-size: 21px;
 
     cursor: pointer;
+
     border-radius: 10px;
 
-    transition: 0.2s ease;
+    transition:
+        background var(--transition-fast, 0.18s ease),
+        color var(--transition-fast, 0.18s ease);
 }
 
 .navbar-menu:hover {
-    background: rgba(249, 244, 237, 0.10);
-    color: var(--seashell);
+    background: rgba(248, 241, 229, 0.08);
+
+    color: var(--cream-light, #FFF9F0);
 }
+
+
+/* =========================================================
+   NAVBAR TITLE
+   ========================================================= */
 
 .navbar-title {
     font-size: 17px;
     font-weight: 600;
-    color: var(--seashell);
+
+    color: var(--cream, #F8F1E5);
+
+    letter-spacing: -0.2px;
 }
+
+
+/* =========================================================
+   RIGHT SIDE
+   ========================================================= */
 
 .navbar-right {
     display: flex;
     align-items: center;
-    gap: 12px;
+
+    gap: 8px;
 }
+
+
+/* =========================================================
+   NAVBAR ICONS
+   ========================================================= */
 
 .navbar-icon {
     width: 40px;
@@ -83,90 +117,142 @@
 
     border-radius: 12px;
 
-    color: var(--butter);
+    color: rgba(248, 241, 229, 0.76);
+
     font-size: 18px;
 
     text-decoration: none;
-    transition: 0.2s ease;
+
+    transition:
+        background var(--transition-fast, 0.18s ease),
+        color var(--transition-fast, 0.18s ease);
 }
 
 .navbar-icon:hover {
-    background: rgba(249, 244, 237, 0.10);
-    color: var(--seashell);
+    background: rgba(248, 241, 229, 0.08);
+
+    color: var(--cream-light, #FFF9F0);
 }
+
+
+/* =========================================================
+   DIVIDER
+   ========================================================= */
 
 .navbar-divider {
     width: 1px;
     height: 28px;
 
-    background: rgba(249, 244, 237, 0.20);
+    background: rgba(248, 241, 229, 0.15);
 
-    margin: 0 6px;
+    margin: 0 7px;
 }
+
+
+/* =========================================================
+   USER
+   ========================================================= */
 
 .navbar-user {
     display: flex;
     align-items: center;
+
     gap: 10px;
 
     padding: 6px 10px;
-    border-radius: 12px;
 
-    color: var(--seashell);
+    border-radius: 13px;
+
+    color: var(--cream, #F8F1E5);
+
     text-decoration: none;
 
-    transition: 0.2s ease;
+    transition:
+        background var(--transition-fast, 0.18s ease);
 }
 
 .navbar-user:hover {
-    background: rgba(249, 244, 237, 0.10);
+    background: rgba(248, 241, 229, 0.08);
 }
 
+
+/* =========================================================
+   AVATAR
+   ========================================================= */
+
 .user-avatar {
-    width: 34px;
-    height: 34px;
+    width: 35px;
+    height: 35px;
 
     border-radius: 50%;
 
-    background: var(--butter);
-    color: var(--moss);
+    background: var(--marigold, #DFA62F);
+
+    color: var(--text, #3E3026);
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
+
+    flex-shrink: 0;
 }
+
+
+/* =========================================================
+   USER TEXT
+   ========================================================= */
 
 .user-name {
     font-size: 14px;
     font-weight: 600;
-    color: var(--seashell);
+
+    color: var(--cream, #F8F1E5);
 }
 
 .user-role {
     font-size: 11px;
-    color: var(--butter-dark);
+
+    color: rgba(248, 241, 229, 0.55);
 }
 
+
+/* =========================================================
+   EXPANDED NAVBAR
+   ========================================================= */
 
 .navbar.expanded {
     left: 0;
 }
 
+
+/* =========================================================
+   NOTIFICATIONS
+   ========================================================= */
+
 .notification-wrapper {
     position: relative;
 }
+
+
+/* Notification button inherits navbar-icon styling */
 
 .notification-button {
     position: relative;
 
     border: none;
+
     background: transparent;
 
     cursor: pointer;
 }
+
+
+/* =========================================================
+   NOTIFICATION BADGE
+   ========================================================= */
 
 .notification-badge {
     position: absolute;
@@ -178,21 +264,29 @@
     height: 17px;
 
     padding: 0 4px;
+
     box-sizing: border-box;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    border-radius: 20px;
+    border-radius: var(--radius-pill, 999px);
 
-    background: var(--barn-red);
-    color: var(--white);
+    background: var(--terracotta, #B84F3C);
+
+    color: var(--white, #FFFFFF);
 
     font-size: 9px;
     font-weight: 700;
+
     line-height: 1;
 }
+
+
+/* =========================================================
+   NOTIFICATION DROPDOWN
+   ========================================================= */
 
 .notification-dropdown {
     position: absolute;
@@ -203,12 +297,13 @@
     width: 360px;
     max-height: 500px;
 
-    background: var(--white);
-    border: 1px solid var(--butter-dark);
+    background: var(--cream-light, #FFF9F0);
 
-    border-radius: 16px;
+    border: 1px solid var(--border, #DCCDB9);
 
-    box-shadow: 0 15px 40px rgba(62, 90, 44, 0.18);
+    border-radius: var(--radius-lg, 22px);
+
+    box-shadow: var(--shadow-card);
 
     overflow: hidden;
 
@@ -227,9 +322,16 @@
 
 .notification-dropdown.show {
     opacity: 1;
+
     visibility: visible;
+
     transform: translateY(0);
 }
+
+
+/* =========================================================
+   NOTIFICATION HEADER
+   ========================================================= */
 
 .notification-header {
     padding: 17px 18px;
@@ -238,30 +340,35 @@
     align-items: center;
     justify-content: space-between;
 
-    border-bottom: 1px solid var(--butter-dark);
+    border-bottom:
+        1px solid var(--border-light, #EAE1D5);
 }
 
 .notification-header > div {
     display: flex;
     align-items: center;
+
     gap: 8px;
 }
 
 .notification-header strong {
-    color: var(--moss);
+    color: var(--text, #3E3026);
+
     font-size: 15px;
 }
 
 .notification-header span {
     font-size: 11px;
-    color: var(--text-muted);
+
+    color: var(--text-muted, #8B7766);
 }
 
 .notification-header button {
     border: none;
+
     background: none;
 
-    color: var(--barn-red);
+    color: var(--terracotta, #B84F3C);
 
     font-size: 11px;
     font-weight: 600;
@@ -270,34 +377,52 @@
 }
 
 .notification-header button:hover {
-    color: var(--moss);
+    color: var(--terracotta-dark, #963D2E);
 }
+
+
+/* =========================================================
+   NOTIFICATION LIST
+   ========================================================= */
 
 .notification-list {
     max-height: 380px;
+
     overflow-y: auto;
 }
 
+
 .notification-item {
     display: flex;
+
     gap: 11px;
 
     padding: 15px 18px;
 
-    border-bottom: 1px solid #EDE5DA;
+    border-bottom:
+        1px solid var(--border-light, #EAE1D5);
 
     cursor: pointer;
 
-    transition: background 0.2s ease;
+    transition:
+        background var(--transition-fast, 0.18s ease);
 }
 
 .notification-item:hover {
-    background: var(--seashell);
+    background: var(--cream, #F8F1E5);
 }
 
+
+/* Unread notification */
+
 .notification-item.unread {
-    background: #FBF3E4;
+    background: var(--marigold-soft, #FAF1D9);
 }
+
+
+/* =========================================================
+   NOTIFICATION DOT
+   ========================================================= */
 
 .notification-dot {
     flex-shrink: 0;
@@ -313,103 +438,173 @@
 }
 
 .notification-item.unread .notification-dot {
-    background: var(--barn-red);
+    background: var(--terracotta, #B84F3C);
 }
+
+
+/* =========================================================
+   NOTIFICATION CONTENT
+   ========================================================= */
 
 .notification-content {
     min-width: 0;
 }
 
+
 .notification-title {
     margin-bottom: 4px;
 
-    color: var(--moss);
+    color: var(--text, #3E3026);
 
     font-size: 13px;
     font-weight: 700;
 }
 
+
 .notification-message {
-    color: var(--text-muted);
+    color: var(--text-muted, #8B7766);
 
     font-size: 12px;
+
     line-height: 1.5;
 
     display: -webkit-box;
+
     -webkit-line-clamp: 2;
+
     -webkit-box-orient: vertical;
 
     overflow: hidden;
 }
 
+
 .notification-time {
     margin-top: 6px;
 
-    color: var(--butter-dark);
+    color: var(--text-muted, #8B7766);
 
     font-size: 10px;
 }
 
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
 .notification-empty {
     padding: 45px 20px;
+
     text-align: center;
 }
+
 
 .notification-empty-icon {
     margin-bottom: 10px;
 
-    color: var(--butter-dark);
+    color: var(--butter-dark, #BFA878);
 
     font-size: 28px;
 }
 
+
 .notification-empty p {
     margin: 0 0 5px;
 
-    color: var(--moss);
+    color: var(--text, #3E3026);
 
     font-size: 14px;
     font-weight: 600;
 }
 
+
 .notification-empty span {
-    color: var(--text-muted);
+    color: var(--text-muted, #8B7766);
+
     font-size: 11px;
 }
+
+
+/* =========================================================
+   NOTIFICATION FOOTER
+   ========================================================= */
 
 .notification-footer {
     display: block;
 
     padding: 13px 18px;
 
-    border-top: 1px solid var(--butter-dark);
+    border-top:
+        1px solid var(--border, #DCCDB9);
 
-    color: var(--moss);
+    color: var(--sage-dark, #596545);
 
     font-size: 12px;
     font-weight: 600;
 
     text-align: center;
+
     text-decoration: none;
 
-    background: var(--white);
+    background: var(--cream-light, #FFF9F0);
 }
 
 .notification-footer:hover {
-    background: var(--seashell);
-    color: var(--barn-red);
+    background: var(--cream, #F8F1E5);
+
+    color: var(--terracotta, #B84F3C);
 }
 
+
+/* =========================================================
+   NOTIFICATION SCROLLBAR
+   ========================================================= */
+
+.notification-list::-webkit-scrollbar {
+    width: 5px;
+}
+
+.notification-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.notification-list::-webkit-scrollbar-thumb {
+    background: var(--border);
+
+    border-radius: 10px;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
 @media (max-width: 600px) {
+
+    .navbar {
+        left: 0;
+
+        padding: 0 16px;
+    }
+
+    .navbar-title {
+        font-size: 15px;
+    }
+
+    .user-name,
+    .user-role {
+        display: none;
+    }
 
     .notification-dropdown {
         position: fixed;
 
-        top: 70px;
+        top: var(--navbar-height, 70px);
+
         left: 15px;
         right: 15px;
 
         width: auto;
-    }
 
+        max-height: calc(100vh - 85px);
+    }
 }
