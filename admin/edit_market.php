@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/include.php';
 
 requireRole(R_ADMIN);
 
@@ -361,7 +361,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <body>
 
-<?php require_once __DIR__ . '/../includes/navbar.php'; ?>
+    <?php include __DIR__ . '/../includes/navbar.php'; ?>
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
 <main class="main-content">
 
