@@ -14,6 +14,33 @@ if (!$farmer_id) {
 }
 
 $farmer = null;
+// Dashboard Counts
+$product_count = 0;
+$order_count = 0;
+
+// Count products
+$count_stmt = $conn->prepare("
+    SELECT COUNT(*) AS total_products
+    FROM products
+    WHERE farmer_id = ?
+");
+$count_stmt->bind_param("i", $farmer_id);
+$count_stmt->execute();
+$count_result = $count_stmt->get_result();
+$product_count = $count_result->fetch_assoc()['total_products'] ?? 0;
+$count_stmt->close();
+
+// Count orders
+$count_stmt = $conn->prepare("
+    SELECT COUNT(*) AS total_orders
+    FROM orders
+    WHERE farmer_id = ?
+");
+$count_stmt->bind_param("i", $farmer_id);
+$count_stmt->execute();
+$count_result = $count_stmt->get_result();
+$order_count = $count_result->fetch_assoc()['total_orders'] ?? 0;
+$count_stmt->close();
 
 $stmt = $conn->prepare("
     SELECT
@@ -123,7 +150,7 @@ $stmt->close();
 
                 <h1>
                     Welcome,
-                    <?= e($_SESSION['name']) ?>!
+                    <?= e($_SESSION['name'] ?? 'Farmer') ?>
                 </h1>
 
                 <p>
@@ -133,7 +160,28 @@ $stmt->close();
             </div>
 
         </section>
+     
+        <section class="dashboard-stats">
 
+    <div class="stat-card">
+        <div class="stat-info">
+            <span class="stat-label">Products</span>
+            <strong class="stat-value">
+                <?= (int)$product_count ?>
+            </strong>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-info">
+            <span class="stat-label">Orders</span>
+            <strong class="stat-value">
+                <?= (int)$order_count ?>
+            </strong>
+        </div>
+    </div>
+
+</section>
 
 
         <section class="dashboard-section">

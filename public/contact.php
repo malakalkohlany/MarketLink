@@ -1,3 +1,9 @@
+<?php
+
+require_once '../config/database.php';
+require_once '../includes/functions.php';
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,6 +12,10 @@
 
     <title>Contact Us - MarketLink</title>
 
+    <link
+    rel="stylesheet"
+    href="../assets/css/style.css"
+    >
     <!-- Leaflet CSS -->
     <link
     rel="stylesheet"

@@ -33,6 +33,19 @@ $stmt->execute();
 
 $result = $stmt->get_result();
 $farmer = $result->fetch_assoc();
+
+// Profile Image
+$profile_image = '../assets/images/farmers/farmer_' . $user_id . '.jpg';
+
+if (file_exists(__DIR__ . '/../assets/images/farmers/farmer_' . $user_id . '.jpg')) {
+    $profile_image = '../assets/images/farmers/farmer_' . $user_id . '.jpg';
+} elseif (file_exists(__DIR__ . '/../assets/images/farmers/farmer_' . $user_id . '.png')) {
+    $profile_image = '../assets/images/farmers/farmer_' . $user_id . '.png';
+} elseif (file_exists(__DIR__ . '/../assets/images/farmers/farmer_' . $user_id . '.webp')) {
+    $profile_image = '../assets/images/farmers/farmer_' . $user_id . '.webp';
+} else {
+    $profile_image = '../assets/images/farmers/default-farmer.png';
+}
 ?>
 
 <!DOCTYPE html>
@@ -57,6 +70,7 @@ $farmer = $result->fetch_assoc();
             <div class="profile-card">
 
                 <h1>farmer Profile</h1>
+                <img src="<?= e($profile_image) ?>" alt="Farmer Profile Image">
                 <a href="edit_profile.php">Edit Profile</a>
 
                 <section>
