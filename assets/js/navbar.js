@@ -8,6 +8,8 @@ function toggleNotifications() {
 }
 
 
+// Close when clicking outside
+
 document.addEventListener('click', function (event) {
 
     const wrapper = document.querySelector('.notification-wrapper');
