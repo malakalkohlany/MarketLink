@@ -339,183 +339,193 @@ if ($result) {
 
         }
 
-        .location-filter {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-bottom: 24px;
-        }
+.market-filters {
+    display: flex;
+    align-items: flex-end;
+    gap: 18px;
+    margin-bottom: 22px;
+    padding: 16px 18px;
+    background: #ffffff;
+    border: 1px solid #e5e9e6;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    flex-wrap: wrap;
+}
 
-        .location-filter button {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 16px;
-            border: 1px solid #d9e3dc;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s ease;
-        }
+.market-search,
+.market-day-filter {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+}
 
-        #findNearbyMarkets {
-            background: #2f6f4e;
-            color: white;
-            border-color: #2f6f4e;
-        }
+.market-search label,
+.market-day-filter label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #444;
+}
 
-        #findNearbyMarkets:hover {
-            background: #275e42;
-        }
+.market-search input,
+.market-day-filter select {
+    height: 42px;
+    box-sizing: border-box;
+    border: 1px solid #d9dedb;
+    border-radius: 8px;
+    background: #fff;
+    color: #333;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s ease,
+                box-shadow 0.2s ease;
+}
 
-        #showAllMarkets {
-            background: white;
-            color: #2f6f4e;
-        }
+.market-search input {
+    width: 260px;
+    padding: 0 13px;
+}
 
-        #showAllMarkets:hover {
-            background: #f3f7f4;
-        }
+.market-day-filter select {
+    min-width: 150px;
+    padding: 0 34px 0 13px;
+    cursor: pointer;
+}
 
-        #locationStatus {
-            display: inline-block;
-            padding: 8px 12px;
-            border-radius: 6px;
-            background: #f3f7f4;
-            color: #2f6f4e;
-            font-size: 13px;
-        }
+.market-search input::placeholder {
+    color: #999;
+}
 
-        @media (max-width: 600px) {
-            .location-filter {
-                align-items: stretch;
-                flex-direction: column;
-            }
+.market-search input:hover,
+.market-day-filter select:hover {
+    border-color: #b8c0bb;
+}
 
-            .location-filter button {
-                justify-content: center;
-                width: 100%;
-            }
+.market-search input:focus,
+.market-day-filter select:focus {
+    border-color: #2f6f4e;
+    box-shadow: 0 0 0 3px rgba(47, 111, 78, 0.10);
+}
 
-            #locationStatus {
-                text-align: center;
-            }
-        }
 
-        .market-day-filter {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+/* Location controls */
 
-        .market-day-filter label {
-            font-size: 14px;
-            font-weight: 600;
-            color: #444;
-            white-space: nowrap;
-        }
+.location-filter {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-left: auto;
+    flex-wrap: wrap;
+}
 
-        .market-day-filter select {
-            padding: 10px 36px 10px 14px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background: #fff;
-            color: #333;
-            font-size: 14px;
-            font-family: inherit;
-            cursor: pointer;
-            outline: none;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
+.location-filter button {
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 15px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.2s ease,
+                border-color 0.2s ease,
+                transform 0.15s ease;
+}
 
-        .market-day-filter select:hover {
-            border-color: #bbb;
-        }
+#findNearbyMarkets {
+    background: #2f6f4e;
+    color: #ffffff;
+    border: 1px solid #2f6f4e;
+}
 
-        .market-day-filter select:focus {
-            border-color: #999;
-            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
-        }
+#findNearbyMarkets:hover {
+    background: #275e42;
+    border-color: #275e42;
+}
 
-        @media (max-width: 600px) {
-            .market-day-filter {
-                width: 100%;
-            }
+#showAllMarkets {
+    background: #ffffff;
+    color: #2f6f4e;
+    border: 1px solid #2f6f4e;
+}
 
-            .market-day-filter select {
-                flex: 1;
-            }
-        }
+#showAllMarkets:hover {
+    background: #f3f7f4;
+}
 
-        .market-filters {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
+.location-filter button:active {
+    transform: translateY(1px);
+}
 
-        @media (max-width: 700px) {
-            .market-filters {
-                flex-direction: column;
-                align-items: stretch;
-            }
-        }
+#locationStatus {
+    display: inline-block;
+    padding: 8px 11px;
+    border-radius: 7px;
+    background: #f3f7f4;
+    color: #2f6f4e;
+    font-size: 12px;
+    line-height: 1.3;
+}
 
-        .market-search {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
 
-        .market-search label {
-            font-size: 14px;
-            font-weight: 600;
-            color: #444;
-            white-space: nowrap;
-        }
+/* Mobile */
 
-        .market-search input {
-            width: 240px;
-            padding: 10px 14px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background: #fff;
-            color: #333;
-            font-size: 14px;
-            font-family: inherit;
-            outline: none;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
+@media (max-width: 900px) {
 
-        .market-search input::placeholder {
-            color: #999;
-        }
+    .market-filters {
+        align-items: stretch;
+    }
 
-        .market-search input:hover {
-            border-color: #bbb;
-        }
+    .market-search,
+    .market-day-filter {
+        flex: 1;
+        min-width: 200px;
+    }
 
-        .market-search input:focus {
-            border-color: #999;
-            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
-        }
+    .market-search input,
+    .market-day-filter select {
+        width: 100%;
+    }
 
-        @media (max-width: 700px) {
-            .market-search {
-                width: 100%;
-                align-items: stretch;
-                flex-direction: column;
-                gap: 6px;
-            }
+    .location-filter {
+        width: 100%;
+        margin-left: 0;
+    }
 
-            .market-search input {
-                width: 100%;
-            }
-        }
+}
+
+
+@media (max-width: 600px) {
+
+    .market-filters {
+        flex-direction: column;
+        gap: 14px;
+        padding: 15px;
+    }
+
+    .market-search,
+    .market-day-filter {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .location-filter {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .location-filter button,
+    #locationStatus {
+        width: 100%;
+        box-sizing: border-box;
+        text-align: center;
+    }
+
+}
 
         .section-title {
 
