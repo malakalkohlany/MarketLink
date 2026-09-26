@@ -317,6 +317,7 @@ $sql = "
     SELECT
         p.id,
         p.farmer_id,
+        p.category_id,
         p.name,
         p.description,
         p.price,
@@ -329,6 +330,7 @@ $sql = "
         c.name AS category_name
 
     FROM products p
+
     INNER JOIN farmers f
         ON p.farmer_id = f.id
 
@@ -338,6 +340,7 @@ $sql = "
     WHERE p.is_available = 1
       AND p.moderation_status = ?
       AND f.approval_status = ?
+
     ORDER BY p.created_at DESC
 ";
 
@@ -530,17 +533,22 @@ if ($marketResult) {
         ===================================================== */
 
         .page-header {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .page-header h1 {
             margin: 0 0 8px;
             font-size: 30px;
+            line-height: 1.2;
+            font-weight: 700;
+            color: #222;
         }
 
         .page-header p {
             margin: 0;
             color: #666;
+            font-size: 15px;
+            line-height: 1.5;
         }
 
 
@@ -1489,10 +1497,12 @@ if ($marketResult) {
                             <!-- View Details -->
 
                             <a
-                                 href="product_details.php?id=<?= $productId ?>&from=products"
-                                 class="view-details-button"
+                                href="product_details.php?id=<?= $productId ?>"
+                                class="view-details-button"
                             >
-                                 View Details
+
+                                View Details
+
                             </a>
 
 
