@@ -93,40 +93,53 @@ $reviews = $review_stmt->get_result();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customer Reviews</title>
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
 </head>
 <body>
-    <h1>Customer Reviews</h1>
-    <?php if ($reviews->num_rows === 0): ?>
-        <p>No Reviews found.</p>
-    <?php else: ?>
 
-        <?php while ($review = $reviews->fetch_assoc()): ?>
-        
-        <div>
-            <h2><?= e($review['product_name']) ?></h2>
-            <p>Customer:<?= e($review['customer_name']) ?></p>
-            <p>Rating:<?= e($review['rating']) ?>/5</p>
-            <p>Comment:<?= e($review['comment'] ?? '') ?></p>
-            <p>Status:<?= e(ucfirst($review['status'])) ?></p>
-            <p>Date:<?= formatDateTime($review['created_at']) ?></p>
+    <?php include __DIR__ . '/../includes/navbar.php'; ?>
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-            <?php if (!empty($review['farmer_response'])): ?>
-                <h3>Your Response</h3>
-                <p><?= e($review['farmer_response']) ?></p>
-                <p>Response Date:<?= formatDateTime($review['farmer_response_at']) ?></p>
-            <?php else: ?>    
+    <main class="main-content">
+        <h1>Customer Reviews</h1>
+        <?php if ($reviews->num_rows === 0): ?>
+            <p>No Reviews found.</p>
+        <?php else: ?>
 
-            <h3>Respond to Customer</h3>  
-            <form method="POST">
-                <input type="hidden" name="review_id" value="<?= e($review['id']) ?>">
-                <textarea name="farmer_response" rows="4" required></textarea>
-                <br><br>
+            <?php while ($review = $reviews->fetch_assoc()): ?>
+            
+            <div>
+                <h2><?= e($review['product_name']) ?></h2>
+                <p>Customer:<?= e($review['customer_name']) ?></p>
+                <p>Rating:<?= e($review['rating']) ?>/5</p>
+                <p>Comment:<?= e($review['comment'] ?? '') ?></p>
+                <p>Status:<?= e(ucfirst($review['status'])) ?></p>
+                <p>Date:<?= formatDateTime($review['created_at']) ?></p>
 
-                <button type="submit">Send Response</button>
-            </form>  
-            <?php endif; ?>
-        </div>
-        <?php endwhile; ?>
+                <?php if (!empty($review['farmer_response'])): ?>
+                    <h3>Your Response</h3>
+                    <p><?= e($review['farmer_response']) ?></p>
+                    <p>Response Date:<?= formatDateTime($review['farmer_response_at']) ?></p>
+                <?php else: ?>    
+
+                <h3>Respond to Customer</h3>  
+                <form method="POST">
+                    <input type="hidden" name="review_id" value="<?= e($review['id']) ?>">
+                    <textarea name="farmer_response" rows="4" required></textarea>
+                    <br><br>
+
+                    <button type="submit">Send Response</button>
+                </form>  
+                <?php endif; ?>
+
+            </div>
+
+            <?php endwhile; ?>
+
         <?php endif; ?>
+        
+    </main>
 </body>
 </html>
