@@ -3,13 +3,7 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/session.php';
 
 
-
-if(!isset($_SESSION['user_id'])){
-    header("location: ../auth/login.php");
-    exit;
-}
-
-$user_id = $_SESSION['user_id'];
+$user_id = getUserId();
 
 $sql = "SELECT 
             users.name,
@@ -44,9 +38,16 @@ $farmer = $result->fetch_assoc();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>farmer Profile | MarkeLine</title>
+    <title>farmer Profile | MarketLine</title>
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
 </head>
 <body>
+    
+    <?php include __DIR__ . '/../includes/navbar.php'; ?>
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
+
      <h1>farmer Profile</h1>
      <a href="edit_profile.php">Edit Profile</a>
 

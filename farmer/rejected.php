@@ -10,15 +10,15 @@ if ($_SESSION['role'] !== 'farmer') {
     exit;
 }
 
-if ($_SESSION['approval_status'] !== 'pending') {
+if ($_SESSION['approval_status'] !== 'rejected') {
 
     if ($_SESSION['approval_status'] === 'approved') {
         header("Location: " . BASE_URL . "farmer/dashboard.php");
         exit;
     }
 
-    if ($_SESSION['approval_status'] === 'rejected') {
-        header("Location: " . BASE_URL . "farmer/rejected.php");
+    if ($_SESSION['approval_status'] === 'pending') {
+        header("Location: " . BASE_URL . "farmer/pending.php");
         exit;
     }
 }
@@ -30,7 +30,7 @@ if ($_SESSION['approval_status'] !== 'pending') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Application Pending | MarketLink</title>
+    <title>Application Not Approved | MarketLink</title>
 
     <link rel="stylesheet"
           href="<?= BASE_URL ?>assets/css/base.css">
@@ -45,20 +45,19 @@ if ($_SESSION['approval_status'] !== 'pending') {
 
     <div class="approval-card">
 
-        <h1>Application Under Review</h1>
+        <h1>Application Not Approved</h1>
 
         <p>
             Hi <?= htmlspecialchars($_SESSION['name']) ?>,
         </p>
 
         <p>
-            Your farmer application has been submitted successfully
-            and is currently waiting for admin approval.
+            Unfortunately, your farmer application was not approved.
         </p>
 
         <p>
-            You will be able to access your farmer dashboard once
-            your application has been approved.
+            Please contact MarketLink support if you believe this
+            decision was made in error.
         </p>
 
         <a href="<?= BASE_URL ?>auth/logout.php"

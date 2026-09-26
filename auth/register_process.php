@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/../config/config.php';
+
 require_once __DIR__ . '/../config/database.php';
 
 require_once __DIR__ . '/../includes/session.php';
@@ -134,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 if ($role === 'customer') {
 
-                    header('Location: ../customer/dashboard.php');
+                    header('Location: ' . BASE_URL . 'customer/dashboard.php');
                     exit;
 
                 }
@@ -143,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     $_SESSION['farmer_id'] = $farmer_id;
 
-                    header('Location: ../farmer/dashboard.php');
+                    header('Location: ' . BASE_URL . 'farmer/dashboard.php');
                     exit;
                 }
 
