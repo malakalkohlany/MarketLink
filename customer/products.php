@@ -629,6 +629,16 @@ while ($row = $result->fetch_assoc()) {
 
         </div>
 
+        <div class="shopping-note">
+            <i class="fa-solid fa-basket-shopping"></i>
+
+            <span>
+                Your cart can contain products from one farmer per order.
+                You can browse products from all farmers, but you'll need to
+                complete your current order before shopping from another farmer.
+            </span>
+        </div>
+
 
         <?php if (empty($products)): ?>
 
