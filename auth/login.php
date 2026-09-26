@@ -90,7 +90,7 @@ require_once 'login_process.php';
 
                 <div class="auth-visual-content">
 
-                    <span class="visual-badge">✦ MARKETLINK</span>
+                    <span class="visual-badge">✦ Local connections</span>
 
                     <h2>
                         Local markets.<br>
