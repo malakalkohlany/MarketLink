@@ -165,69 +165,6 @@ $top_farmers = $result->fetch_all(MYSQLI_ASSOC);
 
 <div class="admin-container">
 
-    <aside class="sidebar">
-
-        <div class="logo">
-            MarketLink
-        </div>
-
-        <nav>
-
-            <a href="dashboard.php">
-                Dashboard
-            </a>
-
-            <a href="markets.php">
-                Markets
-            </a>
-
-            <a href="add_market.php">
-                Add Market
-            </a>
-
-            <a href="categories.php">
-                Produce Categories
-            </a>
-
-            <a href="farmers.php">
-                Farmers
-            </a>
-
-            <a href="products.php">
-                Produce
-            </a>
-
-            <a href="users.php">
-                Users
-            </a>
-
-            <a href="orders.php">
-                Orders
-            </a>
-
-            <a href="reviews.php">
-                Reviews
-            </a>
-
-            <a href="announcements.php">
-                Announcements
-            </a>
-
-            <a href="notifications.php">
-                Notifications
-            </a>
-
-            <a href="reports.php" class="active">
-                Reports
-            </a>
-
-            <a href="../logout.php">
-                Logout
-            </a>
-
-        </nav>
-
-    </aside>
     <main class="main-content">
 
         <div class="page-header">
