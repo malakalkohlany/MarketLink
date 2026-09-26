@@ -413,7 +413,7 @@ if (!$user) {
                 <?php if ($message !== ''): ?>
 
                     <div class="message">
-                        <?php echo htmlspecialchars($message); ?>
+                        <?php echo e($message); ?>
                     </div>
 
                 <?php endif; ?>
@@ -422,7 +422,7 @@ if (!$user) {
                 <?php if ($error !== ''): ?>
 
                     <div class="error">
-                        <?php echo htmlspecialchars($error); ?>
+                        <?php echo e($error); ?>
                     </div>
 
                 <?php endif; ?>
@@ -449,20 +449,20 @@ if (!$user) {
 
                         <div class="info-row">
                             <span class="info-label">Name:</span>
-                            <?php echo htmlspecialchars($user['name']); ?>
+                            <?php echo e($user['name']); ?>
                         </div>
 
 
                         <div class="info-row">
                             <span class="info-label">Email:</span>
-                            <?php echo htmlspecialchars($user['email']); ?>
+                            <?php echo e($user['email']); ?>
                         </div>
 
 
                         <div class="info-row">
                             <span class="info-label">Phone:</span>
                             <?php
-                            echo htmlspecialchars(
+                            echo e(
                                 $user['phone'] ?? ''
                             );
                             ?>
@@ -472,7 +472,7 @@ if (!$user) {
                         <div class="info-row">
                             <span class="info-label">Address:</span>
                             <?php
-                            echo htmlspecialchars(
+                            echo e(
                                 $user['address'] ?? ''
                             );
                             ?>
@@ -530,7 +530,7 @@ if (!$user) {
                             <input
                                 type="text"
                                 name="name"
-                                value="<?php echo htmlspecialchars($user['name']); ?>"
+                                value="<?php echo e($user['name']); ?>"
                                 autocomplete="name"
                                 required
                             >
@@ -544,7 +544,7 @@ if (!$user) {
 
                             <input
                                 type="email"
-                                value="<?php echo htmlspecialchars($user['email']); ?>"
+                                value="<?php echo e($user['email']); ?>"
                                 readonly
                                 autocomplete="off"
                             >
@@ -559,7 +559,7 @@ if (!$user) {
                             <input
                                 type="text"
                                 name="phone"
-                                value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>"
+                                value="<?php echo e($user['phone'] ?? ''); ?>"
                                 autocomplete="tel"
                             >
 
@@ -573,7 +573,7 @@ if (!$user) {
                             <input
                                 type="text"
                                 name="address"
-                                value="<?php echo htmlspecialchars($user['address'] ?? ''); ?>"
+                                value="<?php echo e($user['address'] ?? ''); ?>"
                                 autocomplete="street-address"
                             >
 

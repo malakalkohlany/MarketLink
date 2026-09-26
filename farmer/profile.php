@@ -48,71 +48,80 @@ $farmer = $result->fetch_assoc();
     <?php include __DIR__ . '/../includes/navbar.php'; ?>
     <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-     <h1>farmer Profile</h1>
-     <a href="edit_profile.php">Edit Profile</a>
+    <main class="main-content">
 
-     <section>
-        <h2>Personal Information</h2>
-        <p>
-            <strong>Full Name:</strong>
-            <?= htmlspecialchars($farmer['name'])?>
-        </p>
-         <p>
-            <strong>Email:</strong>
-            <?= htmlspecialchars($farmer['email'])?>
-        </p>
-         <p>
-            <strong>Phone Number:</strong>
-            <?= htmlspecialchars($farmer['phone'])?>
-        </p>
-         <p>
-            <strong>Address:</strong>
-            <?= htmlspecialchars($farmer['address'])?>
-        </p>
-     </section>
+        <div class="profile-container">
 
-     <section>
-        <h2>Farmer Information</h2>
-        <p>
-            <strong>Business / Stall Name:</strong>
-            <?= htmlspecialchars($farmer['stall_name']) ?>
-        </p>
-        <p>
-            <strong>contact Person:</strong>
-            <?= htmlspecialchars($farmer['contact_person']) ?>
-        </p>
-        <p>
-            <strong>Description:</strong>
-            <?= htmlspecialchars($farmer['description']) ?>
-        </p>
-        <p>
-            <strong>Farmer Address:</strong>
-            <?= htmlspecialchars($farmer['farmer_address']) ?>
-        </p>
-     </section>
-     <section>
-        <h2>Account Information</h2>
+            <div class="profile-card">
 
-        <p>
-        <strong>Role:</strong>
-        <?php echo htmlspecialchars($farmer['role']); ?>
-        </p>
+                <h1>farmer Profile</h1>
+                <a href="edit_profile.php">Edit Profile</a>
 
-        <p>
-        <strong>Account Status:</strong>
-        <?php echo htmlspecialchars($farmer['status']); ?>
-        </p>
+                <section>
+                    <h2>Personal Information</h2>
+                    <p>
+                        <strong>Full Name:</strong>
+                        <?= e($farmer['name'])?>
+                    </p>
+                    <p>
+                        <strong>Email:</strong>
+                        <?= e($farmer['email'])?>
+                    </p>
+                    <p>
+                        <strong>Phone Number:</strong>
+                        <?= e($farmer['phone'])?>
+                    </p>
+                    <p>
+                        <strong>Address:</strong>
+                        <?= e($farmer['address'])?>
+                    </p>
+                </section>
 
-        <p> 
-        <strong>Approval Status:</strong>
-        <?php echo htmlspecialchars($farmer['approval_status']); ?>
-        </p>
+                <section>
+                    <h2>Farmer Information</h2>
+                    <p>
+                        <strong>Business / Stall Name:</strong>
+                        <?= e($farmer['stall_name']) ?>
+                    </p>
+                    <p>
+                        <strong>contact Person:</strong>
+                        <?= e($farmer['contact_person']) ?>
+                    </p>
+                    <p>
+                        <strong>Description:</strong>
+                        <?= e($farmer['description']) ?>
+                    </p>
+                    <p>
+                        <strong>Farmer Address:</strong>
+                        <?= e($farmer['farmer_address']) ?>
+                    </p>
+                </section>
+                <section>
+                    <h2>Account Information</h2>
 
-        <p>
-        <strong>Created At:</strong>
-        <?php echo htmlspecialchars($farmer['created_at']); ?>
-        </p>
-     </section>
+                    <p>
+                    <strong>Role:</strong>
+                    <?php echo e($farmer['role']); ?>
+                    </p>
+
+                    <p>
+                    <strong>Account Status:</strong>
+                    <?php echo e($farmer['status']); ?>
+                    </p>
+
+                    <p> 
+                    <strong>Approval Status:</strong>
+                    <?php echo e($farmer['approval_status']); ?>
+                    </p>
+
+                    <p>
+                    <strong>Created At:</strong>
+                    <?php echo e($farmer['created_at']); ?>
+                    </p>
+                </section>
+            </div>
+        </div>
+    </main>
 
 </body>
 </html>
