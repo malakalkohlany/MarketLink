@@ -632,6 +632,30 @@ if ($result) {
 
             </div>
 
+            <div class="location-filter">
+
+                <button
+                    type="button"
+                    id="findNearbyFarmers"
+                >
+                    Find Farmers Near Me
+                </button>
+
+                <button
+                    type="button"
+                    id="showAllFarmers"
+                    style="display: none;"
+                >
+                    Show All Farmers
+                </button>
+
+                <span
+                    id="farmerLocationStatus"
+                    style="display: none;"
+                ></span>
+
+            </div>
+
             <!-- =========================================================
                  MAP
                  ========================================================= -->
@@ -912,146 +936,137 @@ if ($result) {
             applyFarmerSearch
         );
 
-        // =====================================================
-        // Sort Farmers By User Location
-        // =====================================================
+// =====================================================
+// Sort Farmers By User Location
+// =====================================================
 
-        function calculateDistance(
-            lat1,
-            lon1,
-            lat2,
-            lon2
+function calculateDistance(
+    lat1,
+    lon1,
+    lat2,
+    lon2
+) {
+
+    const R = 6371;
+
+    const dLat =
+        (lat2 - lat1) *
+        Math.PI / 180;
+
+    const dLon =
+        (lon2 - lon1) *
+        Math.PI / 180;
+
+    const a =
+        Math.sin(dLat / 2) *
+        Math.sin(dLat / 2) +
+
+        Math.cos(
+            lat1 * Math.PI / 180
+        ) *
+
+        Math.cos(
+            lat2 * Math.PI / 180
+        ) *
+
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+
+    const c =
+        2 * Math.atan2(
+            Math.sqrt(a),
+            Math.sqrt(1 - a)
+        );
+
+    return R * c;
+}
+
+// =====================================================
+// Nearby Farmers
+// =====================================================
+
+const findNearbyFarmers =
+    document.getElementById(
+        'findNearbyFarmers'
+    );
+
+const showAllFarmers =
+    document.getElementById(
+        'showAllFarmers'
+    );
+
+const farmerLocationStatus =
+    document.getElementById(
+        'farmerLocationStatus'
+    );
+
+
+function sortFarmersByLocation(
+    userLatitude,
+    userLongitude
+) {
+
+    const farmerCards =
+        document.querySelectorAll(
+            '.farmer-card'
+        );
+
+    const cards =
+        Array.from(
+            farmerCards
+        );
+
+
+    cards.forEach(function (card) {
+
+        const farmerId =
+            parseInt(
+                card.dataset.farmerId
+            );
+
+
+        const farmer =
+            farmers.find(function (item) {
+
+                return (
+                    parseInt(item.id) ===
+                    farmerId
+                );
+
+            });
+
+
+        if (
+            farmer &&
+            farmer.latitude !== null &&
+            farmer.longitude !== null &&
+            farmer.latitude !== '' &&
+            farmer.longitude !== ''
         ) {
 
-            const R = 6371;
-
-
-            const dLat =
-                (lat2 - lat1) *
-                Math.PI / 180;
-
-
-            const dLon =
-                (lon2 - lon1) *
-                Math.PI / 180;
-
-
-            const a =
-                Math.sin(dLat / 2) *
-                Math.sin(dLat / 2) +
-
-                Math.cos(
-                    lat1 * Math.PI / 180
-                ) *
-
-                Math.cos(
-                    lat2 * Math.PI / 180
-                ) *
-
-                Math.sin(dLon / 2) *
-                Math.sin(dLon / 2);
-
-
-            const c =
-                2 * Math.atan2(
-                    Math.sqrt(a),
-                    Math.sqrt(1 - a)
+            const farmerLatitude =
+                parseFloat(
+                    farmer.latitude
                 );
 
-
-            return R * c;
-
-        }
-
-
-        // =====================================================
-        // User Location
-        // =====================================================
-
-        // Cambridge, Massachusetts, USA
-
-        const userLatitude =
-            42.3736;
-
-
-        const userLongitude =
-            -71.1097;
-
-
-        // =====================================================
-        // Calculate Distance For Each Farmer
-        // =====================================================
-
-        const farmerCards =
-            document.querySelectorAll(
-                '.farmer-card'
-            );
-
-
-        const cards =
-            Array.from(
-                farmerCards
-            );
-
-
-        cards.forEach(function (card) {
-
-            const farmerId =
-                parseInt(
-                    card.dataset.farmerId
+            const farmerLongitude =
+                parseFloat(
+                    farmer.longitude
                 );
-
-
-            const farmer =
-                farmers.find(function (item) {
-
-                    return (
-                        parseInt(item.id) ===
-                        farmerId
-                    );
-
-                });
 
 
             if (
-                farmer &&
-                farmer.latitude !== null &&
-                farmer.longitude !== null &&
-                farmer.latitude !== '' &&
-                farmer.longitude !== ''
+                !isNaN(farmerLatitude) &&
+                !isNaN(farmerLongitude)
             ) {
 
-                const farmerLatitude =
-                    parseFloat(
-                        farmer.latitude
+                card.dataset.distance =
+                    calculateDistance(
+                        userLatitude,
+                        userLongitude,
+                        farmerLatitude,
+                        farmerLongitude
                     );
-
-
-                const farmerLongitude =
-                    parseFloat(
-                        farmer.longitude
-                    );
-
-
-                if (
-                    !isNaN(farmerLatitude) &&
-                    !isNaN(farmerLongitude)
-                ) {
-
-                    card.dataset.distance =
-                        calculateDistance(
-                            userLatitude,
-                            userLongitude,
-                            farmerLatitude,
-                            farmerLongitude
-                        );
-
-                } else {
-
-                    card.dataset.distance =
-                        '999999999';
-
-                }
 
             } else {
 
@@ -1060,47 +1075,146 @@ if ($result) {
 
             }
 
-        });
+        } else {
 
-
-        // =====================================================
-        // Sort Cards From Nearest To Farthest
-        // =====================================================
-
-        cards.sort(function (a, b) {
-
-            return (
-                parseFloat(
-                    a.dataset.distance
-                ) -
-                parseFloat(
-                    b.dataset.distance
-                )
-            );
-
-        });
-
-
-        // =====================================================
-        // Rebuild Farmers Grid
-        // =====================================================
-
-        const farmersGrid =
-            document.querySelector(
-                '.farmers-grid'
-            );
-
-
-        if (farmersGrid) {
-
-            cards.forEach(function (card) {
-
-                farmersGrid.appendChild(card);
-
-            });
+            card.dataset.distance =
+                '999999999';
 
         }
 
+    });
+
+
+    cards.sort(function (a, b) {
+
+        return (
+            parseFloat(
+                a.dataset.distance
+            ) -
+            parseFloat(
+                b.dataset.distance
+            )
+        );
+
+    });
+
+
+    const farmersGrid =
+        document.querySelector(
+            '.farmers-grid'
+        );
+
+
+    if (farmersGrid) {
+
+        cards.forEach(function (card) {
+
+            farmersGrid.appendChild(card);
+
+        });
+
+    }
+
+}
+
+
+// =====================================================
+// Find Farmers Near Me
+// =====================================================
+
+findNearbyFarmers.addEventListener(
+    'click',
+    function () {
+
+        if (!navigator.geolocation) {
+
+            farmerLocationStatus.textContent =
+                'Location is not supported by this browser.';
+
+            farmerLocationStatus.style.display =
+                'inline';
+
+            return;
+        }
+
+
+        farmerLocationStatus.textContent =
+            'Getting your location...';
+
+        farmerLocationStatus.style.display =
+            'inline';
+
+
+        navigator.geolocation.getCurrentPosition(
+
+            function (position) {
+
+                const userLatitude =
+                    position.coords.latitude;
+
+                const userLongitude =
+                    position.coords.longitude;
+
+
+                sortFarmersByLocation(
+                    userLatitude,
+                    userLongitude
+                );
+
+
+                map.setView(
+                    [
+                        userLatitude,
+                        userLongitude
+                    ],
+                    10
+                );
+
+
+                L.marker([
+                    userLatitude,
+                    userLongitude
+                ])
+                    .addTo(map)
+                    .bindPopup(
+                        'Your Location'
+                    )
+                    .openPopup();
+
+
+                farmerLocationStatus.textContent =
+                    'Farmers sorted by distance from your location.';
+
+                showAllFarmers.style.display =
+                    'inline-block';
+
+            },
+
+            function () {
+
+                farmerLocationStatus.textContent =
+                    'Unable to get your location.';
+
+            }
+
+        );
+
+    }
+);
+
+
+// =====================================================
+// Show All Farmers
+// =====================================================
+
+showAllFarmers.addEventListener(
+    'click',
+    function () {
+
+        location.reload();
+
+    }
+);
 
         // =====================================================
         // Escape HTML
