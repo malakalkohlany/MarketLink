@@ -88,7 +88,9 @@ $farmer = $result->fetch_assoc();
 </head>
 <body>
 
+    <?php require_once __DIR__ . '/../includes/navbar.php'; ?>
 
+    <?php require_once __DIR__ . '/../includes/sidebar.php'; ?>
 
     <main class="main-content">
         <h1>Edit Profile</h1>

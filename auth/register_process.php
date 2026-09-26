@@ -1,33 +1,38 @@
 <?php
 
-require_once __DIR__ . '/../config/config.php';
-
-require_once __DIR__ . '/../config/database.php';
-
-require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/include.php';
 
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
-
 
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
+    // --------------------------------------------------
+    // Get form values
+    // --------------------------------------------------
+
     $name = trim($_POST['name'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $phone = trim($_POST['phone'] ?? '');
     $address = trim($_POST['address'] ?? '');
+
     $password = $_POST['password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
-    $role = $_POST['role'] ?? '';
 
+    $role = $_POST['role'] ?? '';
     $stall_name = trim($_POST['stall_name'] ?? '');
 
     $allowed_roles = ['customer', 'farmer'];
 
+
+    // --------------------------------------------------
+    // Validation
+    // --------------------------------------------------
+
     if (!in_array($role, $allowed_roles, true)) {
 
-        $error = 'Invalid account type.';
+        $error = 'Please select an account type.';
 
     } elseif ($name === '') {
 
@@ -59,8 +64,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     } else {
 
+        // --------------------------------------------------
+        // Check whether email already exists
+        // --------------------------------------------------
+
         $check = $conn->prepare(
-            "SELECT id FROM users WHERE email = ? LIMIT 1"
+            "SELECT id
+             FROM users
+             WHERE email = ?
+             LIMIT 1"
         );
 
         $check->bind_param('s', $email);
@@ -74,48 +86,121 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         } else {
 
+            // --------------------------------------------------
+            // Hash password
+            // --------------------------------------------------
+
             $password_hash = password_hash(
                 $password,
                 PASSWORD_DEFAULT
             );
 
+
+            // --------------------------------------------------
+            // Start transaction
+            // --------------------------------------------------
+
             mysqli_begin_transaction($conn);
 
             try {
 
-                $stmt = $conn->prepare(
-                    "INSERT INTO users
-                    (name, email, password_hash, phone, address, role, status)
-                    VALUES (?, ?, ?, ?, ?, ?, 'active')"
-                );
+                // ==================================================
+                // CUSTOMER
+                // ==================================================
 
-                $stmt->bind_param(
-                    'ssssss',
-                    $name,
-                    $email,
-                    $password_hash,
-                    $phone,
-                    $address,
-                    $role
-                );
+                if ($role === 'customer') {
 
-                $stmt->execute();
+                    $status = 'active';
 
-                $user_id = $conn->insert_id;
+                    $stmt = $conn->prepare(
+                        "INSERT INTO users
+                        (
+                            name,
+                            email,
+                            password_hash,
+                            phone,
+                            address,
+                            role,
+                            status
+                        )
+                        VALUES (?, ?, ?, ?, ?, ?, ?)"
+                    );
+
+                    $stmt->bind_param(
+                        'sssssss',
+                        $name,
+                        $email,
+                        $password_hash,
+                        $phone,
+                        $address,
+                        $role,
+                        $status
+                    );
+
+                    $stmt->execute();
+
+                    $user_id = $conn->insert_id;
 
 
-                if ($role === 'farmer') {
+                // ==================================================
+                // FARMER
+                // ==================================================
+
+                } else {
+
+                    // Farmer accounts start as pending.
+                    $status = 'pending';
+
+                    $stmt = $conn->prepare(
+                        "INSERT INTO users
+                        (
+                            name,
+                            email,
+                            password_hash,
+                            phone,
+                            address,
+                            role,
+                            status
+                        )
+                        VALUES (?, ?, ?, ?, ?, ?, ?)"
+                    );
+
+                    $stmt->bind_param(
+                        'sssssss',
+                        $name,
+                        $email,
+                        $password_hash,
+                        $phone,
+                        $address,
+                        $role,
+                        $status
+                    );
+
+                    $stmt->execute();
+
+                    $user_id = $conn->insert_id;
+
+
+                    // --------------------------------------------------
+                    // Create farmer record
+                    // --------------------------------------------------
 
                     $stmt2 = $conn->prepare(
                         "INSERT INTO farmers
-                        (user_id, stall_name, approval_status)
-                        VALUES (?, ?, 'pending')"
+                        (
+                            user_id,
+                            stall_name,
+                            contact_person,
+                            approval_status
+                        )
+                        VALUES (?, ?, ?, 'pending')"
                     );
 
                     $stmt2->bind_param(
-                        'is',
+                        'iss',
                         $user_id,
-                        $stall_name
+                        $stall_name,
+                        $name
                     );
 
                     $stmt2->execute();
@@ -124,8 +209,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
 
+                // --------------------------------------------------
+                // Commit
+                // --------------------------------------------------
 
                 mysqli_commit($conn);
+
+
+                // --------------------------------------------------
+                // Create session
+                // --------------------------------------------------
 
                 session_regenerate_id(true);
 
@@ -134,18 +227,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['role'] = $role;
 
 
+                // ==================================================
+                // CUSTOMER → DASHBOARD
+                // ==================================================
+
                 if ($role === 'customer') {
 
-                    header('Location: ' . BASE_URL . 'customer/dashboard.php');
-                    exit;
+                    header(
+                        'Location: ' .
+                        BASE_URL .
+                        'customer/dashboard.php'
+                    );
 
+                    exit;
                 }
+
+
+                // ==================================================
+                // FARMER → PENDING PAGE
+                // ==================================================
 
                 if ($role === 'farmer') {
 
                     $_SESSION['farmer_id'] = $farmer_id;
 
-                    header('Location: ' . BASE_URL . 'farmer/dashboard.php');
+                    header(
+                        'Location: ' .
+                        BASE_URL .
+                        'farmer/pending.php'
+                    );
+
                     exit;
                 }
 
@@ -158,5 +269,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-
-?>
