@@ -87,12 +87,14 @@ while ($row = $result->fetch_assoc()) {
 
 $stmt->close();
 
+$visibleFarmers = array_slice($farmers, 0, 3);
+$hasMoreFarmers = count($farmers) > 3;
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -100,192 +102,308 @@ $stmt->close();
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Farmers - MarketLink</title>
+    <title>Farmers - FreshFind</title>
 
     <link
         rel="stylesheet"
-        href="../assets/css/style.css"
+        href="../assets/css/base.css"
     >
 
+    <link
+        rel="stylesheet"
+        href="../assets/css/homepage.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/farmers.css"
+    >
 </head>
 
 <body>
 
+    <header class="home-navbar">
+
+    <div class="home-nav-inner">
+
+        <a href="../index.php" class="home-brand">
+            FreshFind
+        </a>
+
+        <nav class="home-nav-links">
+
+            <a href="../index.php">
+                Home
+            </a>
+
+            <a href="markets.php">
+                Markets
+            </a>
+
+            <a href="farmers.php" class="active">
+                Farmers
+            </a>
+
+            <a href="about.php">
+                About
+            </a>
+
+            <a href="contact.php">
+                Contact
+            </a>
+
+        </nav>
+
+        <div class="home-nav-actions">
+
+            <a
+                href="../auth/login.php"
+                class="home-login"
+            >
+                Login
+            </a>
+
+            <a
+                href="../auth/register.php"
+                class="home-join"
+            >
+                Join FreshFind
+            </a>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+    <main class="farmers-page">
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+
     <section class="farmers-hero">
 
-        <div class="container">
+        <div class="farmers-hero-circle farmers-circle-left"></div>
+        <div class="farmers-hero-circle farmers-circle-right"></div>
 
-            <h1>
-                Local Farmers
-            </h1>
+        <div class="container farmers-hero-inner">
 
-            <p>
-                Discover local farmers, their products,
-                and the places where they sell.
-            </p>
+            <div>
+
+                <span class="farmers-eyebrow">
+                    MEET THE PEOPLE BEHIND THE PRODUCE
+                </span>
+
+                <h1>
+                    Local farmers.
+                    <em>Real produce.</em>
+                </h1>
+
+                <p>
+                    Discover local farmers, the products they
+                    provide, and where you can find them.
+                </p>
+
+            </div>
+
 
         </div>
 
     </section>
 
 
-    <main class="container">
+    <!-- =====================================================
+         SEARCH
+    ====================================================== -->
 
-        <section class="farmers-filters">
+    <section class="farmers-filters">
 
-            <form
-                method="GET"
-                action="farmers.php"
-            >
+        <div class="container">
 
-                <div class="filter-group">
+            <div class="farmers-filter-inner">
 
-                    <label for="search">
-                        Search Farmers
-                    </label>
+                <div class="farmers-filter-copy">
 
-                    <input
-                        type="search"
-                        id="search"
-                        name="search"
-                        value="<?= e($search) ?>"
-                        placeholder="Search farmer, stall or location..."
-                    >
+                    <span>
+                        FIND A FARMER
+                    </span>
+
+                    <h2>
+                        Who are you
+                        looking for?
+                    </h2>
 
                 </div>
 
 
-                <div class="filter-actions">
+                <form
+                    method="GET"
+                    action="farmers.php"
+                    class="farmers-search-form"
+                >
 
-                    <button
-                        type="submit"
-                        class="btn-search"
-                    >
-                        Search
-                    </button>
+                    <div class="farmer-search-field">
+
+                        <label for="search">
+                            Search Farmers
+                        </label>
+
+                        <input
+                            type="search"
+                            id="search"
+                            name="search"
+                            value="<?= e($search) ?>"
+                            placeholder="Farmer, stall or location..."
+                        >
+
+                    </div>
 
 
-                    <a
-                        href="farmers.php"
-                        class="btn-reset"
-                    >
-                        Reset
-                    </a>
+                    <div class="filter-actions">
 
-                </div>
+                        <button
+                            type="submit"
+                            class="btn-search"
+                        >
+                            Search
+                        </button>
 
-            </form>
+                        <a
+                            href="farmers.php"
+                            class="btn-reset"
+                        >
+                            Reset
+                        </a>
 
-        </section>
+                    </div>
 
+                </form>
 
-        <div class="result-info">
-
-            <?= e(count($farmers)) ?>
-            farmer(s) found
+            </div>
 
         </div>
 
+    </section>
 
-        <?php if (empty($farmers)): ?>
 
-            <section class="empty-state">
+    <!-- =====================================================
+         RESULTS
+    ====================================================== -->
 
-                <h2>
-                    No Farmers Found
-                </h2>
+    <section class="farmers-results">
+
+        <div class="container">
+
+            <div class="farmers-result-header">
+
+                <div>
+
+                    <span class="farmers-eyebrow">
+                        LOCAL PRODUCERS
+                    </span>
+
+                    <h2>
+                        Farmers worth
+                        <em>knowing.</em>
+                    </h2>
+
+                </div>
 
                 <p>
-                    Try changing your search.
+                    <?= e(count($farmers)) ?>
+                    <?= count($farmers) === 1 ? 'farmer' : 'farmers' ?>
+                    found
                 </p>
 
-            </section>
-            
-        <?php else: ?>
-
-            <section class="farmers-grid">
+            </div>
 
 
-                <?php foreach ($farmers as $farmer): ?>
+            <?php if (empty($farmers)): ?>
 
-                    <article class="farmer-card">
+                <section class="farmers-empty">
 
+                    <span>✦</span>
 
-                        <header class="farmer-header">
+                    <h2>
+                        No Farmers Found
+                    </h2>
 
-                            <h2>
+                    <p>
+                        Try changing your search and see
+                        what else is nearby.
+                    </p>
 
-                                <?= e(
-                                    $farmer['stall_name']
-                                ) ?>
+                    <a
+                        href="farmers.php"
+                        class="farmers-empty-btn"
+                    >
+                        View All Farmers
+                    </a>
 
-                            </h2>
+                </section>
 
-                        </header>
+            <?php else: ?>
 
+                <div class="farmers-grid">
 
-                        <div class="farmer-body">
+                    <?php foreach ($visibleFarmers as $index => $farmer): ?>
 
+                        <article class="farmer-card">
 
-                            <?php if (
-                                !empty($farmer['description'])
-                            ): ?>
+                            <header class="farmer-header">
 
-                                <p class="farmer-description">
-
-                                    <?= e(
-                                        truncateText(
-                                            $farmer['description'],
-                                            180
-                                        )
+                                <span class="farmer-number">
+                                    <?= str_pad(
+                                        $index + 1,
+                                        2,
+                                        '0',
+                                        STR_PAD_LEFT
                                     ) ?>
+                                </span>
 
-                                </p>
+                                <div class="farmer-symbol">
+                                    ✦
+                                </div>
 
-                            <?php endif; ?>
+                            </header>
 
 
-                            <div class="farmer-info">
+                            <div class="farmer-body">
+
+                                <h2>
+                                    <?= e(
+                                        $farmer['stall_name']
+                                    ) ?>
+                                </h2>
 
 
                                 <?php if (
                                     !empty($farmer['contact_person'])
                                 ): ?>
 
-                                    <div class="info-item">
-
-                                        <span>
-                                            👤
-                                        </span>
-
-                                        <span>
-
-                                            <?= e(
-                                                $farmer['contact_person']
-                                            ) ?>
-
-                                        </span>
-
-                                    </div>
+                                    <p class="farmer-contact">
+                                        <?= e(
+                                            $farmer['contact_person']
+                                        ) ?>
+                                    </p>
 
                                 <?php endif; ?>
-                                
+
+
                                 <?php if (
                                     !empty($farmer['address'])
                                 ): ?>
 
-                                    <div class="info-item">
+                                    <div class="farmer-location">
+
+                                        <span>📍</span>
 
                                         <span>
-                                            📍
-                                        </span>
-
-                                        <span>
-
                                             <?= e(
                                                 $farmer['address']
                                             ) ?>
-
                                         </span>
 
                                     </div>
@@ -293,63 +411,125 @@ $stmt->close();
                                 <?php endif; ?>
 
 
-                            </div>
+                                <div class="farmer-card-footer">
+
+                                    <div class="farmer-product-count">
+
+                                        <strong>
+                                            <?= e(
+                                                $farmer['product_count']
+                                            ) ?>
+                                        </strong>
+
+                                        <span>
+                                            Products
+                                        </span>
+
+                                    </div>
 
 
-                            <div class="farmer-stats">
+                                    <?php if (
+                                        !empty($farmer['latitude']) &&
+                                        !empty($farmer['longitude'])
+                                    ): ?>
 
-                                <div class="farmer-stat">
+                                        <a
+                                            href="https://www.google.com/maps/search/?api=1&query=<?= e($farmer['latitude']) ?>,<?= e($farmer['longitude']) ?>"
+                                            class="map-link"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            View Map
+                                            <span>↗</span>
+                                        </a>
 
-                                    <strong>
-
-                                        <?= e(
-                                            $farmer['product_count']
-                                        ) ?>
-
-                                    </strong>
-
-                                    <span>
-                                        Products
-                                    </span>
+                                    <?php endif; ?>
 
                                 </div>
 
                             </div>
 
+                        </article>
 
-                            <?php if (
-                                !empty($farmer['latitude'])
-                                &&
-                                !empty($farmer['longitude'])
-                            ): ?>
+                    <?php endforeach; ?>
 
-                                <a
-                                    href="https://www.google.com/maps/search/?api=1&query=<?= e($farmer['latitude']) ?>,<?= e($farmer['longitude']) ?>"
-                                    class="map-link"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                >
+                </div>
 
-                                    📍 View on Map
 
-                                </a>
+                <?php if ($hasMoreFarmers): ?>
 
-                            <?php endif; ?>
+                    <section class="farmers-signin-cta">
 
+                        <div class="farmers-cta-copy">
+
+                            <span>
+                                KEEP EXPLORING
+                            </span>
+
+                            <h2 style="color: #666e5a">
+                                More local
+                                <em>farmers await.</em>
+                            </h2>
+
+                            <p>
+                                Sign in to explore all available
+                                farmers and discover more local
+                                products.
+                            </p>
 
                         </div>
 
-                    </article>
 
-                <?php endforeach; ?>
+                        <div class="farmers-cta-actions">
 
+                            <a
+                                href="../auth/login.php"
+                                class="farmers-signin-btn"
+                            >
+                                Sign In
+                            </a>
 
-            </section>
+                            <a
+                                href="../auth/register.php"
+                                class="farmers-join-btn"
+                            >
+                                Join FreshFind
+                            </a>
 
-        <?php endif; ?>
+                        </div>
 
+                    </section>
 
-    </main>
+                <?php endif; ?>
+
+            <?php endif; ?>
+
+        </div>
+
+    </section>
+
+</main>
+
+<footer class="home-footer">
+
+    <div class="footer-inner">
+
+        <div class="footer-bottom">
+
+            <p>
+                © <?= date('Y') ?> FreshFind.
+                All rights reserved.
+            </p>
+
+            <p>
+                Connecting you with local markets.
+            </p>
+
+        </div>
+
+    </div>
+
+</footer>
 
 </body>
 
