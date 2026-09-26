@@ -1,7 +1,6 @@
 <?php
 
-require_once '../config/database.php';
-require_once '../includes/functions.php';
+require_once '../includes/include.php';
 
 $search = trim($_GET['search'] ?? '');
 $day = trim($_GET['day'] ?? '');
@@ -144,6 +143,7 @@ while ($row = $result->fetch_assoc()) {
     $markets[] = $row;
 }
 
+
 $stmt->close();
 
 $today = date('l');
@@ -156,6 +156,10 @@ foreach ($markets as &$market) {
             explode(',', $market['operating_days'] ?? '')
         )
     );
+    
+
+$visibleMarkets = array_slice($markets, 0, 3);
+$hasMoreMarkets = count($markets) > 3;
 
     $market['is_open'] =
         in_array($today, $marketDays, true)
@@ -187,19 +191,42 @@ unset($market);
 
     <link
         rel="stylesheet"
-        href="../assets/css/style.css"
+        href="../assets/css/base.css"
+    >
+    <link
+        rel="stylesheet"
+        href="../assets/css/homepage.css"
+    >
+    <link
+        rel="stylesheet"
+        href="../assets/css/markets.css"
     >
 
 </head>
 
 <body>
 
-    <header>
+    <header class="home-navbar">
 
-        <nav>
+    <div class="home-nav-inner">
 
-            <a href="index.php">
+        <a href="index.php" class="home-brand">
+
+            <span class="brand-mark">
+                F
+            </span>
+
+            <span class="brand-name">
                 FreshFind
+            </span>
+
+        </a>
+
+
+        <nav class="home-nav-links">
+
+            <a href="../index.php">
+                Home
             </a>
 
             <a href="markets.php">
@@ -220,7 +247,22 @@ unset($market);
 
         </nav>
 
-    </header>
+
+        <div class="home-nav-actions">
+
+            <a href="../auth/login.php" class="home-login">
+                Login
+            </a>
+
+            <a href="../auth/register.php" class="home-join">
+                Join FreshFind
+            </a>
+
+        </div>
+
+    </div>
+
+</header>
  <main>
 
         <section class="markets-hero">
@@ -393,7 +435,7 @@ unset($market);
 
                     <div class="markets-grid">
 
-                        <?php foreach ($markets as $market): ?>
+                        <?php foreach ($visibleMarkets as $market): ?>
 
                             <article class="market-card">
 
@@ -433,26 +475,6 @@ unset($market);
                                 </header>
                                  <div class="market-body">
 
-                                    <?php if (!empty($market['description'])): ?>
-
-                                        <div class="market-description">
-
-                                            <h3>
-                                                Description
-                                            </h3>
-
-                                            <p>
-                                                <?= e(
-                                                    truncateText(
-                                                        $market['description'],
-                                                        180
-                                                    )
-                                                ) ?>
-                                            </p>
-
-                                        </div>
-
-                                    <?php endif; ?>
 
 
                                     <div class="market-info">
@@ -548,7 +570,7 @@ unset($market);
                                         </div>
 
                                     </div>
-       <div class="market-stats">
+                                    <div class="market-stats">
 
                                         <div class="market-stat">
 
@@ -605,6 +627,38 @@ unset($market);
 
                     </div>
 
+                    <?php if ($hasMoreMarkets): ?>
+                        <section class="markets-signin-cta">
+                            <div class="markets-signin-inner">
+
+                                <div class="markets-signin-copy">
+                                    <span>KEEP EXPLORING</span>
+
+                                    <h2>
+                                        There's more<br>
+                                        to discover.
+                                    </h2>
+
+                                    <p>
+                                        Sign in to explore all available markets,
+                                        farmers, and fresh local products.
+                                    </p>
+                                </div>
+
+                                <div class="markets-signin-actions">
+                                    <a href="../auth/login.php" class="markets-signin-btn">
+                                        Sign In
+                                    </a>
+
+                                    <a href="../auth/register.php" class="markets-join-btn">
+                                        Join FreshFind
+                                    </a>
+                                </div>
+
+                            </div>
+                        </section>
+                    <?php endif; ?>
+
                 <?php endif; ?>
 
             </div>
@@ -612,14 +666,22 @@ unset($market);
         </section>
 
     </main>
-     <footer>
+    <footer class="home-footer">
 
-        <div class="container">
+        <div class="footer-inner">
 
-            <p>
-                &copy; <?= date('Y') ?> FreshFind.
-                All rights reserved.
-            </p>
+            <div class="footer-bottom">
+
+                <p>
+                    &copy; <?= date('Y') ?> FreshFind.
+                    All rights reserved.
+                </p>
+
+                <p>
+                    Connecting you with local markets.
+                </p>
+
+            </div>
 
         </div>
 
