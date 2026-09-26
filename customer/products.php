@@ -224,8 +224,7 @@ $sql = "
         p.price,
         p.unit,
         p.image,
-        p.stock_quantity,
-        p.farmer_id
+        p.stock_quantity
     FROM products p
     INNER JOIN farmers f ON p.farmer_id = f.id
     WHERE p.is_available = 1
@@ -279,7 +278,7 @@ while ($row = $result->fetch_assoc()) {
     <!-- Dashboard CSS -->
     <link
         rel="stylesheet"
-        href="../assets/css/dashboard.css"
+        href="../assets/css/base.css"
     >
 
 
@@ -306,13 +305,7 @@ while ($row = $result->fetch_assoc()) {
 
     <style>
 
-        /* =====================================================
-           Main Content
-        ===================================================== */
-
-        .main-content {
-            padding: 30px;
-        }
+        
 
 
         /* =====================================================
@@ -575,9 +568,6 @@ while ($row = $result->fetch_assoc()) {
 
         @media (max-width: 700px) {
 
-            .main-content {
-                padding: 20px;
-            }
 
             .products-grid {
                 grid-template-columns: 1fr;
@@ -799,6 +789,7 @@ while ($row = $result->fetch_assoc()) {
                     <?php endif; ?>
     </main>
 
+    <script src="../assets/js/app.js"></script> 
 
 </body>
 
