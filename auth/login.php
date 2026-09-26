@@ -16,84 +16,98 @@ require_once 'login_process.php';
 
 <body class="auth-page">
 
-    <div class="auth-container">
+    <main class="auth-container">
 
-        <div class="auth-form-section">
+        <section class="auth-card">
 
-            <div class="auth-header">
-                <h1>Welcome back.</h1>
-                <p>Sign in to your MarketLink account.</p>
-            </div>
+            <div class="auth-content">
 
-            <?php if ($error): ?>
-                <div class="message message-error">
-                    <?= htmlspecialchars($error) ?>
-                </div>
-            <?php endif; ?>
-
-            <form
-                action="login.php"
-                method="POST"
-                class="auth-form"
-            >
-
-                <div class="form-group">
-                    <label for="email">Email Address</label>
-
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        placeholder="Enter your email"
-                        value="<?= htmlspecialchars($_POST['email'] ?? '') ?>"
-                        required
-                    >
+                <div class="auth-brand">
+                    <span class="brand-mark">✦</span>
+                    <span>MarketLink</span>
                 </div>
 
-                <div class="form-group">
-                    <label for="password">Password</label>
-
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        placeholder="Enter your password"
-                        required
-                    >
+                <div class="auth-heading">
+                    <span class="eyebrow">Welcome back.</span>
+                    <h1>Sign in to your MarketLink account.</h1>
+                    <p>Continue to ...</p>
                 </div>
 
-                <button type="submit" class="auth-button">
-                    Sign In
-                </button>
+                <?php if ($error): ?>
+                    <div class="message message-error">
+                        <?= htmlspecialchars($error) ?>
+                    </div>
+                <?php endif; ?>
 
-            </form>
+                <form
+                    action="login.php"
+                    method="POST"
+                    class="auth-form">
 
-            <p class="auth-footer">
-                Don't have an account?
-                <a href="register.php">Create one</a>
-            </p>
+                    <div class="form-field">
+                        <label for="email">Email Address</label>
 
-        </div>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="Enter your email"
+                            value="<?= htmlspecialchars($_POST['email'] ?? '') ?>"
+                            required
+                        >
+                    </div>
 
-        <div class="auth-visual">
+                    <div class="form-field">
+                        <label for="password">Password</label>
 
-            <div class="visual-content">
-                <span class="visual-label">MARKETLINK</span>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Enter your password"
+                            required
+                        >
+                    </div>
 
-                <h2>
-                    Local markets.<br>
-                    Better connections.
-                </h2>
+                    <button type="submit" class="btn btn-primary auth-submit">
+                        Sign In
+                    </button>
 
-                <p>
-                    Connect with local farmers and discover
-                    products directly from your community.
+                </form>
+
+                <p class="auth-footer">
+                    Don't have an account?
+                    <a href="register.php" class="btn-link">Create one</a>
                 </p>
+
             </div>
 
-        </div>
+            <div class="auth-visual">
 
-    </div>
+                <div class="auth-visual-shape shape-one"></div>
+
+                <div class="auth-visual-shape shape-two"></div>
+
+                <div class="auth-visual-content">
+
+                    <span class="visual-badge">✦ MARKETLINK</span>
+
+                    <h2>
+                        Local markets.<br>
+                        Better connections.
+                    </h2>
+
+                    <p>
+                        Connect with local farmers and discover
+                        products directly from your community.
+                    </p>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
 
     <script src="../assets/js/login.js"></script>
 
