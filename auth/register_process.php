@@ -147,7 +147,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // ==================================================
 
                 } else {
-
+                    
+                    $status = 'active';
 
                     $stmt = $conn->prepare(
                         "INSERT INTO users
@@ -160,7 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             role,
                             status
                         )
-                        VALUES (?, ?, ?, ?, ?, ?, 'active')"
+                        VALUES (?, ?, ?, ?, ?, ?, ?)"
                     );
 
                     $stmt->bind_param(
