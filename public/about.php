@@ -101,270 +101,435 @@ if ($result) {
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>About Us - FreshFind</title>
+    <title>About Us - MarketLink</title>
 
     <link
         rel="stylesheet"
-        href="../assets/css/style.css"
+        href="../assets/css/base.css"
     >
 
+    <link
+        rel="stylesheet"
+        href="../assets/css/homepage.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/about.css"
+    >
 </head>
 
 <body>
 
-    <nav>
+    <header class="home-navbar">
+        <div class="home-nav-inner">
 
-        <a href="index.php">
-            FreshFind
-        </a>
+            <a href="index.php" class="home-brand">
+                MarketLink
+            </a>
 
-        <a href="markets.php">
-            Markets
-        </a>
+            <nav class="home-nav-links">
+                <a href="../index.php">Home</a>
+                <a href="markets.php">Markets</a>
+                <a href="farmers.php">Farmers</a>
+                <a href="about.php" class="active">About</a>
+                <a href="contact.php">Contact</a>
+            </nav>
 
-        <a href="farmers.php">
-            Farmers
-        </a>
+            <div class="home-nav-actions">
+                <a href="../auth/login.php" class="home-login">
+                    Login
+                </a>
 
-        <a href="about.php">
-            About Us
-        </a>
+                <a href="../auth/register.php" class="home-join">
+                    Join MarketLink
+                </a>
+            </div>
 
-        <a href="contact.php">
-            Contact Us
-        </a>
+        </div>
+    </header>
 
-    </nav>
+    <main class="about-page">
 
-    <main>
+    <!-- =====================================================
+         ABOUT HERO
+    ====================================================== -->
 
-        <section>
+    <section class="about-hero">
 
-            <div>
+        <div class="about-hero-decoration about-decoration-left"></div>
+        <div class="about-hero-decoration about-decoration-right"></div>
 
-                <p>
-                    About FreshFind
-                </p>
+        <div class="container about-hero-inner">
+
+            <div class="about-hero-copy">
+
+                <span class="about-eyebrow">
+                    ABOUT MarketLink
+                </span>
 
                 <h1>
-                    Connecting Communities With Local Farmers
+                    Bringing local food
+                    <em>closer to you.</em>
                 </h1>
 
                 <p>
-                    FreshFind helps residents discover local farmers
-                    markets, farmers, fresh products, and seasonal
-                    produce in one convenient platform.
+                    MarketLink helps you discover local farmers markets,
+                    farmers, fresh products, and seasonal produce —
+                    all in one place.
                 </p>
 
-            </div>
+                <div class="about-hero-actions">
 
-        </section>
- <section>
+                    <a
+                        href="markets.php"
+                        class="about-primary-btn"
+                    >
+                        Explore Markets
+                    </a>
 
-            <div>
-
-                <h2>
-                    About Our Platform
-                </h2>
-
-                <p>
-                    FreshFind is a browser-based platform designed
-                    to make it easier for residents to discover
-                    farmers markets and local food producers.
-                </p>
-
-                <p>
-                    Visitors can explore active markets, discover
-                    approved farmers, browse available products,
-                    and learn more about different product categories.
-                </p>
-
-            </div>
-
-        </section>
-
-        <section>
-
-            <div>
-
-                <h2>
-                    What FreshFind Provides
-                </h2>
-
-                <div>
-
-                    <article>
-
-                        <h3>
-                            Discover Markets
-                        </h3>
-
-                        <p>
-                            Find active farmers markets and view
-                            their locations, operating days,
-                            and opening hours.
-                        </p>
-
-                        <a href="markets.php">
-                            Explore Markets
-                        </a>
-
-                    </article>
-
-                    <article>
-
-                        <h3>
-                            Discover Farmers
-                        </h3>
-
-                        <p>
-                            Explore approved local farmers and
-                            learn about the products they provide.
-                        </p>
-
-                        <a href="farmers.php">
-                            Explore Farmers
-                        </a>
-
-                    </article>
-
-                    <article>
-
-                        <h3>
-                            Explore Products
-                        </h3>
-
-                        <p>
-                            Discover fresh products available
-                            from participating local farmers.
-                        </p>
-
-                    </article>
-
-                    <article>
-
-                        <h3>
-                            Support Local Communities
-                        </h3>
-
-                        <p>
-                            FreshFind helps connect residents with
-                            local growers and encourages support for
-                            community-based food producers.
-                        </p>
-
-                    </article>
+                    <a
+                        href="farmers.php"
+                        class="about-secondary-btn"
+                    >
+                        Meet Farmers
+                    </a>
 
                 </div>
 
             </div>
 
-        </section>
- <section>
+            <div class="about-hero-note">
 
-            <div>
+                <span>LOCAL</span>
+                <span>FRESH</span>
+                <span>CONNECTED</span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         ABOUT PLATFORM
+    ====================================================== -->
+
+    <section class="about-intro">
+
+        <div class="container about-intro-grid">
+
+            <div class="about-section-label">
+                <span>01</span>
+                <p>
+                    ABOUT THE PLATFORM
+                </p>
+            </div>
+
+            <div class="about-intro-content">
 
                 <h2>
-                    FreshFind at a Glance
+                    A simpler way to
+                    <span>find local.</span>
                 </h2>
 
-                <div>
+                <p class="about-lead">
+                    MarketLink is a browser-based platform designed
+                    to make discovering local farmers markets and
+                    food producers easier.
+                </p>
 
-                    <div>
+                <p>
+                    Instead of searching across different places,
+                    MarketLink brings market information, approved
+                    farmers, available products, and product
+                    categories together in one convenient platform.
+                </p>
 
-                        <strong>
-                            <?= e($marketCount) ?>
-                        </strong>
+            </div>
 
-                        <span>
-                            Active Markets
-                        </span>
+        </div>
 
-                    </div>
+    </section>
 
-                    <div>
 
-                        <strong>
-                            <?= e($farmerCount) ?>
-                        </strong>
+    <!-- =====================================================
+         WHAT MarketLink PROVIDES
+    ====================================================== -->
 
-                        <span>
-                            Approved Farmers
-                        </span>
+    <section class="about-features">
 
-                    </div>
+        <div class="container">
 
-                    <div>
+            <div class="about-section-heading">
 
-                        <strong>
-                            <?= e($productCount) ?>
-                        </strong>
+                <span class="about-eyebrow">
+                    WHAT YOU CAN DISCOVER
+                </span>
 
-                        <span>
-                            Available Products
-                        </span>
+                <h2>
+                    Everything starts
+                    <em>locally.</em>
+                </h2>
 
-                    </div>
+                <p>
+                    Explore the people, places, and products
+                    that make local food communities special.
+                </p>
 
-                    <div>
+            </div>
 
-                        <strong>
-                            <?= e($categoryCount) ?>
-                        </strong>
 
-                        <span>
-                            Product Categories
-                        </span>
+            <div class="about-feature-grid">
 
-                    </div>
+                <article class="about-feature about-feature-sage">
 
+                    <span class="feature-number">
+                        01
+                    </span>
+
+                    <h3>
+                        Discover Markets
+                    </h3>
+
+                    <p>
+                        Find active farmers markets and view
+                        their locations, operating days,
+                        and opening hours.
+                    </p>
+
+                    <a href="markets.php">
+                        Explore Markets
+                        <span>↗</span>
+                    </a>
+
+                </article>
+
+
+                <article class="about-feature about-feature-terracotta">
+
+                    <span class="feature-number">
+                        02
+                    </span>
+
+                    <h3>
+                        Meet Farmers
+                    </h3>
+
+                    <p>
+                        Explore approved local farmers and
+                        learn more about the products they
+                        provide.
+                    </p>
+
+                    <a href="farmers.php">
+                        Explore Farmers
+                        <span>↗</span>
+                    </a>
+
+                </article>
+
+
+                <article class="about-feature about-feature-marigold">
+
+                    <span class="feature-number">
+                        03
+                    </span>
+
+                    <h3>
+                        Explore Products
+                    </h3>
+
+                    <p>
+                        Discover fresh products available
+                        from participating local farmers.
+                    </p>
+
+                    <a href="markets.php">
+                        Find Products
+                        <span>↗</span>
+                    </a>
+
+                </article>
+
+
+                <article class="about-feature about-feature-dark">
+
+                    <span class="feature-number">
+                        04
+                    </span>
+
+                    <h3>
+                        Support Local
+                    </h3>
+
+                    <p>
+                        MarketLink connects residents with
+                        local growers and community-based
+                        food producers.
+                    </p>
+
+                </article>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         STATS
+    ====================================================== -->
+
+    <section class="about-stats">
+
+        <div class="container">
+
+            <div class="about-stats-heading">
+
+                <span class="about-eyebrow">
+                    MarketLink AT A GLANCE
+                </span>
+
+                <h2 style="color: #666e5a">
+                    A growing local
+                    <em>community.</em>
+                </h2>
+
+            </div>
+
+
+            <div class="about-stats-grid">
+
+                <div class="about-stat">
+                    <strong>
+                        <?= e($marketCount) ?>
+                    </strong>
+
+                    <span>
+                        Active Markets
+                    </span>
+                </div>
+
+
+                <div class="about-stat">
+                    <strong>
+                        <?= e($farmerCount) ?>
+                    </strong>
+
+                    <span>
+                        Approved Farmers
+                    </span>
+                </div>
+
+
+                <div class="about-stat">
+                    <strong>
+                        <?= e($productCount) ?>
+                    </strong>
+
+                    <span>
+                        Available Products
+                    </span>
+                </div>
+
+
+                <div class="about-stat">
+                    <strong>
+                        <?= e($categoryCount) ?>
+                    </strong>
+
+                    <span>
+                        Product Categories
+                    </span>
                 </div>
 
             </div>
 
-        </section>
+        </div>
 
-        <section>
+    </section>
 
-            <div>
 
-                <h2>
-                    Featured Markets
-                </h2>
+    <!-- =====================================================
+         FEATURED MARKETS
+    ====================================================== -->
 
-                <?php if (empty($featuredMarkets)): ?>
+    <section class="about-markets">
 
+        <div class="container">
+
+            <div class="about-section-heading about-heading-row">
+
+                <div>
+
+                    <span class="about-eyebrow">
+                        PLACES TO EXPLORE
+                    </span>
+
+                    <h2>
+                        Featured
+                        <em>markets.</em>
+                    </h2>
+
+                </div>
+
+                <a
+                    href="markets.php"
+                    class="about-text-link"
+                >
+                    View all markets
+                    <span>↗</span>
+                </a>
+
+            </div>
+
+
+            <?php if (empty($featuredMarkets)): ?>
+
+                <div class="about-empty">
                     <p>
                         No active markets are currently available.
                     </p>
+                </div>
 
-                <?php else: ?>
- <div>
+            <?php else: ?>
 
-                        <?php foreach ($featuredMarkets as $market): ?>
+                <div class="about-market-grid">
 
-                            <article>
+                    <?php foreach ($featuredMarkets as $index => $market): ?>
+
+                        <article class="about-market-card">
+
+                            <div class="about-market-number">
+                                <?= str_pad($index + 1, 2, '0', STR_PAD_LEFT) ?>
+                            </div>
+
+                            <div class="about-market-content">
 
                                 <h3>
                                     <?= e($market['name']) ?>
                                 </h3>
 
-                                <p>
-                                    <?= e($market['address']) ?>
-                                </p>
+                                <?php if (!empty($market['address'])): ?>
+
+                                    <p class="about-market-address">
+                                        <?= e($market['address']) ?>
+                                    </p>
+
+                                <?php endif; ?>
 
                                 <?php if (!empty($market['operating_days'])): ?>
 
-                                    <p>
-                                        Days:
+                                    <p class="about-market-days">
                                         <?= e($market['operating_days']) ?>
                                     </p>
 
@@ -375,7 +540,7 @@ if ($result) {
                                     !empty($market['closing_time'])
                                 ): ?>
 
-                                    <p>
+                                    <span class="about-market-hours">
 
                                         <?= e(
                                             date(
@@ -384,7 +549,7 @@ if ($result) {
                                             )
                                         ) ?>
 
-                                        -
+                                        –
 
                                         <?= e(
                                             date(
@@ -393,51 +558,74 @@ if ($result) {
                                             )
                                         ) ?>
 
-                                    </p>
+                                    </span>
 
                                 <?php endif; ?>
 
-                            </article>
+                            </div>
 
-                        <?php endforeach; ?>
+                        </article>
 
-                    </div>
+                    <?php endforeach; ?>
 
-                    <a href="markets.php">
-                        View All Markets
-                    </a>
+                </div>
 
-                <?php endif; ?>
+            <?php endif; ?>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         PRODUCT CATEGORIES
+    ====================================================== -->
+
+    <section class="about-categories">
+
+        <div class="container">
+
+            <div class="about-section-heading">
+
+                <span class="about-eyebrow">
+                    EXPLORE WHAT'S FRESH
+                </span>
+
+                <h2>
+                    Something for
+                    <em>every table.</em>
+                </h2>
 
             </div>
 
-        </section>
 
-        <section>
+            <?php if (empty($categories)): ?>
 
-            <div>
-
-                <h2>
-                    Product Categories
-                </h2>
-
-                <?php if (empty($categories)): ?>
-
+                <div class="about-empty">
                     <p>
                         No product categories are currently available.
                     </p>
+                </div>
 
-                <?php else: ?>
+            <?php else: ?>
 
-                    <div>
+                <div class="about-category-list">
 
-                        <?php foreach ($categories as $category): ?>
+                    <?php foreach ($categories as $category): ?>
 
-                            <article>
+                        <article class="about-category">
+
+                            <div class="about-category-name">
+
+                                <span>✦</span>
 
                                 <h3>
                                     <?= e($category['name']) ?>
                                 </h3>
+
+                            </div>
+
+                            <div class="about-category-info">
 
                                 <?php if (!empty($category['description'])): ?>
 
@@ -447,72 +635,109 @@ if ($result) {
 
                                 <?php endif; ?>
 
-                                <p>
-
+                                <strong>
                                     <?= e($category['product_count']) ?>
+                                    products
+                                </strong>
 
-                                    available products
+                            </div>
 
-                                </p>
+                        </article>
 
-                            </article>
+                    <?php endforeach; ?>
 
-                        <?php endforeach; ?>
+                </div>
 
-                    </div>
+            <?php endif; ?>
 
-                <?php endif; ?>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         PURPOSE / CTA
+    ====================================================== -->
+
+    <section class="about-purpose">
+
+        <div class="container">
+
+            <div class="about-purpose-inner">
+
+                <div class="about-purpose-copy">
+
+                    <span class="about-eyebrow">
+                        OUR PURPOSE
+                    </span>
+
+                    <h2>
+                        Local food should
+                        be easier to find.
+                    </h2>
+
+                    <p>
+                        MarketLink brings market information,
+                        local farmers, and fresh products
+                        together in one accessible platform.
+                    </p>
+
+                    <p>
+                        Whether you're looking for a nearby
+                        market or discovering what local farmers
+                        have to offer, MarketLink helps you know
+                        where to look.
+                    </p>
+
+                </div>
+
+
+                <div class="about-purpose-action">
+
+                    <span>
+                        HAVE A QUESTION?
+                    </span>
+
+                    <h3>
+                        Let's talk.
+                    </h3>
+
+                    <a
+                        href="contact.php"
+                        class="about-primary-btn"
+                    >
+                        Contact Us
+                    </a>
+
+                </div>
 
             </div>
 
-        </section>
-  <section>
+        </div>
 
-            <div>
+    </section>
 
-                <h2>
-                    Our Purpose
-                </h2>
+</main>
 
-                <p>
-                    FreshFind brings market information,
-                    local farmers, and fresh products together
-                    in one accessible platform.
-                </p>
+<footer class="home-footer">
 
-                <p>
-                    The platform is designed to help visitors
-                    make informed decisions about where and
-                    when to find local produce.
-                </p>
+    <div class="footer-inner">
 
-            </div>
+        <div class="footer-bottom">
 
-        </section>
+            <p>
+                © <?= date('Y') ?> MarketLink. All rights reserved.
+            </p>
 
-        <section>
+            <p>
+                Connecting you with local markets.
+            </p>
 
-            <div>
+        </div>
 
-                <h2>
-                    Need More Information?
-                </h2>
+    </div>
 
-                <p>
-                    If you have questions about FreshFind,
-                    local markets, or participating farmers,
-                    please contact us.
-                </p>
-
-                <a href="contact.php">
-                    Contact Us
-                </a>
-
-            </div>
-
-        </section>
-
-    </main>
+</footer>
 
 </body>
 

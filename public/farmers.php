@@ -100,7 +100,7 @@ $stmt->close();
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Farmers - FreshFind</title>
+    <title>Farmers - MarketLink</title>
 
     <link
         rel="stylesheet"

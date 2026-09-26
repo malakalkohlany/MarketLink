@@ -187,7 +187,7 @@ unset($market);
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Markets - FreshFind</title>
+    <title>Markets - MarketLink</title>
 
     <link
         rel="stylesheet"
@@ -217,7 +217,7 @@ unset($market);
             </span>
 
             <span class="brand-name">
-                FreshFind
+                MarketLink
             </span>
 
         </a>
@@ -255,7 +255,7 @@ unset($market);
             </a>
 
             <a href="../auth/register.php" class="home-join">
-                Join FreshFind
+                Join MarketLink
             </a>
 
         </div>
@@ -651,7 +651,7 @@ unset($market);
                                     </a>
 
                                     <a href="../auth/register.php" class="markets-join-btn">
-                                        Join FreshFind
+                                        Join MarketLink
                                     </a>
                                 </div>
 
@@ -673,7 +673,7 @@ unset($market);
             <div class="footer-bottom">
 
                 <p>
-                    &copy; <?= date('Y') ?> FreshFind.
+                    &copy; <?= date('Y') ?> MarketLink.
                     All rights reserved.
                 </p>
 
