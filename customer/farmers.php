@@ -432,7 +432,7 @@ if ($result) {
 
             right: 12px !important;
 
-            z-index: 100 !important;
+            z-index: 12 !important;
 
             margin: 0 !important;
 
