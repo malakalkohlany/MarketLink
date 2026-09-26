@@ -26,7 +26,7 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-$userId = (int) $_SESSION['user_id'];
+$userId = (int) getUserId();
 $notificationId = isset($_POST['notification_id'])
     ? (int) $_POST['notification_id']
     : 0;
