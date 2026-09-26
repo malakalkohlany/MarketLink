@@ -404,6 +404,67 @@ if ($result) {
             }
         }
 
+        .market-day-filter {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .market-day-filter label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #444;
+            white-space: nowrap;
+        }
+
+        .market-day-filter select {
+            padding: 10px 36px 10px 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #fff;
+            color: #333;
+            font-size: 14px;
+            font-family: inherit;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .market-day-filter select:hover {
+            border-color: #bbb;
+        }
+
+        .market-day-filter select:focus {
+            border-color: #999;
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+        }
+
+        @media (max-width: 600px) {
+            .market-day-filter {
+                width: 100%;
+            }
+
+            .market-day-filter select {
+                flex: 1;
+            }
+        }
+
+        .market-filters {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 700px) {
+            .market-filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+
         .section-title {
 
             font-size: 24px;
@@ -700,15 +761,16 @@ if ($result) {
 
             </div>
 
-            <div class="market-day-filter">
-                <label for="marketDay">Market Day</label>
+            <div class="market-filters">
+                <div class="market-day-filter">
+                    <label for="marketDay">Market Day</label>
 
-                <select id="marketDay">
-                    <option value="">All Days</option>
-                    <option value="Saturday">Saturday</option>
-                    <option value="Sunday">Sunday</option>
-                </select>
-            </div>
+                    <select id="marketDay">
+                        <option value="">All Days</option>
+                        <option value="Saturday">Saturday</option>
+                        <option value="Sunday">Sunday</option>
+                    </select>
+                </div>
 
             <div class="location-filter">
 
