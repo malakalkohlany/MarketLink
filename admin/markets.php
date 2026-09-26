@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../includes/include.php';
 
+requireRole(R_ADMIN);
 
 $errors = [];
 $markets = [];
@@ -49,10 +50,9 @@ if ($stmt) {
 
     <title>Markets | FreshFind</title>
 
-    <link
-        rel="stylesheet"
-        href="../assets/css/style.css"
-    >
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
 
 </head>
 

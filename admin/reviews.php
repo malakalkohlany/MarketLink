@@ -1,11 +1,8 @@
 <?php
 
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../includes/functions.php';
-require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/include.php';
 
-requireRole('admin');
+requireRole(R_ADMIN);
 
 $stmt = $conn->prepare("
     SELECT
@@ -46,10 +43,9 @@ $reviews = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
     <title>Reviews | MarketLink</title>
 
-    <link
-        rel="stylesheet"
-        href="../assets/css/style.css"
-    >
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
 
 </head>
 

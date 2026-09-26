@@ -1,14 +1,8 @@
 <?php
 
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/session.php';
 
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    header('Location: ../auth/login.php');
-    exit;
-}
+requireRole(R_ADMIN);
 
 $id = filter_input(
     INPUT_GET,
@@ -354,10 +348,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <title>Edit Market - MarketLink</title>
 
-    <link
-        rel="stylesheet"
-        href="../assets/css/base.css"
-    >
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
 
     <link
         rel="stylesheet"
