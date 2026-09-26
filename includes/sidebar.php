@@ -30,6 +30,10 @@ function isSubActive(string $page): string
     return $current_page === $page ? 'active' : '';
 }
 
+function hasSubmenu(array $pages): bool
+{
+    return isPage($pages);
+}
 ?>
 <aside class="sidebar">
 

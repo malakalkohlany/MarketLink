@@ -75,81 +75,104 @@ $products = $stmt->get_result();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Stall</title>
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/base.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/navbar.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/sidebar.css"
+    >
 </head>
 <body>
-    <h1>My Stall</h1>
-    <h2>Available Products</h2>
 
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Product Name<</th>
-                <th>Description</th>
-                <th>Price</th>
-                <th>Unit</th>
-                <th>Remaining Stock</th>
-                <th>Image</th>
-                <th>Availability</th>
-            </tr>
-        </thead>
+<?php require_once __DIR__ . '/../includes/navbar.php'; ?>
 
-        <tbody>
-            <?php while ($product = $products->fetch_assoc()): ?>
+<?php require_once __DIR__ . '/../includes/sidebar.php'; ?>
+
+    <main class="main-content">
+
+        <h1>My Stall</h1>
+        <h2>Available Products</h2>
+
+        <table border="1">
+            <thead>
                 <tr>
-                    <td><?= e($product['name']) ?></td>
-                    <td><?= e($product['description']) ?></td>
-                    <td><?= e($product['price']) ?></td>
-                    <td><?= e($product['unit']) ?></td>
-                    <td><?= e($product['stock_quantity']) ?></td>
-                    <td>
-                        <?php if (!empty($product['image'])): ?>
-                           <img
-                              src="../<?= e($product['image']) ?>"
-                              alt="<?= e($product['name']) ?>"
-                              width="100">
-                        <?php else: ?>
-                            No Image
-                        <?php endif; ?>
-                    </td>  
-                                        <td>
-                        <?php if ($product['is_available']): ?>
-                            Available
-                        <?php else: ?>
-                            Unavailable
-                        <?php endif; ?>
-                    </td>             
+                    <th>Product Name<</th>
+                    <th>Description</th>
+                    <th>Price</th>
+                    <th>Unit</th>
+                    <th>Remaining Stock</th>
+                    <th>Image</th>
+                    <th>Availability</th>
                 </tr>
-            <?php endwhile; ?>    
-        </tbody>
-    </table>
+            </thead>
 
-<?php if ($total_products_pages > 1): ?>
+            <tbody>
+                <?php while ($product = $products->fetch_assoc()): ?>
+                    <tr>
+                        <td><?= e($product['name']) ?></td>
+                        <td><?= e($product['description']) ?></td>
+                        <td><?= e($product['price']) ?></td>
+                        <td><?= e($product['unit']) ?></td>
+                        <td><?= e($product['stock_quantity']) ?></td>
+                        <td>
+                            <?php if (!empty($product['image'])): ?>
+                            <img
+                                src="../<?= e($product['image']) ?>"
+                                alt="<?= e($product['name']) ?>"
+                                width="100">
+                            <?php else: ?>
+                                No Image
+                            <?php endif; ?>
+                        </td>  
+                                            <td>
+                            <?php if ($product['is_available']): ?>
+                                Available
+                            <?php else: ?>
+                                Unavailable
+                            <?php endif; ?>
+                        </td>             
+                    </tr>
+                <?php endwhile; ?>    
+            </tbody>
+        </table>
 
-    <div class="pagination">
+        <?php if ($total_products_pages > 1): ?>
 
-        <?php if ($products_page > 1): ?>
-            <a href="?page=<?= $products_page - 1 ?>">
-                Previous
-            </a>
-        <?php endif; ?>
+            <div class="pagination">
 
-        <?php for ($i = 1; $i <= $total_products_pages; $i++): ?>
+                <?php if ($products_page > 1): ?>
+                    <a href="?page=<?= $products_page - 1 ?>">
+                        Previous
+                    </a>
+                <?php endif; ?>
 
-            <a href="?page=<?= $i ?>"
-               <?= $i == $products_page ? 'class="active"' : '' ?>>
-                <?= $i ?>
-            </a>
+                <?php for ($i = 1; $i <= $total_products_pages; $i++): ?>
 
-        <?php endfor; ?>
+                    <a href="?page=<?= $i ?>"
+                    <?= $i == $products_page ? 'class="active"' : '' ?>>
+                        <?= $i ?>
+                    </a>
 
-        <?php if ($products_page < $total_products_pages): ?>
-            <a href="?page=<?= $products_page + 1 ?>">
-                Next
-            </a>
-        <?php endif; ?>
+                <?php endfor; ?>
 
-    </div>
+                <?php if ($products_page < $total_products_pages): ?>
+                    <a href="?page=<?= $products_page + 1 ?>">
+                        Next
+                    </a>
+                <?php endif; ?>
 
-<?php endif; ?>    
+            </div>
+
+        <?php endif; ?>    
+    </main>
 </body>
 </html>
