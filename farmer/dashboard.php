@@ -135,53 +135,6 @@ $stmt->close();
         </section>
 
 
-        <section class="quick-actions">
-
-            <a href="add_product.php" class="dashboard-action">
-
-                <h3>Add Product</h3>
-
-                <p>
-                    Add a new product to your stall.
-                </p>
-
-            </a>
-
-
-            <a href="products.php" class="dashboard-action">
-
-                <h3>Manage Products</h3>
-
-                <p>
-                    View and manage your listed products.
-                </p>
-
-            </a>
-
-
-            <a href="orders.php" class="dashboard-action">
-
-                <h3>View Orders</h3>
-
-                <p>
-                    Review customer orders and pickup requests.
-                </p>
-
-            </a>
-
-
-            <a href="profile.php" class="dashboard-action">
-
-                <h3>Manage Stall</h3>
-
-                <p>
-                    Update your stall information and details.
-                </p>
-
-            </a>
-
-        </section>
-
 
         <section class="dashboard-section">
 
@@ -217,7 +170,6 @@ $stmt->close();
                         <thead>
 
                             <tr>
-                                <th>Order</th>
                                 <th>Customer</th>
                                 <th>Market</th>
                                 <th>Date</th>
@@ -235,9 +187,6 @@ $stmt->close();
 
                                 <tr>
 
-                                    <td>
-                                        #<?= (int) $order['id'] ?>
-                                    </td>
 
                                     <td>
                                         <?= e(
@@ -330,7 +279,7 @@ $stmt->close();
                     <?php foreach ($products as $product): ?>
 
                         <a
-                            href="product_edit.php?id=<?= (int) $product['id'] ?>"
+                            href="edit_product.php?id=<?= (int) $product['id'] ?>"
                             class="product-card"
                         >
 
