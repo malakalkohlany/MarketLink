@@ -190,15 +190,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         (
                             user_id,
                             stall_name,
+                            contact_person,
                             approval_status
                         )
-                        VALUES (?, ?, 'pending')"
+                        VALUES (?, ?, ?, 'pending')"
                     );
 
                     $stmt2->bind_param(
-                        'is',
+                        'iss',
                         $user_id,
-                        $stall_name
+                        $stall_name,
+                        $name
                     );
 
                     $stmt2->execute();
