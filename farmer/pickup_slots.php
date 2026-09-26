@@ -86,9 +86,76 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $stmt->close();
-
     $success_message = "Pickup slot added successfully.";
+
 }
+// Pickup Slots Pagination
+   $slots_per_page = 10;
+
+   $slots_page = isset($_GET['slots_page']) ? (int)$_GET['slots_page'] : 1;
+
+   if ($slots_page < 1) {
+       $slots_page = 1;
+}
+
+$slots_offset = ($slots_page - 1) * $slots_per_page;
+
+    
+
+// Count total pickup slots
+$count_slots_stmt = $conn->prepare("
+    SELECT COUNT(*) AS total_slots
+    FROM pickup_slots
+    WHERE farmer_id = ?
+");
+
+$count_slots_stmt->bind_param("i", $farmer_id);
+$count_slots_stmt->execute();
+
+$count_slots_result = $count_slots_stmt->get_result();
+$total_slots = $count_slots_result->fetch_assoc()['total_slots'];
+
+$count_slots_stmt->close();
+
+$total_slots_pages = ceil($total_slots / $slots_per_page);
+
+if ($total_slots_pages > 0 && $slots_page > $total_slots_pages) {
+    $slots_page = $total_slots_pages;
+    $slots_offset = ($slots_page - 1) * $slots_per_page;
+}    
+// Orders Pagination
+$orders_per_page = 10;
+
+$orders_page = isset($_GET['orders_page']) ? (int)$_GET['orders_page'] : 1;
+
+if ($orders_page < 1) {
+    $orders_page = 1;
+}
+
+$orders_offset = ($orders_page - 1) * $orders_per_page;
+
+// Count total orders
+$count_orders_stmt = $conn->prepare("
+    SELECT COUNT(*) AS total_orders
+    FROM orders
+    WHERE farmer_id = ?
+");
+
+$count_orders_stmt->bind_param("i", $farmer_id);
+$count_orders_stmt->execute();
+
+$count_orders_result = $count_orders_stmt->get_result();
+$total_orders = $count_orders_result->fetch_assoc()['total_orders'];
+
+$count_orders_stmt->close();
+
+$total_orders_pages = ceil($total_orders / $orders_per_page);
+
+if ($total_orders_pages > 0 && $orders_page > $total_orders_pages) {
+    $orders_page = $total_orders_pages;
+    $orders_offset = ($orders_page - 1) * $orders_per_page;
+}
+
 $slot_stmt = $conn->prepare("
     SELECT
         pickup_slots.id,
@@ -104,9 +171,10 @@ $slot_stmt = $conn->prepare("
         ON pickup_slots.market_id = markets.id
     WHERE pickup_slots.farmer_id = ?
     ORDER BY pickup_slots.day_of_week ASC, pickup_slots.start_time ASC
+    LIMIT ? OFFSET ?
 ");
 
-$slot_stmt->bind_param("i", $farmer_id);
+$slot_stmt->bind_param("iii", $farmer_id, $slots_per_page, $slots_offset);
 $slot_stmt->execute();
 
 $slots = $slot_stmt->get_result();
@@ -126,9 +194,10 @@ $order_stmt = $conn->prepare("
         ON orders.market_id = markets.id
     WHERE orders.farmer_id = ?
     ORDER BY pickup_slots.day_of_week ASC, pickup_slots.start_time ASC
+    LIMIT ? OFFSET ?
 ");
 
-$order_stmt->bind_param("i", $farmer_id);
+$order_stmt->bind_param("iii", $farmer_id, $orders_per_page, $orders_offset);
 $order_stmt->execute();
 $orders = $order_stmt->get_result();
 
@@ -226,9 +295,35 @@ $orders = $order_stmt->get_result();
              </tr>
             <?php endwhile; ?>
         </tbody>
-    </table>
+    </table>    
+<?php if ($total_slots_pages > 1): ?>
 
-    <h2>My Pickup Slots</h2>
+    <div class="pagination">
+
+        <?php if ($slots_page > 1): ?>
+            <a href="?slots_page=<?= $slots_page - 1 ?>&orders_page=<?= $orders_page ?>">
+                Previous
+            </a>
+        <?php endif; ?>
+
+        <?php for ($i = 1; $i <= $total_slots_pages; $i++): ?>
+            <a href="?slots_page=<?= $i ?>&orders_page=<?= $orders_page ?>"
+               <?= $i == $slots_page ? 'class="active"' : '' ?>>
+                <?= $i ?>
+            </a>
+        <?php endfor; ?>
+
+        <?php if ($slots_page < $total_slots_pages): ?>
+            <a href="?slots_page=<?= $slots_page + 1 ?>&orders_page=<?= $orders_page ?>">
+                Next
+            </a>
+        <?php endif; ?>
+
+    </div>
+
+<?php endif; ?>
+
+    <h2>Orders Using My Pickup Slots</h2>
     <table border="1">
         <thead>
             <tr>
@@ -257,6 +352,31 @@ $orders = $order_stmt->get_result();
         </tbody>
     </table>
 
+<?php if ($total_orders_pages > 1): ?>
 
+    <div class="pagination">
+
+        <?php if ($orders_page > 1): ?>
+            <a href="?orders_page=<?= $orders_page - 1 ?>&slots_page=<?= $slots_page ?>">
+                Previous
+            </a>
+        <?php endif; ?>
+
+        <?php for ($i = 1; $i <= $total_orders_pages; $i++): ?>
+            <a href="?orders_page=<?= $i ?>&slots_page=<?= $slots_page ?>"
+               <?= $i == $orders_page ? 'class="active"' : '' ?>>
+                <?= $i ?>
+            </a>
+        <?php endfor; ?>
+
+        <?php if ($orders_page < $total_orders_pages): ?>
+            <a href="?orders_page=<?= $orders_page + 1 ?>&slots_page=<?= $slots_page ?>">
+                Next
+            </a>
+        <?php endif; ?>
+
+    </div>
+
+<?php endif; ?>
 </body>
 </html>

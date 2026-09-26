@@ -147,9 +147,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // ==================================================
 
                 } else {
-
-                    // Farmer accounts start as pending.
-                    $status = 'pending';
+                    
+                    $status = 'active';
 
                     $stmt = $conn->prepare(
                         "INSERT INTO users
@@ -185,6 +184,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     // Create farmer record
                     // --------------------------------------------------
 
+                    $farmer_status = 'pending';
+
                     $stmt2 = $conn->prepare(
                         "INSERT INTO farmers
                         (
@@ -193,14 +194,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             contact_person,
                             approval_status
                         )
-                        VALUES (?, ?, ?, 'pending')"
+                        VALUES (?, ?, ?, ?)"
                     );
 
                     $stmt2->bind_param(
-                        'iss',
+                        'isss',
                         $user_id,
                         $stall_name,
-                        $name
+                        $name,
+                        $farmer_status
                     );
 
                     $stmt2->execute();

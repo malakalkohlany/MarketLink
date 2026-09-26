@@ -8,29 +8,19 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 
 $product_id = (int) $_GET['id'];
 
-$user_id = $_SESSION['user_id'] ?? null;
+$user_id = getUserId();
 
 if (!$user_id) {
     die("You must be logged in.");
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| Get Farmer
-|--------------------------------------------------------------------------
-*/
-
+// Get farmer
 $stmt = $conn->prepare("
     SELECT id
     FROM farmers
     WHERE user_id = ?
     LIMIT 1
 ");
-
-if (!$stmt) {
-    die("Failed to prepare farmer query: " . $conn->error);
-}
 
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -46,17 +36,7 @@ if (!$farmer) {
 
 $farmer_id = (int) $farmer['id'];
 
-
-/*
-|--------------------------------------------------------------------------
-| Get Product
-|--------------------------------------------------------------------------
-|
-| We get the product BEFORE processing POST so that we know
-| the current image and can preserve it if no new image is uploaded.
-|
-*/
-
+// Get product
 $product_stmt = $conn->prepare("
     SELECT
         id,
@@ -73,16 +53,7 @@ $product_stmt = $conn->prepare("
     LIMIT 1
 ");
 
-if (!$product_stmt) {
-    die("Failed to prepare product query: " . $conn->error);
-}
-
-$product_stmt->bind_param(
-    "ii",
-    $product_id,
-    $farmer_id
-);
-
+$product_stmt->bind_param("ii", $product_id, $farmer_id);
 $product_stmt->execute();
 
 $product_result = $product_stmt->get_result();
@@ -94,33 +65,15 @@ if (!$product) {
     die("Product not found.");
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| Update Product
-|--------------------------------------------------------------------------
-*/
-
+// Update product
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $name = trim($_POST['name'] ?? '');
-
     $category_id = (int) ($_POST['category_id'] ?? 0);
-
     $description = trim($_POST['description'] ?? '');
-
     $price = (float) ($_POST['price'] ?? 0);
-
     $unit = trim($_POST['unit'] ?? '');
-
     $stock_quantity = (float) ($_POST['stock_quantity'] ?? 0);
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Validate Form
-    |--------------------------------------------------------------------------
-    */
 
     if (
         empty($name) ||
@@ -132,22 +85,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die("Please fill all required fields correctly.");
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Keep Existing Image
-    |--------------------------------------------------------------------------
-    */
-
+    // Keep current image
     $image_db_path = $product['image'];
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Handle New Image
-    |--------------------------------------------------------------------------
-    */
-
+    // Upload new image if selected
     if (
         isset($_FILES['image']) &&
         $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE
@@ -159,21 +100,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $image_tmp = $_FILES['image']['tmp_name'];
 
-        /*
-        | Validate that the uploaded file is actually an image.
-        */
         $image_info = getimagesize($image_tmp);
 
         if ($image_info === false) {
             die("The uploaded file is not a valid image.");
         }
 
-        /*
-        | Allow only common image types.
-        */
         $allowed_types = [
             'image/jpeg' => 'jpg',
-            'image/png'  => 'png',
+            'image/png' => 'png',
             'image/webp' => 'webp'
         ];
 
@@ -191,19 +126,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $image_db_path = 'assets/images/products/' . $new_image_name;
 
-
         if (!move_uploaded_file($image_tmp, $image_path)) {
             die("Failed to save the uploaded image.");
         }
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Update Database
-    |--------------------------------------------------------------------------
-    */
-
+    // Update database
     $stmt = $conn->prepare("
         UPDATE products
         SET
@@ -217,10 +145,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         WHERE id = ?
           AND farmer_id = ?
     ");
-
-    if (!$stmt) {
-        die("Failed to prepare update query: " . $conn->error);
-    }
 
     $stmt->bind_param(
         "issdsdsii",
@@ -241,24 +165,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $stmt->close();
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Redirect
-    |--------------------------------------------------------------------------
-    */
-
     header("Location: inventory.php");
     exit;
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| Get Active Categories
-|--------------------------------------------------------------------------
-*/
-
+// Get active categories
 $category_stmt = $conn->prepare("
     SELECT
         id,
@@ -268,10 +179,6 @@ $category_stmt = $conn->prepare("
     ORDER BY name ASC
 ");
 
-if (!$category_stmt) {
-    die("Failed to prepare category query: " . $conn->error);
-}
-
 $category_stmt->execute();
 
 $categories = $category_stmt->get_result();
@@ -279,186 +186,181 @@ $categories = $category_stmt->get_result();
 ?>
 
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-    <title>Edit Product | MarketLink</title>
-    <link rel="stylesheet" href="../assets/css/base.css">
-    <link rel="stylesheet" href="../assets/css/navbar.css">
-    <link rel="stylesheet" href="../assets/css/sidebar.css">
+<title>Edit Product | MarketLink</title>
+
+<link rel="stylesheet" href="../assets/css/base.css">
+<link rel="stylesheet" href="../assets/css/navbar.css">
+<link rel="stylesheet" href="../assets/css/sidebar.css">
 
 </head>
 
 <body>
 
-    <?php include __DIR__ . '/../includes/navbar.php'; ?>
-    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
+<?php include __DIR__ . '/../includes/navbar.php'; ?>
 
-    <main class="main-content">
+<?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-        <h1>Edit Product</h1>
+<main class="main-content">
 
-        <form
-            method="POST"
-            enctype="multipart/form-data"
+    <h1>Edit Product</h1>
+
+    <form
+        method="POST"
+        enctype="multipart/form-data"
+    >
+
+        <label for="name">
+            Product Name
+        </label>
+
+        <input
+            type="text"
+            id="name"
+            name="name"
+            value="<?= htmlspecialchars($product['name']) ?>"
+            required
         >
 
-            <label for="name">
-                Product Name
-            </label>
+        <br><br>
 
-            <input
-                type="text"
-                id="name"
-                name="name"
-                value="<?= htmlspecialchars($product['name']) ?>"
-                required
-            >
+        <label for="category_id">
+            Category:
+        </label>
 
-            <br><br>
+        <select
+            id="category_id"
+            name="category_id"
+            required
+        >
 
+            <option value="">
+                Select Category
+            </option>
 
-            <label for="category_id">
-                Category:
-            </label>
+            <?php while ($category = $categories->fetch_assoc()): ?>
 
-            <select
-                id="category_id"
-                name="category_id"
-                required
-            >
-
-                <option value="">
-                    Select Category
+                <option
+                    value="<?= (int) $category['id'] ?>"
+                    <?= (int) $category['id'] === (int) $product['category_id']
+                        ? 'selected'
+                        : ''
+                    ?>
+                >
+                    <?= htmlspecialchars($category['name']) ?>
                 </option>
 
-                <?php while ($category = $categories->fetch_assoc()): ?>
+            <?php endwhile; ?>
 
-                    <option
-                        value="<?= (int) $category['id'] ?>"
-                        <?= (int) $category['id'] === (int) $product['category_id']
-                            ? 'selected'
-                            : ''
-                        ?>
-                    >
-                        <?= htmlspecialchars($category['name']) ?>
-                    </option>
+        </select>
 
-                <?php endwhile; ?>
+        <br><br>
 
-            </select>
+        <label for="description">
+            Description:
+        </label>
 
-            <br><br>
+        <textarea
+            id="description"
+            name="description"
+            rows="5"
+        ><?= htmlspecialchars($product['description'] ?? '') ?></textarea>
 
+        <br><br>
 
-            <label for="description">
-                Description:
-            </label>
+        <label for="price">
+            Price:
+        </label>
 
-            <textarea
-                id="description"
-                name="description"
-                rows="5"
-            ><?= htmlspecialchars($product['description'] ?? '') ?></textarea>
+        <input
+            type="number"
+            id="price"
+            name="price"
+            step="0.01"
+            min="0"
+            value="<?= htmlspecialchars($product['price']) ?>"
+            required
+        >
 
-            <br><br>
+        <br><br>
 
+        <label for="unit">
+            Unit:
+        </label>
 
-            <label for="price">
-                Price:
-            </label>
+        <input
+            type="text"
+            id="unit"
+            name="unit"
+            value="<?= htmlspecialchars($product['unit']) ?>"
+            required
+        >
 
-            <input
-                type="number"
-                id="price"
-                name="price"
-                step="0.01"
-                min="0"
-                value="<?= htmlspecialchars($product['price']) ?>"
-                required
+        <br><br>
+
+        <label for="stock_quantity">
+            Stock Quantity:
+        </label>
+
+        <input
+            type="number"
+            id="stock_quantity"
+            name="stock_quantity"
+            step="0.01"
+            min="0"
+            value="<?= htmlspecialchars($product['stock_quantity']) ?>"
+            required
+        >
+
+        <br><br>
+
+        <label for="image">
+            Product Image:
+        </label>
+
+        <input
+            type="file"
+            id="image"
+            name="image"
+            accept="image/jpeg,image/png,image/webp"
+        >
+
+        <br><br>
+
+        <?php if (!empty($product['image'])): ?>
+
+            <p>
+                Current Image:
+            </p>
+
+            <img
+                src="../<?= htmlspecialchars($product['image']) ?>"
+                alt="Current product image"
+                width="120"
             >
 
-            <br><br>
+        <?php endif; ?>
 
+        <br><br>
 
-            <label for="unit">
-                Unit:
-            </label>
+        <button type="submit">
+            Update Product
+        </button>
 
-            <input
-                type="text"
-                id="unit"
-                name="unit"
-                value="<?= htmlspecialchars($product['unit']) ?>"
-                required
-            >
+    </form>
 
-            <br><br>
-
-
-            <label for="stock_quantity">
-                Stock Quantity:
-            </label>
-
-            <input
-                type="number"
-                id="stock_quantity"
-                name="stock_quantity"
-                step="0.01"
-                min="0"
-                value="<?= htmlspecialchars($product['stock_quantity']) ?>"
-                required
-            >
-
-            <br><br>
-
-
-            <label for="image">
-                Product Image:
-            </label>
-
-            <input
-                type="file"
-                id="image"
-                name="image"
-                accept="image/jpeg,image/png,image/webp"
-            >
-
-            <br><br>
-
-
-            <?php if (!empty($product['image'])): ?>
-
-                <p>
-                    Current Image:
-                </p>
-
-                <img
-                    src="../<?= htmlspecialchars($product['image']) ?>"
-                    alt="Current product image"
-                    width="120"
-                >
-
-            <?php endif; ?>
-
-            <br><br>
-
-
-            <button type="submit">
-                Update Product
-            </button>
-
-        </form>
-        
-    </main>
+</main>
 
 </body>
 
