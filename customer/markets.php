@@ -700,6 +700,16 @@ if ($result) {
 
             </div>
 
+            <div class="market-day-filter">
+                <label for="marketDay">Market Day</label>
+
+                <select id="marketDay">
+                    <option value="">All Days</option>
+                    <option value="Saturday">Saturday</option>
+                    <option value="Sunday">Sunday</option>
+                </select>
+            </div>
+
             <div class="location-filter">
 
                 <button
@@ -767,10 +777,9 @@ if ($result) {
                         ?>
 
 
-                        <div
-                            class="market-card"
-                            data-market-id="<?= $marketId ?>"
-                        >
+                        <div class="market-card"
+                            data-market-id="<?= $market['id']; ?>"
+                            data-operating-days="<?= e($market['operating_days'] ?? ''); ?>">
 
 
                             <!-- =================================================
@@ -932,6 +941,37 @@ if ($result) {
                 JSON_UNESCAPED_UNICODE |
                 JSON_UNESCAPED_SLASHES
             ); ?>;
+
+        const marketDayFilter =
+            document.getElementById('marketDay');
+
+        marketDayFilter.addEventListener('change', function () {
+
+            const selectedDay = this.value;
+
+            const cards =
+                document.querySelectorAll('.market-card');
+
+            cards.forEach(function (card) {
+
+                const operatingDays =
+                    card.dataset.operatingDays || '';
+
+                if (
+                    selectedDay === '' ||
+                    operatingDays
+                        .split(',')
+                        .map(day => day.trim())
+                        .includes(selectedDay)
+                ) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+
+            });
+
+        });
 
         let map;
 
