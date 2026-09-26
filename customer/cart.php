@@ -543,7 +543,7 @@ foreach ($cart as $item) {
                     <!-- We'll connect this to confirm_order.php later -->
 
                     <a
-                        href="#"
+                        href="confirm_order.php"
                         class="checkout-button"
                     >
                         Confirm Order
