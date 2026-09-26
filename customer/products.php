@@ -449,17 +449,22 @@ if ($marketResult) {
         ===================================================== */
 
         .page-header {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .page-header h1 {
             margin: 0 0 8px;
             font-size: 30px;
+            line-height: 1.2;
+            font-weight: 700;
+            color: #222;
         }
 
         .page-header p {
             margin: 0;
             color: #666;
+            font-size: 15px;
+            line-height: 1.5;
         }
 
 
@@ -560,6 +565,22 @@ if ($marketResult) {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 8px;
+}
+
+/* =====================================================
+   No Matching Products
+===================================================== */
+
+#noMatchingProducts {
+    margin-bottom: 24px;
+    padding: 28px 20px;
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+    border-radius: 12px;
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+    line-height: 1.5;
 }
 
         /* =====================================================
