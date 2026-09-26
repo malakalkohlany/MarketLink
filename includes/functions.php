@@ -87,4 +87,39 @@ function old(
 }
 
 
-?>
+
+function createNotification(
+    mysqli $conn,
+    int $userId,
+    string $type,
+    string $title,
+    string $message
+): bool {
+    $stmt = $conn->prepare("
+        INSERT INTO notifications (
+            user_id,
+            type,
+            title,
+            message
+        )
+        VALUES (?, ?, ?, ?)
+    ");
+
+    if (!$stmt) {
+        return false;
+    }
+
+    $stmt->bind_param(
+        "isss",
+        $userId,
+        $type,
+        $title,
+        $message
+    );
+
+    $success = $stmt->execute();
+
+    $stmt->close();
+
+    return $success;
+}
