@@ -44,8 +44,9 @@ $stmt = $conn->prepare("
     LEFT JOIN farmers f
         ON p.farmer_id = f.id
     WHERE p.id = ?
-      AND p.is_available = 1
-      AND p.moderation_status = 'approved'
+    AND p.is_available = 1
+    AND p.moderation_status = 'approved'
+    AND f.approval_status = 'approved'
     LIMIT 1
 ");
 
@@ -172,9 +173,13 @@ if (isset($_GET['error'])) {
     >
 
     <title>
-        <?php echo htmlspecialchars($product['name']); ?>
+        <?php echo e($product['name']); ?>
         - MarketLink
     </title>
+
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
 
     <style>
 
@@ -535,342 +540,349 @@ if (isset($_GET['error'])) {
 
 <body>
 
-<div class="details-container">
+    <?php include __DIR__ . '/../includes/navbar.php'; ?>
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-    <a
-        href="products.php"
-        class="back-link"
-    >
-        ← Back to Products
-    </a>
 
-    <?php if ($errorMessage): ?>
+    <main class="main-content">
 
-        <div class="error-message">
-            <?php echo htmlspecialchars($errorMessage); ?>
-        </div>
+        <div class="details-container">
 
-    <?php endif; ?>
+            <a
+                href="products.php"
+                class="back-link"
+            >
+                ← Back to Products
+            </a>
 
-    <div class="product-card">
+            <?php if ($errorMessage): ?>
 
-        <div class="top-section">
+                <div class="error-message">
+                    <?php echo htmlspecialchars($errorMessage); ?>
+                </div>
 
-            <div class="product-image-container">
+            <?php endif; ?>
 
-                <?php if (!empty($product['image'])): ?>
+            <div class="product-card">
 
-                    <img
-                        src="../uploads/products/<?php echo htmlspecialchars($product['image']); ?>"
-                        alt="<?php echo htmlspecialchars($product['name']); ?>"
-                        class="product-image"
-                    >
+                <div class="top-section">
 
-                <?php else: ?>
+                    <div class="product-image-container">
 
-                    <div class="no-image">
-                        No Image Available
+                        <?php if (!empty($product['image'])): ?>
+
+                            <img
+                                src="../uploads/products/<?php echo htmlspecialchars($product['image']); ?>"
+                                alt="<?php echo htmlspecialchars($product['name']); ?>"
+                                class="product-image"
+                            >
+
+                        <?php else: ?>
+
+                            <div class="no-image">
+                                No Image Available
+                            </div>
+
+                        <?php endif; ?>
+
                     </div>
 
-                <?php endif; ?>
+                    <div class="product-info">
 
-            </div>
+                        <?php if (!empty($product['category_name'])): ?>
 
-            <div class="product-info">
+                            <div class="category-badge">
+                                <?php
+                                echo htmlspecialchars(
+                                    $product['category_name']
+                                );
+                                ?>
+                            </div>
 
-                <?php if (!empty($product['category_name'])): ?>
+                        <?php endif; ?>
 
-                    <div class="category-badge">
-                        <?php
-                        echo htmlspecialchars(
-                            $product['category_name']
-                        );
-                        ?>
-                    </div>
+                        <h1 class="product-name">
+                            <?php
+                            echo htmlspecialchars(
+                                $product['name']
+                            );
+                            ?>
+                        </h1>
 
-                <?php endif; ?>
-
-                <h1 class="product-name">
-                    <?php
-                    echo htmlspecialchars(
-                        $product['name']
-                    );
-                    ?>
-                </h1>
-
-                <div class="product-description">
-
-                    <?php
-                    echo nl2br(
-                        htmlspecialchars(
-                            $product['description']
-                            ?? 'No description available.'
-                        )
-                    );
-                    ?>
-
-                </div>
-
-                <div class="price">
-
-                    $
-                    <?php
-                    echo number_format(
-                        (float) $product['price'],
-                        2
-                    );
-                    ?>
-
-                </div>
-
-                <div class="unit">
-
-                    Price per
-                    <?php
-                    echo htmlspecialchars(
-                        $product['unit']
-                    );
-                    ?>
-
-                </div>
-
-                <div class="info-box">
-
-                    <div class="info-row">
-
-                        <span class="info-label">
-                            Stock
-                        </span>
-
-                        <span class="info-value">
+                        <div class="product-description">
 
                             <?php
+                            echo nl2br(
+                                htmlspecialchars(
+                                    $product['description']
+                                    ?? 'No description available.'
+                                )
+                            );
+                            ?>
+
+                        </div>
+
+                        <div class="price">
+
+                            $
+                            <?php
                             echo number_format(
-                                (float) $product['stock_quantity'],
+                                (float) $product['price'],
                                 2
                             );
                             ?>
 
+                        </div>
+
+                        <div class="unit">
+
+                            Price per
                             <?php
                             echo htmlspecialchars(
                                 $product['unit']
                             );
                             ?>
 
-                        </span>
+                        </div>
 
-                    </div>
+                        <div class="info-box">
 
-                    <div class="info-row">
+                            <div class="info-row">
 
-                        <span class="info-label">
-                            Availability
-                        </span>
-
-                        <span class="info-value">
-
-                            <?php if ($product['is_available']): ?>
-
-                                <span class="stock-available">
-                                    Available
+                                <span class="info-label">
+                                    Stock
                                 </span>
+
+                                <span class="info-value">
+
+                                    <?php
+                                    echo number_format(
+                                        (float) $product['stock_quantity'],
+                                        2
+                                    );
+                                    ?>
+
+                                    <?php
+                                    echo htmlspecialchars(
+                                        $product['unit']
+                                    );
+                                    ?>
+
+                                </span>
+
+                            </div>
+
+                            <div class="info-row">
+
+                                <span class="info-label">
+                                    Availability
+                                </span>
+
+                                <span class="info-value">
+
+                                    <?php if ($product['is_available']): ?>
+
+                                        <span class="stock-available">
+                                            Available
+                                        </span>
+
+                                    <?php else: ?>
+
+                                        <span class="stock-unavailable">
+                                            Not Available
+                                        </span>
+
+                                    <?php endif; ?>
+
+                                </span>
+
+                            </div>
+
+                            <div class="info-row">
+
+                                <span class="info-label">
+                                    Product ID
+                                </span>
+
+                                <span class="info-value">
+
+                                    #
+                                    <?php
+                                    echo (int) $product['id'];
+                                    ?>
+
+                                </span>
+
+                            </div>
+
+                            <div class="info-row">
+
+                                <span class="info-label">
+                                    Category
+                                </span>
+
+                                <span class="info-value">
+
+                                    <?php
+                                    echo htmlspecialchars(
+                                        $product['category_name']
+                                        ?? 'Not specified'
+                                    );
+                                    ?>
+
+                                </span>
+
+                            </div>
+
+                            <div class="info-row">
+
+                                <span class="info-label">
+                                    Added
+                                </span>
+
+                                <span class="info-value">
+
+                                    <?php
+                                    echo date(
+                                        'M d, Y',
+                                        strtotime(
+                                            $product['created_at']
+                                        )
+                                    );
+                                    ?>
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="actions">
+
+                            <a
+                                href="products.php"
+                                class="button back-button"
+                            >
+                                Back
+                            </a>
+
+                            <?php if ((float) $product['stock_quantity'] > 0): ?>
+
+                                <a
+                                    href="add_to_cart.php?id=<?= (int) $product['id'] ?>"
+                                    class="button cart-button"
+                                >
+                                    Add to Cart
+                                </a>
 
                             <?php else: ?>
 
-                                <span class="stock-unavailable">
-                                    Not Available
-                                </span>
+                                <button
+                                    type="button"
+                                    class="button"
+                                    style="background:#e74c3c;color:white;cursor:not-allowed;"
+                                    disabled
+                                >
+                                    Out of Stock
+                                </button>
 
                             <?php endif; ?>
 
-                        </span>
+                        </div>
+
+                        
 
                     </div>
 
-                    <div class="info-row">
+                </div>
 
-                        <span class="info-label">
-                            Product ID
-                        </span>
+                <div class="farmer-section">
 
-                        <span class="info-value">
+                    <h2 class="section-title">
+                        Farmer Information
+                    </h2>
 
-                            #
-                            <?php
-                            echo (int) $product['id'];
-                            ?>
+                    <div class="farmer-card">
 
-                        </span>
-
-                    </div>
-
-                    <div class="info-row">
-
-                        <span class="info-label">
-                            Category
-                        </span>
-
-                        <span class="info-value">
+                        <div class="farmer-name">
 
                             <?php
                             echo htmlspecialchars(
-                                $product['category_name']
-                                ?? 'Not specified'
+                                $product['farmer_name']
+                                ?? 'Unknown Farmer'
                             );
                             ?>
 
-                        </span>
+                        </div>
 
-                    </div>
+                        <div class="farmer-row">
 
-                    <div class="info-row">
+                            <span class="farmer-label">
+                                Contact Person:
+                            </span>
 
-                        <span class="info-label">
-                            Added
-                        </span>
+                            <span class="farmer-value">
 
-                        <span class="info-value">
+                                <?php
+                                echo htmlspecialchars(
+                                    $product['farmer_contact']
+                                    ?? 'Not available'
+                                );
+                                ?>
 
-                            <?php
-                            echo date(
-                                'M d, Y',
-                                strtotime(
-                                    $product['created_at']
-                                )
-                            );
-                            ?>
+                            </span>
 
-                        </span>
+                        </div>
+
+                        <div class="farmer-row">
+
+                            <span class="farmer-label">
+                                Location:
+                            </span>
+
+                            <span class="farmer-value">
+
+                                <?php
+                                echo htmlspecialchars(
+                                    $product['farmer_address']
+                                    ?? 'Not available'
+                                );
+                                ?>
+
+                            </span>
+
+                        </div>
+
+                        <?php if (!empty($product['farmer_description'])): ?>
+
+                            <div class="farmer-description">
+
+                                <span class="farmer-label">
+                                    About the Farmer:
+                                </span>
+
+                                <br>
+
+                                <?php
+                                echo nl2br(
+                                    htmlspecialchars(
+                                        $product['farmer_description']
+                                    )
+                                );
+                                ?>
+
+                            </div>
+
+                        <?php endif; ?>
 
                     </div>
 
                 </div>
-
-                <div class="actions">
-
-                    <a
-                        href="products.php"
-                        class="button back-button"
-                    >
-                        Back
-                    </a>
-
-                    <?php if ((float) $product['stock_quantity'] > 0): ?>
-
-                        <a
-                            href="add_to_cart.php?id=<?= (int) $product['id'] ?>"
-                            class="button cart-button"
-                        >
-                            Add to Cart
-                        </a>
-
-                    <?php else: ?>
-
-                        <button
-                            type="button"
-                            class="button"
-                            style="background:#e74c3c;color:white;cursor:not-allowed;"
-                            disabled
-                        >
-                            Out of Stock
-                        </button>
-
-                    <?php endif; ?>
-
-                </div>
-
-                
 
             </div>
 
         </div>
-
-        <div class="farmer-section">
-
-            <h2 class="section-title">
-                Farmer Information
-            </h2>
-
-            <div class="farmer-card">
-
-                <div class="farmer-name">
-
-                    <?php
-                    echo htmlspecialchars(
-                        $product['farmer_name']
-                        ?? 'Unknown Farmer'
-                    );
-                    ?>
-
-                </div>
-
-                <div class="farmer-row">
-
-                    <span class="farmer-label">
-                        Contact Person:
-                    </span>
-
-                    <span class="farmer-value">
-
-                        <?php
-                        echo htmlspecialchars(
-                            $product['farmer_contact']
-                            ?? 'Not available'
-                        );
-                        ?>
-
-                    </span>
-
-                </div>
-
-                <div class="farmer-row">
-
-                    <span class="farmer-label">
-                        Location:
-                    </span>
-
-                    <span class="farmer-value">
-
-                        <?php
-                        echo htmlspecialchars(
-                            $product['farmer_address']
-                            ?? 'Not available'
-                        );
-                        ?>
-
-                    </span>
-
-                </div>
-
-                <?php if (!empty($product['farmer_description'])): ?>
-
-                    <div class="farmer-description">
-
-                        <span class="farmer-label">
-                            About the Farmer:
-                        </span>
-
-                        <br>
-
-                        <?php
-                        echo nl2br(
-                            htmlspecialchars(
-                                $product['farmer_description']
-                            )
-                        );
-                        ?>
-
-                    </div>
-
-                <?php endif; ?>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
+    </main>
 
 <script>
 

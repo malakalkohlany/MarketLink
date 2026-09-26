@@ -584,8 +584,6 @@ while ($row = $result->fetch_assoc()) {
 
 
     <?php include __DIR__ . '/../includes/navbar.php'; ?>
-
-
     <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
 
