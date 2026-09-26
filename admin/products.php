@@ -5,6 +5,67 @@ require_once __DIR__ . '/../includes/include.php';
 requireRole(R_ADMIN);
 
 $errors = [];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $product_id = (int) ($_POST['product_id'] ?? 0);
+    $action = $_POST['action'] ?? '';
+
+    if ($product_id <= 0) {
+        $errors[] = 'Invalid product.';
+    } else {
+
+        if ($action === 'approve') {
+
+            $stmt = $conn->prepare("
+                UPDATE products
+                SET moderation_status = 'approved'
+                WHERE id = ?
+            ");
+
+            $stmt->bind_param("i", $product_id);
+            $stmt->execute();
+            $stmt->close();
+
+        } elseif ($action === 'reject') {
+
+            $stmt = $conn->prepare("
+                UPDATE products
+                SET moderation_status = 'rejected'
+                WHERE id = ?
+            ");
+
+            $stmt->bind_param("i", $product_id);
+            $stmt->execute();
+            $stmt->close();
+
+        } elseif ($action === 'remove') {
+
+            $stmt = $conn->prepare("
+                UPDATE products
+                SET is_available = 0
+                WHERE id = ?
+            ");
+
+            $stmt->bind_param("i", $product_id);
+            $stmt->execute();
+            $stmt->close();
+
+        } elseif ($action === 'restore') {
+
+            $stmt = $conn->prepare("
+                UPDATE products
+                SET is_available = 1
+                WHERE id = ?
+            ");
+
+            $stmt->bind_param("i", $product_id);
+            $stmt->execute();
+            $stmt->close();
+        }
+    }
+}
+
 $products = [];
 
 $stmt = $conn->prepare("
@@ -17,7 +78,6 @@ $stmt = $conn->prepare("
         p.stock_quantity,
         p.image,
         p.is_available,
-        p.moderation_status,
         p.created_at,
         f.stall_name AS farmer_name,
         c.name AS category_name
@@ -124,7 +184,7 @@ if ($stmt) {
                     <?php foreach ($errors as $error): ?>
 
                         <p>
-                            <?= htmlspecialchars($error) ?>
+                            <?= e($error) ?>
                         </p>
 
                     <?php endforeach; ?>
@@ -171,6 +231,8 @@ if ($stmt) {
 
                                 <th>Added</th>
 
+                                <th>Actions</th>
+
                             </tr>
 
                         </thead>
@@ -189,9 +251,6 @@ if ($stmt) {
                                             ? 'Available'
                                             : 'Unavailable';
 
-                                    $moderation =
-                                        $product['moderation_status']
-                                            ?? 'pending';
 
                                     ?>
 
@@ -200,7 +259,9 @@ if ($stmt) {
                                         <!-- ID -->
 
                                         <td>
+
                                             <?= (int) $product['id'] ?>
+
                                         </td>
 
 
@@ -209,9 +270,10 @@ if ($stmt) {
                                         <td>
 
                                             <strong>
-                                                <?= htmlspecialchars(
+                                                <?= e(
                                                     $product['name'] ?? 'N/A'
                                                 ) ?>
+
                                             </strong>
 
                                         </td>
@@ -221,7 +283,7 @@ if ($stmt) {
 
                                         <td>
 
-                                            <?= htmlspecialchars(
+                                            <?= e(
                                                 $product['farmer_name'] ?? 'N/A'
                                             ) ?>
 
@@ -232,7 +294,7 @@ if ($stmt) {
 
                                         <td>
 
-                                            <?= htmlspecialchars(
+                                            <?= e(
                                                 $product['category_name'] ?? 'N/A'
                                             ) ?>
 
@@ -255,7 +317,7 @@ if ($stmt) {
 
                                         <td>
 
-                                            <?= htmlspecialchars(
+                                            <?= e(
                                                 $product['unit'] ?? 'N/A'
                                             ) ?>
 
@@ -281,24 +343,23 @@ if ($stmt) {
                                             <?php if ($availability === 'Available'): ?>
 
                                                 <span class="status status-active">
+
                                                     Available
+
                                                 </span>
 
                                             <?php else: ?>
 
                                                 <span class="status status-inactive">
+
                                                     Unavailable
+
                                                 </span>
 
                                             <?php endif; ?>
 
                                             <br>
 
-                                            <small>
-                                                <?= ucfirst(
-                                                    htmlspecialchars($moderation)
-                                                ) ?>
-                                            </small>
 
                                         </td>
 
@@ -308,14 +369,119 @@ if ($stmt) {
                                         <td>
 
                                             <?= !empty($product['created_at'])
+
                                                 ? date(
+
                                                     'Y-m-d',
+
                                                     strtotime(
+
                                                         $product['created_at']
+
                                                     )
+
                                                 )
+
                                                 : 'N/A'
+
                                             ?>
+
+                                        </td>
+
+
+                                        <!-- Actions -->
+
+                                        <td>
+
+                                            <?php if ($moderation === 'pending'): ?>
+
+                                                <form method="POST" style="display:inline;">
+
+                                                    <input
+                                                        type="hidden"
+                                                        name="product_id"
+                                                        value="<?= (int) $product['id'] ?>"
+                                                    >
+
+                                                    <button
+                                                        type="submit"
+                                                        name="action"
+                                                        value="approve"
+                                                    >
+                                                        Approve
+                                                    </button>
+
+                                                </form>
+
+
+                                                <form method="POST" style="display:inline;">
+
+                                                    <input
+                                                        type="hidden"
+                                                        name="product_id"
+                                                        value="<?= (int) $product['id'] ?>"
+                                                    >
+
+                                                    <button
+                                                        type="submit"
+                                                        name="action"
+                                                        value="reject"
+                                                    >
+                                                        Reject
+                                                    </button>
+
+                                                </form>
+
+                                            <?php endif; ?>
+
+
+                                            <?php if (
+                                                $moderation === 'approved'
+                                                && (int) $product['is_available'] === 1
+                                            ): ?>
+
+                                                <form method="POST" style="display:inline;">
+
+                                                    <input
+                                                        type="hidden"
+                                                        name="product_id"
+                                                        value="<?= (int) $product['id'] ?>"
+                                                    >
+
+                                                    <button
+                                                        type="submit"
+                                                        name="action"
+                                                        value="remove"
+                                                    >
+                                                        Remove
+                                                    </button>
+
+                                                </form>
+
+                                            <?php endif; ?>
+
+
+                                            <?php if ((int) $product['is_available'] === 0): ?>
+
+                                                <form method="POST" style="display:inline;">
+
+                                                    <input
+                                                        type="hidden"
+                                                        name="product_id"
+                                                        value="<?= (int) $product['id'] ?>"
+                                                    >
+
+                                                    <button
+                                                        type="submit"
+                                                        name="action"
+                                                        value="restore"
+                                                    >
+                                                        Restore
+                                                    </button>
+
+                                                </form>
+
+                                            <?php endif; ?>
 
                                         </td>
 
@@ -327,7 +493,7 @@ if ($stmt) {
 
                                 <tr>
 
-                                    <td colspan="9">
+                                    <td colspan="10">
 
                                         No products found.
 
@@ -344,7 +510,6 @@ if ($stmt) {
                 </div>
 
             </section>
-
 
         </main>
 

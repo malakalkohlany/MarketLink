@@ -1471,37 +1471,43 @@ if (
                     <!-- =================================================
                          Product Image
                     ================================================== -->
-                        <div class="product-image-container">
+                    <!-- =================================================
+                        Product Image
+                    ================================================== -->
 
-    <?php if (!empty($product['image'])): ?>
+                    <div class="product-image-container">
 
-        <img
-            src="../<?= e($product['image']) ?>"
-            alt="<?= e($productName) ?>"
-            style="
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                display: block;
-            "
-        >
+                        <?php if (!empty($product['image'])): ?>
 
-    <?php else: ?>
+                            <img
+                                src="../<?= e($product['image']) ?>"
+                                alt="<?= e($productName) ?>"
+                                style="
+                                    width: 100%;
+                                    height: 100%;
+                                    object-fit: cover;
+                                    display: block;
+                                "
+                            >
 
-        <div style="
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #999;
-        ">
-            No Image
-        </div>
+                        <?php else: ?>
 
-    <?php endif; ?>
+                            <div
+                                style="
+                                    width: 100%;
+                                    height: 100%;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    color: #999;
+                                "
+                            >
+                                No Image
+                            </div>
 
-</div>
+                        <?php endif; ?>
+
+                    </div>
         
 
                     <!-- =================================================

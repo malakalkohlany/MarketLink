@@ -30,6 +30,7 @@ require_once __DIR__ . '/config/constants.php';
         </a>
 
         <nav class="home-nav-links">
+            <a href="#">Home</a>
             <a href="public/about.php">About</a>
             <a href="public/farmers.php">Farmers</a>
             <a href="public/markets.php">Markets</a>

@@ -131,14 +131,15 @@ if ($result) {
         <div class="home-nav-inner">
 
             <a href="index.php" class="home-brand">
-                MarketLink
-            </a>
+            <span class="brand-mark">M</span>
+            <span class="brand-name">MarketLink</span>
+        </a>
 
             <nav class="home-nav-links">
                 <a href="../index.php">Home</a>
+                <a href="#" class="active">About</a>
                 <a href="markets.php">Markets</a>
                 <a href="farmers.php">Farmers</a>
-                <a href="about.php" class="active">About</a>
                 <a href="contact.php">Contact</a>
             </nav>
 
@@ -147,9 +148,10 @@ if ($result) {
                     Login
                 </a>
 
-                <a href="../auth/register.php" class="home-join">
-                    Join MarketLink
-                </a>
+                <a href="auth/register.php" class="home-join">
+                Join MarketLink
+                <span>↗</span>
+            </a>
             </div>
 
         </div>

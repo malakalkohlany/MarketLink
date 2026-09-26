@@ -61,28 +61,63 @@ $farmer_id =$farmer['id'];
     $image_extension = strtolower(pathinfo($image_name, PATHINFO_EXTENSION));
     $new_image_name = uniqid('product_', true) . '.' . $image_extension;
 
-    $image_path = __DIR__ . '/../assets/images/products/' . $new_image_name;
-    $image_db_path = 'assets/images/products/' . $new_image_name;
-    
-   if (
+if (
     empty($name) ||
     $category_id <= 0 ||
+    !is_numeric($price_input) ||
     $price < 0 ||
     empty($unit) ||
-    $stock_quantity < 0
+    !is_numeric($stock_input) ||
+    $stock_quantity < 0 ||
+    empty($description)
 ) {
     die("Please enter valid product information.");
 }
 
-if (!move_uploaded_file($image_tmp, $image_path)) {
-    die("Failed to upload product image.");
+$image_name = '';
+$image_db_path = '';
+
+if (
+    isset($_FILES['image']) &&
+    $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE
+) {
+    if ($_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+        die("Image upload failed.");
+    }
+
+    $image_tmp = $_FILES['image']['tmp_name'];
+
+    $image_info = getimagesize($image_tmp);
+
+    if ($image_info === false) {
+        die("Uploaded file is not a valid image.");
+    }
+
+    $allowed_types = ['image/jpeg', 'image/png', 'image/webp'];
+
+    if (!in_array($image_info['mime'], $allowed_types, true)) {
+        die("Invalid image type.");
+    }
+
+    $image_extension = strtolower(
+        pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION)
+    );
+
+    $new_image_name = uniqid('product_', true) . '.' . $image_extension;
+
+    $image_path = __DIR__ . '/../assets/images/products/' . $new_image_name;
+
+    $image_db_path = 'assets/images/products/' . $new_image_name;
+
+    if (!move_uploaded_file($image_tmp, $image_path)) {
+        die("Failed to save product image.");
+    }
 }
 
 $stmt = $conn->prepare("
-
     INSERT INTO products
-    (farmer_id, category_id, name, description, price, unit, stock_quantity ,image)
-    VALUES (?, ?, ?, ?, ?, ?, ?,?)
+    (farmer_id, category_id, name, description, price, unit, stock_quantity, image)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 ");
 
 $stmt->bind_param(
