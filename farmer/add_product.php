@@ -2,6 +2,9 @@
 
 require_once __DIR__ . '/../includes/include.php';
 
+requireRole(R_FARMER);
+requireApprovedFarmer();
+
 $default_categories = [
     'Vegetables',
     'Fruits',
@@ -27,7 +30,7 @@ foreach ($default_categories as $category_name) {
 
 $category_insert->close();
 
-$user_id = $_SESSION['user_id'];
+$user_id = getUserId();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST'){
 

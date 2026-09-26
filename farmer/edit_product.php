@@ -2,9 +2,8 @@
 
 require_once __DIR__ . '/../includes/include.php';
 
-if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
-    die("Invalid product ID.");
-}
+requireRole(R_FARMER);
+requireApprovedFarmer();
 
 $product_id = (int) $_GET['id'];
 
