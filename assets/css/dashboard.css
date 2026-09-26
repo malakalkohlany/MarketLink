@@ -1,10 +1,643 @@
-:root {
-    --barn-red: #8E2A1E;
-    --moss: #2d3d23;
-    --seashell: #F9F4ED;
-    --butter: #EFCF97;
-    --butter-dark: #c3aa7e;
+/* =========================================================
+   MARKETLINK ADMIN DASHBOARD
+   Clean / Modern / Warm
+   ========================================================= */
 
-    --white: #FFFFFF;
-    --text-muted: #766F67;
+
+/* =========================================================
+   Welcome
+   ========================================================= */
+
+.welcome {
+    position: relative;
+    overflow: hidden;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    min-height: 190px;
+    padding: 38px 42px;
+
+    margin-bottom: 30px;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--moss) 0%,
+            #34482a 65%,
+            #3c4f31 100%
+        );
+
+    border-radius: var(--radius-lg);
+
+    box-shadow: var(--shadow-card);
+
+    color: var(--white);
+}
+
+
+/* Decorative warm shape */
+
+.welcome::after {
+    content: "";
+
+    position: absolute;
+    right: -70px;
+    top: -90px;
+
+    width: 260px;
+    height: 260px;
+
+    border-radius: 50%;
+
+    background: rgba(239, 207, 151, 0.12);
+}
+
+
+.welcome > div {
+    position: relative;
+    z-index: 1;
+    max-width: 700px;
+}
+
+
+.welcome h1 {
+    margin: 0 0 10px;
+
+    font-size: clamp(2rem, 3vw, 2.7rem);
+    line-height: 1.1;
+
+    font-weight: 650;
+    letter-spacing: -0.04em;
+}
+
+
+.welcome p {
+    margin: 0;
+
+    max-width: 600px;
+
+    color: rgba(255, 255, 255, 0.72);
+
+    font-size: 0.96rem;
+    line-height: 1.7;
+}
+
+
+/* =========================================================
+   Quick Actions
+   ========================================================= */
+
+.quick-actions {
+    display: grid;
+
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    gap: 16px;
+
+    margin-bottom: 42px;
+}
+
+
+.dashboard-action {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+
+    min-height: 150px;
+
+    padding: 25px;
+
+    background: var(--white);
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius-md);
+
+    box-shadow: var(--shadow-soft);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+
+.dashboard-action::after {
+    content: "→";
+
+    position: absolute;
+
+    right: 20px;
+    top: 20px;
+
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: var(--seashell-dark);
+
+    color: var(--olive);
+
+    font-size: 15px;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+
+.dashboard-action:hover {
+    transform: translateY(-4px);
+
+    border-color: var(--butter-dark);
+
+    box-shadow: var(--shadow-hover);
+}
+
+
+.dashboard-action:hover::after {
+    background: var(--moss);
+    color: var(--white);
+
+    transform: translateX(2px);
+}
+
+
+.dashboard-action h3 {
+    margin: 0 0 9px;
+
+    padding-right: 35px;
+
+    color: var(--text);
+
+    font-size: 1rem;
+    font-weight: 650;
+}
+
+
+.dashboard-action p {
+    margin: auto 0 0;
+
+    max-width: 240px;
+
+    color: var(--text-muted);
+
+    font-size: 0.84rem;
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   Dashboard Sections
+   ========================================================= */
+
+.dashboard-section {
+    margin-bottom: 42px;
+}
+
+
+.section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 17px;
+}
+
+
+.section-heading h2 {
+    margin: 0;
+
+    color: var(--text);
+
+    font-size: 1.25rem;
+    font-weight: 650;
+
+    letter-spacing: -0.025em;
+}
+
+
+.section-heading a {
+    color: var(--olive);
+
+    font-size: 0.84rem;
+    font-weight: 600;
+
+    transition: color 0.2s ease;
+}
+
+
+.section-heading a:hover {
+    color: var(--barn-red);
+}
+
+
+/* =========================================================
+   Statistics
+   ========================================================= */
+
+.admin-stats-grid {
+    display: grid;
+
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    gap: 15px;
+}
+
+
+.admin-stat-card {
+    position: relative;
+
+    min-height: 135px;
+
+    padding: 23px 24px;
+
+    background: var(--white);
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius-md);
+
+    box-shadow: var(--shadow-soft);
+
+    overflow: hidden;
+}
+
+
+.admin-stat-card::before {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    top: 0;
+    bottom: 0;
+
+    width: 4px;
+
+    background: var(--olive);
+
+    opacity: 0.65;
+}
+
+
+.admin-stat-label {
+    display: block;
+
+    margin-bottom: 15px;
+
+    color: var(--text-muted);
+
+    font-size: 0.78rem;
+    font-weight: 600;
+
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+}
+
+
+.admin-stat-value {
+    display: block;
+
+    color: var(--moss);
+
+    font-family: var(--font-main);
+
+    font-size: 2rem;
+    line-height: 1;
+
+    font-weight: 650;
+    letter-spacing: -0.04em;
+}
+
+
+/* =========================================================
+   Attention Stats
+   ========================================================= */
+
+.admin-stat-attention {
+    background: #fffaf1;
+
+    border-color: #eadcc4;
+}
+
+
+.admin-stat-attention::before {
+    background: var(--butter-dark);
+}
+
+
+.admin-stat-attention .admin-stat-value {
+    color: var(--barn-red);
+}
+
+
+/* =========================================================
+   Tables
+   ========================================================= */
+
+.orders-table-wrapper,
+.admin-products-table-wrapper {
+    width: 100%;
+
+    overflow-x: auto;
+
+    background: var(--white);
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius-md);
+
+    box-shadow: var(--shadow-soft);
+}
+
+
+.orders-table,
+.admin-products-table-wrapper table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    min-width: 760px;
+}
+
+
+.orders-table thead {
+    background: var(--seashell-dark);
+}
+
+
+.orders-table th {
+    padding: 15px 18px;
+
+    color: var(--text-muted);
+
+    border-bottom: 1px solid var(--border);
+
+    font-size: 0.72rem;
+    font-weight: 650;
+
+    text-align: left;
+
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+
+    white-space: nowrap;
+}
+
+
+.orders-table td {
+    padding: 17px 18px;
+
+    color: var(--text-soft);
+
+    border-bottom: 1px solid var(--border-light);
+
+    font-size: 0.86rem;
+
+    vertical-align: middle;
+}
+
+
+.orders-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+
+.orders-table tbody tr {
+    transition: background 0.15s ease;
+}
+
+
+.orders-table tbody tr:hover {
+    background: #fffcf8;
+}
+
+
+/* =========================================================
+   Table Action
+   ========================================================= */
+
+.table-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 7px 13px;
+
+    border-radius: 8px;
+
+    background: var(--moss-light);
+
+    color: var(--moss);
+
+    font-family: var(--font-main);
+
+    font-size: 0.76rem;
+    font-weight: 650;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+
+.table-action:hover {
+    background: var(--moss);
+    color: var(--white);
+
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   Status Pills
+   ========================================================= */
+
+.order-status,
+.product-status {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 6px 10px;
+
+    border-radius: 999px;
+
+    font-size: 0.7rem;
+    font-weight: 650;
+
+    text-transform: capitalize;
+}
+
+
+/* Order statuses */
+
+.order-status.pending,
+.order-status.preparing {
+    background: var(--butter-light);
+    color: #86672f;
+}
+
+
+.order-status.accepted {
+    background: #c6e1ea;
+    color: #455460;
+}
+
+
+.order-status.ready,
+.order-status.completed {
+    background: #e7efe8;
+    color: #45604a;
+}
+
+
+.order-status.cancelled{
+    background: var(--barn-red-soft);
+    color: var(--barn-red);
+}
+
+
+/* Product statuses */
+
+.product-status.pending {
+    background: var(--butter-light);
+    color: #86672f;
+}
+
+
+.product-status.approved {
+    background: var(--moss-light);
+    color: var(--moss);
+}
+
+
+.product-status.rejected {
+    background: var(--barn-red-soft);
+    color: var(--barn-red);
+}
+
+
+/* =========================================================
+   Empty States
+   ========================================================= */
+
+.empty-state,
+.dashboard-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 190px;
+
+    padding: 35px;
+
+    background: var(--white);
+
+    border: 1px dashed var(--border);
+
+    border-radius: var(--radius-md);
+
+    text-align: center;
+}
+
+
+.empty-state h3 {
+    margin: 0 0 8px;
+
+    color: var(--text);
+
+    font-size: 1rem;
+}
+
+
+.empty-state p,
+.dashboard-placeholder p {
+    margin: 0;
+
+    max-width: 430px;
+
+    color: var(--text-muted);
+
+    font-size: 0.86rem;
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   Responsive
+   ========================================================= */
+
+@media (max-width: 1200px) {
+
+    .quick-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .admin-stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+
+@media (max-width: 800px) {
+
+    .welcome {
+        min-height: auto;
+        padding: 30px;
+    }
+
+    .welcome h1 {
+        font-size: 2rem;
+    }
+
+    .quick-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-stats-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+
+@media (max-width: 550px) {
+
+    .welcome {
+        padding: 26px;
+        border-radius: var(--radius-md);
+    }
+
+    .welcome h1 {
+        font-size: 1.7rem;
+    }
+
+    .admin-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-section {
+        margin-bottom: 32px;
+    }
+
+    .section-heading {
+        align-items: flex-end;
+    }
+
+    .section-heading h2 {
+        font-size: 1.1rem;
+    }
 }
