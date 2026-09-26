@@ -1,13 +1,20 @@
 <?php 
 
+require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/database.php';
-
+require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/session.php';
 
 requireRole('farmer');
 requireApprovedFarmer();
 
 $user_id = getUserId();
+
+$farmer_id = $_SESSION['farmer_id'] ?? null;
+
+if (!$farmer_id) {
+    redirect('auth/logout.php');
+}
 
 $farmer = null;
 
@@ -117,7 +124,7 @@ $stmt->close();
 
                 <h1>
                     Welcome,
-                    <?= htmlspecialchars($_SESSION['name']) ?>!
+                    <?= e($_SESSION['name']) ?>!
                 </h1>
 
                 <p>
@@ -234,29 +241,23 @@ $stmt->close();
                                     </td>
 
                                     <td>
-                                        <?= htmlspecialchars(
+                                        <?= e(
                                             $order['customer_name']
                                         ) ?>
                                     </td>
 
                                     <td>
-                                        <?= htmlspecialchars(
+                                        <?= e(
                                             $order['market_name']
                                         ) ?>
                                     </td>
 
                                     <td>
-                                        <?= date(
-                                            'M j, Y',
-                                            strtotime($order['created_at'])
-                                        ) ?>
+                                        <?= formatDate($order['created_at']) ?>
                                     </td>
 
                                     <td>
-                                        $<?= number_format(
-                                            (float) $order['subtotal'],
-                                            2
-                                        ) ?>
+                                        $<?= formatPrice($order['subtotal']) ?>
                                     </td>
 
                                     <td>
@@ -266,12 +267,12 @@ $stmt->close();
                                     <td>
 
                                         <span
-                                            class="order-status <?= htmlspecialchars(
+                                            class="order-status <?= e(
                                                 $order['status']
                                             ) ?>"
                                         >
-                                            <?= ucfirst(
-                                                htmlspecialchars(
+                                            <?= 
+                                                e(ucfirst(
                                                     $order['status']
                                                 )
                                             ) ?>
@@ -339,10 +340,10 @@ $stmt->close();
                                 <?php if (!empty($product['image'])): ?>
 
                                     <img
-                                        src="../uploads/products/<?= htmlspecialchars(
+                                        src="../uploads/products/<?= e(
                                             $product['image']
                                         ) ?>"
-                                        alt="<?= htmlspecialchars(
+                                        alt="<?= e(
                                             $product['name']
                                         ) ?>"
                                     >
@@ -361,7 +362,7 @@ $stmt->close();
                             <div class="product-info">
 
                                 <h3>
-                                    <?= htmlspecialchars(
+                                    <?= e(
                                         $product['name']
                                     ) ?>
                                 </h3>
@@ -370,14 +371,11 @@ $stmt->close();
                                 <div class="product-price">
 
                                     <strong>
-                                        $<?= number_format(
-                                            (float) $product['price'],
-                                            2
-                                        ) ?>
+                                        $<?= formatPrice($product['price']) ?>
                                     </strong>
 
                                     <span>
-                                        / <?= htmlspecialchars(
+                                        / <?= e(
                                             $product['unit']
                                         ) ?>
                                     </span>
@@ -397,12 +395,13 @@ $stmt->close();
 
 
                                 <span
-                                    class="product-status <?= htmlspecialchars(
+                                    class="product-status <?= e(
                                         $product['moderation_status']
                                     ) ?>"
                                 >
-                                    <?= ucfirst(
-                                        htmlspecialchars(
+                                    <?= 
+                                        e(
+                                            ucfirst(
                                             $product['moderation_status']
                                         )
                                     ) ?>
@@ -452,7 +451,7 @@ $stmt->close();
                     <div class="farmer-info">
 
                         <h3>
-                            <?= htmlspecialchars(
+                            <?= e(
                                 $farmer['stall_name']
                             ) ?>
                         </h3>
@@ -461,7 +460,7 @@ $stmt->close();
                         <?php if (!empty($farmer['address'])): ?>
 
                             <p class="farmer-address">
-                                <?= htmlspecialchars(
+                                <?= e(
                                     $farmer['address']
                                 ) ?>
                             </p>
@@ -472,7 +471,7 @@ $stmt->close();
                         <?php if (!empty($farmer['description'])): ?>
 
                             <p class="farmer-description">
-                                <?= htmlspecialchars(
+                                <?= e(
                                     $farmer['description']
                                 ) ?>
                             </p>
@@ -481,13 +480,13 @@ $stmt->close();
 
 
                         <span
-                            class="farmer-approval <?= htmlspecialchars(
+                            class="farmer-approval <?= e(
                                 $farmer['approval_status']
                             ) ?>"
                         >
                             Stall:
-                            <?= ucfirst(
-                                htmlspecialchars(
+                            <?= 
+                                e(ucfirst(
                                     $farmer['approval_status']
                                 )
                             ) ?>

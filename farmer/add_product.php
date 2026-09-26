@@ -60,9 +60,7 @@ $farmer_id =$farmer['id'];
 
     $image_path = __DIR__ . '/../assets/images/products/' . $new_image_name;
     $image_db_path = 'assets/images/products/' . $new_image_name;
-
-move_uploaded_file($image_tmp, $image_path);    
-
+    
     if (
         empty($name) ||
         $category_id <= 0 ||
@@ -72,6 +70,7 @@ move_uploaded_file($image_tmp, $image_path);
     ) {
         die("Please enter valid product information.");
         }
+        move_uploaded_file($image_tmp, $image_path);
 
 $stmt = $conn->prepare("
     INSERT INTO products
@@ -96,6 +95,7 @@ if (!$stmt->execute()) {
 }
 
 $stmt->close();
+$success_message = "Product added successfully!";
 }
 
 $category_stmt = $conn->prepare("
@@ -116,6 +116,13 @@ $categories = $category_stmt->get_result();
 </head>
 <body>
     <h1>Add New Product</h1>
+
+    <?php if (isset($success_message)): ?>
+
+    <p><?= htmlspecialchars($success_message) ?></p>
+
+    <?php endif; ?>
+
     <form action="" method="POST" enctype="multipart/form-data">
         <label for="name">Product Name</label>
         <input type="text" id="name" name="name" required>

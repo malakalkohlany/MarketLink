@@ -20,45 +20,54 @@ require_once __DIR__ . '/../includes/session.php';
     <div class="navbar-right">
 
         <?php
-        $notification_count = 0;
-        $notifications = [];
+            $notification_count = 0;
+            $notifications = [];
 
-        if (isset($_SESSION['user_id'])) {
+            if (isset($_SESSION['user_id'])) {
 
-            $user_id = $_SESSION['user_id'];
+                $user_id = (int) $_SESSION['user_id'];
 
-            // Get unread notification count
-            $stmt = $conn->prepare("
-                SELECT COUNT(*)
-                FROM notifications
-                WHERE user_id = ? AND is_read = 0
-            ");
+                // Get unread notification count
+                $stmt = $conn->prepare("
+                    SELECT COUNT(*)
+                    FROM notifications
+                    WHERE user_id = ? AND is_read = 0
+                ");
 
-            $stmt->bind_param("i", $user_id);
-            $stmt->execute();
-            $stmt->bind_result($notification_count);
-            $stmt->fetch();
-            $stmt->close();
+                if ($stmt) {
+                    $stmt->bind_param("i", $user_id);
 
-            $stmt = $conn->prepare("
-                SELECT id, title, message, type, is_read, created_at
-                FROM notifications
-                WHERE user_id = ?
-                ORDER BY created_at DESC
-                LIMIT 5
-            ");
+                    if ($stmt->execute()) {
+                        $stmt->bind_result($notification_count);
+                        $stmt->fetch();
+                    }
 
-            $stmt->bind_param("i", $user_id);
-            $stmt->execute();
+                    $stmt->close();
+                }
 
-            $result = $stmt->get_result();
+                // Get latest notifications
+                $stmt = $conn->prepare("
+                    SELECT id, title, message, type, is_read, created_at
+                    FROM notifications
+                    WHERE user_id = ?
+                    ORDER BY created_at DESC
+                    LIMIT 5
+                ");
 
-            while ($row = $result->fetch_assoc()) {
-                $notifications[] = $row;
+                if ($stmt) {
+                    $stmt->bind_param("i", $user_id);
+
+                    if ($stmt->execute()) {
+                        $notif_result = $stmt->get_result();
+
+                        while ($row = $notif_result->fetch_assoc()) {
+                            $notifications[] = $row;
+                        }
+                    }
+
+                    $stmt->close();
+                }
             }
-
-            $stmt->close();
-        }
         ?>
 
         <div class="notification-wrapper">

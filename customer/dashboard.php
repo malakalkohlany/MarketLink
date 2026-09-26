@@ -1,10 +1,13 @@
 <?php 
 
+require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/database.php';
-
+require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/session.php';
 
-requireRole('customer');
+
+
+// requireRole('customer');
 
 $user_id = getUserId();
 
@@ -103,10 +106,12 @@ $stmt->close();
     <link rel="stylesheet" href="../assets/css/base.css">
     <link rel="stylesheet" href="../assets/css/navbar.css">
     <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
 </head>
 <body>
 
     <?php include __DIR__ . '/../includes/navbar.php'; ?>
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
     <main class="main-content">
 
@@ -115,7 +120,7 @@ $stmt->close();
             <div>
                 <h1>
                     Welcome,
-                    <?= htmlspecialchars($_SESSION['name']) ?>!
+                    <?= e($_SESSION['name']) ?>!
                 </h1>
 
                 <p>
@@ -188,14 +193,11 @@ $stmt->close();
                                     </td>
 
                                     <td>
-                                        <?= htmlspecialchars($order['stall_name']) ?>
+                                        <?= e($order['stall_name']) ?>
                                     </td>
 
                                     <td>
-                                        <?= date(
-                                            'M j, Y',
-                                            strtotime($order['created_at'])
-                                        ) ?>
+                                        <?= formatDate($order['created_at']) ?>
                                     </td>
 
                                     <td>
@@ -207,8 +209,8 @@ $stmt->close();
                                     </td>
 
                                     <td>
-                                        <span class="order-status <?= htmlspecialchars($order['status']) ?>">
-                                            <?= ucfirst(htmlspecialchars($order['status'])) ?>
+                                        <span class="order-status <?= e($order['status']) ?>">
+                                            <?= e(ucfirst($order['status'])) ?>
                                         </span>
                                     </td>
                                 </tr>
@@ -253,8 +255,8 @@ $stmt->close();
                                 <?php if (!empty($product['image'])): ?>
 
                                     <img
-                                        src="../uploads/products/<?= htmlspecialchars($product['image']) ?>"
-                                        alt="<?= htmlspecialchars($product['name']) ?>"
+                                        src="../uploads/products/<?= e($product['image']) ?>"
+                                        alt="<?= e($product['name']) ?>"
                                     >
 
                                 <?php else: ?>
@@ -269,24 +271,21 @@ $stmt->close();
                             <div class="product-info">
 
                                 <h3>
-                                    <?= htmlspecialchars($product['name']) ?>
+                                    <?= e($product['name']) ?>
                                 </h3>
 
                                 <p class="product-farmer">
-                                    <?= htmlspecialchars($product['stall_name']) ?>
+                                    <?= e($product['stall_name']) ?>
                                 </p>
 
                                 <div class="product-price">
 
                                     <strong>
-                                        $<?= number_format(
-                                            (float) $product['price'],
-                                            2
-                                        ) ?>
+                                        $<?= formatPrice($product['price']) ?>
                                     </strong>
 
                                     <span>
-                                        / <?= htmlspecialchars($product['unit']) ?>
+                                        / <?= e($product['unit']) ?>
                                     </span>
 
                                 </div>
@@ -337,13 +336,13 @@ $stmt->close();
                             <div class="farmer-info">
 
                                 <h3>
-                                    <?= htmlspecialchars($farmer['stall_name']) ?>
+                                    <?= e($farmer['stall_name']) ?>
                                 </h3>
 
                                 <?php if (!empty($farmer['address'])): ?>
 
                                     <p class="farmer-address">
-                                        <?= htmlspecialchars($farmer['address']) ?>
+                                        <?= e($farmer['address']) ?>
                                     </p>
 
                                 <?php endif; ?>
@@ -351,7 +350,7 @@ $stmt->close();
                                 <?php if (!empty($farmer['description'])): ?>
 
                                     <p class="farmer-description">
-                                        <?= htmlspecialchars(
+                                        <?= e(
                                             $farmer['description']
                                         ) ?>
                                     </p>

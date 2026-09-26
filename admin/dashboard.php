@@ -1,11 +1,11 @@
 <?php
 
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/session.php';
 
 requireRole('admin');
 
-$user_id = getUserId();
 
 
 $stats = [
@@ -216,7 +216,7 @@ $stmt->close();
 
                 <h1>
                     Welcome,
-                    <?= htmlspecialchars($_SESSION['name']) ?>!
+                    <?= e($_SESSION['name']) ?>!
                 </h1>
 
                 <p>
@@ -456,34 +456,33 @@ $stmt->close();
                                 <tr>
 
                                     <td>
-                                        <?= htmlspecialchars(
+                                        <?= e(
                                             $farmer['stall_name']
                                         ) ?>
                                     </td>
 
                                     <td>
-                                        <?= htmlspecialchars(
+                                        <?= e(
                                             $farmer['owner_name']
                                         ) ?>
                                     </td>
 
                                     <td>
-                                        <?= htmlspecialchars(
+                                        <?= e(
                                             $farmer['email']
                                         ) ?>
                                     </td>
 
                                     <td>
-                                        <?= htmlspecialchars(
+                                        <?= e(
                                             $farmer['address'] ?? '—'
                                         ) ?>
                                     </td>
 
                                     <td>
-                                        <?= date(
-                                            'M j, Y',
-                                            strtotime($farmer['created_at'])
-                                        ) ?>
+                                        <?= 
+                                        formatDate($farmer['created_at'])
+                                         ?>
                                     </td>
 
                                     <td>
@@ -587,40 +586,39 @@ $stmt->close();
                                     </td>
 
                                     <td>
-                                        <?= htmlspecialchars(
+                                        <?= e(
                                             $order['customer_name']
                                         ) ?>
                                     </td>
 
                                     <td>
-                                        <?= htmlspecialchars(
+                                        <?= e(
                                             $order['stall_name']
                                         ) ?>
                                     </td>
 
                                     <td>
-                                        <?= date(
-                                            'M j, Y',
-                                            strtotime($order['created_at'])
-                                        ) ?>
+                                        <?= 
+                                        formatDate($order['created_at'])
+                                         ?>
                                     </td>
 
                                     <td>
-                                        $<?= number_format(
-                                            (float) $order['subtotal'],
-                                            2
-                                        ) ?>
+                                        $<?= 
+                                         formatPrice($order['subtotal'])
+                                           ?>
                                     </td>
 
                                     <td>
 
                                         <span
-                                            class="order-status <?= htmlspecialchars(
+                                            class="order-status <?= e(
                                                 $order['status']
                                             ) ?>"
                                         >
-                                            <?= ucfirst(
-                                                htmlspecialchars(
+                                            <?= 
+                                                e(
+                                                    ucfirst(
                                                     $order['status']
                                                 )
                                             ) ?>
@@ -710,45 +708,43 @@ $stmt->close();
                                 <tr>
 
                                     <td>
-                                        <?= htmlspecialchars(
+                                        <?= e(
                                             $product['name']
                                         ) ?>
                                     </td>
 
                                     <td>
-                                        <?= htmlspecialchars(
+                                        <?= e(
                                             $product['stall_name']
                                         ) ?>
                                     </td>
 
                                     <td>
-                                        $<?= number_format(
-                                            (float) $product['price'],
-                                            2
-                                        ) ?>
+                                        $<?= 
+                                        formatPrice($product['price']) 
+                                        ?>
 
                                         /
-                                        <?= htmlspecialchars(
+                                        <?= e(
                                             $product['unit']
                                         ) ?>
                                     </td>
 
                                     <td>
-                                        <?= date(
-                                            'M j, Y',
-                                            strtotime($product['created_at'])
-                                        ) ?>
+                                        <?= formatDate($product['created_at'])
+                                         ?>
                                     </td>
 
                                     <td>
 
                                         <span
-                                            class="product-status <?= htmlspecialchars(
+                                            class="product-status <?= e(
                                                 $product['moderation_status']
                                             ) ?>"
                                         >
-                                            <?= ucfirst(
-                                                htmlspecialchars(
+                                            <?= 
+                                                e(
+                                                    ucfirst(
                                                     $product['moderation_status']
                                                 )
                                             ) ?>

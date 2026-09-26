@@ -18,15 +18,13 @@ products within their community.
 MarketLink/
 │
 ├── config/
-│   ├── database.php
+│   ├── config.php
 │   ├── constants.php
+│   └── database.php
 │
 ├── includes/
-│   ├── admin_nav.php
 │   ├── auth.php
 │   ├── csrf.php
-│   ├── customer_nav.php
-│   ├── farmer_nav.php
 │   ├── flash.php
 │   ├── functions.php
 │   ├── navbar.php
@@ -43,10 +41,37 @@ MarketLink/
 │   └── logout.php
 │
 ├── customer/
-│   └── dashboard.php
+│   ├── cart.php
+│   ├── checkout.php
+│   ├── dashboard.php
+│   ├── farmers.php
+│   ├── farmer_details.php
+│   ├── favorites.php
+│   ├── markets.php
+│   ├── market_details.php
+│   ├── notifications.php
+│   ├── orders.php
+│   ├── order_details.php
+│   ├── products.php
+│   ├── product_details.php
+│   ├── profile.php
+│   └── reviews.php
 │
 ├── farmer/
+│   ├── add_products.php
+│   ├── analytics.php
 │   ├── dashboard.php
+│   ├── edit_product.php
+│   ├── inventory.php
+│   ├── markets.php
+│   ├── notifications.php
+│   ├── orders.php
+│   ├── order_details.php
+│   ├── orders.php
+│   ├── order_details.php
+│   ├── products.php
+│   ├── product_details.php
+│   ├── profile.php
 │   ├── pending.php
 │   └── rejected.php
 │
