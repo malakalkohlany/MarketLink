@@ -7,6 +7,44 @@ requireRole(R_ADMIN);
 $errors = [];
 $markets = [];
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $marketId = filter_input(
+        INPUT_POST,
+        'market_id',
+        FILTER_VALIDATE_INT
+    );
+
+    $newStatus = $_POST['status'] ?? '';
+
+    if (
+        $marketId &&
+        in_array($newStatus, ['active', 'inactive'], true)
+    ) {
+
+        $stmt = $conn->prepare("
+            UPDATE markets
+            SET status = ?
+            WHERE id = ?
+        ");
+
+        if ($stmt) {
+
+            $stmt->bind_param(
+                'si',
+                $newStatus,
+                $marketId
+            );
+
+            $stmt->execute();
+            $stmt->close();
+        }
+    }
+
+    header('Location: markets.php');
+    exit;
+}
+
 $stmt = $conn->prepare("
     SELECT
         id,
@@ -236,6 +274,38 @@ if ($stmt) {
                                         >
                                             Edit
                                         </a>
+
+                                        <form
+                                            method="POST"
+                                            style="display: inline;"
+                                        >
+
+                                            <input
+                                                type="hidden"
+                                                name="market_id"
+                                                value="<?= (int)$market['id'] ?>"
+                                            >
+
+                                            <input
+                                                type="hidden"
+                                                name="status"
+                                                value="<?= ($market['status'] ?? '') === 'active'
+                                                    ? 'inactive'
+                                                    : 'active'
+                                                ?>"
+                                            >
+
+                                            <button
+                                                type="submit"
+                                                class="btn btn-sm btn-secondary"
+                                            >
+                                                <?= ($market['status'] ?? '') === 'active'
+                                                    ? 'Deactivate'
+                                                    : 'Activate'
+                                                ?>
+                                            </button>
+
+                                        </form>
 
                                     </td>
 
