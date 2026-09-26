@@ -558,7 +558,7 @@ if (isset($_GET['error'])) {
             <?php if ($errorMessage): ?>
 
                 <div class="error-message">
-                    <?php echo htmlspecialchars($errorMessage); ?>
+                    <?php echo e($errorMessage); ?>
                 </div>
 
             <?php endif; ?>
@@ -572,8 +572,8 @@ if (isset($_GET['error'])) {
                         <?php if (!empty($product['image'])): ?>
 
                             <img
-                                src="../uploads/products/<?php echo htmlspecialchars($product['image']); ?>"
-                                alt="<?php echo htmlspecialchars($product['name']); ?>"
+                                src="../uploads/products/<?php echo e($product['image']); ?>"
+                                alt="<?php echo e($product['name']); ?>"
                                 class="product-image"
                             >
 
@@ -593,7 +593,7 @@ if (isset($_GET['error'])) {
 
                             <div class="category-badge">
                                 <?php
-                                echo htmlspecialchars(
+                                echo e(
                                     $product['category_name']
                                 );
                                 ?>
@@ -603,7 +603,7 @@ if (isset($_GET['error'])) {
 
                         <h1 class="product-name">
                             <?php
-                            echo htmlspecialchars(
+                            echo e(
                                 $product['name']
                             );
                             ?>
@@ -613,7 +613,7 @@ if (isset($_GET['error'])) {
 
                             <?php
                             echo nl2br(
-                                htmlspecialchars(
+                                e(
                                     $product['description']
                                     ?? 'No description available.'
                                 )
@@ -638,7 +638,7 @@ if (isset($_GET['error'])) {
 
                             Price per
                             <?php
-                            echo htmlspecialchars(
+                            echo e(
                                 $product['unit']
                             );
                             ?>
@@ -663,7 +663,7 @@ if (isset($_GET['error'])) {
                                     ?>
 
                                     <?php
-                                    echo htmlspecialchars(
+                                    echo e(
                                         $product['unit']
                                     );
                                     ?>
@@ -701,30 +701,13 @@ if (isset($_GET['error'])) {
                             <div class="info-row">
 
                                 <span class="info-label">
-                                    Product ID
-                                </span>
-
-                                <span class="info-value">
-
-                                    #
-                                    <?php
-                                    echo (int) $product['id'];
-                                    ?>
-
-                                </span>
-
-                            </div>
-
-                            <div class="info-row">
-
-                                <span class="info-label">
                                     Category
                                 </span>
 
                                 <span class="info-value">
 
                                     <?php
-                                    echo htmlspecialchars(
+                                    echo e(
                                         $product['category_name']
                                         ?? 'Not specified'
                                     );
@@ -733,6 +716,7 @@ if (isset($_GET['error'])) {
                                 </span>
 
                             </div>
+
 
                             <div class="info-row">
 
@@ -806,12 +790,9 @@ if (isset($_GET['error'])) {
 
                         <div class="farmer-name">
 
-                            <?php
-                            echo htmlspecialchars(
-                                $product['farmer_name']
-                                ?? 'Unknown Farmer'
-                            );
-                            ?>
+                            <a href="farmer_details.php?id=<?= (int)$product['farmer_id'] ?>">
+                                <?= e($product['farmer_name']) ?>
+                            </a>
 
                         </div>
 
@@ -824,7 +805,7 @@ if (isset($_GET['error'])) {
                             <span class="farmer-value">
 
                                 <?php
-                                echo htmlspecialchars(
+                                echo e(
                                     $product['farmer_contact']
                                     ?? 'Not available'
                                 );
@@ -843,7 +824,7 @@ if (isset($_GET['error'])) {
                             <span class="farmer-value">
 
                                 <?php
-                                echo htmlspecialchars(
+                                echo e(
                                     $product['farmer_address']
                                     ?? 'Not available'
                                 );
@@ -865,7 +846,7 @@ if (isset($_GET['error'])) {
 
                                 <?php
                                 echo nl2br(
-                                    htmlspecialchars(
+                                    e(
                                         $product['farmer_description']
                                     )
                                 );
@@ -884,67 +865,7 @@ if (isset($_GET['error'])) {
         </div>
     </main>
 
-<script>
-
-    const productPrice =
-        <?php echo (float) $product['price']; ?>;
-
-    const maxStock =
-        <?php echo (float) $product['stock_quantity']; ?>;
-
-    function showQuantityBox() {
-
-        const box =
-            document.getElementById('quantityBox');
-
-        box.classList.add('show');
-
-        const quantityInput =
-            document.getElementById('quantity');
-
-        quantityInput.focus();
-
-        calculateTotal();
-    }
-
-    function hideQuantityBox() {
-
-        const box =
-            document.getElementById('quantityBox');
-
-        box.classList.remove('show');
-    }
-
-    function calculateTotal() {
-
-        const quantityInput =
-            document.getElementById('quantity');
-
-        const totalPrice =
-            document.getElementById('totalPrice');
-
-        let quantity =
-            parseFloat(quantityInput.value);
-
-        if (isNaN(quantity) || quantity < 0) {
-            quantity = 0;
-        }
-
-        if (quantity > maxStock) {
-
-            quantity = maxStock;
-
-            quantityInput.value = maxStock;
-        }
-
-        const total =
-            quantity * productPrice;
-
-        totalPrice.textContent =
-            total.toFixed(2);
-    }
-
-</script>
+    <script src="../assets/js/app.js"></script>
 
 </body>
 
