@@ -465,6 +465,58 @@ if ($result) {
             }
         }
 
+        .market-search {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .market-search label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #444;
+            white-space: nowrap;
+        }
+
+        .market-search input {
+            width: 240px;
+            padding: 10px 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #fff;
+            color: #333;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .market-search input::placeholder {
+            color: #999;
+        }
+
+        .market-search input:hover {
+            border-color: #bbb;
+        }
+
+        .market-search input:focus {
+            border-color: #999;
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+        }
+
+        @media (max-width: 700px) {
+            .market-search {
+                width: 100%;
+                align-items: stretch;
+                flex-direction: column;
+                gap: 6px;
+            }
+
+            .market-search input {
+                width: 100%;
+            }
+        }
+
         .section-title {
 
             font-size: 24px;
@@ -762,6 +814,16 @@ if ($result) {
             </div>
 
             <div class="market-filters">
+                <div class="market-search">
+                    <label for="marketSearch">Search Markets</label>
+                    <input
+                        type="text"
+                        id="marketSearch"
+                        placeholder="Search by market name or address"
+                        autocomplete="off"
+                    >
+                </div>
+
                 <div class="market-day-filter">
                     <label for="marketDay">Market Day</label>
 
@@ -794,7 +856,7 @@ if ($result) {
                     id="locationStatus"
                     style="display: none;"
                 ></span>
-
+                </div>
             </div>
 
             <!-- =====================================================
@@ -893,7 +955,7 @@ if ($result) {
                             </h3>
 
 
-                            <div class="address">
+                            <div class="address market-address">
 
                                 📍
 
@@ -1004,36 +1066,66 @@ if ($result) {
                 JSON_UNESCAPED_SLASHES
             ); ?>;
 
-        const marketDayFilter =
-            document.getElementById('marketDay');
+const marketDayFilter =
+    document.getElementById('marketDay');
 
-        marketDayFilter.addEventListener('change', function () {
+const marketSearch =
+    document.getElementById('marketSearch');
 
-            const selectedDay = this.value;
+function applyMarketFilters() {
 
-            const cards =
-                document.querySelectorAll('.market-card');
+    const selectedDay =
+        marketDayFilter.value;
 
-            cards.forEach(function (card) {
+    const searchTerm =
+        marketSearch.value.trim().toLowerCase();
 
-                const operatingDays =
-                    card.dataset.operatingDays || '';
+    const cards =
+        document.querySelectorAll('.market-card');
 
-                if (
-                    selectedDay === '' ||
-                    operatingDays
-                        .split(',')
-                        .map(day => day.trim())
-                        .includes(selectedDay)
-                ) {
-                    card.style.display = '';
-                } else {
-                    card.style.display = 'none';
-                }
+    cards.forEach(function (card) {
 
-            });
+        const operatingDays =
+            card.dataset.operatingDays || '';
 
-        });
+        const marketName =
+            card.querySelector('h3')?.textContent
+                .trim()
+                .toLowerCase() || '';
+
+        const marketAddress =
+            card.querySelector('.market-address')?.textContent
+                .trim()
+                .toLowerCase() || '';
+
+        const matchesDay =
+            selectedDay === '' ||
+            operatingDays
+                .split(',')
+                .map(day => day.trim())
+                .includes(selectedDay);
+
+        const matchesSearch =
+            searchTerm === '' ||
+            marketName.includes(searchTerm) ||
+            marketAddress.includes(searchTerm);
+
+        card.style.display =
+            matchesDay && matchesSearch
+                ? ''
+                : 'none';
+    });
+}
+
+marketDayFilter.addEventListener(
+    'change',
+    applyMarketFilters
+);
+
+marketSearch.addEventListener(
+    'input',
+    applyMarketFilters
+);
 
         let map;
 
