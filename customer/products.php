@@ -449,17 +449,22 @@ if ($marketResult) {
         ===================================================== */
 
         .page-header {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .page-header h1 {
             margin: 0 0 8px;
             font-size: 30px;
+            line-height: 1.2;
+            font-weight: 700;
+            color: #222;
         }
 
         .page-header p {
             margin: 0;
             color: #666;
+            font-size: 15px;
+            line-height: 1.5;
         }
 
 
@@ -491,6 +496,92 @@ if ($marketResult) {
             color: #72583E;
         }
 
+/* =====================================================
+   Product Filters
+===================================================== */
+
+.product-filters {
+    display: grid;
+    grid-template-columns:
+        minmax(220px, 1.5fr)
+        repeat(3, minmax(150px, 1fr))
+        minmax(170px, 1.1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+    padding: 18px;
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+    border-radius: 12px;
+    box-shadow:
+        0 2px 8px
+        rgba(0, 0, 0, 0.03);
+}
+
+.product-search,
+.product-filter-group,
+.product-price-filter {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.product-filters label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #444;
+}
+
+.product-filters input,
+.product-filters select {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 42px;
+    padding: 9px 11px;
+    border: 1px solid #dcdcdc;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #333;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.product-filters input::placeholder {
+    color: #999;
+}
+
+.product-filters input:focus,
+.product-filters select:focus {
+    border-color: #a38d78;
+    box-shadow:
+        0 0 0 3px
+        rgba(114, 88, 62, 0.10);
+}
+
+.price-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+/* =====================================================
+   No Matching Products
+===================================================== */
+
+#noMatchingProducts {
+    margin-bottom: 24px;
+    padding: 28px 20px;
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+    border-radius: 12px;
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+    line-height: 1.5;
+}
 
         /* =====================================================
            Products Grid
@@ -759,6 +850,19 @@ if ($marketResult) {
            Mobile
         ===================================================== */
 
+        @media (max-width: 1100px) {
+
+            .product-filters {
+                grid-template-columns:
+                    repeat(2, minmax(180px, 1fr));
+            }
+
+            .product-search {
+                grid-column: span 2;
+            }
+
+        }
+
         @media (max-width: 700px) {
 
             .products-grid {
@@ -767,6 +871,16 @@ if ($marketResult) {
 
             .shopping-note {
                 font-size: 13px;
+            }
+
+            .product-filters {
+                grid-template-columns: 1fr;
+                gap: 12px;
+                padding: 15px;
+            }
+
+            .price-inputs {
+                grid-template-columns: 1fr 1fr;
             }
 
         }
