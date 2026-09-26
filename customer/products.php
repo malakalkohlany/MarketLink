@@ -275,28 +275,11 @@ while ($row = $result->fetch_assoc()) {
     <title>Products - MarketLink</title>
 
 
-    <!-- Dashboard CSS -->
-    <link
-        rel="stylesheet"
-        href="../assets/css/base.css"
-    >
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
 
 
-    <!-- Navbar CSS -->
-    <link
-        rel="stylesheet"
-        href="../assets/css/navbar.css"
-    >
-
-
-    <!-- Sidebar CSS -->
-    <link
-        rel="stylesheet"
-        href="../assets/css/sidebar.css"
-    >
-
-
-    <!-- Font Awesome -->
     <link
         rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
