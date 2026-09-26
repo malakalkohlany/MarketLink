@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../includes/include.php';
 
-requireRole('admin');
+requireRole(R_ADMIN);
 
 $customer_id = filter_input(
     INPUT_GET,

@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../includes/include.php';
 
-requireRole('customer');
+requireRole(R_CUSTOMER);
 
 $productId = isset($_GET['id'])
     ? (int) $_GET['id']

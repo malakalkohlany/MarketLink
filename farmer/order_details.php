@@ -2,6 +2,9 @@
 
 require_once __DIR__ .'/../includes/include.php';
 
+requireRole(R_FARMER);
+requireApprovedFarmer();
+
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     die("Invalid order ID.");
 }

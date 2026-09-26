@@ -2,6 +2,9 @@
 
 require_once __DIR__ . '/../includes/include.php';
 
+requireRole(R_FARMER);
+requireApprovedFarmer();
+
 $user_id =getUserId();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST'){

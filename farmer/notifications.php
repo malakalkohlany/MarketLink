@@ -3,6 +3,7 @@
 require_once __DIR__ . '/../includes/include.php';
 
 requireRole(R_FARMER);
+requireApprovedFarmer();
 
 // Get current user
 $userId = (int) $_SESSION['user_id'];

@@ -4,10 +4,7 @@ require_once __DIR__ . '/../includes/include.php';
 
 requireLogin();
 
-if ($_SESSION['role'] !== 'farmer') {
-    header("Location: " . BASE_URL);
-    exit;
-}
+requireRole(R_FARMER);
 
 if ($_SESSION['approval_status'] !== 'rejected') {
 

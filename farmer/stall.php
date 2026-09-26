@@ -2,6 +2,9 @@
 
 require_once __DIR__ . '/../includes/include.php';
 
+requireRole(R_FARMER);
+requireApprovedFarmer();
+
 $farmer_id = $_SESSION['farmer_id'];
 
 // Products Pagination
