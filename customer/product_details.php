@@ -11,7 +11,7 @@ requireRole(R_CUSTOMER);
 $productId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 
 if ($productId <= 0) {
-    header('Location: products.php');
+    header('Location: dashboard.php');
     exit;
 }
 
@@ -64,12 +64,15 @@ $stmt->close();
 
 if (!$product) {
     ?>
+
     <!DOCTYPE html>
     <html lang="en">
-
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+        >
         <title>Product Not Found - MarketLink</title>
 
         <style>
@@ -125,20 +128,18 @@ if (!$product) {
                 This product is not available or no longer exists.
             </p>
 
-            <a href="products.php" class="back-button">
-                Back to Products
+            <a href="dashboard.php" class="back-button">
+                Back to Dashboard
             </a>
 
         </div>
 
     </body>
-
     </html>
 
     <?php
     exit;
 }
-
 
 // ===============================
 // Error Message
@@ -177,9 +178,20 @@ if (isset($_GET['error'])) {
         - MarketLink
     </title>
 
-    <link rel="stylesheet" href="../assets/css/base.css">
-    <link rel="stylesheet" href="../assets/css/navbar.css">
-    <link rel="stylesheet" href="../assets/css/sidebar.css">
+    <link
+        rel="stylesheet"
+        href="../assets/css/base.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/navbar.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/sidebar.css"
+    >
 
     <style>
 
@@ -541,18 +553,20 @@ if (isset($_GET['error'])) {
 <body>
 
     <?php include __DIR__ . '/../includes/navbar.php'; ?>
-    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
     <main class="main-content">
 
         <div class="details-container">
 
+            <!-- Back to Dashboard -->
+
             <a
-                href="products.php"
+                href="dashboard.php"
                 class="back-link"
             >
-                ← Back to Products
+                ← Back 
             </a>
 
             <?php if ($errorMessage): ?>
@@ -592,21 +606,25 @@ if (isset($_GET['error'])) {
                         <?php if (!empty($product['category_name'])): ?>
 
                             <div class="category-badge">
+
                                 <?php
                                 echo e(
                                     $product['category_name']
                                 );
                                 ?>
+
                             </div>
 
                         <?php endif; ?>
 
                         <h1 class="product-name">
+
                             <?php
                             echo e(
                                 $product['name']
                             );
                             ?>
+
                         </h1>
 
                         <div class="product-description">
@@ -625,6 +643,7 @@ if (isset($_GET['error'])) {
                         <div class="price">
 
                             $
+
                             <?php
                             echo number_format(
                                 (float) $product['price'],
@@ -637,6 +656,7 @@ if (isset($_GET['error'])) {
                         <div class="unit">
 
                             Price per
+
                             <?php
                             echo e(
                                 $product['unit']
@@ -717,7 +737,6 @@ if (isset($_GET['error'])) {
 
                             </div>
 
-
                             <div class="info-row">
 
                                 <span class="info-label">
@@ -743,8 +762,10 @@ if (isset($_GET['error'])) {
 
                         <div class="actions">
 
+                            <!-- Back button now goes to Dashboard -->
+
                             <a
-                                href="products.php"
+                                href="dashboard.php"
                                 class="button back-button"
                             >
                                 Back
@@ -774,8 +795,6 @@ if (isset($_GET['error'])) {
 
                         </div>
 
-                        
-
                     </div>
 
                 </div>
@@ -790,7 +809,9 @@ if (isset($_GET['error'])) {
 
                         <div class="farmer-name">
 
-                            <a href="farmer_details.php?id=<?= (int)$product['farmer_id'] ?>">
+                            <a
+                                href="farmer_details.php?id=<?= (int) $product['farmer_id'] ?>"
+                            >
                                 <?= e($product['farmer_name']) ?>
                             </a>
 
@@ -863,6 +884,7 @@ if (isset($_GET['error'])) {
             </div>
 
         </div>
+
     </main>
 
     <script src="../assets/js/app.js"></script>
