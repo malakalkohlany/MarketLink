@@ -20,7 +20,6 @@ if (
     $_SERVER['REQUEST_METHOD'] === 'POST'
     && isset($_POST['toggle_favorite'])
 ) {
-
     $marketId = filter_input(
         INPUT_POST,
         'market_id',
@@ -34,7 +33,6 @@ if (
 
 
     // Check if market is already favorite
-
     $checkStmt = mysqli_prepare(
         $conn,
         "SELECT customer_id
@@ -108,7 +106,6 @@ if (
         }
 
         mysqli_stmt_close($deleteStmt);
-
     }
 
 
@@ -155,7 +152,6 @@ if (
 
 
     // Return to Markets page
-
     header('Location: markets.php');
     exit;
 }
@@ -242,6 +238,7 @@ if ($result) {
 ?>
 
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
@@ -301,6 +298,7 @@ if ($result) {
         #map {
 
             width: 100%;
+
             height: 500px;
 
         }
@@ -617,18 +615,23 @@ if ($result) {
 
 
             <h1>
+
                 Markets
+
             </h1>
 
 
             <p>
+
                 Find nearby markets and view their locations.
+
             </p>
 
 
             <div class="market-count">
 
                 Markets found:
+
                 <?= count($markets); ?>
 
             </div>
@@ -745,7 +748,9 @@ if ($result) {
                             <div class="market-info">
 
                                 <strong>
+
                                     Opening:
+
                                 </strong>
 
                                 <?= e(
@@ -758,7 +763,9 @@ if ($result) {
                             <div class="market-info">
 
                                 <strong>
+
                                     Closing:
+
                                 </strong>
 
                                 <?= e(
@@ -771,7 +778,9 @@ if ($result) {
                             <div class="market-info">
 
                                 <strong>
+
                                     Operating Days:
+
                                 </strong>
 
                                 <?= e(
@@ -815,7 +824,6 @@ if ($result) {
 
         </div>
 
-
     </main>
 
 
@@ -838,11 +846,191 @@ if ($result) {
             ); ?>;
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Default Map Position
-        |--------------------------------------------------------------------------
-        */
+        // =====================================================
+        // Sort Markets By User Location
+        // =====================================================
+
+        function calculateDistance(
+            lat1,
+            lon1,
+            lat2,
+            lon2
+        ) {
+
+            const R = 6371;
+
+            const dLat =
+                (lat2 - lat1) *
+                Math.PI / 180;
+
+            const dLon =
+                (lon2 - lon1) *
+                Math.PI / 180;
+
+            const a =
+                Math.sin(dLat / 2) *
+                Math.sin(dLat / 2) +
+
+                Math.cos(
+                    lat1 * Math.PI / 180
+                ) *
+
+                Math.cos(
+                    lat2 * Math.PI / 180
+                ) *
+
+                Math.sin(dLon / 2) *
+                Math.sin(dLon / 2);
+
+            const c =
+                2 * Math.atan2(
+                    Math.sqrt(a),
+                    Math.sqrt(1 - a)
+                );
+
+            return R * c;
+
+        }
+
+
+        // =====================================================
+        // User Location
+        // =====================================================
+
+        // Cambridge, Massachusetts, USA
+
+        const userLatitude =
+            42.3736;
+
+        const userLongitude =
+            -71.1097;
+
+
+        // =====================================================
+        // Calculate Distance For Each Market
+        // =====================================================
+
+        const marketCards =
+            document.querySelectorAll(
+                '.market-card'
+            );
+
+        const cards =
+            Array.from(
+                marketCards
+            );
+
+
+        cards.forEach(function (card) {
+
+            const marketId =
+                parseInt(
+                    card.dataset.marketId
+                );
+
+
+            const market =
+                markets.find(function (item) {
+
+                    return (
+                        parseInt(item.id) ===
+                        marketId
+                    );
+
+                });
+
+
+            if (
+                market &&
+                market.latitude !== null &&
+                market.longitude !== null &&
+                market.latitude !== '' &&
+                market.longitude !== ''
+            ) {
+
+                const marketLatitude =
+                    parseFloat(
+                        market.latitude
+                    );
+
+                const marketLongitude =
+                    parseFloat(
+                        market.longitude
+                    );
+
+
+                if (
+                    !isNaN(marketLatitude) &&
+                    !isNaN(marketLongitude)
+                ) {
+
+                    card.dataset.distance =
+                        calculateDistance(
+                            userLatitude,
+                            userLongitude,
+                            marketLatitude,
+                            marketLongitude
+                        );
+
+                } else {
+
+                    card.dataset.distance =
+                        '999999999';
+
+                }
+
+            } else {
+
+                card.dataset.distance =
+                    '999999999';
+
+            }
+
+        });
+
+
+        // =====================================================
+        // Sort Cards From Nearest To Farthest
+        // =====================================================
+
+        cards.sort(function (a, b) {
+
+            return (
+                parseFloat(
+                    a.dataset.distance
+                ) -
+                parseFloat(
+                    b.dataset.distance
+                )
+            );
+
+        });
+
+
+        // =====================================================
+        // Rebuild Markets Grid
+        // =====================================================
+
+        const grid =
+            document.querySelector(
+                '.markets-grid'
+            );
+
+
+        if (grid) {
+
+            cards.forEach(function (card) {
+
+                grid.appendChild(card);
+
+            });
+
+        }
+
+
+        // =====================================================
+        // Default Map Position
+        // =====================================================
 
         const defaultLatitude =
             42.3555;
@@ -851,11 +1039,9 @@ if ($result) {
             -71.0565;
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Create Map
-        |--------------------------------------------------------------------------
-        */
+        // =====================================================
+        // Create Map
+        // =====================================================
 
         const map =
             L.map('map').setView(
@@ -867,28 +1053,23 @@ if ($result) {
             );
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | OpenStreetMap
-        |--------------------------------------------------------------------------
-        */
+        // =====================================================
+        // OpenStreetMap
+        // =====================================================
 
         L.tileLayer(
             'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
             {
                 maxZoom: 19,
-
                 attribution:
                     '&copy; OpenStreetMap contributors'
             }
         ).addTo(map);
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Add Market Markers
-        |--------------------------------------------------------------------------
-        */
+        // =====================================================
+        // Add Market Markers
+        // =====================================================
 
         const markers = [];
 
@@ -936,16 +1117,12 @@ if ($result) {
 
 
                     marker.bindPopup(
-
                         '<b>' +
                         market.name +
                         '</b><br>' +
-
                         market.address +
                         '<br><br>' +
-
                         directionsLink
-
                     );
 
 
@@ -958,11 +1135,9 @@ if ($result) {
         });
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Fit Map Around Markets
-        |--------------------------------------------------------------------------
-        */
+        // =====================================================
+        // Fit Map Around Markets
+        // =====================================================
 
         if (markers.length > 0) {
 
@@ -980,11 +1155,9 @@ if ($result) {
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Get Directions
-        |--------------------------------------------------------------------------
-        */
+        // =====================================================
+        // Get Directions
+        // =====================================================
 
         function getDirections(
             destinationLatitude,
@@ -1045,11 +1218,9 @@ if ($result) {
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Fix Leaflet Rendering
-        |--------------------------------------------------------------------------
-        */
+        // =====================================================
+        // Fix Leaflet Rendering
+        // =====================================================
 
         setTimeout(function () {
 
