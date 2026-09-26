@@ -471,7 +471,6 @@ if ($categoryResult) {
 // ==========================================================
 
 $markets = [];
-
 $marketResult = mysqli_query(
     $conn,
     "SELECT id, name
@@ -481,11 +480,24 @@ $marketResult = mysqli_query(
 );
 
 if ($marketResult) {
-
     while ($row = mysqli_fetch_assoc($marketResult)) {
         $markets[] = $row;
     }
 }
+
+// ==========================================================
+// Cart Count
+// ==========================================================
+
+$cartCount = 0;
+
+if (
+    isset($_SESSION['cart']) &&
+    is_array($_SESSION['cart'])
+) {
+    $cartCount = count($_SESSION['cart']);
+}
+?>
 
 ?>
 <!DOCTYPE html>
@@ -920,6 +932,87 @@ if ($marketResult) {
             color: #666;
         }
 
+        /* =====================================================
+   Floating Cart Button
+===================================================== */
+
+.floating-cart {
+    position: fixed;
+    right: 28px;
+    bottom: 28px;
+    z-index: 1000;
+
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    padding: 13px 18px;
+
+    background: #72583E;
+    color: #ffffff;
+
+    border-radius: 999px;
+    text-decoration: none;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    box-shadow:
+        0 8px 24px
+        rgba(62, 48, 38, 0.20);
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.floating-cart:hover {
+    background: #5f4833;
+    color: #ffffff;
+
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 12px 30px
+        rgba(62, 48, 38, 0.25);
+}
+
+.floating-cart i {
+    font-size: 15px;
+}
+
+.floating-cart-count {
+    min-width: 22px;
+    height: 22px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 6px;
+
+    box-sizing: border-box;
+
+    background: #DFA62F;
+    color: #3E3026;
+
+    border-radius: 999px;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+@media (max-width: 700px) {
+
+    .floating-cart {
+        right: 16px;
+        bottom: 16px;
+
+        padding: 12px 16px;
+    }
+}
+
 
         /* =====================================================
            Mobile
@@ -993,6 +1086,20 @@ if ($marketResult) {
         </p>
 
     </div>
+
+
+    <?php if (isset($_GET['added']) && $_GET['added'] === '1'): ?>
+
+        <div class="shopping-note" style="margin-bottom: 20px;">
+            <i class="fa-solid fa-circle-check"></i>
+
+            <span>
+                Product added to your cart.
+                You can continue shopping or open your cart when you're ready.
+            </span>
+        </div>
+
+    <?php endif; ?>
 
 
     <!-- =====================================================
@@ -1524,6 +1631,22 @@ if ($marketResult) {
 
 
 </main>
+
+<?php if ($cartCount > 0): ?>
+
+    <a href="cart.php" class="floating-cart">
+        <i class="fa-solid fa-cart-shopping"></i>
+
+        <span>
+            Cart
+        </span>
+
+        <span class="floating-cart-count">
+            <?= $cartCount ?>
+        </span>
+    </a>
+
+<?php endif; ?>
 
 
 <script src="../assets/js/app.js"></script>
