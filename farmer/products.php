@@ -57,57 +57,67 @@ $products = $product_stmt->get_result();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Products</title>
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
 </head>
 <body>
-    <h1>My Products</h1>
-    <?php if ($products->num_rows === 0): ?>
-        <p>No Products Found.</p>
-    <?php else: ?>    
 
-        <table>
-            <tr>
-                <th>Image</th>
-                <th>Name</th>
-                <th>category</th>
-                <th>Description</th>
-                <th>Price</th>
-                <th>Unit</th>
-                <th>Stock</th>
-                <th>Availability</th>
-                <th>Moderation Status</th>
-            </tr>
+    <?php include __DIR__ . '/../includes/navbar.php'; ?>
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-        <tbody>
-            <?php while ($product = $products->fetch_assoc()): ?>
+    <main class="main-content">
+
+        <h1>My Products</h1>
+        <?php if ($products->num_rows === 0): ?>
+            <p>No Products Found.</p>
+        <?php else: ?>    
+
+            <table>
                 <tr>
-                    <td>
-                            <?php if (!empty($product['image'])): ?>
-                                <img
-                                    src="<?= e($product['image']) ?>"
-                                    alt="<?= e($product['name']) ?>"
-                                    width="80">
-                            <?php else: ?>
-                                No Image
-                            <?php endif; ?>                        
-                    </td>
-                    <td><?= e($product['name']) ?></td>
-                    <td><?= e($product['category_name']) ?></td>
-                    <td><?= e($product['description'] ?? '') ?></td>
-                    <td><?= formatPrice($product['price']) ?></td>
-                    <td><?= e($product['unit']) ?></td>
-                    <td><?= e($product['stock_quantity']) ?></td>
-                    <td>
-                            <?php if ($product['is_available']): ?>
-                                Available
-                            <?php else: ?>
-                                Unavailable
-                            <?php endif; ?>                        
-                    </td>
-                    <td><?= e(ucfirst($product['moderation_status'])) ?></td>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>category</th>
+                    <th>Description</th>
+                    <th>Price</th>
+                    <th>Unit</th>
+                    <th>Stock</th>
+                    <th>Availability</th>
+                    <th>Moderation Status</th>
                 </tr>
-            <?php endwhile; ?>    
-        </tbody>
-     </table>
-     <?php endif; ?>    
+
+            <tbody>
+                <?php while ($product = $products->fetch_assoc()): ?>
+                    <tr>
+                        <td>
+                                <?php if (!empty($product['image'])): ?>
+                                    <img
+                                        src="<?= e($product['image']) ?>"
+                                        alt="<?= e($product['name']) ?>"
+                                        width="80">
+                                <?php else: ?>
+                                    No Image
+                                <?php endif; ?>                        
+                        </td>
+                        <td><?= e($product['name']) ?></td>
+                        <td><?= e($product['category_name']) ?></td>
+                        <td><?= e($product['description'] ?? '') ?></td>
+                        <td><?= formatPrice($product['price']) ?></td>
+                        <td><?= e($product['unit']) ?></td>
+                        <td><?= e($product['stock_quantity']) ?></td>
+                        <td>
+                                <?php if ($product['is_available']): ?>
+                                    Available
+                                <?php else: ?>
+                                    Unavailable
+                                <?php endif; ?>                        
+                        </td>
+                        <td><?= e(ucfirst($product['moderation_status'])) ?></td>
+                    </tr>
+                <?php endwhile; ?>    
+            </tbody>
+        </table>
+        <?php endif; ?>
+    </main>    
 </body>
 </html>
