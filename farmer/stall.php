@@ -1,10 +1,44 @@
 <?php
 
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../includes/include.php';
 
 $farmer_id = $_SESSION['farmer_id'];
+
+// Products Pagination
+$products_per_page = 10;
+
+$products_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+
+if ($products_page < 1) {
+    $products_page = 1;
+}
+
+$products_offset = ($products_page - 1) * $products_per_page;
+
+// Count total available products
+$count_products_stmt = $conn->prepare("
+    SELECT COUNT(*) AS total_products
+    FROM products
+    WHERE farmer_id = ?
+      AND stock_quantity > 0
+      AND is_available = 1
+      AND moderation_status = 'approved'
+");
+
+$count_products_stmt->bind_param("i", $farmer_id);
+$count_products_stmt->execute();
+
+$count_products_result = $count_products_stmt->get_result();
+$total_products = $count_products_result->fetch_assoc()['total_products'];
+
+$count_products_stmt->close();
+
+$total_products_pages = ceil($total_products / $products_per_page);
+
+if ($total_products_pages > 0 && $products_page > $total_products_pages) {
+    $products_page = $total_products_pages;
+    $products_offset = ($products_page - 1) * $products_per_page;
+}
 
 $stmt = $conn->prepare("
     SELECT
@@ -22,9 +56,10 @@ $stmt = $conn->prepare("
       AND is_available = 1
       AND moderation_status = 'approved'
     ORDER BY name ASC
+    LIMIT ? OFFSET ?
 ");
 
-$stmt->bind_param("i", $farmer_id);
+$stmt->bind_param("iii",$farmer_id,$products_per_page,$products_offset);
 $stmt->execute();
 
 $products = $stmt->get_result();
@@ -84,5 +119,34 @@ $products = $stmt->get_result();
             <?php endwhile; ?>    
         </tbody>
     </table>
+
+<?php if ($total_products_pages > 1): ?>
+
+    <div class="pagination">
+
+        <?php if ($products_page > 1): ?>
+            <a href="?page=<?= $products_page - 1 ?>">
+                Previous
+            </a>
+        <?php endif; ?>
+
+        <?php for ($i = 1; $i <= $total_products_pages; $i++): ?>
+
+            <a href="?page=<?= $i ?>"
+               <?= $i == $products_page ? 'class="active"' : '' ?>>
+                <?= $i ?>
+            </a>
+
+        <?php endfor; ?>
+
+        <?php if ($products_page < $total_products_pages): ?>
+            <a href="?page=<?= $products_page + 1 ?>">
+                Next
+            </a>
+        <?php endif; ?>
+
+    </div>
+
+<?php endif; ?>    
 </body>
 </html>

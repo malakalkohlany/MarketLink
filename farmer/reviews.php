@@ -25,6 +25,38 @@ $farmer_id = $farmer['id'];
 
 $stmt->close();
 
+// Reviews Pagination
+$reviews_per_page = 10;
+
+$reviews_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+
+if ($reviews_page < 1) {
+    $reviews_page = 1;
+}
+
+$reviews_offset = ($reviews_page - 1) * $reviews_per_page;
+
+// Count total reviews
+$count_reviews_stmt = $conn->prepare("
+    SELECT COUNT(*) AS total_reviews
+    FROM reviews
+    WHERE farmer_id = ?
+");
+
+$count_reviews_stmt->bind_param("i", $farmer_id);
+$count_reviews_stmt->execute();
+
+$count_reviews_result = $count_reviews_stmt->get_result();
+$total_reviews = $count_reviews_result->fetch_assoc()['total_reviews'];
+
+$count_reviews_stmt->close();
+
+$total_reviews_pages = ceil($total_reviews / $reviews_per_page);
+
+if ($total_reviews_pages > 0 && $reviews_page > $total_reviews_pages) {
+    $reviews_page = $total_reviews_pages;
+    $reviews_offset = ($reviews_page - 1) * $reviews_per_page;
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -80,9 +112,10 @@ $review_stmt = $conn->prepare("
         ON reviews.product_id = products.id
     WHERE reviews.farmer_id = ?
     ORDER BY reviews.created_at DESC
+    LIMIT ? OFFSET ?
 ");
 
-$review_stmt->bind_param("i", $farmer_id);
+$review_stmt->bind_param("iii",$farmer_id,$reviews_per_page,$reviews_offset);
 $review_stmt->execute();
 
 $reviews = $review_stmt->get_result();
@@ -138,6 +171,36 @@ $reviews = $review_stmt->get_result();
             </div>
 
             <?php endwhile; ?>
+
+
+<?php if ($total_reviews_pages > 1): ?>
+
+    <div class="pagination">
+
+        <?php if ($reviews_page > 1): ?>
+            <a href="?page=<?= $reviews_page - 1 ?>">
+                Previous
+            </a>
+        <?php endif; ?>
+
+        <?php for ($i = 1; $i <= $total_reviews_pages; $i++): ?>
+
+            <a href="?page=<?= $i ?>"
+               <?= $i == $reviews_page ? 'class="active"' : '' ?>>
+                <?= $i ?>
+            </a>
+
+        <?php endfor; ?>
+
+        <?php if ($reviews_page < $total_reviews_pages): ?>
+            <a href="?page=<?= $reviews_page + 1 ?>">
+                Next
+            </a>
+        <?php endif; ?>
+
+    </div>
+
+<?php endif; ?>
 
         <?php endif; ?>
 
