@@ -4,8 +4,7 @@ require_once __DIR__ . '/../includes/include.php';
 
 requireRole(R_CUSTOMER);
 
-$customerId = (int) getUserId();
-
+$customerId = (int)getUserId();
 
 
 // ==========================================================
@@ -16,7 +15,6 @@ if (
     $_SERVER['REQUEST_METHOD'] === 'POST'
     && isset($_POST['toggle_favorite'])
 ) {
-
     $productId = filter_input(
         INPUT_POST,
         'product_id',
@@ -27,7 +25,6 @@ if (
         header('Location: products.php');
         exit;
     }
-
 
 
     // ------------------------------------------------------
@@ -71,7 +68,6 @@ if (
     mysqli_stmt_close($checkStmt);
 
 
-
     // ------------------------------------------------------
     // Remove favorite
     // ------------------------------------------------------
@@ -107,7 +103,6 @@ if (
         }
 
         mysqli_stmt_close($deleteStmt);
-
 
 
     // ------------------------------------------------------
@@ -152,11 +147,9 @@ if (
     }
 
 
-
     header('Location: products.php');
     exit;
 }
-
 
 
 // ==========================================================
@@ -198,35 +191,35 @@ mysqli_stmt_bind_result(
 );
 
 while (mysqli_stmt_fetch($favoriteStmt)) {
-
-    $favoriteProducts[] = (int) $favoriteProductId;
+    $favoriteProducts[] = (int)$favoriteProductId;
 }
 
 mysqli_stmt_close($favoriteStmt);
 
 
-
 // ==========================================================
-// Get Current Cart Farmer
+// Get Current Cart Market
 // ==========================================================
 
-$cartFarmerId = null;
-$cartFarmerName = null;
+$cartMarketId = null;
+$cartMarketName = null;
 
 if (
     isset($_SESSION['cart']) &&
     is_array($_SESSION['cart']) &&
     !empty($_SESSION['cart'])
 ) {
-
     foreach ($_SESSION['cart'] as $cartItem) {
 
         if (
-            isset($cartItem['farmer_id']) &&
-            (int) $cartItem['farmer_id'] > 0
+            isset($cartItem['market_id']) &&
+            (int)$cartItem['market_id'] > 0
         ) {
+            $cartMarketId = (int)$cartItem['market_id'];
 
-            $cartFarmerId = (int) $cartItem['farmer_id'];
+            if (isset($cartItem['market_name'])) {
+                $cartMarketName = $cartItem['market_name'];
+            }
 
             break;
         }
@@ -234,58 +227,90 @@ if (
 }
 
 
-
 // ----------------------------------------------------------
-// Get current cart farmer's name
+// Backward compatibility for old cart items that only have
+// farmer_id
 // ----------------------------------------------------------
 
-if ($cartFarmerId !== null) {
+if ($cartMarketId === null) {
 
-    $cartFarmerStmt = $conn->prepare(
-        "SELECT stall_name
-         FROM farmers
-         WHERE id = ?
-         LIMIT 1"
-    );
+    $cartFarmerId = null;
 
-    if (!$cartFarmerStmt) {
-        die(
-            'Cart farmer prepare failed: '
-            . $conn->error
+    if (
+        isset($_SESSION['cart']) &&
+        is_array($_SESSION['cart']) &&
+        !empty($_SESSION['cart'])
+    ) {
+        foreach ($_SESSION['cart'] as $cartItem) {
+
+            if (
+                isset($cartItem['farmer_id']) &&
+                (int)$cartItem['farmer_id'] > 0
+            ) {
+                $cartFarmerId = (int)$cartItem['farmer_id'];
+                break;
+            }
+        }
+    }
+
+    if ($cartFarmerId !== null) {
+
+        $cartMarketStmt = $conn->prepare(
+            "SELECT
+                m.id,
+                m.name
+             FROM market_farmer mf
+             INNER JOIN markets m
+                 ON mf.market_id = m.id
+             WHERE mf.farmer_id = ?
+               AND m.status = 'active'
+             ORDER BY m.name ASC
+             LIMIT 1"
         );
+
+        if ($cartMarketStmt) {
+
+            $cartMarketStmt->bind_param(
+                "i",
+                $cartFarmerId
+            );
+
+            if ($cartMarketStmt->execute()) {
+
+                $cartMarketResult =
+                    $cartMarketStmt->get_result();
+
+                $cartMarket =
+                    $cartMarketResult->fetch_assoc();
+
+                if ($cartMarket) {
+
+                    $cartMarketId =
+                        (int)$cartMarket['id'];
+
+                    $cartMarketName =
+                        $cartMarket['name'];
+                }
+            }
+
+            $cartMarketStmt->close();
+        }
     }
-
-    $cartFarmerStmt->bind_param(
-        "i",
-        $cartFarmerId
-    );
-
-    if (!$cartFarmerStmt->execute()) {
-        die(
-            'Cart farmer execute failed: '
-            . $cartFarmerStmt->error
-        );
-    }
-
-    $cartFarmerResult =
-        $cartFarmerStmt->get_result();
-
-    $cartFarmer =
-        $cartFarmerResult->fetch_assoc();
-
-    if ($cartFarmer) {
-
-        $cartFarmerName =
-            $cartFarmer['stall_name'];
-    }
-
-    $cartFarmerStmt->close();
 }
-
 
 
 // ==========================================================
 // Get Products
+// ==========================================================
+//
+// IMPORTANT:
+// Do NOT join market_farmer here.
+//
+// A farmer can belong to multiple markets, so joining it
+// directly would create duplicate product rows.
+//
+// We get the products once, then load the farmer's markets
+// separately below.
 // ==========================================================
 
 $sql = "
@@ -302,11 +327,7 @@ $sql = "
 
         f.stall_name AS farmer_name,
 
-        c.name AS category_name,
-
-        m.id AS market_id,
-        m.name AS market_name,
-        m.operating_days AS market_days
+        c.name AS category_name
 
     FROM products p
 
@@ -315,12 +336,6 @@ $sql = "
 
     LEFT JOIN categories c
         ON p.category_id = c.id
-
-    LEFT JOIN market_farmer mf
-        ON p.farmer_id = mf.farmer_id
-
-    LEFT JOIN markets m
-        ON mf.market_id = m.id
 
     WHERE p.is_available = 1
       AND p.moderation_status = ?
@@ -359,11 +374,75 @@ $result = $stmt->get_result();
 $products = [];
 
 while ($row = $result->fetch_assoc()) {
-
     $products[] = $row;
 }
 
 $stmt->close();
+
+
+// ==========================================================
+// Get Markets For All Farmers
+// ==========================================================
+//
+// This creates:
+// $farmerMarkets[farmer_id] = [
+//     [
+//         'id' => 1,
+//         'name' => 'Market A',
+//         'operating_days' => 'Saturday'
+//     ],
+//     [
+//         'id' => 2,
+//         'name' => 'Market B',
+//         'operating_days' => 'Saturday,Sunday'
+//     ]
+// ]
+//
+// Therefore each product still appears only once.
+// ==========================================================
+
+$farmerMarkets = [];
+
+$marketFarmerSql = "
+    SELECT
+        mf.farmer_id,
+        m.id AS market_id,
+        m.name AS market_name,
+        m.operating_days AS market_days
+
+    FROM market_farmer mf
+
+    INNER JOIN markets m
+        ON mf.market_id = m.id
+
+    WHERE m.status = 'active'
+
+    ORDER BY m.name ASC
+";
+
+$marketFarmerResult = mysqli_query(
+    $conn,
+    $marketFarmerSql
+);
+
+if ($marketFarmerResult) {
+
+    while ($row = mysqli_fetch_assoc($marketFarmerResult)) {
+
+        $farmerId = (int)$row['farmer_id'];
+
+        if (!isset($farmerMarkets[$farmerId])) {
+            $farmerMarkets[$farmerId] = [];
+        }
+
+        $farmerMarkets[$farmerId][] = [
+            'id' => (int)$row['market_id'],
+            'name' => $row['market_name'],
+            'operating_days' => $row['market_days'] ?? ''
+        ];
+    }
+}
+
 
 // ==========================================================
 // Get Categories
@@ -382,11 +461,9 @@ $categoryResult = mysqli_query(
 if ($categoryResult) {
 
     while ($row = mysqli_fetch_assoc($categoryResult)) {
-
         $categories[] = $row;
     }
 }
-
 
 
 // ==========================================================
@@ -406,13 +483,11 @@ $marketResult = mysqli_query(
 if ($marketResult) {
 
     while ($row = mysqli_fetch_assoc($marketResult)) {
-
         $markets[] = $row;
     }
 }
 
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -477,7 +552,6 @@ if ($marketResult) {
         }
 
 
-
         /* =====================================================
            Shopping Restriction Notice
         ===================================================== */
@@ -486,14 +560,11 @@ if ($marketResult) {
             display: flex;
             align-items: flex-start;
             gap: 12px;
-
             margin-bottom: 25px;
             padding: 14px 18px;
-
             background: #f5f0eb;
             border: 1px solid #d7cec4;
             border-radius: 10px;
-
             color: #5f4833;
             font-size: 14px;
             line-height: 1.5;
@@ -509,92 +580,94 @@ if ($marketResult) {
             color: #72583E;
         }
 
-/* =====================================================
-   Product Filters
-===================================================== */
 
-.product-filters {
-    display: grid;
-    grid-template-columns:
-        minmax(220px, 1.5fr)
-        repeat(3, minmax(150px, 1fr))
-        minmax(170px, 1.1fr);
-    gap: 14px;
-    margin-bottom: 24px;
-    padding: 18px;
-    background: #ffffff;
-    border: 1px solid #e5e5e5;
-    border-radius: 12px;
-    box-shadow:
-        0 2px 8px
-        rgba(0, 0, 0, 0.03);
-}
+        /* =====================================================
+           Product Filters
+        ===================================================== */
 
-.product-search,
-.product-filter-group,
-.product-price-filter {
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
-}
+        .product-filters {
+            display: grid;
+            grid-template-columns:
+                minmax(220px, 1.5fr)
+                repeat(3, minmax(150px, 1fr))
+                minmax(170px, 1.1fr);
+            gap: 14px;
+            margin-bottom: 24px;
+            padding: 18px;
+            background: #ffffff;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            box-shadow:
+                0 2px 8px
+                rgba(0, 0, 0, 0.03);
+        }
 
-.product-filters label {
-    font-size: 13px;
-    font-weight: 600;
-    color: #444;
-}
+        .product-search,
+        .product-filter-group,
+        .product-price-filter {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
 
-.product-filters input,
-.product-filters select {
-    width: 100%;
-    box-sizing: border-box;
-    min-height: 42px;
-    padding: 9px 11px;
-    border: 1px solid #dcdcdc;
-    border-radius: 8px;
-    background: #ffffff;
-    color: #333;
-    font-family: inherit;
-    font-size: 14px;
-    outline: none;
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
-}
+        .product-filters label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #444;
+        }
 
-.product-filters input::placeholder {
-    color: #999;
-}
+        .product-filters input,
+        .product-filters select {
+            width: 100%;
+            box-sizing: border-box;
+            min-height: 42px;
+            padding: 9px 11px;
+            border: 1px solid #dcdcdc;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #333;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
+        }
 
-.product-filters input:focus,
-.product-filters select:focus {
-    border-color: #a38d78;
-    box-shadow:
-        0 0 0 3px
-        rgba(114, 88, 62, 0.10);
-}
+        .product-filters input::placeholder {
+            color: #999;
+        }
 
-.price-inputs {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-}
+        .product-filters input:focus,
+        .product-filters select:focus {
+            border-color: #a38d78;
+            box-shadow:
+                0 0 0 3px
+                rgba(114, 88, 62, 0.10);
+        }
 
-/* =====================================================
-   No Matching Products
-===================================================== */
+        .price-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
 
-#noMatchingProducts {
-    margin-bottom: 24px;
-    padding: 28px 20px;
-    background: #ffffff;
-    border: 1px solid #e5e5e5;
-    border-radius: 12px;
-    text-align: center;
-    color: #666;
-    font-size: 14px;
-    line-height: 1.5;
-}
+
+        /* =====================================================
+           No Matching Products
+        ===================================================== */
+
+        #noMatchingProducts {
+            margin-bottom: 24px;
+            padding: 28px 20px;
+            background: #ffffff;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
 
 
         /* =====================================================
@@ -603,16 +676,13 @@ if ($marketResult) {
 
         .products-grid {
             display: grid;
-
             grid-template-columns:
                 repeat(
                     auto-fill,
                     minmax(250px, 1fr)
                 );
-
             gap: 24px;
         }
-
 
 
         /* =====================================================
@@ -621,24 +691,19 @@ if ($marketResult) {
 
         .product-card {
             position: relative;
-
             background: #ffffff;
             border: 1px solid #e5e5e5;
             border-radius: 12px;
-
             overflow: hidden;
-
             transition: 0.2s ease;
         }
 
         .product-card:hover {
             transform: translateY(-3px);
-
             box-shadow:
                 0 8px 20px
                 rgba(0, 0, 0, 0.08);
         }
-
 
 
         /* =====================================================
@@ -648,10 +713,8 @@ if ($marketResult) {
         .product-image-container {
             width: 100%;
             height: 220px;
-
             background: #f5f5f5;
         }
-
 
 
         /* =====================================================
@@ -660,15 +723,11 @@ if ($marketResult) {
 
         .favorite-form {
             position: absolute;
-
             top: 12px;
             right: 12px;
-
             z-index: 2;
-
             margin: 0;
         }
-
 
 
         /* =====================================================
@@ -678,27 +737,19 @@ if ($marketResult) {
         .favorite-button {
             width: 36px;
             height: 36px;
-
             display: flex;
             align-items: center;
             justify-content: center;
-
             border: none;
             border-radius: 50%;
-
             background: #ffffff;
-
             cursor: pointer;
-
             font-size: 20px;
-
             padding: 0;
             margin: 0;
-
             box-shadow:
                 0 2px 6px
                 rgba(0, 0, 0, 0.10);
-
             transition: 0.2s ease;
         }
 
@@ -715,7 +766,6 @@ if ($marketResult) {
         }
 
 
-
         /* =====================================================
            Product Information
         ===================================================== */
@@ -726,28 +776,22 @@ if ($marketResult) {
 
         .product-name {
             margin: 0 0 8px;
-
             font-size: 20px;
             font-weight: 600;
-
             color: #222;
         }
 
         .product-description {
             color: #666;
-
             font-size: 14px;
             line-height: 1.5;
-
             min-height: 42px;
-
             margin-bottom: 14px;
         }
 
         .product-price {
             font-size: 18px;
             font-weight: 700;
-
             margin-bottom: 8px;
         }
 
@@ -759,10 +803,8 @@ if ($marketResult) {
         .product-stock {
             font-size: 14px;
             color: #555;
-
             margin-bottom: 16px;
         }
-
 
 
         /* =====================================================
@@ -772,13 +814,9 @@ if ($marketResult) {
         .product-farmer {
             display: flex;
             align-items: center;
-
             gap: 7px;
-
             margin-bottom: 10px;
-
             color: #72583E;
-
             font-size: 13px;
             font-weight: 600;
         }
@@ -788,18 +826,14 @@ if ($marketResult) {
         }
 
 
-
         /* =====================================================
            Product Actions
         ===================================================== */
 
         .product-actions {
             display: flex;
-
             flex-direction: column;
-
             gap: 9px;
-
             margin-top: 18px;
         }
 
@@ -810,54 +844,28 @@ if ($marketResult) {
 
         .add-to-cart-button {
             display: flex;
-
             align-items: center;
             justify-content: center;
-
             gap: 8px;
-
             width: 100%;
-
+            box-sizing: border-box;
             padding: 11px 15px;
-
             border: none;
             border-radius: 7px;
-
             background: #72583E;
             color: #ffffff;
-
             font-family: inherit;
-
             font-size: 14px;
             font-weight: 600;
-
+            text-decoration: none;
             cursor: pointer;
-
             transition: 0.2s ease;
         }
 
         .add-to-cart-button:hover {
             background: #5f4833;
-
             transform: translateY(-1px);
         }
-
-
-
-        /* =====================================================
-           Switch Market Button
-        ===================================================== */
-
-        .switch-market-button {
-            background: #8A7562;
-        }
-
-        .switch-market-button:hover {
-            background: #72583E;
-
-            transform: translateY(-1px);
-        }
-
 
 
         /* =====================================================
@@ -867,16 +875,13 @@ if ($marketResult) {
         .add-to-cart-button.out-of-stock {
             background: #eeeeee;
             color: #888888;
-
             cursor: not-allowed;
         }
 
         .add-to-cart-button.out-of-stock:hover {
             background: #eeeeee;
-
             transform: none;
         }
-
 
 
         /* =====================================================
@@ -885,24 +890,15 @@ if ($marketResult) {
 
         .view-details-button {
             display: block;
-
             width: 100%;
-
             box-sizing: border-box;
-
             text-align: center;
             text-decoration: none;
-
             background: transparent;
-
             color: #72583E;
-
             border: 1px solid #d7cec4;
-
             padding: 10px 15px;
-
             border-radius: 7px;
-
             transition: 0.2s ease;
         }
 
@@ -911,25 +907,18 @@ if ($marketResult) {
         }
 
 
-
         /* =====================================================
            Empty Products
         ===================================================== */
 
         .empty-products {
             background: #ffffff;
-
             border: 1px solid #e5e5e5;
-
             border-radius: 12px;
-
             padding: 40px;
-
             text-align: center;
-
             color: #666;
         }
-
 
 
         /* =====================================================
@@ -946,7 +935,6 @@ if ($marketResult) {
             .product-search {
                 grid-column: span 2;
             }
-
         }
 
         @media (max-width: 700px) {
@@ -965,10 +953,13 @@ if ($marketResult) {
                 padding: 15px;
             }
 
+            .product-search {
+                grid-column: auto;
+            }
+
             .price-inputs {
                 grid-template-columns: 1fr 1fr;
             }
-
         }
 
     </style>
@@ -1004,7 +995,6 @@ if ($marketResult) {
     </div>
 
 
-
     <!-- =====================================================
          Shopping Restriction Notice
     ====================================================== -->
@@ -1015,14 +1005,16 @@ if ($marketResult) {
 
         <span>
 
-            <?php if ($cartFarmerName): ?>
+            <?php if ($cartMarketName): ?>
 
                 Your cart is currently from
+
                 <strong>
-                    <?= e($cartFarmerName) ?>
+                    <?= e($cartMarketName) ?>
                 </strong>.
 
                 You can only order from one market at a time.
+
                 Complete or clear your current cart before
                 ordering from another market.
 
@@ -1040,135 +1032,137 @@ if ($marketResult) {
     </div>
 
 
-
     <!-- =====================================================
-         Products
+         Product Filters
     ====================================================== -->
 
-<!-- =====================================================
-     Product Filters
-====================================================== -->
+    <div class="product-filters">
 
-<div class="product-filters">
+        <div class="product-search">
 
-    <div class="product-search">
-        <label for="productSearch">
-            Search Products
-        </label>
-
-        <input
-            type="text"
-            id="productSearch"
-            placeholder="Search by product or farmer"
-            autocomplete="off"
-        >
-    </div>
-
-
-    <div class="product-filter-group">
-
-        <label for="productCategory">
-            Category
-        </label>
-
-        <select id="productCategory">
-
-            <option value="">
-                All Categories
-            </option>
-
-            <?php foreach ($categories as $category): ?>
-
-                <option value="<?= (int) $category['id'] ?>">
-                    <?= e($category['name']) ?>
-                </option>
-
-            <?php endforeach; ?>
-
-        </select>
-
-    </div>
-
-
-    <div class="product-filter-group">
-
-        <label for="productMarket">
-            Market
-        </label>
-
-        <select id="productMarket">
-
-            <option value="">
-                All Markets
-            </option>
-
-            <?php foreach ($markets as $market): ?>
-
-                <option value="<?= (int) $market['id'] ?>">
-                    <?= e($market['name']) ?>
-                </option>
-
-            <?php endforeach; ?>
-
-        </select>
-
-    </div>
-
-
-    <div class="product-filter-group">
-
-        <label for="productDay">
-            Market Day
-        </label>
-
-        <select id="productDay">
-
-            <option value="">
-                All Days
-            </option>
-
-            <option value="Saturday">
-                Saturday
-            </option>
-
-            <option value="Sunday">
-                Sunday
-            </option>
-
-        </select>
-
-    </div>
-
-
-    <div class="product-price-filter">
-
-        <label>
-            Price
-        </label>
-
-        <div class="price-inputs">
+            <label for="productSearch">
+                Search Products
+            </label>
 
             <input
-                type="number"
-                id="minPrice"
-                placeholder="Min"
-                min="0"
-                step="0.01"
+                type="text"
+                id="productSearch"
+                placeholder="Search by product or farmer"
+                autocomplete="off"
             >
 
-            <input
-                type="number"
-                id="maxPrice"
-                placeholder="Max"
-                min="0"
-                step="0.01"
-            >
+        </div>
+
+
+        <div class="product-filter-group">
+
+            <label for="productCategory">
+                Category
+            </label>
+
+            <select id="productCategory">
+
+                <option value="">
+                    All Categories
+                </option>
+
+                <?php foreach ($categories as $category): ?>
+
+                    <option
+                        value="<?= (int)$category['id'] ?>"
+                    >
+                        <?= e($category['name']) ?>
+                    </option>
+
+                <?php endforeach; ?>
+
+            </select>
+
+        </div>
+
+
+        <div class="product-filter-group">
+
+            <label for="productMarket">
+                Market
+            </label>
+
+            <select id="productMarket">
+
+                <option value="">
+                    All Markets
+                </option>
+
+                <?php foreach ($markets as $market): ?>
+
+                    <option
+                        value="<?= (int)$market['id'] ?>"
+                    >
+                        <?= e($market['name']) ?>
+                    </option>
+
+                <?php endforeach; ?>
+
+            </select>
+
+        </div>
+
+
+        <div class="product-filter-group">
+
+            <label for="productDay">
+                Market Day
+            </label>
+
+            <select id="productDay">
+
+                <option value="">
+                    All Days
+                </option>
+
+                <option value="Saturday">
+                    Saturday
+                </option>
+
+                <option value="Sunday">
+                    Sunday
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div class="product-price-filter">
+
+            <label>
+                Price
+            </label>
+
+            <div class="price-inputs">
+
+                <input
+                    type="number"
+                    id="minPrice"
+                    placeholder="Min"
+                    min="0"
+                    step="0.01"
+                >
+
+                <input
+                    type="number"
+                    id="maxPrice"
+                    placeholder="Max"
+                    min="0"
+                    step="0.01"
+                >
+
+            </div>
 
         </div>
 
     </div>
 
-</div>
 
     <div
         id="noMatchingProducts"
@@ -1176,6 +1170,7 @@ if ($marketResult) {
     >
         No products match your filters.
     </div>
+
 
     <?php if (empty($products)): ?>
 
@@ -1193,11 +1188,10 @@ if ($marketResult) {
 
             <?php foreach ($products as $product): ?>
 
-
                 <?php
 
                 $productId =
-                    (int) $product['id'];
+                    (int)$product['id'];
 
                 $productName =
                     $product['name'];
@@ -1206,41 +1200,79 @@ if ($marketResult) {
                     $product['description'] ?? '';
 
                 $price =
-                    (float) $product['price'];
+                    (float)$product['price'];
 
                 $unit =
                     $product['unit'] ?? '';
 
                 $stock =
-                    (float) $product['stock_quantity'];
+                    (float)$product['stock_quantity'];
 
                 $farmerId =
-                    (int) $product['farmer_id'];
+                    (int)$product['farmer_id'];
 
                 $farmerName =
                     $product['farmer_name']
                     ?? 'Unknown Market';
 
                 $categoryId =
-    (int) ($product['category_id'] ?? 0);
-
-<<<<<<< HEAD
-$marketId =
-    (int) ($product['market_id'] ?? 0);
-
-$marketDays =
-    $product['market_days'] ?? '';
+                    (int)($product['category_id'] ?? 0);
 
 
-// --------------------------------------------------
-// Favorite
-// --------------------------------------------------
-=======
+                // --------------------------------------------------
+                // Get ALL markets for this farmer
+                // --------------------------------------------------
+
+                $productMarkets =
+                    $farmerMarkets[$farmerId] ?? [];
+
+
+                // --------------------------------------------------
+                // Build filter data
+                // --------------------------------------------------
+
+                $marketIds = [];
+
+                $marketDays = [];
+
+                foreach ($productMarkets as $productMarket) {
+
+                    $marketIds[] =
+                        (int)$productMarket['id'];
+
+                    if (
+                        !empty(
+                            $productMarket['operating_days']
+                        )
+                    ) {
+
+                        $days = explode(
+                            ',',
+                            $productMarket['operating_days']
+                        );
+
+                        foreach ($days as $day) {
+
+                            $day = trim($day);
+
+                            if (
+                                $day !== ''
+                                && !in_array(
+                                    $day,
+                                    $marketDays,
+                                    true
+                                )
+                            ) {
+                                $marketDays[] = $day;
+                            }
+                        }
+                    }
+                }
+
 
                 // --------------------------------------------------
                 // Favorite
                 // --------------------------------------------------
->>>>>>> 6f5d262 (reviews.php)
 
                 $isFavorite =
                     in_array(
@@ -1250,35 +1282,31 @@ $marketDays =
                     );
 
 
-
                 // --------------------------------------------------
-                // Market Check
-                // --------------------------------------------------
-
-                $sameMarket =
-                    $cartFarmerId === null
-                    || $cartFarmerId === $farmerId;
-
-
-
-                // --------------------------------------------------
-                // Quick Add uses 1 kg
+                // Stock
                 // --------------------------------------------------
 
                 $canAddToCart =
-                    $sameMarket
-                    && $stock >= 1;
+                    $stock >= 1;
 
                 ?>
 
 
-                    <div
-                        class="product-card"
-                        data-category-id="<?= $categoryId ?>"
-                        data-market-id="<?= $marketId ?>"
-                        data-market-days="<?= e($marketDays) ?>"
-                        data-price="<?= $price ?>"
-                    >
+                <div
+                    class="product-card"
+
+                    data-category-id="<?= $categoryId ?>"
+
+                    data-market-ids="<?= e(
+                        implode(',', $marketIds)
+                    ) ?>"
+
+                    data-market-days="<?= e(
+                        implode(',', $marketDays)
+                    ) ?>"
+
+                    data-price="<?= $price ?>"
+                >
 
 
                     <!-- =================================================
@@ -1297,13 +1325,25 @@ $marketDays =
                             value="<?= $productId ?>"
                         >
 
-
                         <button
                             type="submit"
                             name="toggle_favorite"
-                            class="favorite-button <?= $isFavorite ? 'filled' : 'empty' ?>"
-                            title="<?= $isFavorite ? 'Remove from Favorites' : 'Add to Favorites' ?>"
-                            aria-label="<?= $isFavorite ? 'Remove from Favorites' : 'Add to Favorites' ?>"
+
+                            class="favorite-button
+                                <?= $isFavorite
+                                    ? 'filled'
+                                    : 'empty'
+                                ?>"
+
+                            title="<?= $isFavorite
+                                ? 'Remove from Favorites'
+                                : 'Add to Favorites'
+                            ?>"
+
+                            aria-label="<?= $isFavorite
+                                ? 'Remove from Favorites'
+                                : 'Add to Favorites'
+                            ?>"
                         >
 
                             <?php if ($isFavorite): ?>
@@ -1321,15 +1361,12 @@ $marketDays =
                     </form>
 
 
-
                     <!-- =================================================
                          Product Image
                     ================================================== -->
 
                     <div class="product-image-container">
-
                     </div>
-
 
 
                     <!-- =================================================
@@ -1346,7 +1383,6 @@ $marketDays =
                         </h2>
 
 
-
                         <!-- Farmer / Market -->
 
                         <div class="product-farmer">
@@ -1356,7 +1392,6 @@ $marketDays =
                             <?= e($farmerName) ?>
 
                         </div>
-
 
 
                         <!-- Description -->
@@ -1371,7 +1406,6 @@ $marketDays =
                             ) ?>
 
                         </div>
-
 
 
                         <!-- Price -->
@@ -1394,13 +1428,11 @@ $marketDays =
                         </div>
 
 
-
                         <!-- Stock -->
 
                         <div class="product-stock">
 
                             Stock:
-
                             <?= e($stock) ?>
 
                             <?php if ($unit !== ''): ?>
@@ -1412,7 +1444,6 @@ $marketDays =
                         </div>
 
 
-
                         <!-- =================================================
                              Actions
                         ================================================== -->
@@ -1420,72 +1451,31 @@ $marketDays =
                         <div class="product-actions">
 
 
-                            <?php if ($sameMarket && $stock >= 1): ?>
+                            <?php if ($canAddToCart): ?>
 
                                 <!-- -----------------------------------------
-                                     Same Market / Can Add
+                                     Add To Cart
+                                     Market selection happens on the next
+                                     page.
                                 ------------------------------------------ -->
 
                                 <a
                                     href="add_to_cart.php?id=<?= $productId ?>"
                                     class="add-to-cart-button"
                                 >
+
                                     <i class="fa-solid fa-cart-plus"></i>
+
                                     Add to Cart
+
                                 </a>
-
-
-
-                            <?php elseif (!$sameMarket): ?>
-
-                                <!-- -----------------------------------------
-                                     Different Market
-                                ------------------------------------------ -->
-
-                                <form
-                                    method="POST"
-                                    action="../actions/clear_cart.php"
-                                    class="add-to-cart-form"
-                                    onsubmit="return confirmSwitchMarket(
-                                        <?= htmlspecialchars(
-                                            json_encode($cartFarmerName),
-                                            ENT_QUOTES,
-                                            'UTF-8'
-                                        ) ?>,
-                                        <?= htmlspecialchars(
-                                            json_encode($farmerName),
-                                            ENT_QUOTES,
-                                            'UTF-8'
-                                        ) ?>
-                                    );"
-                                >
-
-                                    <input
-                                        type="hidden"
-                                        name="return_to"
-                                        value="../customer/products.php"
-                                    >
-
-                                    <button
-                                        type="submit"
-                                        class="add-to-cart-button switch-market-button"
-                                        title="Clear your current cart and switch markets"
-                                    >
-
-                                        <i class="fa-solid fa-right-left"></i>
-
-                                        Switch Market
-
-                                    </button>
-
-                                </form>
-
 
 
                             <?php else: ?>
 
+
                                 <!-- -----------------------------------------
-                                     Out Of Stock / Less Than 1kg
+                                     Out Of Stock
                                 ------------------------------------------ -->
 
                                 <button
@@ -1500,8 +1490,8 @@ $marketDays =
 
                                 </button>
 
-                            <?php endif; ?>
 
+                            <?php endif; ?>
 
 
                             <!-- View Details -->
@@ -1541,54 +1531,39 @@ $marketDays =
 
 <script>
 
-function confirmSwitchMarket(currentMarket, newMarket) {
-
-    return confirm(
-        'Your cart currently contains products from "' +
-        currentMarket +
-        '".\n\n' +
-
-        'To add a product from "' +
-        newMarket +
-        '", your current cart needs to be cleared.\n\n' +
-
-        'This will remove all products currently in your cart.\n\n' +
-
-        'Do you want to clear your cart and switch markets?'
-    );
-
-}
-
-const productSearch =
-    document.getElementById('productSearch');
-
-const productCategory =
-    document.getElementById('productCategory');
-
-const productMarket =
-    document.getElementById('productMarket');
-
-const productDay =
-    document.getElementById('productDay');
-
-const minPrice =
-    document.getElementById('minPrice');
-
-const maxPrice =
-    document.getElementById('maxPrice');
-
-const productCards =
-    document.querySelectorAll('.product-card');
-
-const noMatchingProducts =
-    document.getElementById(
-        'noMatchingProducts'
-    );
-
 function applyProductFilters() {
 
+    const productSearch =
+        document.getElementById('productSearch');
+
+    const productCategory =
+        document.getElementById('productCategory');
+
+    const productMarket =
+        document.getElementById('productMarket');
+
+    const productDay =
+        document.getElementById('productDay');
+
+    const minPrice =
+        document.getElementById('minPrice');
+
+    const maxPrice =
+        document.getElementById('maxPrice');
+
+    const productCards =
+        document.querySelectorAll('.product-card');
+
+    const noMatchingProducts =
+        document.getElementById(
+            'noMatchingProducts'
+        );
+
+
     const searchTerm =
-        productSearch.value.trim().toLowerCase();
+        productSearch.value
+            .trim()
+            .toLowerCase();
 
     const selectedCategory =
         productCategory.value;
@@ -1598,6 +1573,7 @@ function applyProductFilters() {
 
     const selectedDay =
         productDay.value;
+
 
     const min =
         minPrice.value === ''
@@ -1609,28 +1585,57 @@ function applyProductFilters() {
             ? null
             : parseFloat(maxPrice.value);
 
+
     let visibleProducts = 0;
 
-    productCards.forEach(function (card) {
+
+    productCards.forEach(function(card) {
 
         const productName =
-            card.querySelector('.product-name')?.textContent
+            card.querySelector(
+                '.product-name'
+            )?.textContent
                 .trim()
                 .toLowerCase() || '';
 
+
         const farmerName =
-            card.querySelector('.product-farmer')?.textContent
+            card.querySelector(
+                '.product-farmer'
+            )?.textContent
                 .trim()
                 .toLowerCase() || '';
+
 
         const categoryId =
             card.dataset.categoryId || '';
 
-        const marketId =
-            card.dataset.marketId || '';
+
+        /*
+         * A product can now belong to multiple markets
+         * through its farmer.
+         *
+         * Example:
+         *
+         * data-market-ids="1,2"
+         *
+         * This means the same product is available through
+         * both markets.
+         */
+
+        const marketIds =
+            (card.dataset.marketIds || '')
+                .split(',')
+                .map(id => id.trim())
+                .filter(id => id !== '');
+
 
         const marketDays =
-            card.dataset.marketDays || '';
+            (card.dataset.marketDays || '')
+                .split(',')
+                .map(day => day.trim())
+                .filter(day => day !== '');
+
 
         const price =
             parseFloat(
@@ -1638,39 +1643,71 @@ function applyProductFilters() {
             );
 
 
+        // --------------------------------------------------
+        // Search
+        // --------------------------------------------------
+
         const matchesSearch =
-            searchTerm === '' ||
-            productName.includes(searchTerm) ||
+            searchTerm === ''
+            ||
+            productName.includes(searchTerm)
+            ||
             farmerName.includes(searchTerm);
 
 
+        // --------------------------------------------------
+        // Category
+        // --------------------------------------------------
+
         const matchesCategory =
-            selectedCategory === '' ||
+            selectedCategory === ''
+            ||
             categoryId === selectedCategory;
 
 
-        const matchesMarket =
-            selectedMarket === '' ||
-            marketId === selectedMarket;
+        // --------------------------------------------------
+        // Market
+        // --------------------------------------------------
+        //
+        // Product matches if ANY of its farmer's markets
+        // matches the selected market.
+        // --------------------------------------------------
 
+        const matchesMarket =
+            selectedMarket === ''
+            ||
+            marketIds.includes(selectedMarket);
+
+
+        // --------------------------------------------------
+        // Market Day
+        // --------------------------------------------------
 
         const matchesDay =
-            selectedDay === '' ||
-            marketDays
-                .split(',')
-                .map(day => day.trim())
-                .includes(selectedDay);
+            selectedDay === ''
+            ||
+            marketDays.includes(selectedDay);
 
+
+        // --------------------------------------------------
+        // Price
+        // --------------------------------------------------
 
         const matchesMinPrice =
-            min === null ||
+            min === null
+            ||
             price >= min;
 
 
         const matchesMaxPrice =
-            max === null ||
+            max === null
+            ||
             price <= max;
 
+
+        // --------------------------------------------------
+        // Final Match
+        // --------------------------------------------------
 
         const matches =
             matchesSearch &&
@@ -1686,48 +1723,71 @@ function applyProductFilters() {
                 ? ''
                 : 'none';
 
+
         if (matches) {
             visibleProducts++;
         }
 
     });
 
+
     noMatchingProducts.style.display =
-    visibleProducts === 0
-        ? 'block'
-        : 'none';
+        visibleProducts === 0
+            ? 'block'
+            : 'none';
 }
 
 
-productSearch.addEventListener(
-    'input',
-    applyProductFilters
-);
+// ==========================================================
+// Filter Events
+// ==========================================================
 
-productCategory.addEventListener(
-    'change',
-    applyProductFilters
-);
+document
+    .getElementById('productSearch')
+    .addEventListener(
+        'input',
+        applyProductFilters
+    );
 
-productMarket.addEventListener(
-    'change',
-    applyProductFilters
-);
 
-productDay.addEventListener(
-    'change',
-    applyProductFilters
-);
+document
+    .getElementById('productCategory')
+    .addEventListener(
+        'change',
+        applyProductFilters
+    );
 
-minPrice.addEventListener(
-    'input',
-    applyProductFilters
-);
 
-maxPrice.addEventListener(
-    'input',
-    applyProductFilters
-);
+document
+    .getElementById('productMarket')
+    .addEventListener(
+        'change',
+        applyProductFilters
+    );
+
+
+document
+    .getElementById('productDay')
+    .addEventListener(
+        'change',
+        applyProductFilters
+    );
+
+
+document
+    .getElementById('minPrice')
+    .addEventListener(
+        'input',
+        applyProductFilters
+    );
+
+
+document
+    .getElementById('maxPrice')
+    .addEventListener(
+        'input',
+        applyProductFilters
+    );
 
 </script>
 

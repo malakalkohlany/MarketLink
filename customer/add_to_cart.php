@@ -4,219 +4,476 @@ require_once __DIR__ . '/../includes/include.php';
 
 requireRole(R_CUSTOMER);
 
-// --------------------------------------------------
+$customerId = (int) getUserId();
+
+
+// ==========================================================
 // Get Product ID
-// --------------------------------------------------
+// ==========================================================
 
-$productId = isset($_GET['id'])
-    ? (int) $_GET['id']
-    : (int) ($_POST['product_id'] ?? 0);
+$productId = filter_input(
+    INPUT_GET,
+    'id',
+    FILTER_VALIDATE_INT
+);
 
-if ($productId <= 0) {
+if (!$productId) {
+
+    $productId = filter_input(
+        INPUT_POST,
+        'product_id',
+        FILTER_VALIDATE_INT
+    );
+}
+
+if (!$productId) {
+
     header('Location: products.php');
     exit;
 }
 
 
-// --------------------------------------------------
+// ==========================================================
 // Get Product
-// --------------------------------------------------
+// ==========================================================
 
-$product_stmt = $conn->prepare("
-    SELECT
+$productStmt = $conn->prepare(
+    "SELECT
         p.id,
         p.farmer_id,
-        p.category_id,
         p.name,
         p.description,
         p.price,
         p.unit,
-        p.stock_quantity,
         p.image,
-        p.is_available,
-        p.moderation_status,
-        p.created_at,
-        c.name AS category_name,
-        f.stall_name AS farmer_name,
-        f.contact_person AS farmer_contact,
-        f.description AS farmer_description,
-        f.address AS farmer_address
-    FROM products p
-    LEFT JOIN categories c
-        ON p.category_id = c.id
-    LEFT JOIN farmers f
+        p.stock_quantity,
+
+        f.stall_name AS farmer_name
+
+     FROM products p
+
+     INNER JOIN farmers f
         ON p.farmer_id = f.id
-    WHERE p.id = ?
-      AND p.is_available = 1
-      AND p.moderation_status = 'approved'
-      AND f.approval_status = 'approved'
-    LIMIT 1
-");
 
-$product_stmt->bind_param("i", $productId);
-$product_stmt->execute();
+     WHERE p.id = ?
+       AND p.is_available = 1
+       AND p.moderation_status = ?
+       AND f.approval_status = ?
 
-$product_result = $product_stmt->get_result();
-$product = $product_result->fetch_assoc();
+     LIMIT 1"
+);
 
-$product_stmt->close();
+if (!$productStmt) {
+    die(
+        'Product query prepare failed: '
+        . $conn->error
+    );
+}
 
+$moderationStatus = M_APPROVED;
+$farmerStatus = A_APPROVED;
 
-// --------------------------------------------------
-// Product Not Found
-// --------------------------------------------------
+$productStmt->bind_param(
+    "iss",
+    $productId,
+    $moderationStatus,
+    $farmerStatus
+);
+
+if (!$productStmt->execute()) {
+    die(
+        'Product query failed: '
+        . $productStmt->error
+    );
+}
+
+$productResult =
+    $productStmt->get_result();
+
+$product =
+    $productResult->fetch_assoc();
+
+$productStmt->close();
+
 
 if (!$product) {
-    header('Location: products.php');
-    exit;
+
+    die('Product not found or is no longer available.');
 }
 
 
-// --------------------------------------------------
+$productId =
+    (int) $product['id'];
+
+$farmerId =
+    (int) $product['farmer_id'];
+
+$productName =
+    $product['name'];
+
+$price =
+    (float) $product['price'];
+
+$unit =
+    $product['unit'] ?? '';
+
+$stock =
+    (float) $product['stock_quantity'];
+
+$farmerName =
+    $product['farmer_name'] ?? 'Unknown Farmer';
+
+
+// ==========================================================
+// Get Markets For This Farmer
+// ==========================================================
+
+$markets = [];
+
+$marketStmt = $conn->prepare(
+    "SELECT
+        m.id,
+        m.name,
+        m.operating_days
+
+     FROM market_farmer mf
+
+     INNER JOIN markets m
+        ON mf.market_id = m.id
+
+     WHERE mf.farmer_id = ?
+
+     ORDER BY m.name ASC"
+);
+
+if (!$marketStmt) {
+    die(
+        'Market query prepare failed: '
+        . $conn->error
+    );
+}
+
+$marketStmt->bind_param(
+    "i",
+    $farmerId
+);
+
+if (!$marketStmt->execute()) {
+    die(
+        'Market query failed: '
+        . $marketStmt->error
+    );
+}
+
+$marketResult =
+    $marketStmt->get_result();
+
+while ($row = $marketResult->fetch_assoc()) {
+
+    $markets[] = $row;
+}
+
+$marketStmt->close();
+
+
+if (empty($markets)) {
+
+    die(
+        'This farmer is not currently assigned to any market.'
+    );
+}
+
+
+// ==========================================================
+// Current Cart Market
+// ==========================================================
+
+$cartMarketId = null;
+
+if (
+    isset($_SESSION['cart']) &&
+    is_array($_SESSION['cart']) &&
+    !empty($_SESSION['cart'])
+) {
+
+    foreach ($_SESSION['cart'] as $cartItem) {
+
+        if (
+            isset($cartItem['market_id']) &&
+            (int) $cartItem['market_id'] > 0
+        ) {
+
+            $cartMarketId =
+                (int) $cartItem['market_id'];
+
+            break;
+        }
+    }
+}
+
+
+// ==========================================================
 // Handle Add To Cart
-// --------------------------------------------------
+// ==========================================================
 
 $errorMessage = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    // --------------------------------------------------
-    // Get Quantity
-    // --------------------------------------------------
 
-    $quantity = isset($_POST['quantity'])
-        ? (float) $_POST['quantity']
-        : 0;
+    // ------------------------------------------------------
+    // Product ID
+    // ------------------------------------------------------
 
-
-    // --------------------------------------------------
-    // Validate Quantity
-    // --------------------------------------------------
-
-    if ($quantity <= 0) {
-
-        $errorMessage = 'Please enter a valid quantity.';
-
-    } else {
-
-        $stockQuantity = (float) $product['stock_quantity'];
+    $postedProductId = filter_input(
+        INPUT_POST,
+        'product_id',
+        FILTER_VALIDATE_INT
+    );
 
 
-        // --------------------------------------------------
-        // Check Stock
-        // --------------------------------------------------
+    // ------------------------------------------------------
+    // Market ID
+    // ------------------------------------------------------
 
-        if ($quantity > $stockQuantity) {
+    $marketId = filter_input(
+        INPUT_POST,
+        'market_id',
+        FILTER_VALIDATE_INT
+    );
+
+
+    // ------------------------------------------------------
+    // Quantity
+    // ------------------------------------------------------
+
+    $quantityRaw =
+        trim($_POST['quantity'] ?? '');
+
+    $quantity =
+        (float) $quantityRaw;
+
+
+    // ------------------------------------------------------
+    // Basic Validation
+    // ------------------------------------------------------
+
+    if (
+        !$postedProductId
+        || $postedProductId !== $productId
+    ) {
+
+        $errorMessage =
+            'Invalid product.';
+
+    } elseif (!$marketId) {
+
+        $errorMessage =
+            'Please select a market.';
+
+    } elseif ($quantity <= 0) {
+
+        $errorMessage =
+            'Quantity must be greater than 0.';
+
+    } elseif (
+        abs(
+            $quantity * 10
+            - round($quantity * 10)
+        ) > 0.000001
+    ) {
+
+        $errorMessage =
+            'Quantity must use increments of 0.1.';
+
+    } elseif ($quantity > $stock) {
+
+        $errorMessage =
+            'The requested quantity is greater than the available stock.';
+    }
+
+
+    // ------------------------------------------------------
+    // Validate Selected Market Belongs To Farmer
+    // ------------------------------------------------------
+
+    $selectedMarket = null;
+
+    if ($errorMessage === '') {
+
+        foreach ($markets as $market) {
+
+            if (
+                (int) $market['id']
+                === $marketId
+            ) {
+
+                $selectedMarket = $market;
+
+                break;
+            }
+        }
+
+
+        if (!$selectedMarket) {
 
             $errorMessage =
-                'The selected quantity is greater than the available stock.';
+                'The selected market is not available for this product.';
+        }
+    }
 
-        } else {
 
-            // --------------------------------------------------
-            // Create Cart If It Does Not Exist
-            // --------------------------------------------------
+    // ------------------------------------------------------
+    // Enforce One Market Per Cart
+    // ------------------------------------------------------
+
+    if (
+        $errorMessage === ''
+        && $cartMarketId !== null
+        && $cartMarketId !== $marketId
+    ) {
+
+        $errorMessage =
+            'Your cart is already assigned to another market. '
+            . 'Please clear your cart before choosing a different market.';
+    }
+
+
+    // ------------------------------------------------------
+    // Add To Cart
+    // ------------------------------------------------------
+
+    if ($errorMessage === '') {
+
+
+        // Make sure cart exists
+
+        if (
+            !isset($_SESSION['cart'])
+            || !is_array($_SESSION['cart'])
+        ) {
+
+            $_SESSION['cart'] = [];
+        }
+
+
+        // --------------------------------------------------
+        // If product already exists in cart
+        // --------------------------------------------------
+
+        if (
+            isset(
+                $_SESSION['cart'][$productId]
+            )
+        ) {
+
+            $existingItem =
+                $_SESSION['cart'][$productId];
+
+
+            $existingMarketId =
+                (int) (
+                    $existingItem['market_id']
+                    ?? 0
+                );
+
 
             if (
-                !isset($_SESSION['cart']) ||
-                !is_array($_SESSION['cart'])
-            ) {
-                $_SESSION['cart'] = [];
-            }
-
-
-            // --------------------------------------------------
-            // Prevent Mixing Products From Different Farmers
-            // --------------------------------------------------
-
-            $cartFarmerId = null;
-
-            foreach ($_SESSION['cart'] as $cartItem) {
-
-                if (isset($cartItem['farmer_id'])) {
-
-                    $cartFarmerId = (int) $cartItem['farmer_id'];
-
-                    break;
-                }
-            }
-
-
-            if (
-                $cartFarmerId !== null &&
-                $cartFarmerId !== (int) $product['farmer_id']
+                $existingMarketId !== $marketId
             ) {
 
                 $errorMessage =
-                    'Your cart already contains products from another farmer. '
-                    . 'You can only order from one farmer at a time.';
+                    'This product is already in your cart '
+                    . 'for another market.';
 
-            }
+            } else {
 
-
-            // --------------------------------------------------
-            // Only Continue If There Is No Error
-            // --------------------------------------------------
-
-            if (empty($errorMessage)) {
-
-                // --------------------------------------------------
-                // Product Already In Cart
-                // --------------------------------------------------
-
-                if (isset($_SESSION['cart'][$productId])) {
-
-                    $currentQuantity = (float)
-                        $_SESSION['cart'][$productId]['quantity'];
-
-                    $newQuantity = $currentQuantity + $quantity;
+                $newQuantity =
+                    (float) $existingItem['quantity']
+                    + $quantity;
 
 
-                    // --------------------------------------------------
-                    // Check Combined Quantity Against Stock
-                    // --------------------------------------------------
+                if ($newQuantity > $stock) {
 
-                    if ($newQuantity > $stockQuantity) {
-
-                        $errorMessage =
-                            'The total quantity in your cart would exceed '
-                            . 'the available stock.';
-
-                    } else {
-
-                        $_SESSION['cart'][$productId]['quantity'] =
-                            $newQuantity;
-
-                        $_SESSION['cart'][$productId]['subtotal'] =
-                            $newQuantity * (float) $product['price'];
-
-                        header('Location: cart.php?added=1');
-                        exit;
-                    }
-
+                    $errorMessage =
+                        'The total quantity in your cart '
+                        . 'would exceed the available stock.';
 
                 } else {
 
-                    // --------------------------------------------------
-                    // Add New Cart Item
-                    // --------------------------------------------------
+                    $_SESSION['cart'][$productId]['quantity'] =
+                        round($newQuantity, 1);
 
-                    $_SESSION['cart'][$productId] = [
-                        'product_id' => (int) $product['id'],
-                        'name'       => $product['name'],
-                        'price'      => (float) $product['price'],
-                        'unit'       => $product['unit'],
-                        'quantity'   => $quantity,
-                        'image'      => $product['image'],
-                        'farmer_id'  => (int) $product['farmer_id'],
-                        'subtotal'   =>
-                            $quantity * (float) $product['price']
-                    ];
-
-                    header('Location: cart.php?added=1');
-                    exit;
+                    $_SESSION['cart'][$productId]['subtotal'] =
+                        round(
+                            $newQuantity * $price,
+                            2
+                        );
                 }
             }
+
+
+        // --------------------------------------------------
+        // New Cart Item
+        // --------------------------------------------------
+
+        } else {
+
+            $_SESSION['cart'][$productId] = [
+
+                'product_id' =>
+                    $productId,
+
+                'name' =>
+                    $productName,
+
+                'price' =>
+                    $price,
+
+                'unit' =>
+                    $unit,
+
+                'quantity' =>
+                    round($quantity, 1),
+
+                'image' =>
+                    $product['image'] ?? '',
+
+                'farmer_id' =>
+                    $farmerId,
+
+                'farmer_name' =>
+                    $farmerName,
+
+                'market_id' =>
+                    $marketId,
+
+                'market_name' =>
+                    $selectedMarket['name'],
+
+                'market_days' =>
+                    $selectedMarket['operating_days'],
+
+                'subtotal' =>
+                    round(
+                        $quantity * $price,
+                        2
+                    )
+            ];
+        }
+
+
+        // --------------------------------------------------
+        // Success
+        // --------------------------------------------------
+
+        if ($errorMessage === '') {
+
+            header(
+                'Location: cart.php?added=1'
+            );
+
+            exit;
         }
     }
 }
@@ -236,9 +493,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     >
 
     <title>
-        Add to Cart -
-        <?= htmlspecialchars($product['name']) ?>
+        Add to Cart - MarketLink
     </title>
+
 
     <link
         rel="stylesheet"
@@ -255,51 +512,450 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         href="../assets/css/sidebar.css"
     >
 
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+
+
+    <style>
+
+        .add-cart-page {
+            max-width: 850px;
+
+            margin: 0 auto;
+        }
+
+
+        .page-header {
+            margin-bottom: 25px;
+        }
+
+        .page-header h1 {
+            margin: 0 0 8px;
+            font-size: 30px;
+        }
+
+        .page-header p {
+            margin: 0;
+            color: #666;
+        }
+
+
+        .add-cart-card {
+
+            display: grid;
+
+            grid-template-columns:
+                280px
+                1fr;
+
+            gap: 30px;
+
+            background: #ffffff;
+
+            border: 1px solid #e5e5e5;
+
+            border-radius: 16px;
+
+            padding: 25px;
+
+            box-shadow:
+                0 6px 18px
+                rgba(0, 0, 0, 0.05);
+        }
+
+
+        .product-preview {
+
+            background: #f5f5f5;
+
+            border-radius: 12px;
+
+            overflow: hidden;
+
+            min-height: 280px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+        }
+
+        .product-preview img {
+
+            width: 100%;
+            height: 280px;
+
+            object-fit: cover;
+        }
+
+
+        .product-preview-placeholder {
+
+            color: #bbb;
+
+            font-size: 50px;
+        }
+
+
+        .product-info h2 {
+
+            margin: 0 0 8px;
+
+            font-size: 25px;
+        }
+
+
+        .farmer-name {
+
+            color: #72583E;
+
+            font-weight: 600;
+
+            margin-bottom: 18px;
+        }
+
+
+        .price {
+
+            font-size: 21px;
+
+            font-weight: 700;
+
+            margin-bottom: 25px;
+        }
+
+
+        .field {
+
+            margin-bottom: 20px;
+        }
+
+
+        .field label {
+
+            display: block;
+
+            margin-bottom: 8px;
+
+            font-size: 14px;
+
+            font-weight: 600;
+
+            color: #4f4136;
+        }
+
+
+        .market-options {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 10px;
+        }
+
+
+        .market-option {
+
+            position: relative;
+        }
+
+
+        .market-option input {
+
+            position: absolute;
+
+            opacity: 0;
+        }
+
+
+        .market-option label {
+
+            display: block;
+
+            padding: 13px 15px;
+
+            border: 1px solid #d7cec4;
+
+            border-radius: 10px;
+
+            cursor: pointer;
+
+            transition: 0.2s ease;
+
+            background: #fff;
+        }
+
+
+        .market-option label:hover {
+
+            background: #f8f3ee;
+
+            border-color: #b9a99b;
+        }
+
+
+        .market-option input:checked + label {
+
+            background: #f5f0eb;
+
+            border-color: #72583E;
+
+            box-shadow:
+                0 0 0 1px #72583E;
+        }
+
+
+        .market-name {
+
+            display: block;
+
+            color: #3e3026;
+
+            font-weight: 600;
+
+            margin-bottom: 4px;
+        }
+
+
+        .market-days {
+
+            display: block;
+
+            color: #777;
+
+            font-size: 12px;
+        }
+
+
+        .quantity-input {
+
+            width: 150px;
+
+            box-sizing: border-box;
+
+            padding: 11px 12px;
+
+            border: 1px solid #d7cec4;
+
+            border-radius: 8px;
+
+            font-family: inherit;
+
+            font-size: 15px;
+        }
+
+
+        .quantity-input:focus {
+
+            outline: none;
+
+            border-color: #72583E;
+
+            box-shadow:
+                0 0 0 2px
+                rgba(114, 88, 62, 0.10);
+        }
+
+
+        .stock-note {
+
+            margin-top: 6px;
+
+            font-size: 12px;
+
+            color: #777;
+        }
+
+
+        .error-message {
+
+            margin-bottom: 20px;
+
+            padding: 12px 15px;
+
+            background: #f8e8e5;
+
+            border: 1px solid #dfb9b2;
+
+            border-radius: 8px;
+
+            color: #8a382d;
+
+            font-size: 14px;
+        }
+
+
+        .actions {
+
+            display: flex;
+
+            gap: 10px;
+
+            margin-top: 25px;
+        }
+
+
+        .submit-button,
+        .cancel-button {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 8px;
+
+            padding: 11px 18px;
+
+            border-radius: 8px;
+
+            font-family: inherit;
+
+            font-size: 14px;
+
+            font-weight: 600;
+
+            text-decoration: none;
+
+            cursor: pointer;
+        }
+
+
+        .submit-button {
+
+            border: none;
+
+            background: #72583E;
+
+            color: #fff;
+
+            flex: 1;
+        }
+
+
+        .submit-button:hover {
+
+            background: #5f4833;
+        }
+
+
+        .cancel-button {
+
+            border: 1px solid #d7cec4;
+
+            background: #fff;
+
+            color: #72583E;
+        }
+
+
+        .cancel-button:hover {
+
+            background: #f5f0eb;
+        }
+
+
+        @media (max-width: 750px) {
+
+            .add-cart-card {
+
+                grid-template-columns: 1fr;
+            }
+
+            .product-preview {
+
+                min-height: 220px;
+            }
+
+            .product-preview img {
+
+                height: 220px;
+            }
+
+        }
+
+    </style>
+
 </head>
 
 
 <body>
 
-<?php require_once __DIR__ . '/../includes/navbar.php'; ?>
 
-<?php require_once __DIR__ . '/../includes/sidebar.php'; ?>
+<?php include __DIR__ . '/../includes/navbar.php'; ?>
+
+<?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
 
 <main class="main-content">
 
-    <div class="product-details-container">
 
-        <!-- Back -->
-
-        <a
-            href="product_details.php?id=<?= (int) $product['id'] ?>"
-            class="back-link"
-        >
-            ← Back to Product
-        </a>
+    <div class="add-cart-page">
 
 
-        <!-- Product Details -->
+        <!-- =====================================================
+             Header
+        ====================================================== -->
 
-        <div class="product-details-card">
+        <div class="page-header">
+
+            <h1>
+                Add to Cart
+            </h1>
+
+            <p>
+                Choose where you want to pick up this product.
+            </p>
+
+        </div>
+
+
+        <!-- =====================================================
+             Error
+        ====================================================== -->
+
+        <?php if ($errorMessage !== ''): ?>
+
+            <div class="error-message">
+
+                <i class="fa-solid fa-circle-exclamation"></i>
+
+                <?= e($errorMessage) ?>
+
+            </div>
+
+        <?php endif; ?>
+
+
+        <!-- =====================================================
+             Product
+        ====================================================== -->
+
+        <div class="add-cart-card">
 
 
             <!-- Product Image -->
 
-            <div class="product-image-section">
+            <div class="product-preview">
 
                 <?php if (!empty($product['image'])): ?>
 
                     <img
-                        src="../uploads/products/<?= htmlspecialchars($product['image']) ?>"
-                        alt="<?= htmlspecialchars($product['name']) ?>"
-                        class="product-detail-image"
+                        src="../<?= e($product['image']) ?>"
+                        alt="<?= e($productName) ?>"
                     >
 
                 <?php else: ?>
 
-                    <div class="product-image-placeholder">
-                        No Image
+                    <div class="product-preview-placeholder">
+
+                        <i class="fa-solid fa-image"></i>
+
                     </div>
 
                 <?php endif; ?>
@@ -307,297 +963,260 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
 
-            <!-- Product Information -->
+            <!-- Product Info -->
 
-            <div class="product-info-section">
-
-                <div class="product-category">
-
-                    <?= htmlspecialchars(
-                        $product['category_name'] ?? 'Uncategorized'
-                    ) ?>
-
-                </div>
+            <div class="product-info">
 
 
-                <h1>
-                    <?= htmlspecialchars($product['name']) ?>
-                </h1>
+                <h2>
+
+                    <?= e($productName) ?>
+
+                </h2>
 
 
-                <?php if (!empty($product['description'])): ?>
+                <div class="farmer-name">
 
-                    <p class="product-description">
-                        <?= htmlspecialchars($product['description']) ?>
-                    </p>
+                    <i class="fa-solid fa-store"></i>
 
-                <?php endif; ?>
-
-
-                <!-- Farmer -->
-
-                <?php if (!empty($product['farmer_name'])): ?>
-
-                    <div class="product-farmer">
-
-                        <strong>From:</strong>
-
-                        <?= htmlspecialchars($product['farmer_name']) ?>
-
-                    </div>
-
-                <?php endif; ?>
-
-
-                <!-- Price -->
-
-                <div class="product-price">
-
-                    <?= number_format(
-                        (float) $product['price'],
-                        2
-                    ) ?>
-
-                    <span>
-                        / <?= htmlspecialchars($product['unit']) ?>
-                    </span>
+                    <?= e($farmerName) ?>
 
                 </div>
 
 
-                <!-- Stock -->
+                <div class="price">
 
-                <div class="product-stock">
+                    $<?= formatPrice($price) ?>
 
-                    <strong>Available:</strong>
+                    <?php if ($unit !== ''): ?>
 
-                    <?= htmlspecialchars($product['stock_quantity']) ?>
+                        <span style="font-size:14px;color:#777;">
 
-                    <?= htmlspecialchars($product['unit']) ?>
+                            / <?= e($unit) ?>
+
+                        </span>
+
+                    <?php endif; ?>
 
                 </div>
 
 
-                <!-- Error -->
+                <!-- =================================================
+                     Form
+                ================================================== -->
 
-                <?php if (!empty($errorMessage)): ?>
-
-                    <div class="quantity-error">
-
-                        <?= htmlspecialchars($errorMessage) ?>
-
-                    </div>
-
-                <?php endif; ?>
+                <form
+                    method="POST"
+                    action="add_to_cart.php?id=<?= $productId ?>"
+                >
 
 
-                <!-- Quantity Form -->
-
-                <div class="quantity-section">
-
-                    <h3>
-                        Select Quantity
-                    </h3>
-
-
-                    <form
-                        method="POST"
-                        action="add_to_cart.php?id=<?= (int) $product['id'] ?>"
+                    <input
+                        type="hidden"
+                        name="product_id"
+                        value="<?= $productId ?>"
                     >
 
+
+                    <!-- =================================================
+                         Market
+                    ================================================== -->
+
+                    <div class="field">
+
+                        <label>
+
+                            Choose Market
+
+                        </label>
+
+
+                        <div class="market-options">
+
+
+                            <?php foreach ($markets as $market): ?>
+
+                                <?php
+
+                                $marketId =
+                                    (int) $market['id'];
+
+                                $isCurrentCartMarket =
+                                    $cartMarketId !== null
+                                    && $cartMarketId === $marketId;
+
+                                $isSelected =
+                                    $isCurrentCartMarket
+                                    || (
+                                        isset($_POST['market_id'])
+                                        && (int) $_POST['market_id']
+                                            === $marketId
+                                    );
+
+                                ?>
+
+
+                                <div class="market-option">
+
+                                    <input
+                                        type="radio"
+                                        id="market_<?= $marketId ?>"
+                                        name="market_id"
+                                        value="<?= $marketId ?>"
+                                        <?= $isSelected ? 'checked' : '' ?>
+                                        required
+                                    >
+
+
+                                    <label
+                                        for="market_<?= $marketId ?>"
+                                    >
+
+                                        <span class="market-name">
+
+                                            <i class="fa-solid fa-location-dot"></i>
+
+                                            <?= e($market['name']) ?>
+
+                                        </span>
+
+
+                                        <?php if (!empty($market['operating_days'])): ?>
+
+                                            <span class="market-days">
+
+                                                <?= e($market['operating_days']) ?>
+
+                                            </span>
+
+                                        <?php endif; ?>
+
+
+                                        <?php if ($isCurrentCartMarket): ?>
+
+                                            <span
+                                                style="
+                                                    display:block;
+                                                    margin-top:5px;
+                                                    color:#6F7C59;
+                                                    font-size:12px;
+                                                    font-weight:600;
+                                                "
+                                            >
+
+                                                <i class="fa-solid fa-check"></i>
+
+                                                Current cart market
+
+                                            </span>
+
+                                        <?php endif; ?>
+
+                                    </label>
+
+                                </div>
+
+
+                            <?php endforeach; ?>
+
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         Quantity
+                    ================================================== -->
+
+                    <div class="field">
+
+                        <label for="quantity">
+
+                            Quantity
+
+                        </label>
+
+
                         <input
-                            type="hidden"
-                            name="product_id"
-                            value="<?= (int) $product['id'] ?>"
+                            type="number"
+                            id="quantity"
+                            name="quantity"
+                            class="quantity-input"
+                            min="0.1"
+                            max="<?= e($stock) ?>"
+                            step="0.1"
+                            value="<?= e(
+                                $_POST['quantity']
+                                ?? '1'
+                            ) ?>"
+                            required
                         >
 
 
-                        <div class="quantity-box">
+                        <div class="stock-note">
 
-                            <label for="quantity">
-                                Quantity
-                            </label>
+                            Available:
 
-                            <input
-                                type="number"
-                                id="quantity"
-                                name="quantity"
-                                class="quantity-input"
-                                min="0.1"
-                                max="<?= htmlspecialchars($product['stock_quantity']) ?>"
-                                step="0.1"
-                                value="1"
-                                required
-                                oninput="calculateTotal()"
-                            >
+                            <?= e($stock) ?>
 
-                            <span class="quantity-unit">
-
-                                <?= htmlspecialchars($product['unit']) ?>
-
-                            </span>
+                            <?= e($unit) ?>
 
                         </div>
 
-
-                        <!-- Total -->
-
-                        <div class="quantity-total">
-
-                            <span>
-                                Total
-                            </span>
-
-                            <strong>
-
-                                <span id="totalPrice">
-
-                                    <?= number_format(
-                                        (float) $product['price'],
-                                        2
-                                    ) ?>
-
-                                </span>
-
-                            </strong>
-
-                        </div>
+                    </div>
 
 
-                        <!-- Add To Cart -->
+                    <!-- =================================================
+                         Actions
+                    ================================================== -->
+
+                    <div class="actions">
+
+
+                        <a
+                            href="products.php"
+                            class="cancel-button"
+                        >
+
+                            Cancel
+
+                        </a>
+
 
                         <button
                             type="submit"
-                            class="add-to-cart-button"
-                            <?= $product['stock_quantity'] <= 0 ? 'disabled' : '' ?>
+                            class="submit-button"
+                            <?= $stock <= 0 ? 'disabled' : '' ?>
                         >
 
                             <i class="fa-solid fa-cart-plus"></i>
 
-                            <?= $product['stock_quantity'] > 0
-                                ? 'Add to Cart'
-                                : 'Out of Stock'
-                            ?>
+                            Add to Cart
 
                         </button>
 
-                    </form>
 
-                </div>
+                    </div>
+
+
+                </form>
+
 
             </div>
 
-        </div>
-
-
-        <!-- Farmer Information -->
-
-        <div class="farmer-section">
-
-            <h2>
-                Farmer Information
-            </h2>
-
-
-            <div class="farmer-info">
-
-                <?php if (!empty($product['farmer_name'])): ?>
-
-                    <div>
-
-                        <strong>
-                            Stall:
-                        </strong>
-
-                        <?= htmlspecialchars($product['farmer_name']) ?>
-
-                    </div>
-
-                <?php endif; ?>
-
-
-                <?php if (!empty($product['farmer_contact'])): ?>
-
-                    <div>
-
-                        <strong>
-                            Contact:
-                        </strong>
-
-                        <?= htmlspecialchars($product['farmer_contact']) ?>
-
-                    </div>
-
-                <?php endif; ?>
-
-
-                <?php if (!empty($product['farmer_address'])): ?>
-
-                    <div>
-
-                        <strong>
-                            Address:
-                        </strong>
-
-                        <?= htmlspecialchars($product['farmer_address']) ?>
-
-                    </div>
-
-                <?php endif; ?>
-
-            </div>
 
         </div>
+
 
     </div>
+
 
 </main>
 
 
-<script>
+<script src="../assets/js/app.js"></script>
 
-const productPrice =
-    <?= (float) $product['price'] ?>;
-
-const maxStock =
-    <?= (float) $product['stock_quantity'] ?>;
-
-
-function calculateTotal() {
-
-    const quantityInput =
-        document.getElementById('quantity');
-
-    const totalPrice =
-        document.getElementById('totalPrice');
-
-    let quantity =
-        parseFloat(quantityInput.value);
-
-
-    if (isNaN(quantity) || quantity < 0.1) {
-
-        quantity = 0;
-    }
-
-
-    if (quantity > maxStock) {
-
-        quantity = maxStock;
-
-        quantityInput.value = maxStock;
-    }
-
-
-    const total =
-        quantity * productPrice;
-
-
-    totalPrice.textContent =
-        total.toFixed(2);
-}
-
-</script>
 
 </body>
 
