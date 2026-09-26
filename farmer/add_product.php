@@ -64,18 +64,22 @@ $farmer_id =$farmer['id'];
     $image_path = __DIR__ . '/../assets/images/products/' . $new_image_name;
     $image_db_path = 'assets/images/products/' . $new_image_name;
     
-    if (
-        empty($name) ||
-        $category_id <= 0 ||
-        $price < 0 ||
-        empty($unit) ||
-        $stock_quantity < 0
-    ) {
-        die("Please enter valid product information.");
-        }
-        move_uploaded_file($image_tmp, $image_path);
+   if (
+    empty($name) ||
+    $category_id <= 0 ||
+    $price < 0 ||
+    empty($unit) ||
+    $stock_quantity < 0
+) {
+    die("Please enter valid product information.");
+}
+
+if (!move_uploaded_file($image_tmp, $image_path)) {
+    die("Failed to upload product image.");
+}
 
 $stmt = $conn->prepare("
+
     INSERT INTO products
     (farmer_id, category_id, name, description, price, unit, stock_quantity ,image)
     VALUES (?, ?, ?, ?, ?, ?, ?,?)
@@ -241,7 +245,7 @@ $categories = $category_stmt->get_result();
             <br><br>        
 
             <label for="image">Product image</label>
-            <input type="file" id="image" name="image" accept="image/*">
+           <input type="file" id="image" name="image" accept="image/*" required>
             <br><br>
 
             <label for="description">Description</label>
