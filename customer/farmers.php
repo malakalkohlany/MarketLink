@@ -617,6 +617,20 @@ if ($result) {
 
             </div>
 
+            <div class="farmer-search">
+
+                <label for="farmerSearch">
+                    Search Farmers
+                </label>
+
+                <input
+                    type="text"
+                    id="farmerSearch"
+                    placeholder="Search by stall name or address"
+                    autocomplete="off"
+                >
+
+            </div>
 
             <!-- =========================================================
                  MAP
@@ -858,6 +872,45 @@ if ($result) {
                 JSON_UNESCAPED_SLASHES
             ); ?>;
 
+        const farmerSearch =
+            document.getElementById('farmerSearch');
+
+        function applyFarmerSearch() {
+
+            const searchTerm =
+                farmerSearch.value.trim().toLowerCase();
+
+            const cards =
+                document.querySelectorAll('.farmer-card');
+
+            cards.forEach(function (card) {
+
+                const farmerName =
+                    card.querySelector('h3')?.textContent
+                        .trim()
+                        .toLowerCase() || '';
+
+                const cardText =
+                    card.textContent
+                        .trim()
+                        .toLowerCase();
+
+                const matchesSearch =
+                    searchTerm === '' ||
+                    farmerName.includes(searchTerm) ||
+                    cardText.includes(searchTerm);
+
+                card.style.display =
+                    matchesSearch
+                        ? ''
+                        : 'none';
+            });
+        }
+
+        farmerSearch.addEventListener(
+            'input',
+            applyFarmerSearch
+        );
 
         // =====================================================
         // Sort Farmers By User Location
