@@ -219,12 +219,14 @@ mysqli_stmt_close($favoriteStmt);
 $sql = "
     SELECT
         p.id,
+        p.farmer_id,
         p.name,
         p.description,
         p.price,
         p.unit,
         p.image,
-        p.stock_quantity
+        p.stock_quantity,
+        f.stall_name AS farmer_name
     FROM products p
     INNER JOIN farmers f ON p.farmer_id = f.id
     WHERE p.is_available = 1
@@ -378,7 +380,7 @@ while ($row = $result->fetch_assoc()) {
 
             right: 12px !important;
 
-            z-index: 100 !important;
+            z-index: 12 !important;
 
             margin: 0 !important;
         }
@@ -498,32 +500,72 @@ while ($row = $result->fetch_assoc()) {
         /* =====================================================
            View Details Button
         ===================================================== */
+.product-farmer {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 10px;
+    color: #72583E;
+    font-size: 13px;
+    font-weight: 600;
+}
 
-        .view-details-button {
-            display: block;
+.product-farmer i {
+    font-size: 12px;
+}
 
-            width: 100%;
+.product-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin-top: 18px;
+}
 
-            box-sizing: border-box;
+.add-to-cart-form {
+    width: 100%;
+    margin: 0;
+}
 
-            text-align: center;
+.add-to-cart-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 11px 15px;
+    border: none;
+    border-radius: 7px;
+    background: #72583E;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
 
-            text-decoration: none;
+.add-to-cart-button:hover {
+    background: #5f4833;
+    transform: translateY(-1px);
+}
 
-            background: #222;
+.view-details-button {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+    text-decoration: none;
+    background: transparent;
+    color: #72583E;
+    border: 1px solid #d7cec4;
+    padding: 10px 15px;
+    border-radius: 7px;
+    transition: 0.2s ease;
+}
 
-            color: #ffffff;
-
-            padding: 11px 15px;
-
-            border-radius: 7px;
-
-            transition: 0.2s ease;
-        }
-
-        .view-details-button:hover {
-            background: #444;
-        }
+.view-details-button:hover {
+    background: #f5f0eb;
+}
 
 
         /* =====================================================
@@ -700,6 +742,10 @@ while ($row = $result->fetch_assoc()) {
 
                             </h2>
 
+                            <div class="product-farmer">
+                                <i class="fa-solid fa-store"></i>
+                                <?= e($product['farmer_name']) ?>
+                            </div>
 
                             <div class="product-description">
 
@@ -747,14 +793,42 @@ while ($row = $result->fetch_assoc()) {
                             </div>
 
 
-                            <a
-                                href="product_details.php?id=<?= $productId ?>"
-                                class="view-details-button"
-                            >
+                            <div class="product-actions">
 
-                                View Details
+                                <form
+                                    method="POST"
+                                    action="add_to_cart.php"
+                                    class="add-to-cart-form"
+                                >
+                                    <input
+                                        type="hidden"
+                                        name="product_id"
+                                        value="<?= $productId ?>"
+                                    >
 
-                            </a>
+                                    <input
+                                        type="hidden"
+                                        name="quantity"
+                                        value="1"
+                                    >
+
+                                    <button
+                                        type="submit"
+                                        class="add-to-cart-button"
+                                    >
+                                        <i class="fa-solid fa-cart-plus"></i>
+                                        Add to Cart
+                                    </button>
+                                </form>
+
+                                <a
+                                    href="product_details.php?id=<?= $productId ?>"
+                                    class="view-details-button"
+                                >
+                                    View Details
+                                </a>
+
+                            </div>
 
 
                         </div>
