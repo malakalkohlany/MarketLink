@@ -7,6 +7,7 @@ requireRole(R_CUSTOMER);
 $customerId = (int) getUserId();
 
 
+
 // ==========================================================
 // Toggle Favorite Product
 // ==========================================================
@@ -26,6 +27,7 @@ if (
         header('Location: products.php');
         exit;
     }
+
 
 
     // ------------------------------------------------------
@@ -69,6 +71,7 @@ if (
     mysqli_stmt_close($checkStmt);
 
 
+
     // ------------------------------------------------------
     // Remove favorite
     // ------------------------------------------------------
@@ -104,6 +107,7 @@ if (
         }
 
         mysqli_stmt_close($deleteStmt);
+
 
 
     // ------------------------------------------------------
@@ -148,9 +152,11 @@ if (
     }
 
 
+
     header('Location: products.php');
     exit;
 }
+
 
 
 // ==========================================================
@@ -192,10 +198,12 @@ mysqli_stmt_bind_result(
 );
 
 while (mysqli_stmt_fetch($favoriteStmt)) {
+
     $favoriteProducts[] = (int) $favoriteProductId;
 }
 
 mysqli_stmt_close($favoriteStmt);
+
 
 
 // ==========================================================
@@ -206,18 +214,15 @@ $cartFarmerId = null;
 $cartFarmerName = null;
 
 if (
-    isset($_SESSION['cart'])
-    &&
-    is_array($_SESSION['cart'])
-    &&
+    isset($_SESSION['cart']) &&
+    is_array($_SESSION['cart']) &&
     !empty($_SESSION['cart'])
 ) {
 
     foreach ($_SESSION['cart'] as $cartItem) {
 
         if (
-            isset($cartItem['farmer_id'])
-            &&
+            isset($cartItem['farmer_id']) &&
             (int) $cartItem['farmer_id'] > 0
         ) {
 
@@ -227,6 +232,7 @@ if (
         }
     }
 }
+
 
 
 // ----------------------------------------------------------
@@ -268,12 +274,14 @@ if ($cartFarmerId !== null) {
         $cartFarmerResult->fetch_assoc();
 
     if ($cartFarmer) {
+
         $cartFarmerName =
             $cartFarmer['stall_name'];
     }
 
     $cartFarmerStmt->close();
 }
+
 
 
 // ==========================================================
@@ -351,6 +359,7 @@ $result = $stmt->get_result();
 $products = [];
 
 while ($row = $result->fetch_assoc()) {
+
     $products[] = $row;
 }
 
@@ -468,6 +477,7 @@ if ($marketResult) {
         }
 
 
+
         /* =====================================================
            Shopping Restriction Notice
         ===================================================== */
@@ -476,11 +486,14 @@ if ($marketResult) {
             display: flex;
             align-items: flex-start;
             gap: 12px;
+
             margin-bottom: 25px;
             padding: 14px 18px;
+
             background: #f5f0eb;
             border: 1px solid #d7cec4;
             border-radius: 10px;
+
             color: #5f4833;
             font-size: 14px;
             line-height: 1.5;
@@ -583,19 +596,23 @@ if ($marketResult) {
     line-height: 1.5;
 }
 
+
         /* =====================================================
            Products Grid
         ===================================================== */
 
         .products-grid {
             display: grid;
+
             grid-template-columns:
                 repeat(
                     auto-fill,
                     minmax(250px, 1fr)
                 );
+
             gap: 24px;
         }
+
 
 
         /* =====================================================
@@ -604,19 +621,24 @@ if ($marketResult) {
 
         .product-card {
             position: relative;
+
             background: #ffffff;
             border: 1px solid #e5e5e5;
             border-radius: 12px;
+
             overflow: hidden;
+
             transition: 0.2s ease;
         }
 
         .product-card:hover {
             transform: translateY(-3px);
+
             box-shadow:
                 0 8px 20px
                 rgba(0, 0, 0, 0.08);
         }
+
 
 
         /* =====================================================
@@ -626,8 +648,10 @@ if ($marketResult) {
         .product-image-container {
             width: 100%;
             height: 220px;
+
             background: #f5f5f5;
         }
+
 
 
         /* =====================================================
@@ -636,11 +660,15 @@ if ($marketResult) {
 
         .favorite-form {
             position: absolute;
+
             top: 12px;
             right: 12px;
+
             z-index: 2;
+
             margin: 0;
         }
+
 
 
         /* =====================================================
@@ -650,19 +678,27 @@ if ($marketResult) {
         .favorite-button {
             width: 36px;
             height: 36px;
+
             display: flex;
             align-items: center;
             justify-content: center;
+
             border: none;
             border-radius: 50%;
+
             background: #ffffff;
+
             cursor: pointer;
+
             font-size: 20px;
+
             padding: 0;
             margin: 0;
+
             box-shadow:
                 0 2px 6px
                 rgba(0, 0, 0, 0.10);
+
             transition: 0.2s ease;
         }
 
@@ -679,6 +715,7 @@ if ($marketResult) {
         }
 
 
+
         /* =====================================================
            Product Information
         ===================================================== */
@@ -689,22 +726,28 @@ if ($marketResult) {
 
         .product-name {
             margin: 0 0 8px;
+
             font-size: 20px;
             font-weight: 600;
+
             color: #222;
         }
 
         .product-description {
             color: #666;
+
             font-size: 14px;
             line-height: 1.5;
+
             min-height: 42px;
+
             margin-bottom: 14px;
         }
 
         .product-price {
             font-size: 18px;
             font-weight: 700;
+
             margin-bottom: 8px;
         }
 
@@ -716,8 +759,10 @@ if ($marketResult) {
         .product-stock {
             font-size: 14px;
             color: #555;
+
             margin-bottom: 16px;
         }
+
 
 
         /* =====================================================
@@ -727,9 +772,13 @@ if ($marketResult) {
         .product-farmer {
             display: flex;
             align-items: center;
+
             gap: 7px;
+
             margin-bottom: 10px;
+
             color: #72583E;
+
             font-size: 13px;
             font-weight: 600;
         }
@@ -739,14 +788,18 @@ if ($marketResult) {
         }
 
 
+
         /* =====================================================
            Product Actions
         ===================================================== */
 
         .product-actions {
             display: flex;
+
             flex-direction: column;
+
             gap: 9px;
+
             margin-top: 18px;
         }
 
@@ -757,26 +810,38 @@ if ($marketResult) {
 
         .add-to-cart-button {
             display: flex;
+
             align-items: center;
             justify-content: center;
+
             gap: 8px;
+
             width: 100%;
+
             padding: 11px 15px;
+
             border: none;
             border-radius: 7px;
+
             background: #72583E;
             color: #ffffff;
+
             font-family: inherit;
+
             font-size: 14px;
             font-weight: 600;
+
             cursor: pointer;
+
             transition: 0.2s ease;
         }
 
         .add-to-cart-button:hover {
             background: #5f4833;
+
             transform: translateY(-1px);
         }
+
 
 
         /* =====================================================
@@ -789,8 +854,10 @@ if ($marketResult) {
 
         .switch-market-button:hover {
             background: #72583E;
+
             transform: translateY(-1px);
         }
+
 
 
         /* =====================================================
@@ -800,13 +867,16 @@ if ($marketResult) {
         .add-to-cart-button.out-of-stock {
             background: #eeeeee;
             color: #888888;
+
             cursor: not-allowed;
         }
 
         .add-to-cart-button.out-of-stock:hover {
             background: #eeeeee;
+
             transform: none;
         }
+
 
 
         /* =====================================================
@@ -815,15 +885,24 @@ if ($marketResult) {
 
         .view-details-button {
             display: block;
+
             width: 100%;
+
             box-sizing: border-box;
+
             text-align: center;
             text-decoration: none;
+
             background: transparent;
+
             color: #72583E;
+
             border: 1px solid #d7cec4;
+
             padding: 10px 15px;
+
             border-radius: 7px;
+
             transition: 0.2s ease;
         }
 
@@ -832,18 +911,25 @@ if ($marketResult) {
         }
 
 
+
         /* =====================================================
            Empty Products
         ===================================================== */
 
         .empty-products {
             background: #ffffff;
+
             border: 1px solid #e5e5e5;
+
             border-radius: 12px;
+
             padding: 40px;
+
             text-align: center;
+
             color: #666;
         }
+
 
 
         /* =====================================================
@@ -892,6 +978,7 @@ if ($marketResult) {
 
 <body>
 
+
 <?php include __DIR__ . '/../includes/navbar.php'; ?>
 
 <?php include __DIR__ . '/../includes/sidebar.php'; ?>
@@ -917,6 +1004,7 @@ if ($marketResult) {
     </div>
 
 
+
     <!-- =====================================================
          Shopping Restriction Notice
     ====================================================== -->
@@ -930,13 +1018,11 @@ if ($marketResult) {
             <?php if ($cartFarmerName): ?>
 
                 Your cart is currently from
-
                 <strong>
                     <?= e($cartFarmerName) ?>
                 </strong>.
 
                 You can only order from one market at a time.
-
                 Complete or clear your current cart before
                 ordering from another market.
 
@@ -952,6 +1038,7 @@ if ($marketResult) {
         </span>
 
     </div>
+
 
 
     <!-- =====================================================
@@ -1137,6 +1224,7 @@ if ($marketResult) {
                 $categoryId =
     (int) ($product['category_id'] ?? 0);
 
+<<<<<<< HEAD
 $marketId =
     (int) ($product['market_id'] ?? 0);
 
@@ -1147,6 +1235,12 @@ $marketDays =
 // --------------------------------------------------
 // Favorite
 // --------------------------------------------------
+=======
+
+                // --------------------------------------------------
+                // Favorite
+                // --------------------------------------------------
+>>>>>>> 6f5d262 (reviews.php)
 
                 $isFavorite =
                     in_array(
@@ -1156,6 +1250,7 @@ $marketDays =
                     );
 
 
+
                 // --------------------------------------------------
                 // Market Check
                 // --------------------------------------------------
@@ -1163,6 +1258,7 @@ $marketDays =
                 $sameMarket =
                     $cartFarmerId === null
                     || $cartFarmerId === $farmerId;
+
 
 
                 // --------------------------------------------------
@@ -1225,12 +1321,15 @@ $marketDays =
                     </form>
 
 
+
                     <!-- =================================================
                          Product Image
                     ================================================== -->
 
                     <div class="product-image-container">
+
                     </div>
+
 
 
                     <!-- =================================================
@@ -1247,6 +1346,7 @@ $marketDays =
                         </h2>
 
 
+
                         <!-- Farmer / Market -->
 
                         <div class="product-farmer">
@@ -1256,6 +1356,7 @@ $marketDays =
                             <?= e($farmerName) ?>
 
                         </div>
+
 
 
                         <!-- Description -->
@@ -1270,6 +1371,7 @@ $marketDays =
                             ) ?>
 
                         </div>
+
 
 
                         <!-- Price -->
@@ -1292,11 +1394,13 @@ $marketDays =
                         </div>
 
 
+
                         <!-- Stock -->
 
                         <div class="product-stock">
 
                             Stock:
+
                             <?= e($stock) ?>
 
                             <?php if ($unit !== ''): ?>
@@ -1308,6 +1412,7 @@ $marketDays =
                         </div>
 
 
+
                         <!-- =================================================
                              Actions
                         ================================================== -->
@@ -1317,23 +1422,25 @@ $marketDays =
 
                             <?php if ($sameMarket && $stock >= 1): ?>
 
-                                <!-- Same Market / Can Add -->
+                                <!-- -----------------------------------------
+                                     Same Market / Can Add
+                                ------------------------------------------ -->
 
                                 <a
                                     href="add_to_cart.php?id=<?= $productId ?>"
                                     class="add-to-cart-button"
                                 >
-
                                     <i class="fa-solid fa-cart-plus"></i>
-
                                     Add to Cart
-
                                 </a>
+
 
 
                             <?php elseif (!$sameMarket): ?>
 
-                                <!-- Different Market -->
+                                <!-- -----------------------------------------
+                                     Different Market
+                                ------------------------------------------ -->
 
                                 <form
                                     method="POST"
@@ -1374,9 +1481,12 @@ $marketDays =
                                 </form>
 
 
+
                             <?php else: ?>
 
-                                <!-- Out Of Stock / Less Than 1kg -->
+                                <!-- -----------------------------------------
+                                     Out Of Stock / Less Than 1kg
+                                ------------------------------------------ -->
 
                                 <button
                                     type="button"
@@ -1393,13 +1503,11 @@ $marketDays =
                             <?php endif; ?>
 
 
-                            <!-- =================================================
-                                 View Details
-                                 from=products is the important change
-                            ================================================== -->
+
+                            <!-- View Details -->
 
                             <a
-                                href="product_details.php?id=<?= $productId ?>&from=products"
+                                href="product_details.php?id=<?= $productId ?>"
                                 class="view-details-button"
                             >
 
@@ -1410,7 +1518,9 @@ $marketDays =
 
                         </div>
 
+
                     </div>
+
 
                 </div>
 
@@ -1419,7 +1529,6 @@ $marketDays =
 
 
         </div>
-
 
     <?php endif; ?>
 
