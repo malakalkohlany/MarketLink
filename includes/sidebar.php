@@ -361,6 +361,16 @@ $role = $_SESSION['role'] ?? '';
 
                 <li>
                     <a
+                        href="<?= BASE_URL ?>admin/announcements.php"
+                        class="<?= $current_page === 'announcements.php' ? 'active' : '' ?>"
+                    >
+                        <span class="nav-icon">X</span>
+                        Notifications
+                    </a>
+                </li>
+
+                <li>
+                    <a
                         href="<?= BASE_URL ?>admin/notifications.php"
                         class="<?= $current_page === 'notifications.php' ? 'active' : '' ?>"
                     >
