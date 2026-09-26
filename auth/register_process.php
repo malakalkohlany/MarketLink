@@ -6,16 +6,10 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 $error = '';
 
-/*
-|--------------------------------------------------------------------------
-| Handle Registration
-|--------------------------------------------------------------------------
-*/
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // --------------------------------------------------
-    // Get submitted values
+    // Get form values
     // --------------------------------------------------
 
     $name = trim($_POST['name'] ?? '');
@@ -38,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!in_array($role, $allowed_roles, true)) {
 
-        $error = 'Invalid account type.';
+        $error = 'Please select an account type.';
 
     } elseif ($name === '') {
 
@@ -75,7 +69,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // --------------------------------------------------
 
         $check = $conn->prepare(
-            "SELECT id FROM users WHERE email = ? LIMIT 1"
+            "SELECT id
+             FROM users
+             WHERE email = ?
+             LIMIT 1"
         );
 
         $check->bind_param('s', $email);
@@ -90,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
 
             // --------------------------------------------------
-            // Create password hash
+            // Hash password
             // --------------------------------------------------
 
             $password_hash = password_hash(
@@ -107,44 +104,86 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             try {
 
-                // --------------------------------------------------
-                // Create user
-                // --------------------------------------------------
+                // ==================================================
+                // CUSTOMER
+                // ==================================================
 
-                $stmt = $conn->prepare(
-                    "INSERT INTO users
-                    (
-                        name,
-                        email,
-                        password_hash,
-                        phone,
-                        address,
-                        role,
-                        status
-                    )
-                    VALUES (?, ?, ?, ?, ?, ?, 'active')"
-                );
+                if ($role === 'customer') {
 
-                $stmt->bind_param(
-                    'ssssss',
-                    $name,
-                    $email,
-                    $password_hash,
-                    $phone,
-                    $address,
-                    $role
-                );
+                    $status = 'active';
 
-                $stmt->execute();
+                    $stmt = $conn->prepare(
+                        "INSERT INTO users
+                        (
+                            name,
+                            email,
+                            password_hash,
+                            phone,
+                            address,
+                            role,
+                            status
+                        )
+                        VALUES (?, ?, ?, ?, ?, ?, ?)"
+                    );
 
-                $user_id = $conn->insert_id;
+                    $stmt->bind_param(
+                        'sssssss',
+                        $name,
+                        $email,
+                        $password_hash,
+                        $phone,
+                        $address,
+                        $role,
+                        $status
+                    );
+
+                    $stmt->execute();
+
+                    $user_id = $conn->insert_id;
 
 
-                // --------------------------------------------------
-                // Create farmer record
-                // --------------------------------------------------
+                // ==================================================
+                // FARMER
+                // ==================================================
 
-                if ($role === 'farmer') {
+                } else {
+
+                    // Farmer accounts start as pending.
+                    $status = 'pending';
+
+                    $stmt = $conn->prepare(
+                        "INSERT INTO users
+                        (
+                            name,
+                            email,
+                            password_hash,
+                            phone,
+                            address,
+                            role,
+                            status
+                        )
+                        VALUES (?, ?, ?, ?, ?, ?, ?)"
+                    );
+
+                    $stmt->bind_param(
+                        'sssssss',
+                        $name,
+                        $email,
+                        $password_hash,
+                        $phone,
+                        $address,
+                        $role,
+                        $status
+                    );
+
+                    $stmt->execute();
+
+                    $user_id = $conn->insert_id;
+
+
+                    // --------------------------------------------------
+                    // Create farmer record
+                    // --------------------------------------------------
 
                     $stmt2 = $conn->prepare(
                         "INSERT INTO farmers
@@ -169,7 +208,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
                 // --------------------------------------------------
-                // Commit transaction
+                // Commit
                 // --------------------------------------------------
 
                 mysqli_commit($conn);
@@ -186,9 +225,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['role'] = $role;
 
 
-                // --------------------------------------------------
-                // Redirect based on role
-                // --------------------------------------------------
+                // ==================================================
+                // CUSTOMER → DASHBOARD
+                // ==================================================
 
                 if ($role === 'customer') {
 
@@ -202,6 +241,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
 
+                // ==================================================
+                // FARMER → PENDING PAGE
+                // ==================================================
+
                 if ($role === 'farmer') {
 
                     $_SESSION['farmer_id'] = $farmer_id;
@@ -209,7 +252,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     header(
                         'Location: ' .
                         BASE_URL .
-                        'farmer/dashboard.php'
+                        'farmer/pending.php'
                     );
 
                     exit;
@@ -224,4 +267,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-?>

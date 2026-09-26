@@ -2,17 +2,6 @@
 
 require_once __DIR__ . '/register_process.php';
 
-/*
-|--------------------------------------------------------------------------
-| Registration State
-|--------------------------------------------------------------------------
-|
-| register_process.php runs before this page is rendered.
-| If validation fails, these variables still contain the
-| submitted values, allowing us to reopen the correct form.
-|
-*/
-
 $selectedRole = $role ?? '';
 
 ?>
@@ -100,9 +89,7 @@ $selectedRole = $role ?? '';
         <?php if ($error): ?>
 
             <div class="message message-error">
-
                 <?= htmlspecialchars($error) ?>
-
             </div>
 
         <?php endif; ?>
@@ -264,9 +251,11 @@ $selectedRole = $role ?? '';
 
                             <?= $selectedRole === 'farmer'
                                 ? 'Farmer'
-                                : ($selectedRole === 'customer'
-                                    ? 'Customer'
-                                    : '')
+                                : (
+                                    $selectedRole === 'customer'
+                                        ? 'Customer'
+                                        : ''
+                                )
                             ?>
 
                         </strong>
@@ -516,8 +505,16 @@ $selectedRole = $role ?? '';
 </main>
 
 
+<!-- ==================================================
+     REGISTER JAVASCRIPT
+================================================== -->
+
 <script src="../assets/js/register.js"></script>
 
+
+<!-- ==================================================
+     RESTORE SELECTED ROLE AFTER VALIDATION ERROR
+================================================== -->
 
 <?php if ($selectedRole !== ''): ?>
 
