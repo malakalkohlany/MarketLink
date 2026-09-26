@@ -4,6 +4,10 @@ require_once __DIR__ . '/../includes/include.php';
 
 requireRole(R_CUSTOMER);
 
+// --------------------------------------------------
+// Get Product ID
+// --------------------------------------------------
+
 $productId = isset($_GET['id'])
     ? (int) $_GET['id']
     : (int) ($_POST['product_id'] ?? 0);
@@ -45,6 +49,7 @@ $product_stmt = $conn->prepare("
     WHERE p.id = ?
       AND p.is_available = 1
       AND p.moderation_status = 'approved'
+      AND f.approval_status = 'approved'
     LIMIT 1
 ");
 
@@ -75,11 +80,19 @@ $errorMessage = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
+    // --------------------------------------------------
+    // Get Quantity
+    // --------------------------------------------------
+
     $quantity = isset($_POST['quantity'])
         ? (float) $_POST['quantity']
         : 0;
 
-    // Validate quantity
+
+    // --------------------------------------------------
+    // Validate Quantity
+    // --------------------------------------------------
+
     if ($quantity <= 0) {
 
         $errorMessage = 'Please enter a valid quantity.';
@@ -88,7 +101,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $stockQuantity = (float) $product['stock_quantity'];
 
-        // Check requested quantity against stock
+
+        // --------------------------------------------------
+        // Check Stock
+        // --------------------------------------------------
+
         if ($quantity > $stockQuantity) {
 
             $errorMessage =
@@ -96,7 +113,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         } else {
 
-            // Create cart if it doesn't exist
+            // --------------------------------------------------
+            // Create Cart If It Does Not Exist
+            // --------------------------------------------------
+
             if (
                 !isset($_SESSION['cart']) ||
                 !is_array($_SESSION['cart'])
@@ -106,55 +126,96 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
             // --------------------------------------------------
-            // Product Already In Cart
+            // Prevent Mixing Products From Different Farmers
             // --------------------------------------------------
 
-            if (isset($_SESSION['cart'][$productId])) {
+            $cartFarmerId = null;
 
-                $currentQuantity = (float)
-                    $_SESSION['cart'][$productId]['quantity'];
+            foreach ($_SESSION['cart'] as $cartItem) {
 
-                $newQuantity = $currentQuantity + $quantity;
+                if (isset($cartItem['farmer_id'])) {
+
+                    $cartFarmerId = (int) $cartItem['farmer_id'];
+
+                    break;
+                }
+            }
 
 
-                // Make sure combined quantity does not exceed stock
-                if ($newQuantity > $stockQuantity) {
+            if (
+                $cartFarmerId !== null &&
+                $cartFarmerId !== (int) $product['farmer_id']
+            ) {
 
-                    $errorMessage =
-                        'The total quantity in your cart would exceed the available stock.';
+                $errorMessage =
+                    'Your cart already contains products from another farmer. '
+                    . 'You can only order from one farmer at a time.';
+
+            }
+
+
+            // --------------------------------------------------
+            // Only Continue If There Is No Error
+            // --------------------------------------------------
+
+            if (empty($errorMessage)) {
+
+                // --------------------------------------------------
+                // Product Already In Cart
+                // --------------------------------------------------
+
+                if (isset($_SESSION['cart'][$productId])) {
+
+                    $currentQuantity = (float)
+                        $_SESSION['cart'][$productId]['quantity'];
+
+                    $newQuantity = $currentQuantity + $quantity;
+
+
+                    // --------------------------------------------------
+                    // Check Combined Quantity Against Stock
+                    // --------------------------------------------------
+
+                    if ($newQuantity > $stockQuantity) {
+
+                        $errorMessage =
+                            'The total quantity in your cart would exceed '
+                            . 'the available stock.';
+
+                    } else {
+
+                        $_SESSION['cart'][$productId]['quantity'] =
+                            $newQuantity;
+
+                        $_SESSION['cart'][$productId]['subtotal'] =
+                            $newQuantity * (float) $product['price'];
+
+                        header('Location: cart.php?added=1');
+                        exit;
+                    }
+
 
                 } else {
 
-                    $_SESSION['cart'][$productId]['quantity'] =
-                        $newQuantity;
+                    // --------------------------------------------------
+                    // Add New Cart Item
+                    // --------------------------------------------------
 
-                    $_SESSION['cart'][$productId]['subtotal'] =
-                        $newQuantity * (float) $product['price'];
+                    $_SESSION['cart'][$productId] = [
+                        'product_id' => (int) $product['id'],
+                        'name'       => $product['name'],
+                        'price'      => (float) $product['price'],
+                        'unit'       => $product['unit'],
+                        'quantity'   => $quantity,
+                        'image'      => $product['image'],
+                        'farmer_id'  => (int) $product['farmer_id'],
+                        'subtotal'   =>
+                            $quantity * (float) $product['price']
+                    ];
 
                     header('Location: cart.php?added=1');
                     exit;
                 }
-
-            } else {
-
-                // --------------------------------------------------
-                // New Cart Item
-                // --------------------------------------------------
-
-                $_SESSION['cart'][$productId] = [
-                    'product_id' => (int) $product['id'],
-                    'name'       => $product['name'],
-                    'price'      => (float) $product['price'],
-                    'unit'       => $product['unit'],
-                    'quantity'   => $quantity,
-                    'image'      => $product['image'],
-                    'farmer_id'  => (int) $product['farmer_id'],
-                    'subtotal'   =>
-                        $quantity * (float) $product['price']
-                ];
-
-                header('Location: cart.php?added=1');
-                exit;
             }
         }
     }
@@ -174,17 +235,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Add to Cart - <?= htmlspecialchars($product['name']) ?></title>
+    <title>
+        Add to Cart -
+        <?= htmlspecialchars($product['name']) ?>
+    </title>
 
-    <link rel="stylesheet" href="../assets/css/base.css">
-    <link rel="stylesheet" href="../assets/css/navbar.css">
-    <link rel="stylesheet" href="../assets/css/sidebar.css">
-    
+    <link
+        rel="stylesheet"
+        href="../assets/css/base.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/navbar.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/sidebar.css"
+    >
+
 </head>
+
 
 <body>
 
 <?php require_once __DIR__ . '/../includes/navbar.php'; ?>
+
 <?php require_once __DIR__ . '/../includes/sidebar.php'; ?>
 
 
@@ -193,6 +270,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="product-details-container">
 
         <!-- Back -->
+
         <a
             href="product_details.php?id=<?= (int) $product['id'] ?>"
             class="back-link"
@@ -202,9 +280,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
         <!-- Product Details -->
+
         <div class="product-details-card">
 
+
             <!-- Product Image -->
+
             <div class="product-image-section">
 
                 <?php if (!empty($product['image'])): ?>
@@ -227,15 +308,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
             <!-- Product Information -->
+
             <div class="product-info-section">
 
                 <div class="product-category">
-                    <?= htmlspecialchars($product['category_name'] ?? 'Uncategorized') ?>
+
+                    <?= htmlspecialchars(
+                        $product['category_name'] ?? 'Uncategorized'
+                    ) ?>
+
                 </div>
+
 
                 <h1>
                     <?= htmlspecialchars($product['name']) ?>
                 </h1>
+
 
                 <?php if (!empty($product['description'])): ?>
 
@@ -246,40 +334,71 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php endif; ?>
 
 
+                <!-- Farmer -->
+
+                <?php if (!empty($product['farmer_name'])): ?>
+
+                    <div class="product-farmer">
+
+                        <strong>From:</strong>
+
+                        <?= htmlspecialchars($product['farmer_name']) ?>
+
+                    </div>
+
+                <?php endif; ?>
+
+
                 <!-- Price -->
+
                 <div class="product-price">
-                    <?= number_format((float) $product['price'], 2) ?>
+
+                    <?= number_format(
+                        (float) $product['price'],
+                        2
+                    ) ?>
+
                     <span>
                         / <?= htmlspecialchars($product['unit']) ?>
                     </span>
+
                 </div>
 
 
                 <!-- Stock -->
+
                 <div class="product-stock">
 
                     <strong>Available:</strong>
 
                     <?= htmlspecialchars($product['stock_quantity']) ?>
+
                     <?= htmlspecialchars($product['unit']) ?>
 
                 </div>
 
 
                 <!-- Error -->
+
                 <?php if (!empty($errorMessage)): ?>
 
                     <div class="quantity-error">
+
                         <?= htmlspecialchars($errorMessage) ?>
+
                     </div>
 
                 <?php endif; ?>
 
 
                 <!-- Quantity Form -->
+
                 <div class="quantity-section">
 
-                    <h3>Select Quantity</h3>
+                    <h3>
+                        Select Quantity
+                    </h3>
+
 
                     <form
                         method="POST"
@@ -291,6 +410,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             name="product_id"
                             value="<?= (int) $product['id'] ?>"
                         >
+
 
                         <div class="quantity-box">
 
@@ -305,38 +425,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 class="quantity-input"
                                 min="0.01"
                                 max="<?= htmlspecialchars($product['stock_quantity']) ?>"
-                                step="0.01"
+                                step="0.1"
                                 value="1"
                                 required
                                 oninput="calculateTotal()"
                             >
 
                             <span class="quantity-unit">
+
                                 <?= htmlspecialchars($product['unit']) ?>
+
                             </span>
 
                         </div>
 
 
                         <!-- Total -->
+
                         <div class="quantity-total">
 
-                            <span>Total</span>
+                            <span>
+                                Total
+                            </span>
 
                             <strong>
+
                                 <span id="totalPrice">
-                                    <?= number_format((float) $product['price'], 2) ?>
+
+                                    <?= number_format(
+                                        (float) $product['price'],
+                                        2
+                                    ) ?>
+
                                 </span>
+
                             </strong>
 
                         </div>
 
 
+                        <!-- Add To Cart -->
+
                         <button
                             type="submit"
                             class="add-to-cart-button"
+                            <?= $product['stock_quantity'] <= 0 ? 'disabled' : '' ?>
                         >
-                            Add to Cart
+
+                            <i class="fa-solid fa-cart-plus"></i>
+
+                            <?= $product['stock_quantity'] > 0
+                                ? 'Add to Cart'
+                                : 'Out of Stock'
+                            ?>
+
                         </button>
 
                     </form>
@@ -349,17 +491,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
         <!-- Farmer Information -->
+
         <div class="farmer-section">
 
-            <h2>Farmer Information</h2>
+            <h2>
+                Farmer Information
+            </h2>
+
 
             <div class="farmer-info">
 
                 <?php if (!empty($product['farmer_name'])): ?>
 
                     <div>
-                        <strong>Stall:</strong>
+
+                        <strong>
+                            Stall:
+                        </strong>
+
                         <?= htmlspecialchars($product['farmer_name']) ?>
+
                     </div>
 
                 <?php endif; ?>
@@ -368,8 +519,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php if (!empty($product['farmer_contact'])): ?>
 
                     <div>
-                        <strong>Contact:</strong>
+
+                        <strong>
+                            Contact:
+                        </strong>
+
                         <?= htmlspecialchars($product['farmer_contact']) ?>
+
                     </div>
 
                 <?php endif; ?>
@@ -378,8 +534,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php if (!empty($product['farmer_address'])): ?>
 
                     <div>
-                        <strong>Address:</strong>
+
+                        <strong>
+                            Address:
+                        </strong>
+
                         <?= htmlspecialchars($product['farmer_address']) ?>
+
                     </div>
 
                 <?php endif; ?>
@@ -415,6 +576,7 @@ function calculateTotal() {
 
 
     if (isNaN(quantity) || quantity < 0) {
+
         quantity = 0;
     }
 
@@ -423,8 +585,7 @@ function calculateTotal() {
 
         quantity = maxStock;
 
-        quantityInput.value =
-            maxStock;
+        quantityInput.value = maxStock;
     }
 
 
@@ -439,4 +600,5 @@ function calculateTotal() {
 </script>
 
 </body>
+
 </html>

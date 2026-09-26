@@ -6,11 +6,11 @@ requireRole(R_CUSTOMER);
 
 $customerId = (int) getUserId();
 
-/*
-|--------------------------------------------------------------------------
-| Toggle Favorite Product
-|--------------------------------------------------------------------------
-*/
+
+
+// ==========================================================
+// Toggle Favorite Product
+// ==========================================================
 
 if (
     $_SERVER['REQUEST_METHOD'] === 'POST'
@@ -28,11 +28,11 @@ if (
         exit;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Check if product already exists in favorites
-    |--------------------------------------------------------------------------
-    */
+
+
+    // ------------------------------------------------------
+    // Check if product already exists in favorites
+    // ------------------------------------------------------
 
     $checkStmt = mysqli_prepare(
         $conn,
@@ -71,11 +71,10 @@ if (
     mysqli_stmt_close($checkStmt);
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | If favorite exists -> DELETE
-    |--------------------------------------------------------------------------
-    */
+
+    // ------------------------------------------------------
+    // Remove favorite
+    // ------------------------------------------------------
 
     if ($exists) {
 
@@ -109,11 +108,11 @@ if (
 
         mysqli_stmt_close($deleteStmt);
 
-    /*
-    |--------------------------------------------------------------------------
-    | If favorite does not exist -> INSERT
-    |--------------------------------------------------------------------------
-    */
+
+
+    // ------------------------------------------------------
+    // Add favorite
+    // ------------------------------------------------------
 
     } else {
 
@@ -152,22 +151,17 @@ if (
         mysqli_stmt_close($insertStmt);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Return to products page
-    |--------------------------------------------------------------------------
-    */
+
 
     header('Location: products.php');
     exit;
 }
 
 
-/*
-|--------------------------------------------------------------------------
-| Get Current Customer Favorite Products
-|--------------------------------------------------------------------------
-*/
+
+// ==========================================================
+// Get Current Customer Favorite Products
+// ==========================================================
 
 $favoriteProducts = [];
 
@@ -204,17 +198,95 @@ mysqli_stmt_bind_result(
 );
 
 while (mysqli_stmt_fetch($favoriteStmt)) {
+
     $favoriteProducts[] = (int) $favoriteProductId;
 }
 
 mysqli_stmt_close($favoriteStmt);
 
 
-/*
-|--------------------------------------------------------------------------
-| Get Products
-|--------------------------------------------------------------------------
-*/
+
+// ==========================================================
+// Get Current Cart Farmer
+// ==========================================================
+
+$cartFarmerId = null;
+$cartFarmerName = null;
+
+if (
+    isset($_SESSION['cart']) &&
+    is_array($_SESSION['cart']) &&
+    !empty($_SESSION['cart'])
+) {
+
+    foreach ($_SESSION['cart'] as $cartItem) {
+
+        if (
+            isset($cartItem['farmer_id']) &&
+            (int) $cartItem['farmer_id'] > 0
+        ) {
+
+            $cartFarmerId = (int) $cartItem['farmer_id'];
+
+            break;
+        }
+    }
+}
+
+
+
+// ----------------------------------------------------------
+// Get current cart farmer's name
+// ----------------------------------------------------------
+
+if ($cartFarmerId !== null) {
+
+    $cartFarmerStmt = $conn->prepare(
+        "SELECT stall_name
+         FROM farmers
+         WHERE id = ?
+         LIMIT 1"
+    );
+
+    if (!$cartFarmerStmt) {
+        die(
+            'Cart farmer prepare failed: '
+            . $conn->error
+        );
+    }
+
+    $cartFarmerStmt->bind_param(
+        "i",
+        $cartFarmerId
+    );
+
+    if (!$cartFarmerStmt->execute()) {
+        die(
+            'Cart farmer execute failed: '
+            . $cartFarmerStmt->error
+        );
+    }
+
+    $cartFarmerResult =
+        $cartFarmerStmt->get_result();
+
+    $cartFarmer =
+        $cartFarmerResult->fetch_assoc();
+
+    if ($cartFarmer) {
+
+        $cartFarmerName =
+            $cartFarmer['stall_name'];
+    }
+
+    $cartFarmerStmt->close();
+}
+
+
+
+// ==========================================================
+// Get Products
+// ==========================================================
 
 $sql = "
     SELECT
@@ -228,7 +300,8 @@ $sql = "
         p.stock_quantity,
         f.stall_name AS farmer_name
     FROM products p
-    INNER JOIN farmers f ON p.farmer_id = f.id
+    INNER JOIN farmers f
+        ON p.farmer_id = f.id
     WHERE p.is_available = 1
       AND p.moderation_status = ?
       AND f.approval_status = ?
@@ -238,7 +311,10 @@ $sql = "
 $stmt = $conn->prepare($sql);
 
 if (!$stmt) {
-    die('Database Error: ' . $conn->error);
+    die(
+        'Database Error: '
+        . $conn->error
+    );
 }
 
 $moderation_status = M_APPROVED;
@@ -250,15 +326,23 @@ $stmt->bind_param(
     $farmer_status
 );
 
-$stmt->execute();
+if (!$stmt->execute()) {
+    die(
+        'Product query failed: '
+        . $stmt->error
+    );
+}
 
 $result = $stmt->get_result();
 
 $products = [];
 
 while ($row = $result->fetch_assoc()) {
+
     $products[] = $row;
 }
+
+$stmt->close();
 
 ?>
 
@@ -274,13 +358,25 @@ while ($row = $result->fetch_assoc()) {
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Products - MarketLink</title>
+    <title>
+        Products - MarketLink
+    </title>
 
 
-    <link rel="stylesheet" href="../assets/css/base.css">
-    <link rel="stylesheet" href="../assets/css/navbar.css">
-    <link rel="stylesheet" href="../assets/css/sidebar.css">
+    <link
+        rel="stylesheet"
+        href="../assets/css/base.css"
+    >
 
+    <link
+        rel="stylesheet"
+        href="../assets/css/navbar.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/sidebar.css"
+    >
 
     <link
         rel="stylesheet"
@@ -290,15 +386,12 @@ while ($row = $result->fetch_assoc()) {
 
     <style>
 
-        
-
-
         /* =====================================================
            Page Header
         ===================================================== */
 
         .page-header {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .page-header h1 {
@@ -310,6 +403,40 @@ while ($row = $result->fetch_assoc()) {
             margin: 0;
             color: #666;
         }
+
+
+
+        /* =====================================================
+           Shopping Restriction Notice
+        ===================================================== */
+
+        .shopping-note {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+
+            margin-bottom: 25px;
+            padding: 14px 18px;
+
+            background: #f5f0eb;
+            border: 1px solid #d7cec4;
+            border-radius: 10px;
+
+            color: #5f4833;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .shopping-note i {
+            margin-top: 2px;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .shopping-note strong {
+            color: #72583E;
+        }
+
 
 
         /* =====================================================
@@ -329,17 +456,16 @@ while ($row = $result->fetch_assoc()) {
         }
 
 
+
         /* =====================================================
            Product Card
         ===================================================== */
 
         .product-card {
-            position: relative !important;
+            position: relative;
 
             background: #ffffff;
-
             border: 1px solid #e5e5e5;
-
             border-radius: 12px;
 
             overflow: hidden;
@@ -356,17 +482,18 @@ while ($row = $result->fetch_assoc()) {
         }
 
 
+
         /* =====================================================
            Empty Image Area
         ===================================================== */
 
         .product-image-container {
-            width: 100% !important;
+            width: 100%;
+            height: 220px;
 
-            height: 220px !important;
-
-            background: #f5f5f5 !important;
+            background: #f5f5f5;
         }
+
 
 
         /* =====================================================
@@ -374,16 +501,16 @@ while ($row = $result->fetch_assoc()) {
         ===================================================== */
 
         .favorite-form {
-            position: absolute !important;
+            position: absolute;
 
-            top: 12px !important;
+            top: 12px;
+            right: 12px;
 
-            right: 12px !important;
+            z-index: 2;
 
-            z-index: 12 !important;
-
-            margin: 0 !important;
+            margin: 0;
         }
+
 
 
         /* =====================================================
@@ -391,57 +518,44 @@ while ($row = $result->fetch_assoc()) {
         ===================================================== */
 
         .favorite-button {
-            width: 36px !important;
+            width: 36px;
+            height: 36px;
 
-            height: 36px !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
 
-            display: flex !important;
+            border: none;
+            border-radius: 50%;
 
-            align-items: center !important;
+            background: #ffffff;
 
-            justify-content: center !important;
+            cursor: pointer;
 
-            border: none !important;
+            font-size: 20px;
 
-            border-radius: 50% !important;
-
-            background: #ffffff !important;
-
-            cursor: pointer !important;
-
-            font-size: 20px !important;
-
-            padding: 0 !important;
-
-            margin: 0 !important;
+            padding: 0;
+            margin: 0;
 
             box-shadow:
                 0 2px 6px
-                rgba(0, 0, 0, 0.10) !important;
+                rgba(0, 0, 0, 0.10);
 
             transition: 0.2s ease;
         }
 
-
-        /* Empty heart */
-
         .favorite-button.empty {
-            color: #555555 !important;
+            color: #555555;
         }
-
-
-        /* Filled heart */
 
         .favorite-button.filled {
-            color: #e53935 !important;
+            color: #e53935;
         }
-
-
-        /* Heart hover */
 
         .favorite-button:hover {
             transform: scale(1.08);
         }
+
 
 
         /* =====================================================
@@ -456,7 +570,6 @@ while ($row = $result->fetch_assoc()) {
             margin: 0 0 8px;
 
             font-size: 20px;
-
             font-weight: 600;
 
             color: #222;
@@ -466,7 +579,6 @@ while ($row = $result->fetch_assoc()) {
             color: #666;
 
             font-size: 14px;
-
             line-height: 1.5;
 
             min-height: 42px;
@@ -476,7 +588,6 @@ while ($row = $result->fetch_assoc()) {
 
         .product-price {
             font-size: 18px;
-
             font-weight: 700;
 
             margin-bottom: 8px;
@@ -484,88 +595,163 @@ while ($row = $result->fetch_assoc()) {
 
         .product-unit {
             font-size: 14px;
-
             color: #666;
         }
 
         .product-stock {
             font-size: 14px;
-
             color: #555;
 
             margin-bottom: 16px;
         }
 
 
+
+        /* =====================================================
+           Farmer
+        ===================================================== */
+
+        .product-farmer {
+            display: flex;
+            align-items: center;
+
+            gap: 7px;
+
+            margin-bottom: 10px;
+
+            color: #72583E;
+
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .product-farmer i {
+            font-size: 12px;
+        }
+
+
+
+        /* =====================================================
+           Product Actions
+        ===================================================== */
+
+        .product-actions {
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 9px;
+
+            margin-top: 18px;
+        }
+
+        .add-to-cart-form {
+            width: 100%;
+            margin: 0;
+        }
+
+        .add-to-cart-button {
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            gap: 8px;
+
+            width: 100%;
+
+            padding: 11px 15px;
+
+            border: none;
+            border-radius: 7px;
+
+            background: #72583E;
+            color: #ffffff;
+
+            font-family: inherit;
+
+            font-size: 14px;
+            font-weight: 600;
+
+            cursor: pointer;
+
+            transition: 0.2s ease;
+        }
+
+        .add-to-cart-button:hover {
+            background: #5f4833;
+
+            transform: translateY(-1px);
+        }
+
+
+
+        /* =====================================================
+           Switch Market Button
+        ===================================================== */
+
+        .switch-market-button {
+            background: #8A7562;
+        }
+
+        .switch-market-button:hover {
+            background: #72583E;
+
+            transform: translateY(-1px);
+        }
+
+
+
+        /* =====================================================
+           Out Of Stock
+        ===================================================== */
+
+        .add-to-cart-button.out-of-stock {
+            background: #eeeeee;
+            color: #888888;
+
+            cursor: not-allowed;
+        }
+
+        .add-to-cart-button.out-of-stock:hover {
+            background: #eeeeee;
+
+            transform: none;
+        }
+
+
+
         /* =====================================================
            View Details Button
         ===================================================== */
-.product-farmer {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    margin-bottom: 10px;
-    color: #72583E;
-    font-size: 13px;
-    font-weight: 600;
-}
 
-.product-farmer i {
-    font-size: 12px;
-}
+        .view-details-button {
+            display: block;
 
-.product-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 9px;
-    margin-top: 18px;
-}
+            width: 100%;
 
-.add-to-cart-form {
-    width: 100%;
-    margin: 0;
-}
+            box-sizing: border-box;
 
-.add-to-cart-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    padding: 11px 15px;
-    border: none;
-    border-radius: 7px;
-    background: #72583E;
-    color: #ffffff;
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.2s ease;
-}
+            text-align: center;
+            text-decoration: none;
 
-.add-to-cart-button:hover {
-    background: #5f4833;
-    transform: translateY(-1px);
-}
+            background: transparent;
 
-.view-details-button {
-    display: block;
-    width: 100%;
-    box-sizing: border-box;
-    text-align: center;
-    text-decoration: none;
-    background: transparent;
-    color: #72583E;
-    border: 1px solid #d7cec4;
-    padding: 10px 15px;
-    border-radius: 7px;
-    transition: 0.2s ease;
-}
+            color: #72583E;
 
-.view-details-button:hover {
-    background: #f5f0eb;
-}
+            border: 1px solid #d7cec4;
+
+            padding: 10px 15px;
+
+            border-radius: 7px;
+
+            transition: 0.2s ease;
+        }
+
+        .view-details-button:hover {
+            background: #f5f0eb;
+        }
+
 
 
         /* =====================================================
@@ -587,15 +773,19 @@ while ($row = $result->fetch_assoc()) {
         }
 
 
+
         /* =====================================================
            Mobile
         ===================================================== */
 
         @media (max-width: 700px) {
 
-
             .products-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .shopping-note {
+                font-size: 13px;
             }
 
         }
@@ -608,198 +798,306 @@ while ($row = $result->fetch_assoc()) {
 <body>
 
 
-    <?php include __DIR__ . '/../includes/navbar.php'; ?>
-    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
+<?php include __DIR__ . '/../includes/navbar.php'; ?>
+
+<?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
 
-    <main class="main-content">
+<main class="main-content">
 
 
-        <!-- Page Header -->
+    <!-- =====================================================
+         Page Header
+    ====================================================== -->
 
-        <div class="page-header">
+    <div class="page-header">
 
-            <h1>
-                Products
-            </h1>
+        <h1>
+            Products
+        </h1>
 
-            <p>
-                Browse fresh products available from our farmers.
-            </p>
+        <p>
+            Browse fresh products available from our farmers.
+        </p>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         Shopping Restriction Notice
+    ====================================================== -->
+
+    <div class="shopping-note">
+
+        <i class="fa-solid fa-basket-shopping"></i>
+
+        <span>
+
+            <?php if ($cartFarmerName): ?>
+
+                Your cart is currently from
+                <strong>
+                    <?= e($cartFarmerName) ?>
+                </strong>.
+
+                You can only order from one market at a time.
+                Complete or clear your current cart before
+                ordering from another market.
+
+            <?php else: ?>
+
+                You can browse products from all markets.
+
+                Your cart can contain products from only one
+                market per order.
+
+            <?php endif; ?>
+
+        </span>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         Products
+    ====================================================== -->
+
+    <?php if (empty($products)): ?>
+
+        <div class="empty-products">
+
+            No products are available at the moment.
 
         </div>
 
-
-        <?php if (empty($products)): ?>
-
-            <div class="empty-products">
-
-                No products are available at the moment.
-
-            </div>
-
-        <?php else: ?>
+    <?php else: ?>
 
 
-            <div class="products-grid">
+        <div class="products-grid">
 
 
-                <?php foreach ($products as $product): ?>
+            <?php foreach ($products as $product): ?>
 
 
-                    <?php
+                <?php
 
-                    $productId =
-                        (int) $product['id'];
+                $productId =
+                    (int) $product['id'];
 
-                    $productName =
-                        $product['name'];
+                $productName =
+                    $product['name'];
 
-                    $description =
-                        $product['description'] ?? '';
+                $description =
+                    $product['description'] ?? '';
 
-                    $price =
-                        (float) $product['price'];
+                $price =
+                    (float) $product['price'];
 
-                    $unit =
-                        $product['unit'] ?? '';
+                $unit =
+                    $product['unit'] ?? '';
 
-                    $stock =
-                        (float) $product['stock_quantity'];
+                $stock =
+                    (float) $product['stock_quantity'];
 
+                $farmerId =
+                    (int) $product['farmer_id'];
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Check if Product is Favorite
-                    |--------------------------------------------------------------------------
-                    */
-
-                    $isFavorite =
-                        in_array(
-                            $productId,
-                            $favoriteProducts,
-                            true
-                        );
-
-                    ?>
+                $farmerName =
+                    $product['farmer_name']
+                    ?? 'Unknown Market';
 
 
-                    <div class="product-card">
+
+                // --------------------------------------------------
+                // Favorite
+                // --------------------------------------------------
+
+                $isFavorite =
+                    in_array(
+                        $productId,
+                        $favoriteProducts,
+                        true
+                    );
 
 
-                        <!-- Favorite Button -->
 
-                        <form
-                            method="POST"
-                            action="products.php"
-                            class="favorite-form"
+                // --------------------------------------------------
+                // Market Check
+                // --------------------------------------------------
+
+                $sameMarket =
+                    $cartFarmerId === null
+                    || $cartFarmerId === $farmerId;
+
+
+
+                // --------------------------------------------------
+                // Quick Add uses 1 kg
+                // --------------------------------------------------
+
+                $canAddToCart =
+                    $sameMarket
+                    && $stock >= 1;
+
+                ?>
+
+
+                <div class="product-card">
+
+
+                    <!-- =================================================
+                         Favorite Button
+                    ================================================== -->
+
+                    <form
+                        method="POST"
+                        action="products.php"
+                        class="favorite-form"
+                    >
+
+                        <input
+                            type="hidden"
+                            name="product_id"
+                            value="<?= $productId ?>"
                         >
 
-                            <input
-                                type="hidden"
-                                name="product_id"
-                                value="<?= $productId ?>"
-                            >
+
+                        <button
+                            type="submit"
+                            name="toggle_favorite"
+                            class="favorite-button <?= $isFavorite ? 'filled' : 'empty' ?>"
+                            title="<?= $isFavorite ? 'Remove from Favorites' : 'Add to Favorites' ?>"
+                            aria-label="<?= $isFavorite ? 'Remove from Favorites' : 'Add to Favorites' ?>"
+                        >
+
+                            <?php if ($isFavorite): ?>
+
+                                <i class="fa-solid fa-heart"></i>
+
+                            <?php else: ?>
+
+                                <i class="fa-regular fa-heart"></i>
+
+                            <?php endif; ?>
+
+                        </button>
+
+                    </form>
 
 
-                            <button
-                                type="submit"
-                                name="toggle_favorite"
-                                class="favorite-button <?= $isFavorite ? 'filled' : 'empty' ?>"
-                                title="<?= $isFavorite ? 'Remove from Favorites' : 'Add to Favorites' ?>"
-                                aria-label="<?= $isFavorite ? 'Remove from Favorites' : 'Add to Favorites' ?>"
-                            >
 
-                                <?php if ($isFavorite): ?>
+                    <!-- =================================================
+                         Product Image
+                    ================================================== -->
 
-                                    <i class="fa-solid fa-heart"></i>
+                    <div class="product-image-container">
 
-                                <?php else: ?>
-
-                                    <i class="fa-regular fa-heart"></i>
-
-                                <?php endif; ?>
-
-                            </button>
-
-                        </form>
+                    </div>
 
 
-                        <!-- Empty Image Area -->
 
-                        <div class="product-image-container">
+                    <!-- =================================================
+                         Product Information
+                    ================================================== -->
+
+                    <div class="product-info">
+
+
+                        <h2 class="product-name">
+
+                            <?= e($productName) ?>
+
+                        </h2>
+
+
+
+                        <!-- Farmer / Market -->
+
+                        <div class="product-farmer">
+
+                            <i class="fa-solid fa-store"></i>
+
+                            <?= e($farmerName) ?>
+
                         </div>
 
 
-                        <!-- Product Information -->
 
-                        <div class="product-info">
+                        <!-- Description -->
 
+                        <div class="product-description">
 
-                            <h2 class="product-name">
+                            <?= e(
+                                truncateText(
+                                    $description,
+                                    90
+                                )
+                            ) ?>
 
-                                <?= e($productName) ?>
-
-                            </h2>
-
-                            <div class="product-farmer">
-                                <i class="fa-solid fa-store"></i>
-                                <?= e($product['farmer_name']) ?>
-                            </div>
-
-                            <div class="product-description">
-
-                                <?= e(
-                                    truncateText(
-                                        $description,
-                                        90
-                                    )
-                                ) ?>
-
-                            </div>
+                        </div>
 
 
-                            <div class="product-price">
 
-                                $<?= formatPrice($price) ?>
+                        <!-- Price -->
 
+                        <div class="product-price">
 
-                                <?php if ($unit !== ''): ?>
+                            $<?= formatPrice($price) ?>
 
-                                    <span class="product-unit">
+                            <?php if ($unit !== ''): ?>
 
-                                        / <?= e($unit) ?>
+                                <span class="product-unit">
 
-                                    </span>
-
-                                <?php endif; ?>
-
-                            </div>
-
-
-                            <div class="product-stock">
-
-                                Stock:
-
-                                <?= e($stock) ?>
-
-
-                                <?php if ($unit !== ''): ?>
-
+                                    /
                                     <?= e($unit) ?>
 
-                                <?php endif; ?>
+                                </span>
 
-                            </div>
+                            <?php endif; ?>
+
+                        </div>
 
 
-                            <div class="product-actions">
+
+                        <!-- Stock -->
+
+                        <div class="product-stock">
+
+                            Stock:
+
+                            <?= e($stock) ?>
+
+                            <?php if ($unit !== ''): ?>
+
+                                <?= e($unit) ?>
+
+                            <?php endif; ?>
+
+                        </div>
+
+
+
+                        <!-- =================================================
+                             Actions
+                        ================================================== -->
+
+                        <div class="product-actions">
+
+
+                            <?php if ($sameMarket && $stock >= 1): ?>
+
+                                <!-- -----------------------------------------
+                                     Same Market / Can Add
+                                ------------------------------------------ -->
 
                                 <form
                                     method="POST"
                                     action="add_to_cart.php"
                                     class="add-to-cart-form"
                                 >
+
                                     <input
                                         type="hidden"
                                         name="product_id"
@@ -812,23 +1110,100 @@ while ($row = $result->fetch_assoc()) {
                                         value="1"
                                     >
 
+
                                     <button
                                         type="submit"
                                         class="add-to-cart-button"
                                     >
+
                                         <i class="fa-solid fa-cart-plus"></i>
+
                                         Add to Cart
+
                                     </button>
+
                                 </form>
 
-                                <a
-                                    href="product_details.php?id=<?= $productId ?>"
-                                    class="view-details-button"
-                                >
-                                    View Details
-                                </a>
 
-                            </div>
+
+                            <?php elseif (!$sameMarket): ?>
+
+                                <!-- -----------------------------------------
+                                     Different Market
+                                ------------------------------------------ -->
+
+                                <form
+                                    method="POST"
+                                    action="../actions/clear_cart.php"
+                                    class="add-to-cart-form"
+                                    onsubmit="return confirmSwitchMarket(
+                                        <?= htmlspecialchars(
+                                            json_encode($cartFarmerName),
+                                            ENT_QUOTES,
+                                            'UTF-8'
+                                        ) ?>,
+                                        <?= htmlspecialchars(
+                                            json_encode($farmerName),
+                                            ENT_QUOTES,
+                                            'UTF-8'
+                                        ) ?>
+                                    );"
+                                >
+
+                                    <input
+                                        type="hidden"
+                                        name="return_to"
+                                        value="../customer/products.php"
+                                    >
+
+                                    <button
+                                        type="submit"
+                                        class="add-to-cart-button switch-market-button"
+                                        title="Clear your current cart and switch markets"
+                                    >
+
+                                        <i class="fa-solid fa-right-left"></i>
+
+                                        Switch Market
+
+                                    </button>
+
+                                </form>
+
+
+
+                            <?php else: ?>
+
+                                <!-- -----------------------------------------
+                                     Out Of Stock / Less Than 1kg
+                                ------------------------------------------ -->
+
+                                <button
+                                    type="button"
+                                    class="add-to-cart-button out-of-stock"
+                                    disabled
+                                >
+
+                                    <i class="fa-solid fa-box-open"></i>
+
+                                    Out of Stock
+
+                                </button>
+
+                            <?php endif; ?>
+
+
+
+                            <!-- View Details -->
+
+                            <a
+                                href="product_details.php?id=<?= $productId ?>"
+                                class="view-details-button"
+                            >
+
+                                View Details
+
+                            </a>
 
 
                         </div>
@@ -837,14 +1212,45 @@ while ($row = $result->fetch_assoc()) {
                     </div>
 
 
-                <?php endforeach; ?>
+                </div>
 
 
-            </div>
-                    <?php endif; ?>
-    </main>
+            <?php endforeach; ?>
 
-    <script src="../assets/js/app.js"></script> 
+
+        </div>
+
+    <?php endif; ?>
+
+
+</main>
+
+
+<script src="../assets/js/app.js"></script>
+
+
+<script>
+
+function confirmSwitchMarket(currentMarket, newMarket) {
+
+    return confirm(
+        'Your cart currently contains products from "' +
+        currentMarket +
+        '".\n\n' +
+
+        'To add a product from "' +
+        newMarket +
+        '", your current cart needs to be cleared.\n\n' +
+
+        'This will remove all products currently in your cart.\n\n' +
+
+        'Do you want to clear your cart and switch markets?'
+    );
+
+}
+
+</script>
+
 
 </body>
 
