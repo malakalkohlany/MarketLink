@@ -7,7 +7,6 @@ requireRole(R_CUSTOMER);
 $customerId = (int) getUserId();
 
 
-
 // ==========================================================
 // Toggle Favorite Product
 // ==========================================================
@@ -27,7 +26,6 @@ if (
         header('Location: products.php');
         exit;
     }
-
 
 
     // ------------------------------------------------------
@@ -71,7 +69,6 @@ if (
     mysqli_stmt_close($checkStmt);
 
 
-
     // ------------------------------------------------------
     // Remove favorite
     // ------------------------------------------------------
@@ -107,7 +104,6 @@ if (
         }
 
         mysqli_stmt_close($deleteStmt);
-
 
 
     // ------------------------------------------------------
@@ -152,11 +148,9 @@ if (
     }
 
 
-
     header('Location: products.php');
     exit;
 }
-
 
 
 // ==========================================================
@@ -198,12 +192,10 @@ mysqli_stmt_bind_result(
 );
 
 while (mysqli_stmt_fetch($favoriteStmt)) {
-
     $favoriteProducts[] = (int) $favoriteProductId;
 }
 
 mysqli_stmt_close($favoriteStmt);
-
 
 
 // ==========================================================
@@ -214,15 +206,18 @@ $cartFarmerId = null;
 $cartFarmerName = null;
 
 if (
-    isset($_SESSION['cart']) &&
-    is_array($_SESSION['cart']) &&
+    isset($_SESSION['cart'])
+    &&
+    is_array($_SESSION['cart'])
+    &&
     !empty($_SESSION['cart'])
 ) {
 
     foreach ($_SESSION['cart'] as $cartItem) {
 
         if (
-            isset($cartItem['farmer_id']) &&
+            isset($cartItem['farmer_id'])
+            &&
             (int) $cartItem['farmer_id'] > 0
         ) {
 
@@ -232,7 +227,6 @@ if (
         }
     }
 }
-
 
 
 // ----------------------------------------------------------
@@ -274,14 +268,12 @@ if ($cartFarmerId !== null) {
         $cartFarmerResult->fetch_assoc();
 
     if ($cartFarmer) {
-
         $cartFarmerName =
             $cartFarmer['stall_name'];
     }
 
     $cartFarmerStmt->close();
 }
-
 
 
 // ==========================================================
@@ -338,7 +330,6 @@ $result = $stmt->get_result();
 $products = [];
 
 while ($row = $result->fetch_assoc()) {
-
     $products[] = $row;
 }
 
@@ -405,7 +396,6 @@ $stmt->close();
         }
 
 
-
         /* =====================================================
            Shopping Restriction Notice
         ===================================================== */
@@ -414,14 +404,11 @@ $stmt->close();
             display: flex;
             align-items: flex-start;
             gap: 12px;
-
             margin-bottom: 25px;
             padding: 14px 18px;
-
             background: #f5f0eb;
             border: 1px solid #d7cec4;
             border-radius: 10px;
-
             color: #5f4833;
             font-size: 14px;
             line-height: 1.5;
@@ -438,23 +425,19 @@ $stmt->close();
         }
 
 
-
         /* =====================================================
            Products Grid
         ===================================================== */
 
         .products-grid {
             display: grid;
-
             grid-template-columns:
                 repeat(
                     auto-fill,
                     minmax(250px, 1fr)
                 );
-
             gap: 24px;
         }
-
 
 
         /* =====================================================
@@ -463,24 +446,19 @@ $stmt->close();
 
         .product-card {
             position: relative;
-
             background: #ffffff;
             border: 1px solid #e5e5e5;
             border-radius: 12px;
-
             overflow: hidden;
-
             transition: 0.2s ease;
         }
 
         .product-card:hover {
             transform: translateY(-3px);
-
             box-shadow:
                 0 8px 20px
                 rgba(0, 0, 0, 0.08);
         }
-
 
 
         /* =====================================================
@@ -490,10 +468,8 @@ $stmt->close();
         .product-image-container {
             width: 100%;
             height: 220px;
-
             background: #f5f5f5;
         }
-
 
 
         /* =====================================================
@@ -502,15 +478,11 @@ $stmt->close();
 
         .favorite-form {
             position: absolute;
-
             top: 12px;
             right: 12px;
-
             z-index: 2;
-
             margin: 0;
         }
-
 
 
         /* =====================================================
@@ -520,27 +492,19 @@ $stmt->close();
         .favorite-button {
             width: 36px;
             height: 36px;
-
             display: flex;
             align-items: center;
             justify-content: center;
-
             border: none;
             border-radius: 50%;
-
             background: #ffffff;
-
             cursor: pointer;
-
             font-size: 20px;
-
             padding: 0;
             margin: 0;
-
             box-shadow:
                 0 2px 6px
                 rgba(0, 0, 0, 0.10);
-
             transition: 0.2s ease;
         }
 
@@ -557,7 +521,6 @@ $stmt->close();
         }
 
 
-
         /* =====================================================
            Product Information
         ===================================================== */
@@ -568,28 +531,22 @@ $stmt->close();
 
         .product-name {
             margin: 0 0 8px;
-
             font-size: 20px;
             font-weight: 600;
-
             color: #222;
         }
 
         .product-description {
             color: #666;
-
             font-size: 14px;
             line-height: 1.5;
-
             min-height: 42px;
-
             margin-bottom: 14px;
         }
 
         .product-price {
             font-size: 18px;
             font-weight: 700;
-
             margin-bottom: 8px;
         }
 
@@ -601,10 +558,8 @@ $stmt->close();
         .product-stock {
             font-size: 14px;
             color: #555;
-
             margin-bottom: 16px;
         }
-
 
 
         /* =====================================================
@@ -614,13 +569,9 @@ $stmt->close();
         .product-farmer {
             display: flex;
             align-items: center;
-
             gap: 7px;
-
             margin-bottom: 10px;
-
             color: #72583E;
-
             font-size: 13px;
             font-weight: 600;
         }
@@ -630,18 +581,14 @@ $stmt->close();
         }
 
 
-
         /* =====================================================
            Product Actions
         ===================================================== */
 
         .product-actions {
             display: flex;
-
             flex-direction: column;
-
             gap: 9px;
-
             margin-top: 18px;
         }
 
@@ -652,38 +599,26 @@ $stmt->close();
 
         .add-to-cart-button {
             display: flex;
-
             align-items: center;
             justify-content: center;
-
             gap: 8px;
-
             width: 100%;
-
             padding: 11px 15px;
-
             border: none;
             border-radius: 7px;
-
             background: #72583E;
             color: #ffffff;
-
             font-family: inherit;
-
             font-size: 14px;
             font-weight: 600;
-
             cursor: pointer;
-
             transition: 0.2s ease;
         }
 
         .add-to-cart-button:hover {
             background: #5f4833;
-
             transform: translateY(-1px);
         }
-
 
 
         /* =====================================================
@@ -696,10 +631,8 @@ $stmt->close();
 
         .switch-market-button:hover {
             background: #72583E;
-
             transform: translateY(-1px);
         }
-
 
 
         /* =====================================================
@@ -709,16 +642,13 @@ $stmt->close();
         .add-to-cart-button.out-of-stock {
             background: #eeeeee;
             color: #888888;
-
             cursor: not-allowed;
         }
 
         .add-to-cart-button.out-of-stock:hover {
             background: #eeeeee;
-
             transform: none;
         }
-
 
 
         /* =====================================================
@@ -727,24 +657,15 @@ $stmt->close();
 
         .view-details-button {
             display: block;
-
             width: 100%;
-
             box-sizing: border-box;
-
             text-align: center;
             text-decoration: none;
-
             background: transparent;
-
             color: #72583E;
-
             border: 1px solid #d7cec4;
-
             padding: 10px 15px;
-
             border-radius: 7px;
-
             transition: 0.2s ease;
         }
 
@@ -753,25 +674,18 @@ $stmt->close();
         }
 
 
-
         /* =====================================================
            Empty Products
         ===================================================== */
 
         .empty-products {
             background: #ffffff;
-
             border: 1px solid #e5e5e5;
-
             border-radius: 12px;
-
             padding: 40px;
-
             text-align: center;
-
             color: #666;
         }
-
 
 
         /* =====================================================
@@ -796,7 +710,6 @@ $stmt->close();
 
 
 <body>
-
 
 <?php include __DIR__ . '/../includes/navbar.php'; ?>
 
@@ -823,7 +736,6 @@ $stmt->close();
     </div>
 
 
-
     <!-- =====================================================
          Shopping Restriction Notice
     ====================================================== -->
@@ -837,11 +749,13 @@ $stmt->close();
             <?php if ($cartFarmerName): ?>
 
                 Your cart is currently from
+
                 <strong>
                     <?= e($cartFarmerName) ?>
                 </strong>.
 
                 You can only order from one market at a time.
+
                 Complete or clear your current cart before
                 ordering from another market.
 
@@ -857,7 +771,6 @@ $stmt->close();
         </span>
 
     </div>
-
 
 
     <!-- =====================================================
@@ -909,7 +822,6 @@ $stmt->close();
                     ?? 'Unknown Market';
 
 
-
                 // --------------------------------------------------
                 // Favorite
                 // --------------------------------------------------
@@ -922,7 +834,6 @@ $stmt->close();
                     );
 
 
-
                 // --------------------------------------------------
                 // Market Check
                 // --------------------------------------------------
@@ -930,7 +841,6 @@ $stmt->close();
                 $sameMarket =
                     $cartFarmerId === null
                     || $cartFarmerId === $farmerId;
-
 
 
                 // --------------------------------------------------
@@ -987,15 +897,12 @@ $stmt->close();
                     </form>
 
 
-
                     <!-- =================================================
                          Product Image
                     ================================================== -->
 
                     <div class="product-image-container">
-
                     </div>
-
 
 
                     <!-- =================================================
@@ -1012,7 +919,6 @@ $stmt->close();
                         </h2>
 
 
-
                         <!-- Farmer / Market -->
 
                         <div class="product-farmer">
@@ -1022,7 +928,6 @@ $stmt->close();
                             <?= e($farmerName) ?>
 
                         </div>
-
 
 
                         <!-- Description -->
@@ -1037,7 +942,6 @@ $stmt->close();
                             ) ?>
 
                         </div>
-
 
 
                         <!-- Price -->
@@ -1060,13 +964,11 @@ $stmt->close();
                         </div>
 
 
-
                         <!-- Stock -->
 
                         <div class="product-stock">
 
                             Stock:
-
                             <?= e($stock) ?>
 
                             <?php if ($unit !== ''): ?>
@@ -1078,7 +980,6 @@ $stmt->close();
                         </div>
 
 
-
                         <!-- =================================================
                              Actions
                         ================================================== -->
@@ -1088,25 +989,23 @@ $stmt->close();
 
                             <?php if ($sameMarket && $stock >= 1): ?>
 
-                                <!-- -----------------------------------------
-                                     Same Market / Can Add
-                                ------------------------------------------ -->
+                                <!-- Same Market / Can Add -->
 
                                 <a
                                     href="add_to_cart.php?id=<?= $productId ?>"
                                     class="add-to-cart-button"
                                 >
-                                    <i class="fa-solid fa-cart-plus"></i>
-                                    Add to Cart
-                                </a>
 
+                                    <i class="fa-solid fa-cart-plus"></i>
+
+                                    Add to Cart
+
+                                </a>
 
 
                             <?php elseif (!$sameMarket): ?>
 
-                                <!-- -----------------------------------------
-                                     Different Market
-                                ------------------------------------------ -->
+                                <!-- Different Market -->
 
                                 <form
                                     method="POST"
@@ -1147,12 +1046,9 @@ $stmt->close();
                                 </form>
 
 
-
                             <?php else: ?>
 
-                                <!-- -----------------------------------------
-                                     Out Of Stock / Less Than 1kg
-                                ------------------------------------------ -->
+                                <!-- Out Of Stock / Less Than 1kg -->
 
                                 <button
                                     type="button"
@@ -1169,11 +1065,13 @@ $stmt->close();
                             <?php endif; ?>
 
 
-
-                            <!-- View Details -->
+                            <!-- =================================================
+                                 View Details
+                                 from=products is the important change
+                            ================================================== -->
 
                             <a
-                                href="product_details.php?id=<?= $productId ?>"
+                                href="product_details.php?id=<?= $productId ?>&from=products"
                                 class="view-details-button"
                             >
 
@@ -1184,9 +1082,7 @@ $stmt->close();
 
                         </div>
 
-
                     </div>
-
 
                 </div>
 
@@ -1195,6 +1091,7 @@ $stmt->close();
 
 
         </div>
+
 
     <?php endif; ?>
 
