@@ -339,6 +339,70 @@ if ($result) {
 
         }
 
+        .location-filter {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .location-filter button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border: 1px solid #d9e3dc;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        #findNearbyMarkets {
+            background: #2f6f4e;
+            color: white;
+            border-color: #2f6f4e;
+        }
+
+        #findNearbyMarkets:hover {
+            background: #275e42;
+        }
+
+        #showAllMarkets {
+            background: white;
+            color: #2f6f4e;
+        }
+
+        #showAllMarkets:hover {
+            background: #f3f7f4;
+        }
+
+        #locationStatus {
+            display: inline-block;
+            padding: 8px 12px;
+            border-radius: 6px;
+            background: #f3f7f4;
+            color: #2f6f4e;
+            font-size: 13px;
+        }
+
+        @media (max-width: 600px) {
+            .location-filter {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .location-filter button {
+                justify-content: center;
+                width: 100%;
+            }
+
+            #locationStatus {
+                text-align: center;
+            }
+        }
 
         .section-title {
 
