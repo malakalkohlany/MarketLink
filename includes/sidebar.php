@@ -302,10 +302,10 @@ function isSubActive(string $page): string
                 <!-- Products -->
                 <li>
                     <a
-                        href="<?= BASE_URL ?>farmer/products.php"
+                        href="<?= BASE_URL ?>farmer/product.php"
                         class="<?= isActive([
                             'products.php',
-                            'add_products.php',
+                            'add_product.php',
                             'edit_product.php'
                         ]) ?>"
                     >
@@ -319,15 +319,15 @@ function isSubActive(string $page): string
                     <!-- Product sub-links -->
                     <?php if (isPage([
                         'products.php',
-                        'add_products.php',
+                        'add_product.php',
                         'edit_product.php'
                     ])): ?>
 
                         <div class="sidebar-submenu">
 
                             <a
-                                href="<?= BASE_URL ?>farmer/add_products.php"
-                                class="sidebar-sublink <?= isSubActive('add_products.php') ?>"
+                                href="<?= BASE_URL ?>farmer/add_product.php"
+                                class="sidebar-sublink <?= isSubActive('add_product.php') ?>"
                             >
                                 <span class="nav-subicon">
                                     <i data-lucide="plus"></i>
