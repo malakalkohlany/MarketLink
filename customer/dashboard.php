@@ -214,7 +214,7 @@ $stmt->close();
                                     </td>
 
                                     <td>
-                                        Pickup
+                                        <?= e($order['market_name']) ?>
                                     </td>
 
                                     <td>
