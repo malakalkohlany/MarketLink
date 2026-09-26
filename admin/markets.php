@@ -48,7 +48,7 @@ if ($stmt) {
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Markets | FreshFind</title>
+    <title>Markets | MarketLink</title>
 
     <link rel="stylesheet" href="../assets/css/base.css">
     <link rel="stylesheet" href="../assets/css/navbar.css">

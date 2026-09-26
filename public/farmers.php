@@ -102,7 +102,7 @@ $hasMoreFarmers = count($farmers) > 3;
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Farmers - FreshFind</title>
+    <title>Farmers - MarketLink</title>
 
     <link
         rel="stylesheet"
@@ -123,58 +123,34 @@ $hasMoreFarmers = count($farmers) > 3;
 <body>
 
     <header class="home-navbar">
+        <div class="home-nav-inner">
 
-    <div class="home-nav-inner">
-
-        <a href="../index.php" class="home-brand">
-            FreshFind
+            <a href="index.php" class="home-brand">
+            <span class="brand-mark">M</span>
+            <span class="brand-name">MarketLink</span>
         </a>
 
-        <nav class="home-nav-links">
+            <nav class="home-nav-links">
+                <a href="../index.php">Home</a>
+                <a href="about.php">About</a>
+                <a href="markets.php">Markets</a>
+                <a href="#" class="active">Farmers</a>
+                <a href="contact.php">Contact</a>
+            </nav>
 
-            <a href="../index.php">
-                Home
+            <div class="home-nav-actions">
+                <a href="../auth/login.php" class="home-login">
+                    Login
+                </a>
+
+                <a href="auth/register.php" class="home-join">
+                Join MarketLink
+                <span>↗</span>
             </a>
-
-            <a href="markets.php">
-                Markets
-            </a>
-
-            <a href="farmers.php" class="active">
-                Farmers
-            </a>
-
-            <a href="about.php">
-                About
-            </a>
-
-            <a href="contact.php">
-                Contact
-            </a>
-
-        </nav>
-
-        <div class="home-nav-actions">
-
-            <a
-                href="../auth/login.php"
-                class="home-login"
-            >
-                Login
-            </a>
-
-            <a
-                href="../auth/register.php"
-                class="home-join"
-            >
-                Join FreshFind
-            </a>
+            </div>
 
         </div>
-
-    </div>
-
-</header>
+    </header>
 
 
     <main class="farmers-page">
@@ -493,7 +469,7 @@ $hasMoreFarmers = count($farmers) > 3;
                                 href="../auth/register.php"
                                 class="farmers-join-btn"
                             >
-                                Join FreshFind
+                                Join MarketLink
                             </a>
 
                         </div>
@@ -517,7 +493,7 @@ $hasMoreFarmers = count($farmers) > 3;
         <div class="footer-bottom">
 
             <p>
-                © <?= date('Y') ?> FreshFind.
+                © <?= date('Y') ?> MarketLink.
                 All rights reserved.
             </p>
 

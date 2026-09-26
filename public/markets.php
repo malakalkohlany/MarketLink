@@ -207,62 +207,34 @@ unset($market);
 <body>
 
     <header class="home-navbar">
+        <div class="home-nav-inner">
 
-    <div class="home-nav-inner">
-
-        <a href="index.php" class="home-brand">
-
-            <span class="brand-mark">
-                F
-            </span>
-
-            <span class="brand-name">
-                MarketLink
-            </span>
-
+            <a href="index.php" class="home-brand">
+            <span class="brand-mark">M</span>
+            <span class="brand-name">MarketLink</span>
         </a>
 
+            <nav class="home-nav-links">
+                <a href="../index.php">Home</a>
+                <a href="about.php">About</a>
+                <a href="#" class="active">Markets</a>
+                <a href="farmers.php">Farmers</a>
+                <a href="contact.php">Contact</a>
+            </nav>
 
-        <nav class="home-nav-links">
+            <div class="home-nav-actions">
+                <a href="../auth/login.php" class="home-login">
+                    Login
+                </a>
 
-            <a href="../index.php">
-                Home
-            </a>
-
-            <a href="markets.php">
-                Markets
-            </a>
-
-            <a href="farmers.php">
-                Farmers
-            </a>
-
-            <a href="about.php">
-                About
-            </a>
-
-            <a href="contact.php">
-                Contact
-            </a>
-
-        </nav>
-
-
-        <div class="home-nav-actions">
-
-            <a href="../auth/login.php" class="home-login">
-                Login
-            </a>
-
-            <a href="../auth/register.php" class="home-join">
+                <a href="auth/register.php" class="home-join">
                 Join MarketLink
+                <span>↗</span>
             </a>
+            </div>
 
         </div>
-
-    </div>
-
-</header>
+    </header>
  <main>
 
         <section class="markets-hero">

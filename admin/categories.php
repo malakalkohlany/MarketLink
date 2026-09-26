@@ -325,7 +325,7 @@ if (isset($_GET['success'])) {
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Produce Categories | FreshFind</title>
+    <title>Produce Categories | MarketLink</title>
 
     <link
         rel="stylesheet"
@@ -340,7 +340,7 @@ if (isset($_GET['success'])) {
     <aside class="sidebar">
 
         <div class="logo">
-            FreshFind
+            MarketLink
         </div>
 
         <nav>

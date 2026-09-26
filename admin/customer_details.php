@@ -79,7 +79,7 @@ if ($customer_id) {
     content="width=device-width, initial-scale=1.0"
 >
 
-<title>Customer Details | FreshFind</title>
+<title>Customer Details | MarketLink</title>
 
     <link rel="stylesheet" href="../assets/css/base.css">
     <link rel="stylesheet" href="../assets/css/navbar.css">
@@ -91,7 +91,7 @@ if ($customer_id) {
 <aside class="sidebar">
 
     <div class="logo">
-        FreshFind
+        MarketLink
     </div>
 
     <nav>
