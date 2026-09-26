@@ -78,6 +78,7 @@ $stmt = $conn->prepare("
         p.stock_quantity,
         p.image,
         p.is_available,
+        p.moderation_status,
         p.created_at,
         f.stall_name AS farmer_name,
         c.name AS category_name
@@ -250,6 +251,8 @@ if ($stmt) {
                                         ((int) $product['is_available'] === 1)
                                             ? 'Available'
                                             : 'Unavailable';
+
+                                            $moderation = $product['moderation_status'] ?? '';
 
 
                                     ?>
