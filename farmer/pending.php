@@ -61,8 +61,8 @@ $approvalStatus = $farmer['approval_status'];
 
 if ($approvalStatus === 'approved') {
 
-    // Keep the farmer ID available for the dashboard.
     $_SESSION['farmer_id'] = $farmer['farmer_id'];
+    $_SESSION['approval_status'] = 'approved';
 
     header(
         'Location: ' .
@@ -77,6 +77,7 @@ if ($approvalStatus === 'approved') {
 if ($approvalStatus === 'rejected') {
 
     $_SESSION['farmer_id'] = $farmer['farmer_id'];
+    $_SESSION['approval_status'] = 'rejected';
 
     header(
         'Location: ' .
