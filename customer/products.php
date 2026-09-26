@@ -1471,10 +1471,38 @@ if (
                     <!-- =================================================
                          Product Image
                     ================================================== -->
+                        <div class="product-image-container">
 
-                    <div class="product-image-container">
-                    </div>
+    <?php if (!empty($product['image'])): ?>
 
+        <img
+            src="../<?= e($product['image']) ?>"
+            alt="<?= e($productName) ?>"
+            style="
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block;
+            "
+        >
+
+    <?php else: ?>
+
+        <div style="
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+        ">
+            No Image
+        </div>
+
+    <?php endif; ?>
+
+</div>
+        
 
                     <!-- =================================================
                          Product Information
