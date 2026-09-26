@@ -134,11 +134,11 @@ if ($approvalStatus === 'rejected') {
 
 <body>
 
-    <main class="auth-container">
+    <main>
 
         <div class="approval-page">
 
-            <div class="card">
+            <div class="approval-card">
 
                 <h1>
                     Application Under Review
