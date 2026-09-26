@@ -1,11 +1,11 @@
 /* =========================================================
-   MARKETLINK ADMIN DASHBOARD
-   Clean / Modern / Warm
+   MARKETLINK DASHBOARD
+   Earthy Retro / Warm Editorial
    ========================================================= */
 
 
 /* =========================================================
-   Welcome
+   WELCOME
    ========================================================= */
 
 .welcome {
@@ -24,9 +24,9 @@
     background:
         linear-gradient(
             135deg,
-            var(--moss) 0%,
-            #34482a 65%,
-            #3c4f31 100%
+            var(--terracotta-dark) 0%,
+            var(--terracotta) 65%,
+            #C9624D 100%
         );
 
     border-radius: var(--radius-lg);
@@ -37,12 +37,30 @@
 }
 
 
-/* Decorative warm shape */
+/* Decorative circles */
+
+.welcome::before {
+    content: "";
+
+    position: absolute;
+
+    right: 90px;
+    bottom: -110px;
+
+    width: 230px;
+    height: 230px;
+
+    border-radius: 50%;
+
+    background: rgba(255, 249, 240, 0.08);
+}
+
 
 .welcome::after {
     content: "";
 
     position: absolute;
+
     right: -70px;
     top: -90px;
 
@@ -51,13 +69,15 @@
 
     border-radius: 50%;
 
-    background: rgba(239, 207, 151, 0.12);
+    background: rgba(223, 166, 47, 0.15);
 }
 
 
 .welcome > div {
     position: relative;
+
     z-index: 1;
+
     max-width: 700px;
 }
 
@@ -65,11 +85,17 @@
 .welcome h1 {
     margin: 0 0 10px;
 
-    font-size: clamp(2rem, 3vw, 2.7rem);
-    line-height: 1.1;
+    color: var(--white);
 
-    font-weight: 650;
-    letter-spacing: -0.04em;
+    font-family: var(--font-serif);
+
+    font-size: clamp(2.1rem, 3vw, 3rem);
+
+    line-height: 1.05;
+
+    font-weight: 700;
+
+    letter-spacing: -0.025em;
 }
 
 
@@ -78,21 +104,23 @@
 
     max-width: 600px;
 
-    color: rgba(255, 255, 255, 0.72);
+    color: rgba(255, 255, 255, 0.78);
 
     font-size: 0.96rem;
+
     line-height: 1.7;
 }
 
 
 /* =========================================================
-   Quick Actions
+   QUICK ACTIONS
    ========================================================= */
 
 .quick-actions {
     display: grid;
 
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
 
     gap: 16px;
 
@@ -110,7 +138,7 @@
 
     padding: 25px;
 
-    background: var(--white);
+    background: var(--cream-light);
 
     border: 1px solid var(--border);
 
@@ -119,9 +147,9 @@
     box-shadow: var(--shadow-soft);
 
     transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease,
-        border-color 0.2s ease;
+        transform var(--transition-normal),
+        box-shadow var(--transition-normal),
+        border-color var(--transition-normal);
 }
 
 
@@ -142,30 +170,31 @@
 
     border-radius: 50%;
 
-    background: var(--seashell-dark);
+    background: var(--sage-soft);
 
-    color: var(--olive);
+    color: var(--sage-dark);
 
     font-size: 15px;
 
     transition:
-        background 0.2s ease,
-        color 0.2s ease,
-        transform 0.2s ease;
+        background var(--transition-fast),
+        color var(--transition-fast),
+        transform var(--transition-fast);
 }
 
 
 .dashboard-action:hover {
     transform: translateY(-4px);
 
-    border-color: var(--butter-dark);
+    border-color: var(--sage-light);
 
     box-shadow: var(--shadow-hover);
 }
 
 
 .dashboard-action:hover::after {
-    background: var(--moss);
+    background: var(--terracotta);
+
     color: var(--white);
 
     transform: translateX(2px);
@@ -179,8 +208,11 @@
 
     color: var(--text);
 
-    font-size: 1rem;
-    font-weight: 650;
+    font-family: var(--font-serif);
+
+    font-size: 1.15rem;
+
+    font-weight: 700;
 }
 
 
@@ -192,12 +224,13 @@
     color: var(--text-muted);
 
     font-size: 0.84rem;
+
     line-height: 1.6;
 }
 
 
 /* =========================================================
-   Dashboard Sections
+   DASHBOARD SECTIONS
    ========================================================= */
 
 .dashboard-section {
@@ -219,36 +252,41 @@
 
     color: var(--text);
 
-    font-size: 1.25rem;
-    font-weight: 650;
+    font-family: var(--font-serif);
 
-    letter-spacing: -0.025em;
+    font-size: 1.45rem;
+
+    font-weight: 700;
+
+    letter-spacing: -0.02em;
 }
 
 
 .section-heading a {
-    color: var(--olive);
+    color: var(--sage-dark);
 
     font-size: 0.84rem;
+
     font-weight: 600;
 
-    transition: color 0.2s ease;
+    transition: color var(--transition-fast);
 }
 
 
 .section-heading a:hover {
-    color: var(--barn-red);
+    color: var(--terracotta);
 }
 
 
 /* =========================================================
-   Statistics
+   STATISTICS
    ========================================================= */
 
 .admin-stats-grid {
     display: grid;
 
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
 
     gap: 15px;
 }
@@ -261,7 +299,7 @@
 
     padding: 23px 24px;
 
-    background: var(--white);
+    background: var(--cream-light);
 
     border: 1px solid var(--border);
 
@@ -284,9 +322,9 @@
 
     width: 4px;
 
-    background: var(--olive);
+    background: var(--sage);
 
-    opacity: 0.65;
+    opacity: 0.8;
 }
 
 
@@ -297,10 +335,12 @@
 
     color: var(--text-muted);
 
-    font-size: 0.78rem;
-    font-weight: 600;
+    font-size: 0.75rem;
+
+    font-weight: 700;
 
     text-transform: uppercase;
+
     letter-spacing: 0.07em;
 }
 
@@ -308,41 +348,58 @@
 .admin-stat-value {
     display: block;
 
-    color: var(--moss);
+    color: var(--text);
 
     font-family: var(--font-main);
 
     font-size: 2rem;
+
     line-height: 1;
 
-    font-weight: 650;
+    font-weight: 700;
+
     letter-spacing: -0.04em;
 }
 
 
 /* =========================================================
-   Attention Stats
+   STAT VARIANTS
    ========================================================= */
 
-.admin-stat-attention {
-    background: #fffaf1;
+.admin-stat-card.terracotta::before {
+    background: var(--terracotta);
+}
 
-    border-color: #eadcc4;
+.admin-stat-card.sage::before {
+    background: var(--sage);
+}
+
+.admin-stat-card.marigold::before {
+    background: var(--marigold);
+}
+
+
+/* Attention */
+
+.admin-stat-attention {
+    background: var(--marigold-soft);
+
+    border-color: #E8D6A8;
 }
 
 
 .admin-stat-attention::before {
-    background: var(--butter-dark);
+    background: var(--marigold);
 }
 
 
 .admin-stat-attention .admin-stat-value {
-    color: var(--barn-red);
+    color: var(--terracotta);
 }
 
 
 /* =========================================================
-   Tables
+   TABLES
    ========================================================= */
 
 .orders-table-wrapper,
@@ -351,7 +408,7 @@
 
     overflow-x: auto;
 
-    background: var(--white);
+    background: var(--cream-light);
 
     border: 1px solid var(--border);
 
@@ -371,12 +428,14 @@
 }
 
 
-.orders-table thead {
-    background: var(--moss-light);
+.orders-table thead,
+.admin-products-table-wrapper thead {
+    background: var(--sage-soft);
 }
 
 
-.orders-table th {
+.orders-table th,
+.admin-products-table-wrapper th {
     padding: 15px 18px;
 
     color: var(--text-muted);
@@ -384,18 +443,21 @@
     border-bottom: 1px solid var(--border);
 
     font-size: 0.72rem;
-    font-weight: 650;
+
+    font-weight: 700;
 
     text-align: left;
 
     text-transform: uppercase;
+
     letter-spacing: 0.06em;
 
     white-space: nowrap;
 }
 
 
-.orders-table td {
+.orders-table td,
+.admin-products-table-wrapper td {
     padding: 17px 18px;
 
     color: var(--text-soft);
@@ -408,52 +470,59 @@
 }
 
 
-.orders-table tbody tr:last-child td {
+.orders-table tbody tr:last-child td,
+.admin-products-table-wrapper tbody tr:last-child td {
     border-bottom: none;
 }
 
 
-.orders-table tbody tr {
-    transition: background 0.15s ease;
+.orders-table tbody tr,
+.admin-products-table-wrapper tbody tr {
+    transition: background var(--transition-fast);
 }
 
 
-.orders-table tbody tr:hover {
-    background: #fffcf8;
+.orders-table tbody tr:hover,
+.admin-products-table-wrapper tbody tr:hover {
+    background: var(--cream);
 }
 
 
 /* =========================================================
-   Table Action
+   TABLE ACTION
    ========================================================= */
 
 .table-action {
     display: inline-flex;
+
     align-items: center;
+
     justify-content: center;
 
     padding: 7px 13px;
 
-    border-radius: 8px;
+    border-radius: var(--radius-pill);
 
-    background: var(--moss-light);
+    background: var(--sage-light);
 
-    color: var(--moss);
+    color: var(--sage-dark);
 
     font-family: var(--font-main);
 
     font-size: 0.76rem;
-    font-weight: 650;
+
+    font-weight: 700;
 
     transition:
-        background 0.2s ease,
-        color 0.2s ease,
-        transform 0.2s ease;
+        background var(--transition-fast),
+        color var(--transition-fast),
+        transform var(--transition-fast);
 }
 
 
 .table-action:hover {
-    background: var(--moss);
+    background: var(--sage);
+
     color: var(--white);
 
     transform: translateY(-1px);
@@ -461,91 +530,114 @@
 
 
 /* =========================================================
-   Status Pills
+   STATUS PILLS
    ========================================================= */
 
 .order-status,
-.product-status {
+.product-status,
+.farmer-approval {
     display: inline-flex;
 
     align-items: center;
+
     justify-content: center;
 
-    padding: 6px 10px;
+    padding: 6px 11px;
 
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
+
+    font-family: var(--font-main);
 
     font-size: 0.7rem;
-    font-weight: 650;
+
+    font-weight: 700;
 
     text-transform: capitalize;
 }
 
 
-/* Order statuses */
+/* ---------------------------------------------------------
+   Pending
+   --------------------------------------------------------- */
 
 .order-status.pending,
-.order-status.preparing {
-    background: var(--butter-light);
-    color: #86672f;
+.order-status.preparing,
+.product-status.pending,
+.farmer-approval.pending {
+    background: var(--marigold-light);
+
+    color: #765A1D;
 }
 
 
-.order-status.accepted {
-    background: #c6e1ea;
-    color: #455460;
+/* ---------------------------------------------------------
+   Accepted / Approved
+   --------------------------------------------------------- */
+
+.order-status.accepted,
+.product-status.approved,
+.farmer-approval.approved {
+    background: var(--sage-light);
+
+    color: var(--sage-dark);
 }
 
+
+/* ---------------------------------------------------------
+   Ready / Completed
+   --------------------------------------------------------- */
 
 .order-status.ready,
 .order-status.completed {
-    background: #e7efe8;
-    color: #45604a;
+    background: #E3EBDD;
+
+    color: #526447;
 }
 
 
-.order-status.cancelled{
-    background: var(--barn-red-soft);
-    color: var(--barn-red);
+/* ---------------------------------------------------------
+   Cancelled / Rejected
+   --------------------------------------------------------- */
+
+.order-status.cancelled,
+.product-status.rejected,
+.farmer-approval.rejected {
+    background: var(--terracotta-soft);
+
+    color: var(--terracotta-dark);
 }
 
 
-/* Product statuses */
+/* ---------------------------------------------------------
+   Removed
+   --------------------------------------------------------- */
 
-.product-status.pending {
-    background: var(--butter-light);
-    color: #86672f;
-}
+.product-status.removed {
+    background: var(--cream-dark);
 
-
-.product-status.approved {
-    background: var(--moss-light);
-    color: var(--moss);
-}
-
-
-.product-status.rejected {
-    background: var(--barn-red-soft);
-    color: var(--barn-red);
+    color: var(--text-soft);
 }
 
 
 /* =========================================================
-   Empty States
+   EMPTY STATES
    ========================================================= */
 
 .empty-state,
 .dashboard-placeholder {
     display: flex;
+
     flex-direction: column;
+
     align-items: center;
+
     justify-content: center;
 
     min-height: 190px;
 
     padding: 35px;
 
-    background: var(--white);
+    background: var(--cream-light);
 
     border: 1px dashed var(--border);
 
@@ -560,7 +652,9 @@
 
     color: var(--text);
 
-    font-size: 1rem;
+    font-family: var(--font-serif);
+
+    font-size: 1.15rem;
 }
 
 
@@ -573,22 +667,457 @@
     color: var(--text-muted);
 
     font-size: 0.86rem;
+
     line-height: 1.6;
 }
 
 
 /* =========================================================
-   Responsive
+   PRODUCTS
+   ========================================================= */
+
+.product-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 18px;
+}
+
+
+.product-card {
+    display: flex;
+
+    flex-direction: column;
+
+    min-width: 0;
+
+    overflow: hidden;
+
+    background: var(--cream-light);
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius-lg);
+
+    color: inherit;
+
+    text-decoration: none;
+
+    box-shadow: var(--shadow-soft);
+
+    transition:
+        transform var(--transition-normal),
+        box-shadow var(--transition-normal),
+        border-color var(--transition-normal);
+}
+
+
+.product-card:hover {
+    transform: translateY(-5px);
+
+    border-color: var(--sage-light);
+
+    box-shadow: var(--shadow-hover);
+}
+
+
+/* =========================================================
+   PRODUCT IMAGE
+   ========================================================= */
+
+.product-image {
+    position: relative;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 100%;
+
+    height: 190px;
+
+    overflow: hidden;
+
+    /*
+       Keep the default image background warm.
+       Individual product types can override this.
+    */
+
+    background: var(--cream-dark);
+}
+
+
+.product-image img {
+    width: 100%;
+
+    height: 100%;
+
+    object-fit: cover;
+
+    transition: transform 0.3s ease;
+}
+
+
+.product-card:hover .product-image img {
+    transform: scale(1.04);
+}
+
+
+.product-image span {
+    color: var(--text-muted);
+
+    font-family: var(--font-main);
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   PRODUCT BACKDROP VARIANTS
+   ========================================================= */
+
+.product-image.tomato {
+    background: var(--terracotta);
+}
+
+.product-image.green {
+    background: var(--sage-dark);
+}
+
+.product-image.yellow {
+    background: var(--marigold);
+}
+
+.product-image.cream {
+    background: var(--cream-dark);
+}
+
+
+/* =========================================================
+   PRODUCT INFORMATION
+   ========================================================= */
+
+.product-info {
+    display: flex;
+
+    flex-direction: column;
+
+    padding: 18px;
+}
+
+
+.product-info h3 {
+    margin: 0 0 10px;
+
+    overflow: hidden;
+
+    color: var(--text);
+
+    font-family: var(--font-serif);
+
+    font-size: 1.15rem;
+
+    font-weight: 700;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+
+.product-price {
+    display: flex;
+
+    align-items: baseline;
+
+    gap: 5px;
+
+    margin-bottom: 10px;
+}
+
+
+.product-price strong {
+    color: var(--terracotta);
+
+    font-family: var(--font-main);
+
+    font-size: 18px;
+
+    font-weight: 700;
+}
+
+
+.product-price span {
+    color: var(--text-muted);
+
+    font-size: 12px;
+}
+
+
+.product-stock {
+    margin: 0 0 13px;
+
+    color: var(--text-muted);
+
+    font-size: 13px;
+}
+
+
+.product-status {
+    align-self: flex-start;
+}
+
+
+/* =========================================================
+   MY STALL
+   ========================================================= */
+
+.stall-summary {
+    display: flex;
+
+    align-items: center;
+
+    gap: 22px;
+
+    padding: 25px 28px;
+
+    background: var(--cream-light);
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius-lg);
+
+    box-shadow: var(--shadow-soft);
+}
+
+
+/* =========================================================
+   FARMER ICON
+   ========================================================= */
+
+.farmer-icon {
+    flex: 0 0 64px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 64px;
+
+    height: 64px;
+
+    background: var(--sage);
+
+    color: var(--white);
+
+    border-radius: 18px;
+
+    font-family: var(--font-main);
+
+    font-size: 24px;
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   FARMER INFORMATION
+   ========================================================= */
+
+.farmer-info {
+    min-width: 0;
+}
+
+
+.farmer-info h3 {
+    margin: 0 0 5px;
+
+    color: var(--text);
+
+    font-family: var(--font-serif);
+
+    font-size: 1.35rem;
+
+    font-weight: 700;
+}
+
+
+.farmer-address {
+    margin: 0 0 5px;
+
+    color: var(--text-muted);
+
+    font-size: 13px;
+}
+
+
+.farmer-description {
+    max-width: 700px;
+
+    margin: 7px 0 12px;
+
+    color: var(--text-soft);
+
+    font-size: 13px;
+
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   FARMERS NEAR YOU
+   ========================================================= */
+
+.farmer-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 18px;
+}
+
+
+.farmer-card {
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 16px;
+
+    min-width: 0;
+
+    padding: 20px;
+
+    background: var(--cream-light);
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius-lg);
+
+    color: inherit;
+
+    text-decoration: none;
+
+    box-shadow: var(--shadow-soft);
+
+    transition:
+        transform var(--transition-normal),
+        box-shadow var(--transition-normal),
+        border-color var(--transition-normal);
+}
+
+
+.farmer-card:hover {
+    transform: translateY(-4px);
+
+    border-color: var(--sage-light);
+
+    box-shadow: var(--shadow-hover);
+}
+
+
+.farmer-card .farmer-icon {
+    flex: 0 0 52px;
+
+    width: 52px;
+
+    height: 52px;
+
+    border-radius: 15px;
+
+    font-size: 19px;
+}
+
+
+.farmer-card .farmer-info {
+    min-width: 0;
+}
+
+
+.farmer-card .farmer-info h3 {
+    margin: 2px 0 6px;
+
+    overflow: hidden;
+
+    color: var(--text);
+
+    font-family: var(--font-serif);
+
+    font-size: 1.1rem;
+
+    font-weight: 700;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+
+.farmer-card .farmer-address {
+    margin: 0 0 7px;
+
+    overflow: hidden;
+
+    color: var(--text-muted);
+
+    font-size: 12px;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+
+.farmer-card .farmer-description {
+    display: -webkit-box;
+
+    margin: 0;
+
+    overflow: hidden;
+
+    color: var(--text-soft);
+
+    font-size: 12px;
+
+    line-height: 1.5;
+
+    -webkit-box-orient: vertical;
+
+    -webkit-line-clamp: 2;
+}
+
+
+/* =========================================================
+   RESPONSIVE
    ========================================================= */
 
 @media (max-width: 1200px) {
 
     .quick-actions {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
     }
 
     .admin-stats-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .product-grid {
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+    }
+
+    .farmer-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
     }
 }
 
@@ -597,6 +1126,7 @@
 
     .welcome {
         min-height: auto;
+
         padding: 30px;
     }
 
@@ -609,7 +1139,17 @@
     }
 
     .admin-stats-grid {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .product-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .farmer-grid {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -618,6 +1158,7 @@
 
     .welcome {
         padding: 26px;
+
         border-radius: var(--radius-md);
     }
 
@@ -629,392 +1170,42 @@
         grid-template-columns: 1fr;
     }
 
+    .product-grid {
+        grid-template-columns: 1fr;
+    }
+
     .dashboard-section {
         margin-bottom: 32px;
     }
 
     .section-heading {
         align-items: flex-end;
+
+        gap: 12px;
     }
 
     .section-heading h2 {
-        font-size: 1.1rem;
-    }
-}
-
-/* =========================================================
-   FARMER DASHBOARD
-   ========================================================= */
-
-
-
-/* =========================================================
-   PRODUCTS
-   ========================================================= */
-
-.product-grid {
-    display: grid;
-
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-
-    gap: 18px;
-}
-
-.product-card {
-    display: flex;
-    flex-direction: column;
-
-    min-width: 0;
-
-    overflow: hidden;
-
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-
-    color: inherit;
-    text-decoration: none;
-
-    box-shadow: var(--shadow-soft);
-
-    transition:
-        transform 0.22s ease,
-        box-shadow 0.22s ease,
-        border-color 0.22s ease;
-}
-
-.product-card:hover {
-    transform: translateY(-3px);
-
-    border-color: var(--butter-dark);
-
-    box-shadow: var(--shadow-card);
-}
-
-
-/* ---------------------------------------------------------
-   Product Image
-   --------------------------------------------------------- */
-
-.product-image {
-    position: relative;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    width: 100%;
-    height: 170px;
-
-    overflow: hidden;
-
-    background: var(--seashell-dark);
-}
-
-.product-image img {
-    width: 100%;
-    height: 100%;
-
-    object-fit: cover;
-
-    transition: transform 0.3s ease;
-}
-
-.product-card:hover .product-image img {
-    transform: scale(1.03);
-}
-
-.product-image span {
-    color: var(--text-muted);
-
-    font-family: var(--font-main);
-    font-size: 13px;
-}
-
-
-/* ---------------------------------------------------------
-   Product Information
-   --------------------------------------------------------- */
-
-.product-info {
-    display: flex;
-    flex-direction: column;
-
-    padding: 17px;
-}
-
-.product-info h3 {
-    margin: 0 0 10px;
-
-    overflow: hidden;
-
-    color: var(--moss);
-
-    font-size: 17px;
-    font-weight: 700;
-
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.product-price {
-    display: flex;
-    align-items: baseline;
-    gap: 5px;
-
-    margin-bottom: 10px;
-}
-
-.product-price strong {
-    color: var(--barn-red);
-
-    font-family: var(--font-main);
-    font-size: 18px;
-    font-weight: 700;
-}
-
-.product-price span {
-    color: var(--text-muted);
-
-    font-size: 12px;
-}
-
-.product-stock {
-    margin: 0 0 13px;
-
-    color: var(--text-muted);
-
-    font-size: 13px;
-}
-
-.product-status {
-    align-self: flex-start;
-
-    display: inline-flex;
-    align-items: center;
-
-    padding: 6px 10px;
-
-    border-radius: 999px;
-
-    font-family: var(--font-main);
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: capitalize;
-}
-
-
-/* ---------------------------------------------------------
-   Product Moderation Status
-   --------------------------------------------------------- */
-
-.product-status.pending {
-    background: #fff1d8;
-    color: #8a6429;
-}
-
-.product-status.approved {
-    background: #e4eee4;
-    color: #486148;
-}
-
-.product-status.rejected {
-    background: #f4e2df;
-    color: var(--barn-red);
-}
-
-.product-status.removed {
-    background: #eee8e1;
-    color: #6c6259;
-}
-
-
-/* =========================================================
-   MY STALL
-   ========================================================= */
-
-.stall-summary {
-    display: flex;
-    align-items: center;
-    gap: 22px;
-
-    padding: 25px 28px;
-
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-
-    box-shadow: var(--shadow-soft);
-}
-
-
-/* ---------------------------------------------------------
-   Farmer / Stall Icon
-   --------------------------------------------------------- */
-
-.farmer-icon {
-    flex: 0 0 64px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    width: 64px;
-    height: 64px;
-
-    background: var(--moss);
-    color: var(--white);
-
-    border-radius: 18px;
-
-    font-family: var(--font-main);
-    font-size: 24px;
-    font-weight: 700;
-}
-
-
-/* ---------------------------------------------------------
-   Farmer Information
-   --------------------------------------------------------- */
-
-.farmer-info {
-    min-width: 0;
-}
-
-.farmer-info h3 {
-    margin: 0 0 5px;
-
-    color: var(--moss);
-
-    font-size: 20px;
-    font-weight: 700;
-}
-
-.farmer-address {
-    margin: 0 0 5px;
-
-    color: var(--text-muted);
-
-    font-size: 13px;
-}
-
-.farmer-description {
-    max-width: 700px;
-
-    margin: 7px 0 12px;
-
-    color: #625b54;
-
-    font-size: 13px;
-    line-height: 1.6;
-}
-
-
-/* ---------------------------------------------------------
-   Stall Approval Status
-   --------------------------------------------------------- */
-
-.farmer-approval {
-    display: inline-flex;
-    align-items: center;
-
-    padding: 6px 11px;
-
-    border-radius: 999px;
-
-    font-family: var(--font-main);
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: capitalize;
-}
-
-.farmer-approval.pending {
-    background: #fff1d8;
-    color: #8a6429;
-}
-
-.farmer-approval.approved {
-    background: #e4eee4;
-    color: #486148;
-}
-
-.farmer-approval.rejected {
-    background: #f4e2df;
-    color: var(--barn-red);
-}
-
-
-/* =========================================================
-   RESPONSIVE
-   ========================================================= */
-
-@media (max-width: 1200px) {
-
-    .product-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-}
-
-@media (max-width: 1000px) {
-
-    .main-content {
-        margin-left: 0;
-        padding: 100px 28px 60px;
-    }
-
-    .product-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-}
-
-@media (max-width: 700px) {
-
-    .main-content {
-        padding: 90px 18px 45px;
-    }
-
-    .welcome {
-        padding: 25px 22px;
-        margin-bottom: 28px;
-    }
-
-    .welcome h1 {
-        font-size: 26px;
-    }
-
-    .dashboard-section {
-        margin-bottom: 26px;
-    }
-
-    .section-heading h2 {
-        font-size: 19px;
-    }
-
-    .product-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .product-image {
-        height: 190px;
+        font-size: 1.2rem;
     }
 
     .stall-summary {
         align-items: flex-start;
+
         padding: 22px;
     }
 
     .farmer-icon {
         flex-basis: 54px;
+
         width: 54px;
         height: 54px;
 
         border-radius: 15px;
+
         font-size: 20px;
     }
-
 }
+
 
 @media (max-width: 500px) {
 
@@ -1023,20 +1214,15 @@
     }
 
     .welcome h1 {
-        font-size: 23px;
+        font-size: 1.55rem;
     }
 
     .welcome p {
         font-size: 14px;
     }
 
-    .section-heading {
-        align-items: flex-end;
-        gap: 12px;
-    }
-
     .section-heading h2 {
-        font-size: 18px;
+        font-size: 1.1rem;
     }
 
     .section-heading a {
@@ -1051,192 +1237,24 @@
         width: 100%;
     }
 
-}
-
-/* =========================================================
-   FARMERS NEAR YOU
-   ========================================================= */
-
-.dashboard-placeholder {
-    padding: 36px 24px;
-
-    background: var(--white);
-    border: 1px dashed var(--border);
-    border-radius: var(--radius-md);
-
-    text-align: center;
-}
-
-.dashboard-placeholder p {
-    margin: 0;
-
-    color: var(--text-muted);
-    font-size: 14px;
-}
-
-
-/* ---------------------------------------------------------
-   Farmer Grid
-   --------------------------------------------------------- */
-
-.farmer-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 18px;
-}
-
-
-/* ---------------------------------------------------------
-   Farmer Card
-   --------------------------------------------------------- */
-
-.farmer-card {
-    display: flex;
-    align-items: flex-start;
-    gap: 16px;
-
-    min-width: 0;
-    padding: 20px;
-
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-
-    color: inherit;
-    text-decoration: none;
-
-    box-shadow: var(--shadow-soft);
-
-    transition:
-        transform 0.22s ease,
-        box-shadow 0.22s ease,
-        border-color 0.22s ease;
-}
-
-.farmer-card:hover {
-    transform: translateY(-3px);
-
-    border-color: var(--butter-dark);
-
-    box-shadow: var(--shadow-card);
-}
-
-
-/* ---------------------------------------------------------
-   Farmer Card Icon
-   --------------------------------------------------------- */
-
-.farmer-card .farmer-icon {
-    flex: 0 0 52px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    width: 52px;
-    height: 52px;
-
-    background: var(--moss);
-    color: var(--white);
-
-    border-radius: 15px;
-
-    font-family: var(--font-main);
-    font-size: 19px;
-    font-weight: 700;
-}
-
-
-/* ---------------------------------------------------------
-   Farmer Card Information
-   --------------------------------------------------------- */
-
-.farmer-card .farmer-info {
-    min-width: 0;
-}
-
-.farmer-card .farmer-info h3 {
-    margin: 2px 0 6px;
-
-    overflow: hidden;
-
-    color: var(--moss);
-
-    font-size: 17px;
-    font-weight: 700;
-
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.farmer-card .farmer-address {
-    margin: 0 0 7px;
-
-    overflow: hidden;
-
-    color: var(--text-muted);
-
-    font-size: 12px;
-
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.farmer-card .farmer-description {
-    display: -webkit-box;
-
-    margin: 0;
-
-    overflow: hidden;
-
-    color: #625b54;
-
-    font-size: 12px;
-    line-height: 1.5;
-
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-}
-
-
-/* ---------------------------------------------------------
-   Farmer Grid Responsive
-   --------------------------------------------------------- */
-
-@media (max-width: 1200px) {
-
-    .farmer-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-}
-
-@media (max-width: 700px) {
-
-    .farmer-grid {
-        grid-template-columns: 1fr;
-    }
-
-}
-
-@media (max-width: 500px) {
-
     .farmer-card {
         padding: 17px;
+
         gap: 13px;
     }
 
     .farmer-card .farmer-icon {
         flex-basis: 46px;
+
         width: 46px;
         height: 46px;
 
         border-radius: 13px;
+
         font-size: 17px;
     }
 
     .farmer-card .farmer-info h3 {
-        font-size: 16px;
+        font-size: 1rem;
     }
-
 }
