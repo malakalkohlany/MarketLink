@@ -160,7 +160,7 @@ if (
 
             die(
                 'Favorite insert failed: '
-                . mysqli_stmt_error($conn)
+                . mysqli_stmt_error($insertStmt)
             );
         }
 
