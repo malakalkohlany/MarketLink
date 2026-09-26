@@ -98,6 +98,88 @@ if (!$stmt->execute()) {
 }
 
 $stmt->close();
+
+
+// ==================================================
+// Notify interested customers about new stock
+// ==================================================
+
+$farmerInfoStmt = $conn->prepare("
+    SELECT
+        f.stall_name,
+        GROUP_CONCAT(mf.market_id) AS market_ids
+    FROM farmers f
+    LEFT JOIN market_farmer mf
+        ON mf.farmer_id = f.id
+    WHERE f.id = ?
+    GROUP BY f.id, f.stall_name
+    LIMIT 1
+");
+
+if ($farmerInfoStmt) {
+    $farmerInfoStmt->bind_param("i", $farmer_id);
+    $farmerInfoStmt->execute();
+
+    $farmerInfoResult = $farmerInfoStmt->get_result();
+    $farmerInfo = $farmerInfoResult->fetch_assoc();
+
+    $farmerInfoStmt->close();
+
+    if ($farmerInfo) {
+
+        $stallName = $farmerInfo['stall_name'];
+
+        // ------------------------------------------
+        // Customers who favorited this farmer
+        // OR any market this farmer belongs to
+        // ------------------------------------------
+
+        $customerStmt = $conn->prepare("
+            SELECT DISTINCT customer_id
+            FROM (
+                SELECT customer_id
+                FROM favorite_farmers
+                WHERE farmer_id = ?
+
+                UNION
+
+                SELECT fm.customer_id
+                FROM favorite_markets fm
+                INNER JOIN market_farmer mf
+                    ON mf.market_id = fm.market_id
+                WHERE mf.farmer_id = ?
+            ) AS interested_customers
+        ");
+
+        if ($customerStmt) {
+            $customerStmt->bind_param(
+                "ii",
+                $farmer_id,
+                $farmer_id
+            );
+
+            $customerStmt->execute();
+
+            $customerResult = $customerStmt->get_result();
+
+            while ($customer = $customerResult->fetch_assoc()) {
+
+                $customerId = (int)$customer['customer_id'];
+
+                createNotification(
+                    $conn,
+                    $customerId,
+                    'new_stock',
+                    'New Stock Available',
+                    "{$stallName} just added {$name}. Check it out!"
+                );
+            }
+
+            $customerStmt->close();
+        }
+    }
+}
+
 $success_message = "Product added successfully!";
 }
 
