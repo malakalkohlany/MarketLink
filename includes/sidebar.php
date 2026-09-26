@@ -306,7 +306,7 @@ function hasSubmenu(array $pages): bool
                 <!-- Products -->
                 <li>
                     <a
-                        href="<?= BASE_URL ?>farmer/product.php"
+                        href="<?= BASE_URL ?>farmer/products.php"
                         class="<?= isActive([
                             'products.php',
                             'add_product.php',
@@ -320,8 +320,7 @@ function hasSubmenu(array $pages): bool
                         <span>My Products</span>
                     </a>
 
-                    <!-- Product sub-links -->
-                    <?php if (isPage([
+                    <?php if (hasSubmenu([
                         'products.php',
                         'add_product.php',
                         'edit_product.php'
@@ -343,9 +342,7 @@ function hasSubmenu(array $pages): bool
                         </div>
 
                     <?php endif; ?>
-
                 </li>
-
 
                 <!-- Inventory -->
                 <li>
@@ -497,8 +494,7 @@ function hasSubmenu(array $pages): bool
                         <span>Profile</span>
                     </a>
 
-                    <!-- Profile sub-link -->
-                    <?php if (isPage([
+                    <?php if (hasSubmenu([
                         'profile.php',
                         'edit_profile.php'
                     ])): ?>
@@ -519,7 +515,6 @@ function hasSubmenu(array $pages): bool
                         </div>
 
                     <?php endif; ?>
-
                 </li>
 
 
