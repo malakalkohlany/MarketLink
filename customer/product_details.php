@@ -16,12 +16,14 @@ $productId = isset($_GET['id'])
 $from = $_GET['from'] ?? 'dashboard';
 
 if ($from === 'products') {
+    // Came from Products page
     $backPage = 'products.php';
-    $backText = 'Back ';
 } else {
+    // Came from Dashboard
     $backPage = 'dashboard.php';
-    $backText = 'Back to ';
 }
+
+$backText = 'Back';
 
 if ($productId <= 0) {
     header('Location: ' . $backPage);
@@ -1209,10 +1211,10 @@ $hasReviewStmt->close();
 
             <!-- Dynamic Back Link -->
             <a
-                href="<?= e($backPage) ?>"
-                class="back-link"
+              href="<?= $from === 'products' ? 'products.php' : 'dashboard.php' ?>"
+              class="back-link"
             >
-                ← <?= e($backText) ?>
+              ← Back
             </a>
 
             <!-- Error -->
@@ -1398,10 +1400,10 @@ $hasReviewStmt->close();
                             <!-- Dynamic Back Button -->
 
                             <a
-                                href="<?= e($backPage) ?>"
-                                class="button back-button"
+                               href="<?= $from === 'products' ? 'products.php' : 'dashboard.php' ?>"
+                               class="button back-button"
                             >
-                                Back
+                               Back
                             </a>
 
                             <?php if ((float) $product['stock_quantity'] > 0): ?>

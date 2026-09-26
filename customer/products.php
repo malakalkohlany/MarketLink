@@ -317,30 +317,34 @@ $sql = "
     SELECT
         p.id,
         p.farmer_id,
-        p.category_id,
         p.name,
         p.description,
         p.price,
         p.unit,
         p.image,
         p.stock_quantity,
+<<<<<<< HEAD
 
         f.stall_name AS farmer_name,
 
         c.name AS category_name
 
+=======
+        f.stall_name AS farmer_name
+>>>>>>> c65b4f17f2be28c6785bdc9693c0e852b0c19ee8
     FROM products p
-
     INNER JOIN farmers f
         ON p.farmer_id = f.id
+<<<<<<< HEAD
 
     LEFT JOIN categories c
         ON p.category_id = c.id
 
+=======
+>>>>>>> c65b4f17f2be28c6785bdc9693c0e852b0c19ee8
     WHERE p.is_available = 1
       AND p.moderation_status = ?
       AND f.approval_status = ?
-
     ORDER BY p.created_at DESC
 ";
 
@@ -379,6 +383,7 @@ while ($row = $result->fetch_assoc()) {
 
 $stmt->close();
 
+<<<<<<< HEAD
 
 // ==========================================================
 // Get Markets For All Farmers
@@ -487,6 +492,8 @@ if ($marketResult) {
     }
 }
 
+=======
+>>>>>>> c65b4f17f2be28c6785bdc9693c0e852b0c19ee8
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -533,22 +540,17 @@ if ($marketResult) {
         ===================================================== */
 
         .page-header {
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
         .page-header h1 {
             margin: 0 0 8px;
             font-size: 30px;
-            line-height: 1.2;
-            font-weight: 700;
-            color: #222;
         }
 
         .page-header p {
             margin: 0;
             color: #666;
-            font-size: 15px;
-            line-height: 1.5;
         }
 
 
@@ -580,6 +582,7 @@ if ($marketResult) {
             color: #72583E;
         }
 
+<<<<<<< HEAD
 
         /* =====================================================
            Product Filters
@@ -668,6 +671,8 @@ if ($marketResult) {
             font-size: 14px;
             line-height: 1.5;
         }
+=======
+>>>>>>> c65b4f17f2be28c6785bdc9693c0e852b0c19ee8
 
 
         /* =====================================================
@@ -925,6 +930,7 @@ if ($marketResult) {
            Mobile
         ===================================================== */
 
+<<<<<<< HEAD
         @media (max-width: 1100px) {
 
             .product-filters {
@@ -937,6 +943,8 @@ if ($marketResult) {
             }
         }
 
+=======
+>>>>>>> c65b4f17f2be28c6785bdc9693c0e852b0c19ee8
         @media (max-width: 700px) {
 
             .products-grid {
@@ -947,6 +955,7 @@ if ($marketResult) {
                 font-size: 13px;
             }
 
+<<<<<<< HEAD
             .product-filters {
                 grid-template-columns: 1fr;
                 gap: 12px;
@@ -960,6 +969,8 @@ if ($marketResult) {
             .price-inputs {
                 grid-template-columns: 1fr 1fr;
             }
+=======
+>>>>>>> c65b4f17f2be28c6785bdc9693c0e852b0c19ee8
         }
 
     </style>
@@ -1036,6 +1047,7 @@ if ($marketResult) {
          Product Filters
     ====================================================== -->
 
+<<<<<<< HEAD
     <div class="product-filters">
 
         <div class="product-search">
@@ -1172,6 +1184,8 @@ if ($marketResult) {
     </div>
 
 
+=======
+>>>>>>> c65b4f17f2be28c6785bdc9693c0e852b0c19ee8
     <?php if (empty($products)): ?>
 
         <div class="empty-products">
@@ -1215,6 +1229,7 @@ if ($marketResult) {
                     $product['farmer_name']
                     ?? 'Unknown Market';
 
+<<<<<<< HEAD
                 $categoryId =
                     (int)($product['category_id'] ?? 0);
 
@@ -1268,6 +1283,8 @@ if ($marketResult) {
                         }
                     }
                 }
+=======
+>>>>>>> c65b4f17f2be28c6785bdc9693c0e852b0c19ee8
 
 
                 // --------------------------------------------------
@@ -1292,6 +1309,7 @@ if ($marketResult) {
                 ?>
 
 
+<<<<<<< HEAD
                 <div
                     class="product-card"
 
@@ -1307,6 +1325,9 @@ if ($marketResult) {
 
                     data-price="<?= $price ?>"
                 >
+=======
+                <div class="product-card">
+>>>>>>> c65b4f17f2be28c6785bdc9693c0e852b0c19ee8
 
 
                     <!-- =================================================
@@ -1497,12 +1518,10 @@ if ($marketResult) {
                             <!-- View Details -->
 
                             <a
-                                href="product_details.php?id=<?= $productId ?>"
-                                class="view-details-button"
+                                 href="product_details.php?id=<?= $productId ?>&from=products"
+                                 class="view-details-button"
                             >
-
-                                View Details
-
+                                 View Details
                             </a>
 
 
@@ -1531,6 +1550,7 @@ if ($marketResult) {
 
 <script>
 
+<<<<<<< HEAD
 function applyProductFilters() {
 
     const productSearch =
@@ -1789,6 +1809,26 @@ document
         applyProductFilters
     );
 
+=======
+function confirmSwitchMarket(currentMarket, newMarket) {
+
+    return confirm(
+        'Your cart currently contains products from "' +
+        currentMarket +
+        '".\n\n' +
+
+        'To add a product from "' +
+        newMarket +
+        '", your current cart needs to be cleared.\n\n' +
+
+        'This will remove all products currently in your cart.\n\n' +
+
+        'Do you want to clear your cart and switch markets?'
+    );
+
+}
+
+>>>>>>> c65b4f17f2be28c6785bdc9693c0e852b0c19ee8
 </script>
 
 
