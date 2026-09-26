@@ -339,6 +339,70 @@ if ($result) {
 
         }
 
+        .location-filter {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .location-filter button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border: 1px solid #d9e3dc;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        #findNearbyMarkets {
+            background: #2f6f4e;
+            color: white;
+            border-color: #2f6f4e;
+        }
+
+        #findNearbyMarkets:hover {
+            background: #275e42;
+        }
+
+        #showAllMarkets {
+            background: white;
+            color: #2f6f4e;
+        }
+
+        #showAllMarkets:hover {
+            background: #f3f7f4;
+        }
+
+        #locationStatus {
+            display: inline-block;
+            padding: 8px 12px;
+            border-radius: 6px;
+            background: #f3f7f4;
+            color: #2f6f4e;
+            font-size: 13px;
+        }
+
+        @media (max-width: 600px) {
+            .location-filter {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .location-filter button {
+                justify-content: center;
+                width: 100%;
+            }
+
+            #locationStatus {
+                text-align: center;
+            }
+        }
 
         .section-title {
 
@@ -636,6 +700,30 @@ if ($result) {
 
             </div>
 
+            <div class="location-filter">
+
+                <button
+                    type="button"
+                    id="findNearbyMarkets"
+                >
+                    <i class="fa-solid fa-location-dot"></i>
+                    Find Markets Near Me
+                </button>
+
+                <button
+                    type="button"
+                    id="showAllMarkets"
+                    style="display: none;"
+                >
+                    Show All Markets
+                </button>
+
+                <span
+                    id="locationStatus"
+                    style="display: none;"
+                ></span>
+
+            </div>
 
             <!-- =====================================================
                  MAP
@@ -845,6 +933,7 @@ if ($result) {
                 JSON_UNESCAPED_SLASHES
             ); ?>;
 
+        let map;
 
         // =====================================================
         // Sort Markets By User Location
@@ -893,140 +982,219 @@ if ($result) {
         }
 
 
-        // =====================================================
-        // User Location
-        // =====================================================
+// =====================================================
+// Find Markets Near Me
+// =====================================================
 
-        // Cambridge, Massachusetts, USA
+document.getElementById('findNearbyMarkets').addEventListener('click', function () {
 
-        const userLatitude =
-            42.3736;
+    if (!navigator.geolocation) {
 
-        const userLongitude =
-            -71.1097;
+        alert(
+            'Location services are not supported by this browser.'
+        );
 
-
-        // =====================================================
-        // Calculate Distance For Each Market
-        // =====================================================
-
-        const marketCards =
-            document.querySelectorAll(
-                '.market-card'
-            );
-
-        const cards =
-            Array.from(
-                marketCards
-            );
+        return;
+    }
 
 
-        cards.forEach(function (card) {
+    navigator.geolocation.getCurrentPosition(
 
-            const marketId =
-                parseInt(
-                    card.dataset.marketId
-                );
+        function (position) {
 
+            const userLatitude =
+                position.coords.latitude;
 
-            const market =
-                markets.find(function (item) {
-
-                    return (
-                        parseInt(item.id) ===
-                        marketId
-                    );
-
-                });
+            const userLongitude =
+                position.coords.longitude;
 
 
-            if (
-                market &&
-                market.latitude !== null &&
-                market.longitude !== null &&
-                market.latitude !== '' &&
-                market.longitude !== ''
-            ) {
-
-                const marketLatitude =
-                    parseFloat(
-                        market.latitude
-                    );
-
-                const marketLongitude =
-                    parseFloat(
-                        market.longitude
-                    );
-
+            // Calculate distance for every market
+            markets.forEach(function (market) {
 
                 if (
-                    !isNaN(marketLatitude) &&
-                    !isNaN(marketLongitude)
+                    market.latitude !== null &&
+                    market.longitude !== null &&
+                    market.latitude !== '' &&
+                    market.longitude !== ''
                 ) {
 
-                    card.dataset.distance =
-                        calculateDistance(
-                            userLatitude,
-                            userLongitude,
-                            marketLatitude,
-                            marketLongitude
+                    const marketLatitude =
+                        parseFloat(
+                            market.latitude
                         );
+
+                    const marketLongitude =
+                        parseFloat(
+                            market.longitude
+                        );
+
+
+                    if (
+                        !isNaN(marketLatitude) &&
+                        !isNaN(marketLongitude)
+                    ) {
+
+                        market.distance =
+                            calculateDistance(
+                                userLatitude,
+                                userLongitude,
+                                marketLatitude,
+                                marketLongitude
+                            );
+
+                    } else {
+
+                        market.distance = Infinity;
+
+                    }
 
                 } else {
 
-                    card.dataset.distance =
-                        '999999999';
+                    market.distance = Infinity;
 
                 }
 
-            } else {
-
-                card.dataset.distance =
-                    '999999999';
-
-            }
-
-        });
+            });
 
 
-        // =====================================================
-        // Sort Cards From Nearest To Farthest
-        // =====================================================
+            // Sort nearest to farthest
+            markets.sort(function (a, b) {
 
-        cards.sort(function (a, b) {
-
-            return (
-                parseFloat(
-                    a.dataset.distance
-                ) -
-                parseFloat(
-                    b.dataset.distance
-                )
-            );
-
-        });
-
-
-        // =====================================================
-        // Rebuild Markets Grid
-        // =====================================================
-
-        const grid =
-            document.querySelector(
-                '.markets-grid'
-            );
-
-
-        if (grid) {
-
-            cards.forEach(function (card) {
-
-                grid.appendChild(card);
+                return (
+                    a.distance -
+                    b.distance
+                );
 
             });
 
+            // Center the map on the user's location
+            map.setView(
+                [userLatitude, userLongitude],
+                12
+            );
+
+            // Get market cards
+            const grid =
+                document.querySelector(
+                    '.markets-grid'
+                );
+
+
+            const cards =
+                Array.from(
+                    document.querySelectorAll(
+                        '.market-card'
+                    )
+                );
+
+
+            // Rebuild cards in nearest-first order
+            if (grid) {
+
+                markets.forEach(function (market) {
+
+                    const card =
+                        cards.find(function (item) {
+
+                            return (
+                                parseInt(
+                                    item.dataset.marketId
+                                ) ===
+                                parseInt(
+                                    market.id
+                                )
+                            );
+
+                        });
+
+
+                    if (card) {
+
+                        grid.appendChild(card);
+
+                    }
+
+                });
+
+            }
+
+
+            // Update status
+            document.getElementById(
+                'locationStatus'
+            ).style.display = 'inline';
+
+            document.getElementById(
+                'locationStatus'
+            ).textContent =
+                'Markets sorted by distance from your location.';
+
+
+            // Show "Show All Markets" button
+            document.getElementById(
+                'showAllMarkets'
+            ).style.display = 'inline-block';
+
+        },
+
+
+        function () {
+
+            alert(
+                'Unable to get your location. Please allow location access.'
+            );
+
         }
 
+    );
+
+});
+
+// =====================================================
+// Show All Markets
+// =====================================================
+
+document.getElementById('showAllMarkets').addEventListener('click', function () {
+
+    const grid =
+        document.querySelector('.markets-grid');
+
+    const cards =
+        Array.from(
+            document.querySelectorAll('.market-card')
+        );
+
+    if (grid) {
+
+        cards.sort(function (a, b) {
+            return (
+                parseInt(a.dataset.marketId) -
+                parseInt(b.dataset.marketId)
+            );
+        });
+
+        cards.forEach(function (card) {
+            grid.appendChild(card);
+        });
+
+    }
+
+    // Remove nearby status
+    document.getElementById(
+        'locationStatus'
+    ).style.display = 'none';
+
+    // Hide Show All button
+    this.style.display = 'none';
+
+    // Return map to default view
+    map.setView(
+        [defaultLatitude, defaultLongitude],
+        4
+    );
+
+});
 
         // =====================================================
         // Default Map Position
@@ -1043,7 +1211,7 @@ if ($result) {
         // Create Map
         // =====================================================
 
-        const map =
+        map =
             L.map('map').setView(
                 [
                     defaultLatitude,
