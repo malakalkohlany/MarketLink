@@ -198,6 +198,19 @@ function hasSubmenu(array $pages): bool
                         <span>My Orders</span>
                     </a>
                 </li>
+                <li>
+                    <a
+                        href="<?= BASE_URL ?>customer/reviews.php"
+                        class="<?= isActive(['reviews.php']) ?>"
+                    >
+                        <span class="nav-icon">
+                            <i data-lucide="clipboard-list"></i>
+                        </span>
+
+                        <span>My Reviews</span>
+                    </a>
+                </li>
+
 
             </ul>
 
