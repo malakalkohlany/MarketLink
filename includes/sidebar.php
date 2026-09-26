@@ -223,6 +223,19 @@ function isSubActive(string $page): string
                     </a>
                 </li>
 
+                <li>
+                    <a
+                        href="<?= BASE_URL ?>customer/favorites.php"
+                        class="<?= isActive(['favorites.php']) ?>"
+                    >
+                        <span class="nav-icon">
+                            <i data-lucide="heart"></i>
+                        </span>
+
+                        <span>Favorites</span>
+                    </a>
+                </li>
+
 
                 <!-- Notifications -->
                 <li>
