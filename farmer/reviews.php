@@ -1,10 +1,8 @@
 <?php
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../includes/session.php';
-require_once __DIR__ . '/../includes/functions.php';
 
-$user_id = $_SESSION['user_id'];
+require_once __DIR__ . '/../includes/include.php';
+
+$user_id = getUserId();
 
 $stmt = $conn->prepare("
     SELECT id
