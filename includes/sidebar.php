@@ -695,16 +695,6 @@ function hasSubmenu(array $pages): bool
                                 <span>Add Market</span>
                             </a>
 
-                            <a
-                                href="<?= BASE_URL ?>admin/add_market.php"
-                                class="sidebar-sublink <?= isSubActive('edit_market.php') ?>"
-                            >
-                                <span class="nav-subicon">
-                                    <i data-lucide="edit"></i>
-                                </span>
-
-                                <span>Edit Market</span>
-                            </a>
 
                         </div>
 

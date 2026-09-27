@@ -54,13 +54,6 @@ $operatingDays = [];
 $mapProvider = 'OpenStreetMap';
 $status = 'active';
 
-
-/*
-|--------------------------------------------------------------------------
-| Load Market
-|--------------------------------------------------------------------------
-*/
-
 $stmt = $conn->prepare("
     SELECT
         id,
@@ -95,13 +88,6 @@ if (!$market) {
     die('Market not found.');
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| Populate Form
-|--------------------------------------------------------------------------
-*/
-
 $name = $market['name'] ?? '';
 $description = $market['description'] ?? '';
 $address = $market['address'] ?? '';
@@ -115,21 +101,19 @@ $openingTime = $market['opening_time'] ?? '';
 $closingTime = $market['closing_time'] ?? '';
 
 if (!empty($market['operating_days'])) {
-    $operatingDays = array_map(
-        'trim',
-        explode(',', $market['operating_days'])
+    $operatingDays = array_values(
+        array_intersect(
+            array_map(
+                'trim',
+                explode(',', $market['operating_days'])
+            ),
+            $allowedDays
+        )
     );
 }
 
 $mapProvider = $market['map_provider'] ?? 'OpenStreetMap';
 $status = $market['status'] ?? 'active';
-
-
-/*
-|--------------------------------------------------------------------------
-| Handle Form Submission
-|--------------------------------------------------------------------------
-*/
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -137,6 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (
         empty($submittedToken) ||
+        empty($_SESSION['csrf_token']) ||
         !hash_equals($_SESSION['csrf_token'], $submittedToken)
     ) {
         $errors[] = 'Invalid security token. Please try again.';
@@ -161,52 +146,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         array_intersect($operatingDays, $allowedDays)
     );
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Validation
-    |--------------------------------------------------------------------------
-    */
-
     if (empty($errors)) {
 
         if ($name === '') {
             $errors[] = 'Market name is required.';
-        }
-
-        elseif (mb_strlen($name) > 150) {
+        } elseif (mb_strlen($name) > 150) {
             $errors[] = 'Market name cannot exceed 150 characters.';
-        }
-
-        elseif ($address === '') {
+        } elseif (mb_strlen($description) > 1000) {
+            $errors[] = 'Description cannot exceed 1000 characters.';
+        } elseif ($address === '') {
             $errors[] = 'Address is required.';
-        }
-
-        elseif (mb_strlen($address) > 255) {
+        } elseif (mb_strlen($address) > 255) {
             $errors[] = 'Address cannot exceed 255 characters.';
-        }
-
-        elseif (
+        } elseif (
             $latitude !== '' &&
-            (!is_numeric($latitude) ||
-            $latitude < -90 ||
-            $latitude > 90)
+            (
+                !is_numeric($latitude) ||
+                (float) $latitude < -90 ||
+                (float) $latitude > 90
+            )
         ) {
             $errors[] =
                 'Please enter a valid latitude between -90 and 90.';
-        }
-
-        elseif (
+        } elseif (
             $longitude !== '' &&
-            (!is_numeric($longitude) ||
-            $longitude < -180 ||
-            $longitude > 180)
+            (
+                !is_numeric($longitude) ||
+                (float) $longitude < -180 ||
+                (float) $longitude > 180
+            )
         ) {
             $errors[] =
                 'Please enter a valid longitude between -180 and 180.';
-        }
-
-        elseif (
+        } elseif (
             $openingTime !== '' &&
             !preg_match(
                 '/^(?:[01]\d|2[0-3]):[0-5]\d$/',
@@ -214,9 +186,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             )
         ) {
             $errors[] = 'Please enter a valid opening time.';
-        }
-
-        elseif (
+        } elseif (
             $closingTime !== '' &&
             !preg_match(
                 '/^(?:[01]\d|2[0-3]):[0-5]\d$/',
@@ -224,9 +194,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             )
         ) {
             $errors[] = 'Please enter a valid closing time.';
-        }
-
-        elseif (
+        } elseif (
+            $openingTime !== '' &&
+            $closingTime !== '' &&
+            $closingTime <= $openingTime
+        ) {
+            $errors[] =
+                'Closing time must be later than opening time.';
+        } elseif (
             !in_array(
                 $mapProvider,
                 $allowedMapProviders,
@@ -234,9 +209,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             )
         ) {
             $errors[] = 'Invalid map provider.';
-        }
-
-        elseif (
+        } elseif (
             !in_array(
                 $status,
                 $allowedStatuses,
@@ -244,9 +217,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             )
         ) {
             $errors[] = 'Invalid market status.';
-        }
-
-        elseif (
+        } elseif (empty($operatingDays)) {
+            $errors[] =
+                'Please select at least one operating day.';
+        } elseif (
             mb_strlen(
                 implode(', ', $operatingDays)
             ) > 100
@@ -255,13 +229,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'The selected operating days are too long.';
         }
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Update Market
-    |--------------------------------------------------------------------------
-    */
 
     if (empty($errors)) {
 
@@ -321,10 +288,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute();
             $stmt->close();
 
-            $successMessage =
-                'Market updated successfully.';
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+            $csrfToken = $_SESSION['csrf_token'];
+
+            $successMessage = 'Market updated successfully.';
 
         } catch (mysqli_sql_exception $e) {
+
+            error_log(
+                'MarketLink - Edit Market Error: ' .
+                $e->getMessage()
+            );
 
             $errors[] =
                 'Unable to update the market. Please try again.';
@@ -346,11 +320,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Edit Market - MarketLink</title>
+    <title>Edit Market | MarketLink</title>
 
     <link rel="stylesheet" href="../assets/css/base.css">
     <link rel="stylesheet" href="../assets/css/navbar.css">
     <link rel="stylesheet" href="../assets/css/sidebar.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
 
     <link
         rel="stylesheet"
@@ -361,273 +336,505 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <body>
 
-    <?php include __DIR__ . '/../includes/navbar.php'; ?>
-    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
+<?php include __DIR__ . '/../includes/navbar.php'; ?>
+<?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-<main class="main-content">
+<main class="main-content admin-edit-market-page">
 
-    <div class="page-container">
+    <section class="admin-page-hero">
 
-        <div class="page-header">
+        <div class="admin-page-hero-copy">
 
-            <div>
+            <span class="eyebrow">
+                ADMIN / MARKETS
+            </span>
 
-                <h1>Edit Market</h1>
+            <h1>
+                Edit local <em>market.</em>
+            </h1>
 
-                <p>
-                    Update market information and location.
-                </p>
-
-            </div>
+            <p>
+                Update the market's details, location, operating hours,
+                and availability.
+            </p>
 
         </div>
 
+        <div class="admin-page-mark">
+            07
+        </div>
 
-        <?php if (!empty($errors)): ?>
+    </section>
 
-            <div class="alert alert-error">
+    <?php if (!empty($errors)): ?>
+
+        <div class="admin-page-alert alert-danger">
+
+            <span class="admin-alert-mark">!</span>
+
+            <div>
 
                 <?php foreach ($errors as $error): ?>
 
                     <p>
-                        <?= htmlspecialchars($error) ?>
+                        <?= htmlspecialchars(
+                            $error,
+                            ENT_QUOTES,
+                            'UTF-8'
+                        ) ?>
                     </p>
 
                 <?php endforeach; ?>
 
             </div>
 
-        <?php endif; ?>
+        </div>
 
+    <?php endif; ?>
 
-        <?php if ($successMessage !== ''): ?>
+    <?php if ($successMessage !== ''): ?>
 
-            <div class="alert alert-success">
+        <div class="admin-page-alert alert-success">
 
-                <?= htmlspecialchars($successMessage) ?>
+            <span class="admin-alert-mark">✓</span>
 
+            <div>
+                <?= htmlspecialchars(
+                    $successMessage,
+                    ENT_QUOTES,
+                    'UTF-8'
+                ) ?>
             </div>
 
-        <?php endif; ?>
+        </div>
 
+    <?php endif; ?>
 
-        <form
-            method="POST"
-            action=""
-            class="form-container"
+    <form
+        method="POST"
+        action=""
+        class="admin-market-form"
+    >
+
+        <input
+            type="hidden"
+            name="csrf_token"
+            value="<?= htmlspecialchars(
+                $csrfToken,
+                ENT_QUOTES,
+                'UTF-8'
+            ) ?>"
         >
 
-            <input
-                type="hidden"
-                name="csrf_token"
-                value="<?= htmlspecialchars($csrfToken) ?>"
-            >
+        <section class="admin-form-section">
 
+            <div class="admin-form-section-heading">
 
-            <div class="form-group">
+                <span class="admin-section-number">
+                    01 / LOCATION
+                </span>
 
-                <label for="name">
-                    Market Name
-                </label>
+                <h2>
+                    Market <em>details.</em>
+                </h2>
 
-                <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    maxlength="150"
-                    required
-                    value="<?= htmlspecialchars($name) ?>"
-                >
+                <p>
+                    Update the basic information customers see when
+                    discovering this market.
+                </p>
 
             </div>
 
+            <div class="admin-market-form-card">
 
-            <div class="form-group">
+                <div class="admin-market-form-grid">
 
-                <label for="description">
-                    Description
-                </label>
+                    <div class="admin-market-field admin-market-field-full">
 
-                <textarea
-                    id="description"
-                    name="description"
-                    rows="4"
-                ><?= htmlspecialchars($description) ?></textarea>
+                        <label for="name">
+                            Market Name
+                        </label>
 
-            </div>
-
-
-            <div class="form-group">
-
-                <label for="address">
-                    Address
-                </label>
-
-                <input
-                    type="text"
-                    id="address"
-                    name="address"
-                    maxlength="255"
-                    required
-                    value="<?= htmlspecialchars($address) ?>"
-                >
-
-            </div>
-
-
-            <div class="form-row">
-
-                <div class="form-group">
-
-                    <label for="latitude">
-                        Latitude
-                    </label>
-
-                    <input
-                        type="number"
-                        id="latitude"
-                        name="latitude"
-                        step="0.00000001"
-                        min="-90"
-                        max="90"
-                        value="<?= htmlspecialchars($latitude) ?>"
-                        placeholder="e.g. 15.3694"
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="longitude">
-                        Longitude
-                    </label>
-
-                    <input
-                        type="number"
-                        id="longitude"
-                        name="longitude"
-                        step="0.00000001"
-                        min="-180"
-                        max="180"
-                        value="<?= htmlspecialchars($longitude) ?>"
-                        placeholder="e.g. 44.1910"
-                    >
-
-                </div>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Market Location
-                </label>
-
-                <div
-                    id="market-map"
-                    style="width: 100%; height: 400px;"
-                ></div>
-
-                <small>
-                    Click on the map to select the market location.
-                </small>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label for="map_provider">
-                    Map Provider
-                </label>
-
-                <select
-                    id="map_provider"
-                    name="map_provider"
-                >
-
-                    <?php foreach ($allowedMapProviders as $provider): ?>
-
-                        <option
-                            value="<?= htmlspecialchars($provider) ?>"
-                            <?= $mapProvider === $provider
-                                ? 'selected'
-                                : '' ?>
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            maxlength="150"
+                            required
+                            value="<?= htmlspecialchars(
+                                $name,
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
+                            placeholder="e.g. Central Farmers Market"
                         >
-                            <?= htmlspecialchars($provider) ?>
-                        </option>
 
-                    <?php endforeach; ?>
+                    </div>
 
-                </select>
+                    <div class="admin-market-field admin-market-field-full">
 
-            </div>
+                        <label for="description">
+                            Description
+                        </label>
 
+                        <textarea
+                            id="description"
+                            name="description"
+                            rows="4"
+                            maxlength="1000"
+                            placeholder="Describe this market, its atmosphere, or what customers can find there."
+                        ><?= htmlspecialchars(
+                            $description,
+                            ENT_QUOTES,
+                            'UTF-8'
+                        ) ?></textarea>
 
-            <div class="form-row">
+                    </div>
 
-                <div class="form-group">
+                    <div class="admin-market-field admin-market-field-full">
 
-                    <label for="opening_time">
-                        Opening Time
-                    </label>
+                        <label for="address">
+                            Address
+                        </label>
 
-                    <input
-                        type="time"
-                        id="opening_time"
-                        name="opening_time"
-                        value="<?= htmlspecialchars($openingTime) ?>"
-                    >
+                        <input
+                            type="text"
+                            id="address"
+                            name="address"
+                            maxlength="255"
+                            required
+                            value="<?= htmlspecialchars(
+                                $address,
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
+                            placeholder="Enter the full market address"
+                        >
+
+                    </div>
 
                 </div>
 
+            </div>
 
-                <div class="form-group">
+        </section>
 
-                    <label for="closing_time">
-                        Closing Time
-                    </label>
+        <section class="admin-form-section">
 
-                    <input
-                        type="time"
-                        id="closing_time"
-                        name="closing_time"
-                        value="<?= htmlspecialchars($closingTime) ?>"
-                    >
+            <div class="admin-form-section-heading">
+
+                <span class="admin-section-number">
+                    02 / LOCATION DATA
+                </span>
+
+                <h2>
+                    Market <em>map.</em>
+                </h2>
+
+                <p>
+                    Adjust the exact market location or update the
+                    coordinates manually.
+                </p>
+
+            </div>
+
+            <div class="admin-market-form-card">
+
+                <div class="admin-market-form-grid">
+
+                    <div class="admin-market-field">
+
+                        <label for="latitude">
+                            Latitude
+                        </label>
+
+                        <input
+                            type="number"
+                            id="latitude"
+                            name="latitude"
+                            step="0.00000001"
+                            min="-90"
+                            max="90"
+                            value="<?= htmlspecialchars(
+                                $latitude,
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
+                            placeholder="e.g. 15.3694"
+                        >
+
+                        <span class="admin-market-field-help">
+                            Between -90 and 90.
+                        </span>
+
+                    </div>
+
+                    <div class="admin-market-field">
+
+                        <label for="longitude">
+                            Longitude
+                        </label>
+
+                        <input
+                            type="number"
+                            id="longitude"
+                            name="longitude"
+                            step="0.00000001"
+                            min="-180"
+                            max="180"
+                            value="<?= htmlspecialchars(
+                                $longitude,
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
+                            placeholder="e.g. 44.1910"
+                        >
+
+                        <span class="admin-market-field-help">
+                            Between -180 and 180.
+                        </span>
+
+                    </div>
+
+                    <div class="admin-market-field admin-market-field-full">
+
+                        <label>
+                            Market Location
+                        </label>
+
+                        <div
+                            id="market-map"
+                            class="admin-market-map"
+                        ></div>
+
+                        <span class="admin-market-field-help">
+                            Click anywhere on the map to move the market
+                            location.
+                        </span>
+
+                    </div>
+
+                    <div class="admin-market-field admin-market-field-full">
+
+                        <label for="map_provider">
+                            Map Provider
+                        </label>
+
+                        <select
+                            id="map_provider"
+                            name="map_provider"
+                        >
+
+                            <?php foreach ($allowedMapProviders as $provider): ?>
+
+                                <option
+                                    value="<?= htmlspecialchars(
+                                        $provider,
+                                        ENT_QUOTES,
+                                        'UTF-8'
+                                    ) ?>"
+                                    <?= $mapProvider === $provider
+                                        ? 'selected'
+                                        : '' ?>
+                                >
+                                    <?= htmlspecialchars(
+                                        $provider,
+                                        ENT_QUOTES,
+                                        'UTF-8'
+                                    ) ?>
+                                </option>
+
+                            <?php endforeach; ?>
+
+                        </select>
+
+                    </div>
 
                 </div>
 
             </div>
 
+        </section>
 
-            <div class="form-group">
+        <section class="admin-form-section">
 
-                <label>
-                    Operating Days
-                </label>
+            <div class="admin-form-section-heading">
 
-                <div class="checkbox-group">
+                <span class="admin-section-number">
+                    03 / AVAILABILITY
+                </span>
 
-                    <?php foreach ($allowedDays as $day): ?>
+                <h2>
+                    Market <em>hours.</em>
+                </h2>
 
-                        <label class="checkbox-label">
+                <p>
+                    Update the days and hours when customers can visit
+                    this market.
+                </p>
+
+            </div>
+
+            <div class="admin-market-form-card">
+
+                <div class="admin-market-form-grid">
+
+                    <div class="admin-market-field">
+
+                        <label for="opening_time">
+                            Opening Time
+                        </label>
+
+                        <input
+                            type="time"
+                            id="opening_time"
+                            name="opening_time"
+                            value="<?= htmlspecialchars(
+                                $openingTime,
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
+                        >
+
+                    </div>
+
+                    <div class="admin-market-field">
+
+                        <label for="closing_time">
+                            Closing Time
+                        </label>
+
+                        <input
+                            type="time"
+                            id="closing_time"
+                            name="closing_time"
+                            value="<?= htmlspecialchars(
+                                $closingTime,
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
+                        >
+
+                    </div>
+
+                    <div class="admin-market-field admin-market-field-full">
+
+                        <label>
+                            Operating Days
+                        </label>
+
+                        <div class="admin-market-days">
+
+                            <?php foreach ($allowedDays as $day): ?>
+
+                                <label class="admin-market-day">
+
+                                    <input
+                                        type="checkbox"
+                                        name="operating_days[]"
+                                        value="<?= htmlspecialchars(
+                                            $day,
+                                            ENT_QUOTES,
+                                            'UTF-8'
+                                        ) ?>"
+                                        <?= in_array(
+                                            $day,
+                                            $operatingDays,
+                                            true
+                                        )
+                                            ? 'checked'
+                                            : '' ?>
+                                    >
+
+                                    <span>
+                                        <?= htmlspecialchars(
+                                            substr($day, 0, 3),
+                                            ENT_QUOTES,
+                                            'UTF-8'
+                                        ) ?>
+                                    </span>
+
+                                </label>
+
+                            <?php endforeach; ?>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <section class="admin-form-section">
+
+            <div class="admin-form-section-heading">
+
+                <span class="admin-section-number">
+                    04 / VISIBILITY
+                </span>
+
+                <h2>
+                    Market <em>status.</em>
+                </h2>
+
+                <p>
+                    Choose whether this market is currently available
+                    throughout MarketLink.
+                </p>
+
+            </div>
+
+            <div class="admin-market-form-card">
+
+                <div class="admin-market-status-options">
+
+                    <?php foreach ($allowedStatuses as $marketStatus): ?>
+
+                        <label class="admin-market-status-option">
 
                             <input
-                                type="checkbox"
-                                name="operating_days[]"
-                                value="<?= htmlspecialchars($day) ?>"
-                                <?= in_array(
-                                    $day,
-                                    $operatingDays,
-                                    true
-                                )
+                                type="radio"
+                                name="status"
+                                value="<?= htmlspecialchars(
+                                    $marketStatus,
+                                    ENT_QUOTES,
+                                    'UTF-8'
+                                ) ?>"
+                                <?= $status === $marketStatus
                                     ? 'checked'
                                     : '' ?>
                             >
 
-                            <?= htmlspecialchars($day) ?>
+                            <span class="admin-market-status-content">
+
+                                <span class="admin-market-status-title">
+                                    <?= htmlspecialchars(
+                                        ucfirst($marketStatus),
+                                        ENT_QUOTES,
+                                        'UTF-8'
+                                    ) ?>
+                                </span>
+
+                                <span class="admin-market-status-description">
+
+                                    <?php if ($marketStatus === 'active'): ?>
+
+                                        Customers can discover and use
+                                        this market.
+
+                                    <?php else: ?>
+
+                                        Keep this market hidden from
+                                        active listings.
+
+                                    <?php endif; ?>
+
+                                </span>
+
+                            </span>
 
                         </label>
 
@@ -637,65 +844,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             </div>
 
+        </section>
 
-            <div class="form-group">
+        <div class="admin-market-form-actions">
 
-                <label for="status">
-                    Status
-                </label>
+            <a
+                href="markets.php"
+                class="admin-action-cancel"
+            >
+                Cancel
+            </a>
 
-                <select
-                    id="status"
-                    name="status"
-                >
+            <button
+                type="submit"
+                class="admin-action-submit"
+            >
+                Save Changes
+            </button>
 
-                    <?php foreach ($allowedStatuses as $marketStatus): ?>
+        </div>
 
-                        <option
-                            value="<?= htmlspecialchars($marketStatus) ?>"
-                            <?= $status === $marketStatus
-                                ? 'selected'
-                                : '' ?>
-                        >
-                            <?= ucfirst($marketStatus) ?>
-                        </option>
-
-                    <?php endforeach; ?>
-
-                </select>
-
-            </div>
-
-
-            <div class="form-actions">
-
-                <a
-                    href="markets.php"
-                    class="button button-secondary"
-                >
-                    Cancel
-                </a>
-
-                <button
-                    type="submit"
-                    class="button button-primary"
-                >
-                    Update Market
-                </button>
-
-            </div>
-
-        </form>
-
-    </div>
+    </form>
 
 </main>
 
-
 <script>
     window.marketLocation = {
-        latitude: <?= $latitude !== '' ? (float)$latitude : 15.3694 ?>,
-        longitude: <?= $longitude !== '' ? (float)$longitude : 44.1910 ?>
+        latitude: <?= $latitude !== '' ? (float) $latitude : 15.3694 ?>,
+        longitude: <?= $longitude !== '' ? (float) $longitude : 44.1910 ?>
     };
 </script>
 
@@ -703,5 +879,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <script src="../assets/js/leaflet.js"></script>
 
 </body>
-
 </html>
