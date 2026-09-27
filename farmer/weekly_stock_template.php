@@ -8,7 +8,7 @@ requireApprovedFarmer();
 $farmer_id = $_SESSION['farmer_id'] ?? null;
 
 if (!$farmer_id) {
-    redirect('../auth/logout.php');
+    redirect('auth/logout.php');
 }
 
 /*
@@ -138,7 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $stmt->close();
 
-                redirect('weekly_stock_template.php');
+                redirect('farmer/weekly_stock_template.php');
 
             } else {
 
@@ -191,7 +191,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $stmt->close();
 
-                redirect('weekly_stock_template.php');
+                redirect('farmer/weekly_stock_template.php');
 
             } else {
 
@@ -238,7 +238,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $stmt->close();
 
-                redirect('weekly_stock_template.php');
+                redirect('farmer/weekly_stock_template.php');
 
             } else {
 
