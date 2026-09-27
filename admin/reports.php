@@ -139,6 +139,26 @@ $stmt->execute();
 $result = $stmt->get_result();
 $top_farmers = $result->fetch_all(MYSQLI_ASSOC);
 
+$stmt = $conn->prepare("
+    SELECT
+        m.id,
+        m.name AS market_name,
+        COALESCE(SUM(o.subtotal), 0) AS revenue
+    FROM markets m
+    LEFT JOIN orders o
+        ON o.market_id = m.id
+        AND o.status = 'completed'
+    GROUP BY
+        m.id,
+        m.name
+    ORDER BY revenue DESC
+");
+
+$stmt->execute();
+
+$result = $stmt->get_result();
+$market_revenue = $result->fetch_all(MYSQLI_ASSOC);
+
 ?>
 
 <!DOCTYPE html>
@@ -163,7 +183,9 @@ $top_farmers = $result->fetch_all(MYSQLI_ASSOC);
 
 <body>
 
-<div class="admin-container">
+    <?php include __DIR__ . '/../includes/navbar.php'; ?>
+
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
     <main class="main-content">
 
@@ -499,9 +521,91 @@ $top_farmers = $result->fetch_all(MYSQLI_ASSOC);
 
         </section>
 
-    </main>
+        <section class="table-section">
 
-</div>
+            <div class="section-header">
+
+                <h2>
+                    Revenue by Market
+                </h2>
+
+            </div>
+
+
+            <div class="table-responsive">
+
+                <table class="data-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                ID
+                            </th>
+
+                            <th>
+                                Market
+                            </th>
+
+                            <th>
+                                Revenue
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        <?php if (!empty($market_revenue)): ?>
+
+                            <?php foreach ($market_revenue as $market): ?>
+
+                                <tr>
+
+                                    <td>
+                                        <?= (int)$market['id'] ?>
+                                    </td>
+
+                                    <td>
+                                        <?= htmlspecialchars(
+                                            $market['market_name']
+                                        ) ?>
+                                    </td>
+
+                                    <td>
+                                        <?= number_format(
+                                            (float)$market['revenue'],
+                                            2
+                                        ) ?>
+                                    </td>
+
+                                </tr>
+
+                            <?php endforeach; ?>
+
+                        <?php else: ?>
+
+                            <tr>
+
+                                <td colspan="3">
+                                    No market revenue found.
+                                </td>
+
+                            </tr>
+
+                        <?php endif; ?>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
 
 </body>
 
