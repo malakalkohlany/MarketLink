@@ -1,31 +1,20 @@
 :root {
 
-    /* =========================
-       Brand / Accent Colors
-       ========================= */
-
-    /* Primary — Burnt Terracotta */
     --terracotta: #87483d;
     --terracotta-dark: #63261b;
     --terracotta-light: #a3786e;
     --terracotta-soft: #F3DDD7;
 
-    /* Secondary — Sage / Olive */
     --sage: #6F7C59;
     --sage-dark: #596545;
     --sage-light: #E4E9DC;
     --sage-soft: #EEF1E9;
 
-    /* Highlight — Marigold */
     --marigold: #d8b871;
     --marigold-dark: #978050;
     --marigold-light: #F5E3AF;
     --marigold-soft: #FAF1D9;
 
-
-    /* =========================
-       Warm Neutrals
-       ========================= */
 
     --cream: #F8F1E5;
     --cream-light: #FFF9F0;
@@ -34,26 +23,26 @@
     --white: #FFFFFF;
 
 
-    /* =========================
-       Text
-       ========================= */
-
     --text: #3E3026;
     --text-soft: #665143;
     --text-muted: #8B7766;
 
+    /* Text used on dark/color surfaces */
+    --text-on-dark: #FFF9F0;
+    --text-on-sage: #FFF9F0;
+    --text-on-terracotta: #FFF9F0;
 
-    /* =========================
-       Borders
-       ========================= */
+
+    --surface: #FFF9F0;
+    --surface-alt: #F3E8D8;
+
+    --overlay-light: rgba(255, 249, 240, 0.16);
+    --overlay-dark: rgba(62, 48, 38, 0.12);
+
 
     --border: #DCCDB9;
     --border-light: #EAE1D5;
 
-
-    /* =========================
-       Radius
-       ========================= */
 
     --radius-sm: 10px;
     --radius-md: 16px;
@@ -62,57 +51,32 @@
     --radius-pill: 999px;
 
 
-    /* =========================
-       Shadows
-       ========================= */
 
-    --shadow-soft:
-        0 6px 20px rgba(62, 48, 38, 0.07);
-
-    --shadow-card:
-        0 12px 32px rgba(62, 48, 38, 0.09);
-
-    --shadow-hover:
-        0 16px 40px rgba(62, 48, 38, 0.13);
+    --shadow-soft: 0 6px 20px rgba(62, 48, 38, 0.07);
+    --shadow-card: 0 12px 32px rgba(62, 48, 38, 0.09);
+    --shadow-hover: 0 16px 40px rgba(62, 48, 38, 0.13);
 
 
-    /* =========================
-       Typography
-       ========================= */
+    --font-main: "Space Grotesk", sans-serif;
+    --font-body: "Inter", sans-serif;
+    --font-serif: "Fraunces", Georgia, serif;
 
-    --font-main:
-        "Space Grotesk",
-        sans-serif;
-
-    --font-body:
-        "Inter",
-        sans-serif;
-
-    /*
-       Use this for major display headings.
-       Fraunces gives the site the retro/editorial
-       character without making every piece of text
-       look old-fashioned.
-    */
-    --font-serif:
-        "Fraunces",
-        Georgia,
-        serif;
-
-
-    /* =========================
-       Layout
-       ========================= */
 
     --sidebar-width: 240px;
     --navbar-height: 74px;
 
     --content-max-width: 1500px;
 
+    --brand-max-width: 1180px;
 
-    /* =========================
-       Transitions
-       ========================= */
+
+    --space-section-small: 80px;
+    --space-section: 110px;
+    --space-section-large: 120px;
+
+
+    --lift-small: translateY(-2px);
+    --lift-card: translateY(-5px);
 
     --transition-fast: 0.18s ease;
     --transition-normal: 0.25s ease;
@@ -120,11 +84,9 @@
 }
 
 
-/* =========================
-   Global Reset
-   ========================= */
-
-* {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
 }
 
@@ -134,22 +96,52 @@ html {
 
 body {
     margin: 0;
-
     background: var(--cream);
-
     color: var(--text);
 
     font-family: var(--font-body);
-
+    font-size: 16px;
     line-height: 1.6;
 
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
+img {
+    display: block;
+    max-width: 100%;
+}
 
-/* =========================
-   Typography
-   ========================= */
+button,
+input,
+select,
+textarea {
+    font-family: var(--font-main);
+}
+
+button,
+a {
+    -webkit-tap-highlight-color: transparent;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+p {
+    margin-top: 0;
+}
+
+ul,
+ol {
+    margin-top: 0;
+}
+
+button {
+    cursor: pointer;
+}
+
 
 h1,
 h2,
@@ -161,11 +153,11 @@ h6 {
 
     color: var(--text);
 
-    font-family: var(--font-serif);
+    font-family: var(--font-main);
+    font-weight: 700;
 
-    line-height: 1.15;
-
-    letter-spacing: -0.02em;
+    line-height: 1.05;
+    letter-spacing: -0.035em;
 }
 
 h1 {
@@ -184,43 +176,113 @@ h4 {
     font-size: 1.25rem;
 }
 
-button,
-input,
-select,
-textarea {
-    font-family: var(--font-main);
+h5 {
+    font-size: 1.1rem;
 }
 
-p {
-    margin-top: 0;
+h6 {
+    font-size: 1rem;
 }
 
-a {
-    color: inherit;
-    text-decoration: none;
-}
-
-button,
-a {
-    -webkit-tap-highlight-color: transparent;
+.editorial {
+    font-family: var(--font-serif);
+    font-weight: 400;
 }
 
 
-/* =========================
-   Images
-   ========================= */
+em {
+    font-family: var(--font-serif);
+    font-weight: 400;
+}
 
-img {
-    max-width: 100%;
-    display: block;
+.editorial em,
+.editorial-heading em {
+    font-family: var(--font-serif);
+    font-weight: 400;
 }
 
 
-/* =========================
-   Main Layout
-   ========================= */
+.eyebrow {
+    display: inline-block;
+
+    margin-bottom: 16px;
+
+    color: var(--terracotta-dark);
+
+    font-size: 0.65rem;
+    font-weight: 800;
+
+    letter-spacing: 0.18em;
+    line-height: 1.2;
+
+    text-transform: uppercase;
+}
+
+
+.editorial-heading {
+    margin: 0;
+
+    font-size: clamp(2.8rem, 5vw, 5rem);
+    font-weight: 700;
+
+    line-height: 0.95;
+    letter-spacing: -0.055em;
+}
+
+.editorial-heading em {
+    color: var(--sage-dark);
+}
+
+
+.container {
+    width: min(
+        var(--brand-max-width),
+        calc(100% - 48px)
+    );
+
+    margin: 0 auto;
+}
+
+
+
+.page-container {
+    width: 100%;
+    max-width: var(--content-max-width);
+
+    margin: 0 auto;
+}
+
+
+.section {
+    padding-top: var(--space-section);
+    padding-bottom: var(--space-section);
+}
+
+.section-large {
+    padding-top: var(--space-section-large);
+    padding-bottom: var(--space-section-large);
+}
+
+.section-small {
+    padding-top: var(--space-section-small);
+    padding-bottom: var(--space-section-small);
+}
+
+
+.divider {
+    border: 0;
+    border-top: 1px solid rgba(62, 48, 38, 0.16);
+}
+
+.divider-light {
+    border: 0;
+    border-top: 1px solid rgba(255, 249, 240, 0.20);
+}
+
 
 .main-content {
+    min-height: 100vh;
+
     margin-left: var(--sidebar-width);
 
     padding:
@@ -228,30 +290,14 @@ img {
         42px
         70px;
 
-    min-height: 100vh;
-
-    transition: margin-left var(--transition-normal);
+    transition:
+        margin-left var(--transition-normal);
 }
 
 .main-content.expanded {
     margin-left: 0;
 }
 
-
-/* =========================
-   Generic Page Container
-   ========================= */
-
-.page-container {
-    width: 100%;
-    max-width: var(--content-max-width);
-    margin: 0 auto;
-}
-
-
-/* =========================
-   Page Header
-   ========================= */
 
 .page-header {
     margin-bottom: 32px;
@@ -270,15 +316,10 @@ img {
 }
 
 
-/* =========================
-   Section Header
-   ========================= */
-
 .section-header {
     display: flex;
 
     align-items: center;
-
     justify-content: space-between;
 
     gap: 20px;
@@ -292,18 +333,47 @@ img {
 }
 
 
-/* =========================
-   Utility Backgrounds
-   ========================= */
+.hover-lift {
+    transition:
+        transform var(--transition-normal),
+        box-shadow var(--transition-normal);
+}
+
+.hover-lift:hover {
+    transform: var(--lift-card);
+}
+
+
+.hover-small {
+    transition:
+        transform var(--transition-fast),
+        color var(--transition-fast),
+        background-color var(--transition-fast);
+}
+
+.hover-small:hover {
+    transform: var(--lift-small);
+}
+
 
 .bg-terracotta {
     background: var(--terracotta);
-    color: var(--white);
+    color: var(--text-on-terracotta);
+}
+
+.bg-terracotta-dark {
+    background: var(--terracotta-dark);
+    color: var(--text-on-dark);
 }
 
 .bg-sage {
     background: var(--sage);
-    color: var(--white);
+    color: var(--text-on-sage);
+}
+
+.bg-sage-dark {
+    background: var(--sage-dark);
+    color: var(--text-on-dark);
 }
 
 .bg-marigold {
@@ -315,10 +385,60 @@ img {
     background: var(--cream-light);
 }
 
+.bg-cream-dark {
+    background: var(--cream-dark);
+}
 
-/* =========================
-   Responsive
-   ========================= */
+
+.text-primary {
+    color: var(--text);
+}
+
+.text-soft {
+    color: var(--text-soft);
+}
+
+.text-muted {
+    color: var(--text-muted);
+}
+
+.text-terracotta {
+    color: var(--terracotta);
+}
+
+.text-terracotta-dark {
+    color: var(--terracotta-dark);
+}
+
+.text-sage {
+    color: var(--sage);
+}
+
+.text-sage-dark {
+    color: var(--sage-dark);
+}
+
+.text-marigold {
+    color: var(--marigold-dark);
+}
+
+.text-light {
+    color: var(--cream-light);
+}
+
+:focus-visible {
+    outline: 2px solid var(--sage-dark);
+    outline-offset: 3px;
+}
+
+
+/* Text selection */
+
+::selection {
+    background: var(--marigold);
+    color: var(--text);
+}
+
 
 @media (max-width: 1100px) {
 
@@ -330,6 +450,7 @@ img {
         padding-left: 30px;
         padding-right: 30px;
     }
+
 }
 
 
@@ -337,7 +458,6 @@ img {
 
     .main-content,
     .main-content.expanded {
-
         margin-left: 0;
 
         padding:
@@ -350,8 +470,15 @@ img {
         align-items: flex-start;
         flex-direction: column;
     }
-}
 
+    .container {
+        width: min(
+            var(--brand-max-width),
+            calc(100% - 40px)
+        );
+    }
+
+}
 
 @media (max-width: 500px) {
 
@@ -361,6 +488,10 @@ img {
         padding-right: 15px;
     }
 
+    .container {
+        width: calc(100% - 30px);
+    }
+
     h1 {
         font-size: 2rem;
     }
@@ -368,4 +499,9 @@ img {
     h2 {
         font-size: 1.7rem;
     }
+
+    .editorial-heading {
+        font-size: clamp(2.5rem, 12vw, 3.5rem);
+    }
+
 }
