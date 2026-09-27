@@ -9,6 +9,7 @@ $customer_id = filter_input(
     'id',
     FILTER_VALIDATE_INT
 );
+
 $customer = null;
 $orders = [];
 
@@ -26,8 +27,9 @@ if ($customer_id) {
             updated_at
         FROM users
         WHERE id = ?
-        AND role = 'customer'
+          AND role = 'customer'
     ");
+
     $stmt->bind_param("i", $customer_id);
     $stmt->execute();
 
@@ -67,121 +69,95 @@ if ($customer_id) {
 }
 
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
 
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-<title>Customer Details | MarketLink</title>
+    <title>Customer Details | MarketLink</title>
 
-    <link rel="stylesheet" href="../assets/css/base.css">
-    <link rel="stylesheet" href="../assets/css/navbar.css">
-    <link rel="stylesheet" href="../assets/css/sidebar.css">
+    <link
+        rel="stylesheet"
+        href="../assets/css/base.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/navbar.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/sidebar.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/admin.css"
+    >
 
 </head>
 
 <body>
-<aside class="sidebar">
 
-    <div class="logo">
-        MarketLink
-    </div>
+<?php include __DIR__ . '/../includes/navbar.php'; ?>
 
-    <nav>
+<?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-        <a href="dashboard.php">
-            Dashboard
-        </a>
+<main class="main-content admin-customer-details">
 
-        <a href="markets.php">
-            Markets
-        </a>
+    <section class="admin-details-hero">
 
-        <a href="add_market.php">
-            Add Market
-        </a>
+        <div class="admin-details-hero-copy">
 
-        <a href="categories.php">
-            Categories
-        </a>
-
-        <a href="farmers.php">
-            Farmers
-        </a>
-
-        <a href="products.php">
-            Products
-        </a>
-
-        <a href="customers.php" class="active">
-            Customers
-        </a>
-
-        <a href="orders.php">
-            Orders
-        </a>
-
-        <a href="reviews.php">
-            Reviews
-        </a>
-
-        <a href="announcements.php">
-            Announcements
-        </a>
-
-        <a href="reports.php">
-            Reports
-        </a>
-
-        <a href="../logout.php">
-            Logout
-        </a>
-
-    </nav>
-
-</aside>
-<main class="main-content">
-
-    <div class="page-header">
-
-        <div>
+            <span class="eyebrow">
+                ADMIN / CUSTOMER DETAILS
+            </span>
 
             <h1>
-                Customer Details
+                Customer <em>profile.</em>
             </h1>
 
             <p>
-                View customer information and order history.
+                View account information, activity status,
+                and order history.
             </p>
 
         </div>
 
-    </div>
+        <div class="admin-details-hero-mark">
+            <span>04</span>
+        </div>
+
+    </section>
+
 
     <?php if (!$customer): ?>
 
-        <section class="table-section">
+        <section class="admin-details-section">
 
-            <div class="section-header">
+            <div class="admin-details-empty">
+
+                <span class="admin-empty-mark">
+                    ✦
+                </span>
 
                 <h2>
-                    Customer Not Found
+                    Customer not found.
                 </h2>
 
-            </div>
-
-            <p>
-                The requested customer does not exist.
-            </p>
-
-            <div class="form-actions">
+                <p>
+                    The requested customer does not exist
+                    or is no longer available.
+                </p>
 
                 <a
                     href="customers.php"
@@ -193,141 +169,179 @@ if ($customer_id) {
             </div>
 
         </section>
-  <?php else: ?>
 
-        <section class="form-section">
+    <?php else: ?>
 
-            <div class="section-header">
+        <section class="admin-details-section">
 
-                <h2>
-                    <?= htmlspecialchars($customer['name']) ?>
-                </h2>
+            <div class="admin-details-section-heading">
+
+                <div>
+
+                    <span class="eyebrow">
+                        01 / Profile
+                    </span>
+
+                    <h2>
+                        <?= htmlspecialchars($customer['name']) ?>
+                    </h2>
+
+                </div>
 
                 <a
                     href="customers.php"
-                    class="btn btn-secondary"
+                    class="btn btn-outline"
                 >
-                    Back
+                    Back to Customers
                 </a>
 
             </div>
 
-            <div class="details-grid">
 
-                <div class="form-group">
+            <div class="admin-customer-profile">
 
-                    <label>
-                        Customer ID
-                    </label>
+                <div class="admin-customer-profile-top">
 
-                    <p>
-                        <?= (int) $customer['id'] ?>
-                    </p>
+                    <div class="admin-customer-profile-avatar">
 
-                </div>
-
-                <div class="form-group">
-
-                    <label>
-                        Name
-                    </label>
-
-                    <p>
-                        <?= htmlspecialchars($customer['name']) ?>
-                    </p>
-
-                </div>
-
-                <div class="form-group">
-
-                    <label>
-                        Email
-                    </label>
-
-                    <p>
-                        <?= htmlspecialchars($customer['email']) ?>
-                    </p>
-
-                </div>
-
-                <div class="form-group">
-
-                    <label>
-                        Phone
-                    </label>
-
-                    <p>
                         <?= htmlspecialchars(
-                            $customer['phone'] ?: 'Not provided'
+                            strtoupper(
+                                substr(
+                                    trim($customer['name'] ?? 'U'),
+                                    0,
+                                    1
+                                )
+                            )
                         ) ?>
-                    </p>
 
-                </div>
+                    </div>
 
-                <div class="form-group">
+                    <div class="admin-customer-profile-title">
 
-                    <label>
-                        Address
-                    </label>
-
-                    <p>
-                        <?= htmlspecialchars(
-                            $customer['address'] ?: 'Not provided'
-                        ) ?>
-                    </p>
-
-                </div>
-
-                <div class="form-group">
-
-                    <label>
-                        Status
-                    </label>
-
-                    <p>
-
-                        <span
-                            class="status status-<?= htmlspecialchars(
-                                $customer['status']
-                            ) ?>"
-                        >
-                            <?= ucfirst(
-                                htmlspecialchars($customer['status'])
-                            ) ?>
+                        <span class="eyebrow">
+                            Customer account
                         </span>
 
-                    </p>
+                        <h3>
+                            <?= htmlspecialchars($customer['name']) ?>
+                        </h3>
+
+                        <span>
+                            Customer #<?= (int) $customer['id'] ?>
+                        </span>
+
+                    </div>
+
+                    <span
+                        class="admin-status admin-status-<?= htmlspecialchars($customer['status']) ?>"
+                    >
+                        <?= ucfirst(htmlspecialchars($customer['status'])) ?>
+                    </span>
 
                 </div>
 
-                <div class="form-group">
 
-                    <label>
-                        Joined
-                    </label>
+                <div class="admin-details-grid">
 
-                    <p>
-                        <?= date(
-                            'Y-m-d H:i',
-                            strtotime($customer['created_at'])
-                        ) ?>
-                    </p>
+                    <div class="admin-detail-item">
 
-                </div>
+                        <span class="admin-detail-label">
+                            Customer ID
+                        </span>
 
-                <div class="form-group">
+                        <strong class="admin-detail-id">
+                            #<?= (int) $customer['id'] ?>
+                        </strong>
 
-                    <label>
-                        Last Updated
-                    </label>
+                    </div>
 
 
-   <p>
-                        <?= date(
-                            'Y-m-d H:i',
-                            strtotime($customer['updated_at'])
-                        ) ?>
-                    </p>
+                    <div class="admin-detail-item">
+
+                        <span class="admin-detail-label">
+                            Name
+                        </span>
+
+                        <strong>
+                            <?= htmlspecialchars($customer['name']) ?>
+                        </strong>
+
+                    </div>
+
+
+                    <div class="admin-detail-item">
+
+                        <span class="admin-detail-label">
+                            Email
+                        </span>
+
+                        <strong>
+                            <?= htmlspecialchars($customer['email']) ?>
+                        </strong>
+
+                    </div>
+
+
+                    <div class="admin-detail-item">
+
+                        <span class="admin-detail-label">
+                            Phone
+                        </span>
+
+                        <strong>
+                            <?= htmlspecialchars(
+                                $customer['phone'] ?: 'Not provided'
+                            ) ?>
+                        </strong>
+
+                    </div>
+
+
+                    <div class="admin-detail-item admin-detail-wide">
+
+                        <span class="admin-detail-label">
+                            Address
+                        </span>
+
+                        <strong>
+                            <?= htmlspecialchars(
+                                $customer['address'] ?: 'Not provided'
+                            ) ?>
+                        </strong>
+
+                    </div>
+
+
+                    <div class="admin-detail-item">
+
+                        <span class="admin-detail-label">
+                            Joined
+                        </span>
+
+                        <strong>
+                            <?= date(
+                                'M j, Y · H:i',
+                                strtotime($customer['created_at'])
+                            ) ?>
+                        </strong>
+
+                    </div>
+
+
+                    <div class="admin-detail-item">
+
+                        <span class="admin-detail-label">
+                            Last Updated
+                        </span>
+
+                        <strong>
+                            <?= date(
+                                'M j, Y · H:i',
+                                strtotime($customer['updated_at'])
+                            ) ?>
+                        </strong>
+
+                    </div>
 
                 </div>
 
@@ -335,55 +349,52 @@ if ($customer_id) {
 
         </section>
 
-        <section class="table-section">
 
-            <div class="section-header">
+        <section class="admin-customer-orders-section">
 
-                <h2>
-                    Customer Orders
-                </h2>
+            <div class="admin-details-section-heading">
+
+                <div>
+
+                    <span class="eyebrow">
+                        02 / Order History
+                    </span>
+
+                    <h2>
+                        Customer <em>orders.</em>
+                    </h2>
+
+                </div>
+
+                <span class="admin-record-count">
+
+                    <?= count($orders) ?>
+
+                    <?= count($orders) === 1
+                        ? 'order'
+                        : 'orders'
+                    ?>
+
+                </span>
 
             </div>
 
-            <div class="table-responsive">
 
-                <table class="data-table">
+            <div class="admin-customer-orders-table">
+
+                <table>
 
                     <thead>
 
                         <tr>
 
-                            <th>
-                                Order ID
-                            </th>
-
-                            <th>
-                                Market
-                            </th>
-
-                            <th>
-                                Farmer
-                            </th>
-
-                            <th>
-                                Status
-                            </th>
-
-                            <th>
-                                Subtotal
-                            </th>
-
-                            <th>
-                                Notes
-                            </th>
-
-                            <th>
-                                Created At
-                            </th>
-
-                            <th>
-                                Updated At
-                            </th>
+                            <th>Order</th>
+                            <th>Market</th>
+                            <th>Farmer</th>
+                            <th>Status</th>
+                            <th>Subtotal</th>
+                            <th>Notes</th>
+                            <th>Created</th>
 
                         </tr>
 
@@ -391,90 +402,107 @@ if ($customer_id) {
 
                     <tbody>
 
-                        <?php if (!empty($orders)): ?>
+                    <?php if (!empty($orders)): ?>
 
-                            <?php foreach ($orders as $order): ?>
+                        <?php foreach ($orders as $order): ?>
 
-                                <tr>
-
-                                    <td>
-                                        #<?= (int) $order['id'] ?>
-                                    </td>
-
-                                    <td>
-                                        <?= htmlspecialchars(
-                                            $order['market_name'] ?? 'N/A'
-                                        ) ?>
-                                    </td>
-
-                                    <td>
-                                        <?= htmlspecialchars(
-                                            $order['farmer_name'] ?? 'N/A'
-                                        ) ?>
-                                    </td>
-
-                                    <td>
-
-                                        <span
-                                            class="status status-<?= htmlspecialchars(
-                                                $order['status']
-                                            ) ?>"
-                                        >
-                                            <?= ucfirst(
-                                                htmlspecialchars(
-                                                    $order['status']
-                                                )
-                                            ) ?>
-                                        </span>
-
-                                    </td>
-
-                                    <td>
-                                        <?= number_format(
-                                            (float) $order['subtotal'],
-                                            2
-                                        ) ?>
-                                    </td>
-
-                                    <td>
-                                        <?= htmlspecialchars(
-                                            $order['notes'] ?: 'No notes'
-                                        ) ?>
-                                    </td>
-
-                                    <td>
-                                        <?= date(
-                                            'Y-m-d H:i',
-                                            strtotime(
-                                                $order['created_at']
-                                            )
-                                        ) ?>
-                                    </td>
-
-                                    <td>
-                                        <?= date(
-                                            'Y-m-d H:i',
-                                            strtotime(
-                                                $order['updated_at']
-                                            )
-                                        ) ?>
-                                    </td>
-
-                                </tr>
-
-                            <?php endforeach; ?>
-
-                        <?php else: ?>
+                            <?php
+                            $orderStatus = $order['status'] ?? 'unknown';
+                            ?>
 
                             <tr>
 
-                                <td colspan="8">
-                                    No orders found for this customer.
+                                <td class="admin-order-id">
+
+                                    #<?= (int) $order['id'] ?>
+
+                                </td>
+
+                                <td class="admin-order-market">
+
+                                    <?= htmlspecialchars(
+                                        $order['market_name'] ?? 'N/A'
+                                    ) ?>
+
+                                </td>
+
+                                <td class="admin-order-farmer">
+
+                                    <?= htmlspecialchars(
+                                        $order['farmer_name'] ?? 'N/A'
+                                    ) ?>
+
+                                </td>
+
+                                <td>
+
+                                    <span
+                                        class="admin-status admin-status-<?= htmlspecialchars($orderStatus) ?>"
+                                    >
+
+                                        <?= ucfirst(
+                                            htmlspecialchars($orderStatus)
+                                        ) ?>
+
+                                    </span>
+
+                                </td>
+
+                                <td class="admin-order-total">
+
+                                    <?= number_format(
+                                        (float) $order['subtotal'],
+                                        2
+                                    ) ?>
+
+                                </td>
+
+                                <td class="admin-order-notes">
+
+                                    <?= htmlspecialchars(
+                                        $order['notes'] ?: 'No notes'
+                                    ) ?>
+
+                                </td>
+
+                                <td class="admin-order-date">
+
+                                    <?= date(
+                                        'M j, Y · H:i',
+                                        strtotime($order['created_at'])
+                                    ) ?>
+
                                 </td>
 
                             </tr>
 
-                        <?php endif; ?>
+                        <?php endforeach; ?>
+
+                    <?php else: ?>
+
+                        <tr>
+
+                            <td
+                                colspan="7"
+                                class="admin-table-empty"
+                            >
+
+                                <span>✦</span>
+
+                                <strong>
+                                    No orders found.
+                                </strong>
+
+                                <p>
+                                    This customer has not placed
+                                    any orders yet.
+                                </p>
+
+                            </td>
+
+                        </tr>
+
+                    <?php endif; ?>
 
                     </tbody>
 
@@ -487,6 +515,7 @@ if ($customer_id) {
     <?php endif; ?>
 
 </main>
+
 </body>
 
 </html>
