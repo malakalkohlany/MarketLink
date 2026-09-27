@@ -298,6 +298,5 @@ $categories = $category_stmt->get_result();
     </main>
 
     <script src="../assets/js/app.js"></script>
-
 </body>
 </html>

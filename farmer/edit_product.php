@@ -368,13 +368,9 @@ $categories = $category_stmt->get_result();
     </form>
 
 </main>
-
 </body>
-
 </html>
 
 <?php
-
 $category_stmt->close();
-
 ?>

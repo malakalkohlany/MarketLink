@@ -1036,8 +1036,5 @@ function saveSingleTemplate(id) {
 }
 
 </script>
-
-
 </body>
-
 </html>

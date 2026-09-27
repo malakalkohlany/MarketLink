@@ -178,6 +178,5 @@ $markets = $market_stmt->get_result();
         <?php endif; ?>
     
     </main>
-
 </body>
 </html>

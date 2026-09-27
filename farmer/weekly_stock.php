@@ -1222,7 +1222,5 @@ function saveSingleStock(id) {
 }
 
 </script>
-
 </body>
-
 </html>
