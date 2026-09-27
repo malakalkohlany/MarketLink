@@ -297,6 +297,23 @@ if (
     }
 }
 
+// ==========================================================
+// Check Whether Current Cart Market Is Available For Product
+// ==========================================================
+
+$cartMarketAllowed = true;
+
+if ($cartMarketId !== null) {
+    $cartMarketAllowed = false;
+
+    foreach ($markets as $market) {
+        if ((int)$market['id'] === $cartMarketId) {
+            $cartMarketAllowed = true;
+            break;
+        }
+    }
+}
+
 
 // ==========================================================
 // Handle Add To Cart
@@ -579,18 +596,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    $cartMarketAllowed = true;
-
-    if ($cartMarketId !== null) {
-        $cartMarketAllowed = false;
-
-        foreach ($markets as $market) {
-            if ((int)$market['id'] === $cartMarketId) {
-                $cartMarketAllowed = true;
-                break;
-            }
-        }
-    }
 }
 
 ?>
@@ -1182,7 +1187,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         id="market_<?= $marketId ?>"
                                         name="market_id"
                                         value="<?= $marketId ?>"
-                                        <?= $isCurrentCartMarket ? 'checked' : '' ?>
+                                        <?= $isSelected ? 'checked' : '' ?>
                                         <?= $isDisabled ? 'disabled' : '' ?>
                                         required
                                     >
