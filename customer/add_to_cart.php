@@ -227,6 +227,7 @@ $marketStmt = $conn->prepare(
         ON mf.market_id = m.id
 
      WHERE mf.farmer_id = ?
+     AND m.status = 'active'
 
      ORDER BY m.name ASC"
 );
@@ -327,6 +328,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         FILTER_VALIDATE_INT
     );
 
+    if (!$marketId) {
+        $marketId = filter_input(
+            INPUT_GET,
+            'market_id',
+            FILTER_VALIDATE_INT
+        );
+    }
 
     // ------------------------------------------------------
     // Quantity
@@ -568,6 +576,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             );
 
             exit;
+        }
+    }
+
+    $cartMarketAllowed = true;
+
+    if ($cartMarketId !== null) {
+        $cartMarketAllowed = false;
+
+        foreach ($markets as $market) {
+            if ((int)$market['id'] === $cartMarketId) {
+                $cartMarketAllowed = true;
+                break;
+            }
         }
     }
 }
@@ -1147,6 +1168,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             === $marketId
                                     );
 
+                                $isDisabled =
+                                    $cartMarketId !== null
+                                    && !$isCurrentCartMarket;
+
                                 ?>
 
 
@@ -1157,7 +1182,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         id="market_<?= $marketId ?>"
                                         name="market_id"
                                         value="<?= $marketId ?>"
-                                        <?= $isSelected ? 'checked' : '' ?>
+                                        <?= $isCurrentCartMarket ? 'checked' : '' ?>
+                                        <?= $isDisabled ? 'disabled' : '' ?>
                                         required
                                     >
 
@@ -1291,12 +1317,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             class="submit-button"
                             <?= (
                                 $stock <= 0 ||
-                                $stockStatus !== 'available'
+                                $stockStatus !== 'available' ||
+                                !$cartMarketAllowed
                             ) ? 'disabled' : '' ?>
                         >
                             <i class="fa-solid fa-cart-plus"></i>
 
-                            <?php if ($stockStatus === 'unavailable'): ?>
+                            <?php if (!$cartMarketAllowed): ?>
+
+                                Cannot Add From This Market
+
+                            <?php elseif ($stockStatus === 'unavailable'): ?>
 
                                 Currently Unavailable
 
