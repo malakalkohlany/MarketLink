@@ -1,26 +1,15 @@
 <?php
-
 require_once __DIR__ . '/../includes/include.php';
-
 requireRole(R_CUSTOMER);
-
-// --------------------------------------------------
-// Clear Cart
-// --------------------------------------------------
 
 if (
     $_SERVER['REQUEST_METHOD'] === 'POST' &&
     isset($_POST['clear_cart'])
 ) {
     $_SESSION['cart'] = [];
-
     header('Location: cart.php');
     exit;
 }
-
-// --------------------------------------------------
-// Get Cart
-// --------------------------------------------------
 
 $cart = [];
 
@@ -37,55 +26,36 @@ foreach ($cart as $item) {
     $totalItems += (float)($item['quantity'] ?? 0);
 }
 
-
-// --------------------------------------------------
-// Calculate Cart Total
-// --------------------------------------------------
-
 $cartSubtotal = 0;
 
 foreach ($cart as $item) {
-
-    $quantity = (float) ($item['quantity'] ?? 0);
-    $price = (float) ($item['price'] ?? 0);
-
+    $quantity = (float)($item['quantity'] ?? 0);
+    $price = (float)($item['price'] ?? 0);
     $cartSubtotal += $quantity * $price;
 }
-
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
-
     <title>My Cart - MarketLink</title>
-
     <link
         rel="stylesheet"
         href="../assets/css/base.css"
     >
-
     <link
         rel="stylesheet"
         href="../assets/css/navbar.css"
     >
-
     <link
         rel="stylesheet"
         href="../assets/css/sidebar.css"
     >
-
-
     <style>
-
         .cart-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -335,9 +305,7 @@ foreach ($cart as $item) {
             border-radius: 8px;
         }
 
-
         @media (max-width: 900px) {
-
             .cart-layout {
                 grid-template-columns: 1fr;
             }
@@ -345,12 +313,9 @@ foreach ($cart as $item) {
             .cart-summary {
                 position: static;
             }
-
         }
 
-
         @media (max-width: 650px) {
-
             .cart-item {
                 flex-wrap: wrap;
             }
@@ -362,35 +327,20 @@ foreach ($cart as $item) {
             .cart-item-subtotal {
                 margin-left: auto;
             }
-
         }
-
     </style>
-
 </head>
-
 <body>
-
 <?php require_once __DIR__ . '/../includes/navbar.php'; ?>
 <?php require_once __DIR__ . '/../includes/sidebar.php'; ?>
 
-
 <main class="main-content">
-
     <div class="cart-container">
-
-
-        <!-- Cart Header -->
-
         <div class="cart-header">
-
             <div class="cart-header-row">
-
                 <div>
                     <h1>My Cart</h1>
-                    <p>
-                        Review the products you want to order.
-                    </p>
+                    <p>Review the products you want to order.</p>
                 </div>
 
                 <?php if (!empty($cart)): ?>
@@ -410,18 +360,11 @@ foreach ($cart as $item) {
                         </button>
                     </form>
                 <?php endif; ?>
-
             </div>
-
         </div>
 
-
         <?php if (empty($cart)): ?>
-
-            <!-- Empty Cart -->
-
             <div class="empty-cart">
-
                 <div class="empty-cart-icon">
                     🛒
                 </div>
@@ -438,88 +381,47 @@ foreach ($cart as $item) {
                 >
                     Browse Products
                 </a>
-
             </div>
-
-
         <?php else: ?>
-
-
-            <!-- Cart -->
-
             <div class="cart-layout">
-
-
-                <!-- Cart Items -->
-
                 <div class="cart-items">
-
                     <?php foreach ($cart as $item): ?>
-
                         <?php
-
-                        $productId = (int) $item['product_id'] ?? 0;
-
-                        $quantity = (float) $item['quantity'] ?? 0;
-
-                        $price = (float) $item['price'] ?? 0;
-
+                        $productId = (int)$item['product_id'] ?? 0;
+                        $quantity = (float)$item['quantity'] ?? 0;
+                        $price = (float)$item['price'] ?? 0;
                         $subtotal = $quantity * $price;
-
                         ?>
 
                         <div class="cart-item">
-
-
-                            <!-- Image -->
-
                             <?php if (!empty($item['image'])): ?>
-
                                 <img
                                     src="../uploads/products/<?= e($item['image']) ?>"
                                     alt="<?= e($item['name']) ?>"
                                     class="cart-item-image"
                                 >
-
                             <?php else: ?>
-
                                 <div class="cart-item-image-placeholder">
                                     No Image
                                 </div>
-
                             <?php endif; ?>
 
-
-                            <!-- Product Info -->
-
                             <div class="cart-item-info">
-
                                 <div class="cart-item-name">
-
                                     <?= e($item['name']) ?>
-
                                 </div>
 
                                 <div class="cart-item-price">
-
                                     <?= formatPrice($price) ?>
-
                                 </div>
 
                                 <div class="cart-item-unit">
-
                                     per
                                     <?= e($item['unit']) ?>
-
                                 </div>
-
                             </div>
 
-
-                            <!-- Quantity -->
-
                             <div class="cart-item-quantity">
-
                                 <button
                                     type="button"
                                     class="quantity-button"
@@ -532,9 +434,7 @@ foreach ($cart as $item) {
                                 </button>
 
                                 <span class="quantity-value">
-
                                     <?= $quantity ?>
-
                                 </span>
 
                                 <button
@@ -547,20 +447,11 @@ foreach ($cart as $item) {
                                 >
                                     +
                                 </button>
-
                             </div>
-
-
-                            <!-- Subtotal -->
 
                             <div class="cart-item-subtotal">
-
                                 <?= formatPrice($subtotal) ?>
-
                             </div>
-
-
-                            <!-- Remove -->
 
                             <button
                                 type="button"
@@ -569,24 +460,14 @@ foreach ($cart as $item) {
                             >
                                 Remove
                             </button>
-
-
                         </div>
-
                     <?php endforeach; ?>
-
                 </div>
 
-
-                <!-- Cart Summary -->
-
                 <aside class="cart-summary">
-
                     <h2>Order Summary</h2>
 
-
                     <div class="summary-row">
-
                         <span>
                             Items
                         </span>
@@ -594,12 +475,9 @@ foreach ($cart as $item) {
                         <span>
                             <?= $totalItems ?>
                         </span>
-
                     </div>
 
-
                     <div class="summary-row summary-total">
-
                         <span>
                             Subtotal
                         </span>
@@ -607,11 +485,7 @@ foreach ($cart as $item) {
                         <span>
                             <?= formatPrice($cartSubtotal) ?>
                         </span>
-
                     </div>
-
-
-                    <!-- We'll connect this to confirm_order.php later -->
 
                     <a
                         href="confirm_order.php"
@@ -620,29 +494,18 @@ foreach ($cart as $item) {
                         Confirm Order
                     </a>
 
-
                     <a
                         href="products.php"
                         class="continue-shopping"
                     >
                         ← Continue Shopping
                     </a>
-
                 </aside>
-
-
             </div>
-
         <?php endif; ?>
-
-
     </div>
-
 </main>
 
-
 <script src="../assets/js/cart.js"></script>
-
 </body>
-
 </html>
