@@ -298,19 +298,22 @@ if ($cartMarketId === null) {
     }
 }
 
+// ==========================================================
+// Get Current Week
+// ==========================================================
+
+$today = new DateTime();
+$weekStart = clone $today;
+
+if ($weekStart->format('N') != 1) {
+    $weekStart->modify('monday this week');
+}
+
+$weekStartDate = $weekStart->format('Y-m-d');
+
 
 // ==========================================================
-// Get Products
-// ==========================================================
-//
-// IMPORTANT:
-// Do NOT join market_farmer here.
-//
-// A farmer can belong to multiple markets, so joining it
-// directly would create duplicate product rows.
-//
-// We get the products once, then load the farmer's markets
-// separately below.
+// Get Products + Current Weekly Stock
 // ==========================================================
 
 $sql = "
@@ -323,10 +326,15 @@ $sql = "
         p.price,
         p.unit,
         p.image,
-        p.stock_quantity,
+
+        -- Original product stock, kept as fallback
+        p.stock_quantity AS product_stock_quantity,
+
+        -- Current week's stock
+        ws.actual_quantity AS weekly_actual_quantity,
+        ws.status AS weekly_status,
 
         f.stall_name AS farmer_name,
-
         c.name AS category_name
 
     FROM products p
@@ -336,6 +344,11 @@ $sql = "
 
     LEFT JOIN categories c
         ON p.category_id = c.id
+
+    LEFT JOIN weekly_stock ws
+        ON ws.product_id = p.id
+        AND ws.farmer_id = p.farmer_id
+        AND ws.week_start = ?
 
     WHERE p.is_available = 1
       AND p.moderation_status = ?
@@ -357,7 +370,8 @@ $moderation_status = M_APPROVED;
 $farmer_status = A_APPROVED;
 
 $stmt->bind_param(
-    'ss',
+    'sss',
+    $weekStartDate,
     $moderation_status,
     $farmer_status
 );
@@ -374,6 +388,30 @@ $result = $stmt->get_result();
 $products = [];
 
 while ($row = $result->fetch_assoc()) {
+
+    /*
+     * If a weekly-stock row exists, use it.
+     *
+     * If there is no weekly row yet, fall back to the
+     * product's normal stock_quantity for now.
+     */
+    if ($row['weekly_actual_quantity'] !== null) {
+
+        $row['stock_quantity'] =
+            (float) $row['weekly_actual_quantity'];
+
+        $row['stock_status'] =
+            $row['weekly_status'] ?? 'available';
+
+    } else {
+
+        $row['stock_quantity'] =
+            (float) $row['product_stock_quantity'];
+
+        $row['stock_status'] =
+            'available';
+    }
+
     $products[] = $row;
 }
 
@@ -1312,9 +1350,6 @@ if (
                 $unit =
                     $product['unit'] ?? '';
 
-                $stock =
-                    (float)$product['stock_quantity'];
-
                 $farmerId =
                     (int)$product['farmer_id'];
 
@@ -1324,6 +1359,27 @@ if (
 
                 $categoryId =
                     (int)($product['category_id'] ?? 0);
+
+                // --------------------------------------------------
+                // Weekly Stock
+                // --------------------------------------------------
+
+                $stock =
+                    (float)($product['stock_quantity'] ?? 0);
+
+                $stockStatus =
+                    $product['stock_status'] ?? 'available';
+
+                $isSoldOut =
+                    $stockStatus === 'sold_out';
+
+                $isUnavailable =
+                    $stockStatus === 'unavailable';
+
+                $canAddToCart =
+                    !$isSoldOut &&
+                    !$isUnavailable &&
+                    $stock > 0;
 
 
                 // --------------------------------------------------
@@ -1388,13 +1444,6 @@ if (
                         true
                     );
 
-
-                // --------------------------------------------------
-                // Stock
-                // --------------------------------------------------
-
-                $canAddToCart =
-                    $stock >= 1;
 
                 ?>
 
@@ -1573,12 +1622,22 @@ if (
 
                         <div class="product-stock">
 
-                            Stock:
-                            <?= e($stock) ?>
+                            <?php if ($isUnavailable): ?>
 
-                            <?php if ($unit !== ''): ?>
+                                <strong>Currently unavailable</strong>
 
-                                <?= e($unit) ?>
+                            <?php elseif ($isSoldOut): ?>
+
+                                <strong>Sold out for this week</strong>
+
+                            <?php else: ?>
+
+                                Stock:
+                                <?= e($stock) ?>
+
+                                <?php if ($unit !== ''): ?>
+                                    <?= e($unit) ?>
+                                <?php endif; ?>
 
                             <?php endif; ?>
 
@@ -1614,23 +1673,28 @@ if (
 
                             <?php else: ?>
 
-
-                                <!-- -----------------------------------------
-                                     Out Of Stock
-                                ------------------------------------------ -->
-
                                 <button
                                     type="button"
                                     class="add-to-cart-button out-of-stock"
                                     disabled
                                 >
-
                                     <i class="fa-solid fa-box-open"></i>
 
-                                    Out of Stock
+                                    <?php if ($isUnavailable): ?>
+
+                                        Currently Unavailable
+
+                                    <?php elseif ($isSoldOut): ?>
+
+                                        Sold Out This Week
+
+                                    <?php else: ?>
+
+                                        Out of Stock
+
+                                    <?php endif; ?>
 
                                 </button>
-
 
                             <?php endif; ?>
 
