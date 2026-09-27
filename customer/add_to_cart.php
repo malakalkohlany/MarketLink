@@ -110,8 +110,7 @@ $productStmt = $conn->prepare(
 
 if (!$productStmt) {
     die(
-        'Product query prepare failed: '
-        . $conn->error
+    'Product query prepare failed.'
     );
 }
 
@@ -125,8 +124,7 @@ $productStmt->bind_param(
 
 if (!$productStmt->execute()) {
     die(
-        'Product query failed: '
-        . $productStmt->error
+    'Product query failed.'
     );
 }
 
@@ -171,9 +169,8 @@ $marketStmt = $conn->prepare(
 );
 
 if (!$marketStmt) {
-    die(
-        'Market query prepare failed: '
-        . $conn->error
+   die(
+    'Market query prepare failed.'
     );
 }
 
@@ -184,8 +181,7 @@ $marketStmt->bind_param(
 
 if (!$marketStmt->execute()) {
     die(
-        'Market query failed: '
-        . $marketStmt->error
+    'Market query failed.'
     );
 }
 

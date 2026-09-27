@@ -29,7 +29,7 @@ if (
         ");
 
         if (!$stmt) {
-            die("Database Error: " . $conn->error);
+            die("Something went wrong.");
         }
 
         $stmt->bind_param(
@@ -39,7 +39,7 @@ if (
         );
 
         if (!$stmt->execute()) {
-            die("Database Error: " . $stmt->error);
+            die("Something went wrong.");
         }
 
         $stmt->close();
@@ -71,7 +71,7 @@ if (
         ");
 
         if (!$stmt) {
-            die("Database Error: " . $conn->error);
+            die("Something went wrong.");
         }
 
         $stmt->bind_param(
@@ -81,7 +81,7 @@ if (
         );
 
         if (!$stmt->execute()) {
-            die("Database Error: " . $stmt->error);
+            die("Something went wrong.");
         }
 
         $stmt->close();
@@ -113,7 +113,7 @@ if (
         ");
 
         if (!$stmt) {
-            die("Database Error: " . $conn->error);
+            die("Something went wrong.");
         }
 
         $stmt->bind_param(
@@ -123,7 +123,7 @@ if (
         );
 
         if (!$stmt->execute()) {
-            die("Database Error: " . $stmt->error);
+            die("Something went wrong.");
         }
 
         $stmt->close();
@@ -155,7 +155,7 @@ $sql = "
 $stmt = $conn->prepare($sql);
 
 if (!$stmt) {
-    die("Database Error: " . $conn->error);
+    die("Something went wrong.");
 }
 
 $stmt->bind_param(
@@ -164,7 +164,7 @@ $stmt->bind_param(
 );
 
 if (!$stmt->execute()) {
-    die("Database Error: " . $stmt->error);
+    die("Something went wrong.");
 }
 
 $result = $stmt->get_result();
@@ -195,7 +195,7 @@ $sql = "
 $stmt = $conn->prepare($sql);
 
 if (!$stmt) {
-    die("Database Error: " . $conn->error);
+    die("Something went wrong.");
 }
 
 $stmt->bind_param(
@@ -204,7 +204,7 @@ $stmt->bind_param(
 );
 
 if (!$stmt->execute()) {
-    die("Database Error: " . $stmt->error);
+    die("Something went wrong.");
 }
 
 $result = $stmt->get_result();
@@ -240,7 +240,7 @@ $sql = "
 $stmt = $conn->prepare($sql);
 
 if (!$stmt) {
-    die("Database Error: " . $conn->error);
+    die("Something went wrong.");
 }
 
 $stmt->bind_param(
@@ -249,7 +249,7 @@ $stmt->bind_param(
 );
 
 if (!$stmt->execute()) {
-    die("Database Error: " . $stmt->error);
+    die("Something went wrong.");
 }
 
 $result = $stmt->get_result();
