@@ -4,8 +4,6 @@ require_once __DIR__ . '/../includes/include.php';
 
 requireRole(R_ADMIN);
 
-
-
 $stats = [
     'customers' => 0,
     'farmers' => 0,
@@ -15,111 +13,64 @@ $stats = [
     'orders' => 0
 ];
 
-
-
 $stmt = $conn->prepare("
     SELECT COUNT(*)
     FROM users
     WHERE role = 'customer'
 ");
-
 $stmt->execute();
 $stmt->bind_result($stats['customers']);
 $stmt->fetch();
 $stmt->close();
-
-
 
 $stmt = $conn->prepare("
     SELECT COUNT(*)
     FROM farmers
     WHERE approval_status = 'approved'
 ");
-
 $stmt->execute();
 $stmt->bind_result($stats['farmers']);
 $stmt->fetch();
 $stmt->close();
-
-
 
 $stmt = $conn->prepare("
     SELECT COUNT(*)
     FROM farmers
     WHERE approval_status = 'pending'
 ");
-
 $stmt->execute();
 $stmt->bind_result($stats['pending_farmers']);
 $stmt->fetch();
 $stmt->close();
-
-
 
 $stmt = $conn->prepare("
     SELECT COUNT(*)
     FROM products
     WHERE moderation_status = 'approved'
 ");
-
 $stmt->execute();
 $stmt->bind_result($stats['products']);
 $stmt->fetch();
 $stmt->close();
-
-
 
 $stmt = $conn->prepare("
     SELECT COUNT(*)
     FROM products
     WHERE moderation_status = 'pending'
 ");
-
 $stmt->execute();
 $stmt->bind_result($stats['pending_products']);
 $stmt->fetch();
 $stmt->close();
 
-
 $stmt = $conn->prepare("
     SELECT COUNT(*)
     FROM orders
 ");
-
 $stmt->execute();
 $stmt->bind_result($stats['orders']);
 $stmt->fetch();
 $stmt->close();
-
-
-$pending_farmers = [];
-
-$stmt = $conn->prepare("
-    SELECT
-        f.id,
-        f.stall_name,
-        f.address,
-        f.created_at,
-        u.name AS owner_name,
-        u.email
-    FROM farmers f
-    JOIN users u
-        ON f.user_id = u.id
-    WHERE f.approval_status = 'pending'
-    ORDER BY f.created_at ASC
-    LIMIT 5
-");
-
-$stmt->execute();
-
-$result = $stmt->get_result();
-
-while ($row = $result->fetch_assoc()) {
-    $pending_farmers[] = $row;
-}
-
-$stmt->close();
-
 
 $recent_orders = [];
 
@@ -150,102 +101,56 @@ while ($row = $result->fetch_assoc()) {
 
 $stmt->close();
 
-
-$recent_products = [];
-
-$stmt = $conn->prepare("
-    SELECT
-        p.id,
-        p.name,
-        p.price,
-        p.unit,
-        p.moderation_status,
-        p.created_at,
-        f.stall_name
-    FROM products p
-    JOIN farmers f
-        ON p.farmer_id = f.id
-    ORDER BY p.created_at DESC
-    LIMIT 5
-");
-
-$stmt->execute();
-
-$result = $stmt->get_result();
-
-while ($row = $result->fetch_assoc()) {
-    $recent_products[] = $row;
-}
-
-$stmt->close();
-
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Admin Dashboard</title>
+    <title>Admin Dashboard | MarketLink</title>
 
     <link rel="stylesheet" href="../assets/css/base.css">
     <link rel="stylesheet" href="../assets/css/navbar.css">
     <link rel="stylesheet" href="../assets/css/sidebar.css">
     <link rel="stylesheet" href="../assets/css/dashboard.css">
-   
-
 </head>
-
 
 <body>
 
     <?php include __DIR__ . '/../includes/navbar.php'; ?>
-    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
     <main class="main-content">
 
-
-        <section class="welcome">
-
-            <div>
+        <header class="dashboard-header">
+            <div class="dashboard-header-content">
+                <span class="eyebrow">Admin / Overview</span>
 
                 <h1>
-                    Welcome,
-                    <?= e($_SESSION['name']) ?>!
+                    Welcome back,
+                    <em><?= e($_SESSION['name']) ?></em>.
                 </h1>
 
                 <p>
-                    Manage MarketLink and keep the marketplace running smoothly.
+                    Here's what's happening across MarketLink.
                 </p>
-
             </div>
 
-        </section>
-
-
-        
-
+            <span class="dashboard-mark">✦</span>
+        </header>
 
         <section class="dashboard-section">
 
             <div class="section-heading">
-
-                <h2>
-                    Platform Overview
-                </h2>
-
+                <h2>Platform overview</h2>
             </div>
-
 
             <div class="admin-stats-grid">
 
-
-                <div class="admin-stat-card">
-
+                <div class="admin-stat-card sage">
                     <span class="admin-stat-label">
                         Customers
                     </span>
@@ -253,12 +158,9 @@ $stmt->close();
                     <strong class="admin-stat-value">
                         <?= (int) $stats['customers'] ?>
                     </strong>
-
                 </div>
 
-
-                <div class="admin-stat-card">
-
+                <div class="admin-stat-card terracotta">
                     <span class="admin-stat-label">
                         Farmers
                     </span>
@@ -266,12 +168,9 @@ $stmt->close();
                     <strong class="admin-stat-value">
                         <?= (int) $stats['farmers'] ?>
                     </strong>
-
                 </div>
 
-
-                <div class="admin-stat-card">
-
+                <div class="admin-stat-card marigold">
                     <span class="admin-stat-label">
                         Products
                     </span>
@@ -279,12 +178,9 @@ $stmt->close();
                     <strong class="admin-stat-value">
                         <?= (int) $stats['products'] ?>
                     </strong>
-
                 </div>
 
-
-                <div class="admin-stat-card">
-
+                <div class="admin-stat-card dark">
                     <span class="admin-stat-label">
                         Orders
                     </span>
@@ -292,36 +188,83 @@ $stmt->close();
                     <strong class="admin-stat-value">
                         <?= (int) $stats['orders'] ?>
                     </strong>
-
                 </div>
-
-
 
             </div>
 
         </section>
 
+        <section class="dashboard-section">
 
+            <div class="section-heading">
+                <h2>Needs your attention</h2>
+            </div>
 
+            <div class="attention-grid">
+
+                <a href="farmers.php" class="attention-card terracotta">
+
+                    <div class="attention-number">
+                        <?= (int) $stats['pending_farmers'] ?>
+                    </div>
+
+                    <div class="attention-content">
+                        <span class="attention-label">
+                            Farmers awaiting review
+                        </span>
+
+                        <span class="attention-link">
+                            Review farmers ↗
+                        </span>
+                    </div>
+
+                </a>
+
+                <a href="products.php" class="attention-card marigold">
+
+                    <div class="attention-number">
+                        <?= (int) $stats['pending_products'] ?>
+                    </div>
+
+                    <div class="attention-content">
+                        <span class="attention-label">
+                            Products awaiting review
+                        </span>
+
+                        <span class="attention-link">
+                            Review products ↗
+                        </span>
+                    </div>
+
+                </a>
+
+            </div>
+
+        </section>
 
         <section class="dashboard-section">
 
             <div class="section-heading">
 
-                <h2>
-                    Recent Orders
-                </h2>
+                <div>
+                    <span class="section-eyebrow">
+                        Latest activity
+                    </span>
+
+                    <h2>Recent orders</h2>
+                </div>
 
                 <a href="orders.php">
-                    View all →
+                    View all ↗
                 </a>
 
             </div>
 
-
             <?php if (empty($recent_orders)): ?>
 
                 <div class="dashboard-placeholder">
+
+                    <span class="empty-mark">✦</span>
 
                     <p>
                         No orders have been placed yet.
@@ -331,42 +274,20 @@ $stmt->close();
 
             <?php else: ?>
 
-                <div class="orders-table-wrapper">
+                <div class="dashboard-table-wrapper">
 
-                    <table class="orders-table">
+                    <table class="dashboard-table">
 
                         <thead>
-
                             <tr>
-
-                                <th>
-                                    Order
-                                </th>
-
-                                <th>
-                                    Customer
-                                </th>
-
-                                <th>
-                                    Farmer
-                                </th>
-
-                                <th>
-                                    Date
-                                </th>
-
-                                <th>
-                                    Total
-                                </th>
-
-                                <th>
-                                    Status
-                                </th>
-
+                                <th>Order</th>
+                                <th>Customer</th>
+                                <th>Farmer</th>
+                                <th>Date</th>
+                                <th>Total</th>
+                                <th>Status</th>
                             </tr>
-
                         </thead>
-
 
                         <tbody>
 
@@ -374,49 +295,32 @@ $stmt->close();
 
                                 <tr>
 
-                                    <td>
+                                    <td class="order-id">
                                         #<?= (int) $order['id'] ?>
                                     </td>
 
                                     <td>
-                                        <?= e(
-                                            $order['customer_name']
-                                        ) ?>
+                                        <?= e($order['customer_name']) ?>
                                     </td>
 
                                     <td>
-                                        <?= e(
-                                            $order['stall_name']
-                                        ) ?>
+                                        <?= e($order['stall_name']) ?>
                                     </td>
 
                                     <td>
-                                        <?= 
-                                        formatDate($order['created_at'])
-                                         ?>
+                                        <?= formatDate($order['created_at']) ?>
+                                    </td>
+
+                                    <td class="order-total">
+                                        $<?= formatPrice($order['subtotal']) ?>
                                     </td>
 
                                     <td>
-                                        $<?= 
-                                         formatPrice($order['subtotal'])
-                                           ?>
-                                    </td>
-
-                                    <td>
-
                                         <span
-                                            class="order-status <?= e(
-                                                $order['status']
-                                            ) ?>"
+                                            class="order-status <?= e($order['status']) ?>"
                                         >
-                                            <?= 
-                                                e(
-                                                    ucfirst(
-                                                    $order['status']
-                                                )
-                                            ) ?>
+                                            <?= e(ucfirst($order['status'])) ?>
                                         </span>
-
                                     </td>
 
                                 </tr>
@@ -433,10 +337,7 @@ $stmt->close();
 
         </section>
 
-
-
     </main>
-
 
     <script src="../assets/js/app.js"></script>
     <script src="../assets/js/dashboard.js"></script>

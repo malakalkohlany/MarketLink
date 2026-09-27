@@ -1,6 +1,6 @@
 :root {
     --sidebar-width: 240px;
-    --sidebar-bg: var(--text);
+    --sidebar-bg: #381b0d;
     --sidebar-bg-light: #4B3B30;
     --sidebar-text: var(--cream);
     --sidebar-text-soft: rgba(248, 241, 229, 0.76);
@@ -260,6 +260,13 @@
 
 @media (max-width: 800px) {
     .sidebar {
-        width: 215px;
+        width: min(280px, 82vw);
+        transform: translateX(-100%);
+        z-index: 1000;
+        box-shadow: 12px 0 35px rgba(62, 48, 38, 0.18);
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
     }
 }

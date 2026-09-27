@@ -1,1260 +1,1155 @@
-/* =========================================================
-   MARKETLINK DASHBOARD
-   Earthy Retro / Warm Editorial
-   ========================================================= */
-
-
-/* =========================================================
-   WELCOME
-   ========================================================= */
-
-   .welcome {
+.dashboard-header {
     position: relative;
-    overflow: hidden;
-
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: space-between;
-
-    min-height: 190px;
-    padding: 38px 42px;
-
-    margin-bottom: 30px;
-
-    background:
-        linear-gradient(
-            135deg,
-            var(--terracotta-dark) 0%,
-            var(--terracotta) 65%,
-            #C9624D 100%
-        );
-
-    border-radius: var(--radius-lg);
-
-    box-shadow: var(--shadow-card);
-
-    color: var(--white);
+    min-height: 250px;
+    padding: 54px 0 48px;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
 }
 
-
-/* Decorative circles */
-
-.welcome::before {
-    content: "";
-
-    position: absolute;
-
-    right: 90px;
-    bottom: -110px;
-
-    width: 230px;
-    height: 230px;
-
-    border-radius: 50%;
-
-    background: rgba(255, 249, 240, 0.08);
-}
-
-
-.welcome::after {
-    content: "";
-
-    position: absolute;
-
-    right: -70px;
-    top: -90px;
-
-    width: 260px;
-    height: 260px;
-
-    border-radius: 50%;
-
-    background: rgba(223, 166, 47, 0.15);
-}
-
-
-.welcome > div {
+.dashboard-header-content {
     position: relative;
-
     z-index: 1;
-
-    max-width: 700px;
+    max-width: 760px;
 }
 
+.dashboard-header .eyebrow {
+    display: block;
+    margin-bottom: 18px;
+}
 
-.welcome h1 {
-    margin: 0 0 10px;
-
-    color: var(--white);
-
-    font-family: var(--font-serif);
-
-    font-size: clamp(2.1rem, 3vw, 3rem);
-
-    line-height: 1.05;
-
+.dashboard-header h1 {
+    margin: 0 0 16px;
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: clamp(2.8rem, 5vw, 5rem);
+    line-height: 0.95;
     font-weight: 700;
-
-    letter-spacing: -0.025em;
+    letter-spacing: -0.055em;
 }
 
+.dashboard-header h1 em {
+    color: var(--sage-dark);
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-style: italic;
+    letter-spacing: -0.04em;
+}
 
-.welcome p {
+.dashboard-header p {
     margin: 0;
-
-    max-width: 600px;
-
-    color: rgba(255, 255, 255, 0.78);
-
-    font-size: 0.96rem;
-
+    color: var(--text-soft);
+    font-size: 0.98rem;
     line-height: 1.7;
 }
 
-
-/* =========================================================
-   QUICK ACTIONS
-   ========================================================= */
-
-.quick-actions {
-    display: grid;
-
-    grid-template-columns:
-        repeat(4, minmax(0, 1fr));
-
-    gap: 16px;
-
-    margin-bottom: 42px;
+.dashboard-mark {
+    position: absolute;
+    right: 35px;
+    bottom: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 94px;
+    height: 94px;
+    border-radius: 50%;
+    background: var(--marigold-light);
+    color: var(--terracotta-dark);
+    font-size: 28px;
+    transform: rotate(-8deg);
 }
 
+.dashboard-section {
+    margin-top: var(--space-section-small);
+}
 
-.dashboard-action {
-    position: relative;
-
+.section-heading {
     display: flex;
-    flex-direction: column;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 20px;
+}
 
-    min-height: 150px;
+.section-heading > div {
+    min-width: 0;
+}
 
-    padding: 25px;
+.section-heading h2 {
+    margin: 0;
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 1.55rem;
+    line-height: 1.1;
+    font-weight: 700;
+    letter-spacing: -0.035em;
+}
 
+.section-heading a {
+    flex-shrink: 0;
+    color: var(--sage-dark);
+    font-family: var(--font-main);
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition:
+        color var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+.section-heading a:hover {
+    color: var(--terracotta);
+    transform: translateX(2px);
+}
+
+.section-eyebrow {
+    display: block;
+    margin-bottom: 7px;
+    color: var(--terracotta-dark);
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.admin-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.admin-stat-card {
+    position: relative;
+    min-height: 145px;
+    padding: 25px 25px 22px;
+    overflow: hidden;
     background: var(--cream-light);
-
     border: 1px solid var(--border);
-
-    border-radius: var(--radius-md);
-
+    border-radius: var(--radius-lg);
     box-shadow: var(--shadow-soft);
-
     transition:
         transform var(--transition-normal),
         box-shadow var(--transition-normal),
         border-color var(--transition-normal);
 }
 
-
-.dashboard-action::after {
-    content: "→";
-
-    position: absolute;
-
-    right: 20px;
-    top: 20px;
-
-    width: 30px;
-    height: 30px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 50%;
-
-    background: var(--sage-soft);
-
-    color: var(--sage-dark);
-
-    font-size: 15px;
-
-    transition:
-        background var(--transition-fast),
-        color var(--transition-fast),
-        transform var(--transition-fast);
+.admin-stat-card:hover {
+    transform: var(--lift-small);
+    box-shadow: var(--shadow-card);
 }
 
-
-.dashboard-action:hover {
-    transform: translateY(-4px);
-
-    border-color: var(--sage-light);
-
-    box-shadow: var(--shadow-hover);
-}
-
-
-.dashboard-action:hover::after {
-    background: var(--terracotta);
-
-    color: var(--white);
-
-    transform: translateX(2px);
-}
-
-
-.dashboard-action h3 {
-    margin: 0 0 9px;
-
-    padding-right: 35px;
-
-    color: var(--text);
-
-    font-family: var(--font-serif);
-
-    font-size: 1.15rem;
-
-    font-weight: 700;
-}
-
-
-.dashboard-action p {
-    margin: auto 0 0;
-
-    max-width: 240px;
-
-    color: var(--text-muted);
-
-    font-size: 0.84rem;
-
-    line-height: 1.6;
-}
-
-
-/* =========================================================
-   DASHBOARD SECTIONS
-   ========================================================= */
-
-.dashboard-section {
-    margin-bottom: 42px;
-}
-
-
-.section-heading {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    margin-bottom: 17px;
-}
-
-
-.section-heading h2 {
-    margin: 0;
-
-    color: var(--text);
-
-    font-family: var(--font-serif);
-
-    font-size: 1.45rem;
-
-    font-weight: 700;
-
-    letter-spacing: -0.02em;
-}
-
-
-.section-heading a {
-    color: var(--sage-dark);
-
-    font-size: 0.84rem;
-
-    font-weight: 600;
-
-    transition: color var(--transition-fast);
-}
-
-
-.section-heading a:hover {
-    color: var(--terracotta);
-}
-
-
-/* =========================================================
-   STATISTICS
-   ========================================================= */
-
-.admin-stats-grid {
-    display: grid;
-
-    grid-template-columns:
-        repeat(4, minmax(0, 1fr));
-
-    gap: 15px;
-}
-
-
-.admin-stat-card {
-    position: relative;
-
-    min-height: 135px;
-
-    padding: 23px 24px;
-
-    background: var(--cream-light);
-
-    border: 1px solid var(--border);
-
-    border-radius: var(--radius-md);
-
-    box-shadow: var(--shadow-soft);
-
-    overflow: hidden;
-}
-
-
-.admin-stat-card::before {
+.admin-stat-card::after {
     content: "";
-
     position: absolute;
+    right: -25px;
+    bottom: -35px;
+    width: 95px;
+    height: 95px;
+    border-radius: 50%;
+    opacity: 0.12;
+}
 
+.admin-stat-card.sage::before,
+.admin-stat-card.terracotta::before,
+.admin-stat-card.marigold::before,
+.admin-stat-card.dark::before {
+    content: "";
+    position: absolute;
     left: 0;
     top: 0;
     bottom: 0;
-
-    width: 4px;
-
-    background: var(--sage);
-
-    opacity: 0.8;
-}
-
-
-.admin-stat-label {
-    display: block;
-
-    margin-bottom: 15px;
-
-    color: var(--text-muted);
-
-    font-size: 0.75rem;
-
-    font-weight: 700;
-
-    text-transform: uppercase;
-
-    letter-spacing: 0.07em;
-}
-
-
-.admin-stat-value {
-    display: block;
-
-    color: var(--text);
-
-    font-family: var(--font-main);
-
-    font-size: 2rem;
-
-    line-height: 1;
-
-    font-weight: 700;
-
-    letter-spacing: -0.04em;
-}
-
-
-/* =========================================================
-   STAT VARIANTS
-   ========================================================= */
-
-.admin-stat-card.terracotta::before {
-    background: var(--terracotta);
+    width: 5px;
 }
 
 .admin-stat-card.sage::before {
     background: var(--sage);
 }
 
+.admin-stat-card.terracotta::before {
+    background: var(--terracotta);
+}
+
 .admin-stat-card.marigold::before {
     background: var(--marigold);
 }
 
-
-/* Attention */
-
-.admin-stat-attention {
-    background: var(--marigold-soft);
-
-    border-color: #E8D6A8;
+.admin-stat-card.dark::before {
+    background: var(--text);
 }
 
+.admin-stat-card.sage::after {
+    background: var(--sage);
+}
 
-.admin-stat-attention::before {
+.admin-stat-card.terracotta::after {
+    background: var(--terracotta);
+}
+
+.admin-stat-card.marigold::after {
     background: var(--marigold);
 }
 
-
-.admin-stat-attention .admin-stat-value {
-    color: var(--terracotta);
+.admin-stat-card.dark::after {
+    background: var(--text);
 }
 
-
-/* =========================================================
-   TABLES
-   ========================================================= */
-
-.orders-table-wrapper,
-.admin-products-table-wrapper {
-    width: 100%;
-
-    overflow-x: auto;
-
-    background: var(--cream-light);
-
-    border: 1px solid var(--border);
-
-    border-radius: var(--radius-md);
-
-    box-shadow: var(--shadow-soft);
-}
-
-
-.orders-table,
-.admin-products-table-wrapper table {
-    width: 100%;
-
-    border-collapse: collapse;
-
-    min-width: 760px;
-}
-
-
-.orders-table thead,
-.admin-products-table-wrapper thead {
-    background: var(--sage-soft);
-}
-
-
-.orders-table th,
-.admin-products-table-wrapper th {
-    padding: 15px 18px;
-
+.admin-stat-label {
+    position: relative;
+    z-index: 1;
+    display: block;
+    margin-bottom: 18px;
     color: var(--text-muted);
-
-    border-bottom: 1px solid var(--border);
-
-    font-size: 0.72rem;
-
+    font-size: 0.69rem;
     font-weight: 700;
-
-    text-align: left;
-
     text-transform: uppercase;
+    letter-spacing: 0.09em;
+}
 
-    letter-spacing: 0.06em;
+.admin-stat-value {
+    position: relative;
+    z-index: 1;
+    display: block;
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: clamp(2rem, 3vw, 2.65rem);
+    line-height: 1;
+    font-weight: 700;
+    letter-spacing: -0.055em;
+}
 
+.attention-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.attention-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    min-height: 130px;
+    padding: 24px 27px;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    transition:
+        transform var(--transition-normal),
+        box-shadow var(--transition-normal);
+}
+
+.attention-card:hover {
+    transform: var(--lift-card);
+    box-shadow: var(--shadow-hover);
+}
+
+.attention-card.terracotta {
+    background: var(--terracotta);
+    color: var(--text-on-terracotta);
+}
+
+.attention-card.marigold {
+    background: var(--marigold-light);
+    color: var(--text);
+}
+
+.attention-card::after {
+    content: "↗";
+    position: absolute;
+    right: 25px;
+    top: 21px;
+    font-size: 1rem;
+    font-weight: 700;
+    opacity: 0.7;
+}
+
+.attention-number {
+    flex-shrink: 0;
+    min-width: 72px;
+    font-family: var(--font-main);
+    font-size: 2.7rem;
+    line-height: 1;
+    font-weight: 700;
+    letter-spacing: -0.055em;
+}
+
+.attention-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-right: 28px;
+}
+
+.attention-label {
+    font-family: var(--font-main);
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.attention-link {
+    font-size: 0.78rem;
+    font-weight: 600;
+    opacity: 0.72;
+}
+
+.attention-card.terracotta .attention-link {
+    color: var(--text-on-terracotta);
+}
+
+.attention-card.marigold .attention-link {
+    color: var(--terracotta-dark);
+}
+
+.dashboard-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+}
+
+.dashboard-table {
+    width: 100%;
+    min-width: 720px;
+    border-collapse: collapse;
+}
+
+.dashboard-table thead {
+    background: var(--surface-alt);
+}
+
+.dashboard-table th {
+    padding: 15px 22px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: var(--font-main);
+    font-size: 0.66rem;
+    font-weight: 700;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 0.11em;
     white-space: nowrap;
 }
 
-
-.orders-table td,
-.admin-products-table-wrapper td {
-    padding: 17px 18px;
-
-    color: var(--text-soft);
-
+.dashboard-table td {
+    padding: 20px 22px;
     border-bottom: 1px solid var(--border-light);
-
-    font-size: 0.86rem;
-
+    color: var(--text-soft);
+    font-size: 0.88rem;
+    white-space: nowrap;
     vertical-align: middle;
 }
 
-
-.orders-table tbody tr:last-child td,
-.admin-products-table-wrapper tbody tr:last-child td {
+.dashboard-table tbody tr:last-child td {
     border-bottom: none;
 }
 
-
-.orders-table tbody tr,
-.admin-products-table-wrapper tbody tr {
+.dashboard-table tbody tr {
     transition: background var(--transition-fast);
 }
 
-
-.orders-table tbody tr:hover,
-.admin-products-table-wrapper tbody tr:hover {
-    background: var(--cream);
+.dashboard-table tbody tr:hover {
+    background: var(--cream-light);
 }
 
+.dashboard-table td:first-child {
+    color: var(--text);
+    font-family: var(--font-main);
+    font-weight: 700;
+}
 
-/* =========================================================
-   TABLE ACTION
-   ========================================================= */
+.dashboard-table td:nth-child(2) {
+    color: var(--text-soft);
+}
 
-.table-action {
+.dashboard-table td:nth-child(3) {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.dashboard-table .table-primary {
+    color: var(--text);
+    font-family: var(--font-main);
+    font-weight: 700;
+}
+
+.dashboard-table .table-secondary {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.dashboard-table .table-total {
+    color: var(--text);
+    font-family: var(--font-main);
+    font-weight: 700;
+}
+
+.dashboard-table .table-muted {
+    color: var(--text-muted);
+    font-size: 0.78rem;
+}
+
+.dashboard-table .table-status {
     display: inline-flex;
-
     align-items: center;
-
-    justify-content: center;
-
-    padding: 7px 13px;
-
+    min-height: 29px;
+    padding: 5px 11px;
     border-radius: var(--radius-pill);
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+    font-family: var(--font-main);
+    font-size: 0.66rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
 
+.dashboard-table .table-status.completed,
+.dashboard-table .table-status.approved,
+.dashboard-table .table-status.active {
     background: var(--sage-light);
-
+    border-color: var(--sage-light);
     color: var(--sage-dark);
-
-    font-family: var(--font-main);
-
-    font-size: 0.76rem;
-
-    font-weight: 700;
-
-    transition:
-        background var(--transition-fast),
-        color var(--transition-fast),
-        transform var(--transition-fast);
 }
 
-
-.table-action:hover {
-    background: var(--sage);
-
-    color: var(--white);
-
-    transform: translateY(-1px);
+.dashboard-table .table-status.pending {
+    background: var(--marigold-soft);
+    border-color: var(--marigold-light);
+    color: var(--marigold-dark);
 }
 
+.dashboard-table .table-status.processing {
+    background: var(--terracotta-soft);
+    border-color: var(--terracotta-soft);
+    color: var(--terracotta-dark);
+}
 
-/* =========================================================
-   STATUS PILLS
-   ========================================================= */
+.dashboard-table .table-status.cancelled,
+.dashboard-table .table-status.rejected {
+    background: #F1E1DE;
+    border-color: #E7CBC6;
+    color: var(--terracotta-dark);
+}
 
-.order-status,
-.product-status,
-.farmer-approval {
+@media (max-width: 800px) {
+    .dashboard-table-wrapper {
+        border-radius: var(--radius-md);
+    }
+
+    .dashboard-table th,
+    .dashboard-table td {
+        padding: 16px 18px;
+    }
+}
+
+.order-status {
     display: inline-flex;
-
     align-items: center;
-
     justify-content: center;
-
     padding: 6px 11px;
-
     border-radius: var(--radius-pill);
-
     font-family: var(--font-main);
-
-    font-size: 0.7rem;
-
+    font-size: 0.69rem;
     font-weight: 700;
-
     text-transform: capitalize;
+    white-space: nowrap;
 }
-
-
-/* ---------------------------------------------------------
-   Pending
-   --------------------------------------------------------- */
 
 .order-status.pending,
-.order-status.preparing,
-.product-status.pending,
-.farmer-approval.pending {
+.order-status.preparing {
     background: var(--marigold-light);
-
     color: #765A1D;
 }
 
-
-/* ---------------------------------------------------------
-   Accepted / Approved
-   --------------------------------------------------------- */
-
-.order-status.accepted,
-.product-status.approved,
-.farmer-approval.approved {
+.order-status.accepted {
     background: var(--sage-light);
-
     color: var(--sage-dark);
 }
-
-
-/* ---------------------------------------------------------
-   Ready / Completed
-   --------------------------------------------------------- */
 
 .order-status.ready,
 .order-status.completed {
     background: #E3EBDD;
-
     color: #526447;
 }
 
-
-/* ---------------------------------------------------------
-   Cancelled / Rejected
-   --------------------------------------------------------- */
-
-.order-status.cancelled,
-.product-status.rejected,
-.farmer-approval.rejected {
+.order-status.cancelled {
     background: var(--terracotta-soft);
-
     color: var(--terracotta-dark);
 }
 
-
-/* ---------------------------------------------------------
-   Removed
-   --------------------------------------------------------- */
-
-.product-status.removed {
-    background: var(--cream-dark);
-
-    color: var(--text-soft);
-}
-
-
-/* =========================================================
-   EMPTY STATES
-   ========================================================= */
-
-.empty-state,
 .dashboard-placeholder {
     display: flex;
-
     flex-direction: column;
-
     align-items: center;
-
     justify-content: center;
-
-    min-height: 190px;
-
+    min-height: 180px;
     padding: 35px;
-
     background: var(--cream-light);
-
     border: 1px dashed var(--border);
-
-    border-radius: var(--radius-md);
-
+    border-radius: var(--radius-lg);
     text-align: center;
 }
 
-
-.empty-state h3 {
-    margin: 0 0 8px;
-
-    color: var(--text);
-
-    font-family: var(--font-serif);
-
-    font-size: 1.15rem;
+.empty-mark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    margin-bottom: 14px;
+    border-radius: 50%;
+    background: var(--sage-soft);
+    color: var(--sage-dark);
+    font-size: 15px;
 }
 
-
-.empty-state p,
 .dashboard-placeholder p {
     margin: 0;
-
-    max-width: 430px;
-
     color: var(--text-muted);
-
     font-size: 0.86rem;
-
     line-height: 1.6;
 }
 
-
-/* =========================================================
-   PRODUCTS
-   ========================================================= */
-
-.product-grid {
-    display: grid;
-
-    grid-template-columns:
-        repeat(4, minmax(0, 1fr));
-
-    gap: 18px;
+.farmer-dashboard {
+    padding-bottom: 90px;
 }
 
-
-.product-card {
+.farmer-dashboard-intro {
+    position: relative;
     display: flex;
-
-    flex-direction: column;
-
-    min-width: 0;
-
+    align-items: flex-end;
+    justify-content: space-between;
+    min-height: 300px;
+    padding: 70px 0 60px;
+    border-bottom: 1px solid var(--border);
     overflow: hidden;
+}
 
-    background: var(--cream-light);
+.farmer-dashboard-intro > div:first-child {
+    position: relative;
+    z-index: 2;
+    max-width: 760px;
+}
 
+.farmer-dashboard-intro .eyebrow {
+    display: block;
+    margin-bottom: 20px;
+}
+
+.farmer-dashboard-intro h1 {
+    margin: 0;
+    max-width: 780px;
+    font-family: var(--font-main);
+    font-size: clamp(3rem, 6vw, 5.8rem);
+    font-weight: 700;
+    line-height: .92;
+    letter-spacing: -.055em;
+    color: var(--text);
+}
+
+.farmer-dashboard-intro h1 em {
+    display: block;
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-style: italic;
+    color: var(--sage-dark);
+}
+
+.farmer-dashboard-intro p {
+    max-width: 560px;
+    margin: 28px 0 0;
+    color: var(--text-soft);
+    font-size: 1.05rem;
+    line-height: 1.7;
+}
+
+.farmer-dashboard-mark {
+    position: absolute;
+    right: 25px;
+    bottom: -55px;
+    width: 210px;
+    height: 210px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--marigold-light);
+    color: var(--terracotta-dark);
+    font-size: 3rem;
+    transform: rotate(8deg);
+}
+
+.farmer-overview {
+    padding: 90px 0 0;
+}
+
+.farmer-overview-heading {
+    display: grid;
+    grid-template-columns: minmax(180px, .7fr) minmax(300px, 1.3fr);
+    gap: 40px;
+    align-items: end;
+    margin-bottom: 35px;
+}
+
+.farmer-overview-heading .eyebrow {
+    align-self: start;
+}
+
+.farmer-overview-heading h2 {
+    margin: 0;
+    max-width: 650px;
+    font-size: clamp(2.2rem, 4vw, 4rem);
+    line-height: .98;
+    letter-spacing: -.045em;
+}
+
+.farmer-overview-heading h2 em {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    color: var(--sage-dark);
+}
+
+.farmer-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 30px;
+}
+
+.farmer-stat-card {
+    position: relative;
+    min-height: 310px;
+    padding: 30px;
     border: 1px solid var(--border);
-
     border-radius: var(--radius-lg);
-
-    color: inherit;
-
     text-decoration: none;
-
-    box-shadow: var(--shadow-soft);
-
+    overflow: hidden;
     transition:
         transform var(--transition-normal),
-        box-shadow var(--transition-normal),
-        border-color var(--transition-normal);
+        box-shadow var(--transition-normal);
 }
 
-
-.product-card:hover {
-    transform: translateY(-5px);
-
-    border-color: var(--sage-light);
-
+.farmer-stat-card:hover {
+    transform: var(--lift-card);
     box-shadow: var(--shadow-hover);
 }
 
-
-/* =========================================================
-   PRODUCT IMAGE
-   ========================================================= */
-
-.product-image {
-    position: relative;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    width: 100%;
-
-    height: 190px;
-
-    overflow: hidden;
-
-    /*
-       Keep the default image background warm.
-       Individual product types can override this.
-    */
-
-    background: var(--cream-dark);
+.farmer-stat-products {
+    background: var(--surface);
 }
 
-
-.product-image img {
-    width: 100%;
-
-    height: 100%;
-
-    object-fit: cover;
-
-    transition: transform 0.3s ease;
-}
-
-
-.product-card:hover .product-image img {
-    transform: scale(1.04);
-}
-
-
-.product-image span {
-    color: var(--text-muted);
-
-    font-family: var(--font-main);
-
-    font-size: 13px;
-}
-
-
-/* =========================================================
-   PRODUCT BACKDROP VARIANTS
-   ========================================================= */
-
-.product-image.tomato {
-    background: var(--terracotta);
-}
-
-.product-image.green {
-    background: var(--sage-dark);
-}
-
-.product-image.yellow {
-    background: var(--marigold);
-}
-
-.product-image.cream {
-    background: var(--cream-dark);
-}
-
-
-/* =========================================================
-   PRODUCT INFORMATION
-   ========================================================= */
-
-.product-info {
-    display: flex;
-
-    flex-direction: column;
-
-    padding: 18px;
-}
-
-
-.product-info h3 {
-    margin: 0 0 10px;
-
-    overflow: hidden;
-
-    color: var(--text);
-
-    font-family: var(--font-serif);
-
-    font-size: 1.15rem;
-
-    font-weight: 700;
-
-    text-overflow: ellipsis;
-
-    white-space: nowrap;
-}
-
-
-.product-price {
-    display: flex;
-
-    align-items: baseline;
-
-    gap: 5px;
-
-    margin-bottom: 10px;
-}
-
-
-.product-price strong {
-    color: var(--terracotta);
-
-    font-family: var(--font-main);
-
-    font-size: 18px;
-
-    font-weight: 700;
-}
-
-
-.product-price span {
-    color: var(--text-muted);
-
-    font-size: 12px;
-}
-
-
-.product-stock {
-    margin: 0 0 13px;
-
-    color: var(--text-muted);
-
-    font-size: 13px;
-}
-
-
-.product-status {
-    align-self: flex-start;
-}
-
-
-/* =========================================================
-   MY STALL
-   ========================================================= */
-
-.stall-summary {
-    display: flex;
-
-    align-items: center;
-
-    gap: 22px;
-
-    padding: 25px 28px;
-
-    background: var(--cream-light);
-
-    border: 1px solid var(--border);
-
-    border-radius: var(--radius-lg);
-
-    box-shadow: var(--shadow-soft);
-}
-
-
-/* =========================================================
-   FARMER ICON
-   ========================================================= */
-
-.farmer-icon {
-    flex: 0 0 64px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    width: 64px;
-
-    height: 64px;
-
+.farmer-stat-orders {
     background: var(--sage);
+    border-color: var(--sage);
+    color: var(--text-on-sage);
+}
 
-    color: var(--white);
+.farmer-stat-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
 
-    border-radius: 18px;
-
+.farmer-stat-number {
     font-family: var(--font-main);
-
-    font-size: 24px;
-
+    font-size: .75rem;
     font-weight: 700;
+    letter-spacing: .12em;
 }
 
-
-/* =========================================================
-   FARMER INFORMATION
-   ========================================================= */
-
-.farmer-info {
-    min-width: 0;
+.farmer-stat-arrow {
+    font-size: 1.25rem;
+    transition: transform var(--transition-fast);
 }
 
+.farmer-stat-card:hover .farmer-stat-arrow {
+    transform: translate(3px, -3px);
+}
 
-.farmer-info h3 {
-    margin: 0 0 5px;
+.farmer-stat-content {
+    position: absolute;
+    left: 30px;
+    right: 30px;
+    bottom: 30px;
+}
 
+.farmer-stat-label {
+    display: block;
+    margin-bottom: 8px;
+    font-family: var(--font-main);
+    font-size: .78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+}
+
+.farmer-stat-value {
+    display: block;
+    margin-bottom: 8px;
+    font-family: var(--font-main);
+    font-size: clamp(4rem, 7vw, 6.5rem);
+    font-weight: 700;
+    line-height: .85;
+    letter-spacing: -.065em;
+}
+
+.farmer-stat-content p {
+    margin: 18px 0 0;
+    font-size: .9rem;
+    opacity: .72;
+}
+
+.farmer-orders-section,
+.farmer-products-section,
+.farmer-stall-section {
+    margin-top: 100px;
+}
+
+.farmer-orders-section .section-heading,
+.farmer-products-section .section-heading,
+.farmer-stall-section .section-heading {
+    align-items: flex-end;
+}
+
+.farmer-orders-section .section-heading > div,
+.farmer-products-section .section-heading > div,
+.farmer-stall-section .section-heading > div {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.farmer-orders-section .section-heading .eyebrow,
+.farmer-products-section .section-heading .eyebrow,
+.farmer-stall-section .section-heading .eyebrow {
+    margin: 0;
+}
+
+.farmer-orders-section .section-heading h2,
+.farmer-products-section .section-heading h2,
+.farmer-stall-section .section-heading h2 {
+    margin: 0;
+}
+
+.farmer-product-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.farmer-product-card {
+    display: block;
+    overflow: hidden;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
     color: var(--text);
-
-    font-family: var(--font-serif);
-
-    font-size: 1.35rem;
-
-    font-weight: 700;
+    transition:
+        transform var(--transition-normal),
+        box-shadow var(--transition-normal);
 }
 
+.farmer-product-card:hover {
+    transform: var(--lift-card);
+    box-shadow: var(--shadow-hover);
+}
+
+.farmer-product-image {
+    position: relative;
+    aspect-ratio: 1 / .82;
+    overflow: hidden;
+    background: var(--surface-alt);
+}
+
+.farmer-product-image img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    transition: transform var(--transition-slow);
+}
+
+.farmer-product-card:hover .farmer-product-image img {
+    transform: scale(1.035);
+}
+
+.farmer-product-image > span {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-family: var(--font-main);
+    font-size: .75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+}
+
+.farmer-product-info {
+    padding: 22px;
+}
+
+.farmer-product-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.farmer-product-label {
+    font-family: var(--font-main);
+    font-size: .68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .11em;
+    color: var(--text-muted);
+}
+
+.farmer-product-arrow {
+    font-size: 1rem;
+    color: var(--sage-dark);
+    transition: transform var(--transition-fast);
+}
+
+.farmer-product-card:hover .farmer-product-arrow {
+    transform: translate(3px, -3px);
+}
+
+.farmer-product-info h3 {
+    margin: 0 0 14px;
+    font-size: 1.1rem;
+    line-height: 1.2;
+}
+
+.farmer-product-price {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    margin-bottom: 18px;
+}
+
+.farmer-product-price strong {
+    font-family: var(--font-main);
+    font-size: 1.25rem;
+}
+
+.farmer-product-price span {
+    color: var(--text-muted);
+    font-size: .8rem;
+}
+
+.farmer-product-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-light);
+}
+
+.farmer-product-stock {
+    color: var(--text-soft);
+    font-size: .78rem;
+}
+
+.farmer-stall-card {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 30px;
+    padding: 34px;
+    background: var(--terracotta);
+    color: var(--text-on-terracotta);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.farmer-stall-mark {
+    width: 120px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--marigold-light);
+    color: var(--terracotta-dark);
+    font-family: var(--font-serif);
+    font-size: 3.2rem;
+    font-style: italic;
+}
+
+.farmer-stall-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.farmer-stall-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 25px;
+}
+
+.farmer-stall-label {
+    display: block;
+    margin-bottom: 8px;
+    font-family: var(--font-main);
+    font-size: .68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    opacity: .65;
+}
+
+.farmer-stall-heading h3 {
+    margin: 0;
+    font-size: clamp(1.8rem, 3vw, 2.7rem);
+    line-height: 1;
+    letter-spacing: -.04em;
+}
 
 .farmer-address {
-    margin: 0 0 5px;
-
-    color: var(--text-muted);
-
-    font-size: 13px;
+    margin: 16px 0 0;
+    font-size: .9rem;
+    opacity: .82;
 }
-
 
 .farmer-description {
-    max-width: 700px;
-
-    margin: 7px 0 12px;
-
-    color: var(--text-soft);
-
-    font-size: 13px;
-
-    line-height: 1.6;
+    max-width: 720px;
+    margin: 18px 0 0;
+    font-size: .95rem;
+    line-height: 1.7;
+    opacity: .78;
 }
 
-
-/* =========================================================
-   FARMERS NEAR YOU
-   ========================================================= */
-
-.farmer-grid {
-    display: grid;
-
-    grid-template-columns:
-        repeat(3, minmax(0, 1fr));
-
-    gap: 18px;
-}
-
-
-.farmer-card {
-    display: flex;
-
-    align-items: flex-start;
-
-    gap: 16px;
-
-    min-width: 0;
-
-    padding: 20px;
-
-    background: var(--cream-light);
-
-    border: 1px solid var(--border);
-
-    border-radius: var(--radius-lg);
-
-    color: inherit;
-
-    text-decoration: none;
-
-    box-shadow: var(--shadow-soft);
-
-    transition:
-        transform var(--transition-normal),
-        box-shadow var(--transition-normal),
-        border-color var(--transition-normal);
-}
-
-
-.farmer-card:hover {
-    transform: translateY(-4px);
-
-    border-color: var(--sage-light);
-
-    box-shadow: var(--shadow-hover);
-}
-
-
-.farmer-card .farmer-icon {
-    flex: 0 0 52px;
-
-    width: 52px;
-
-    height: 52px;
-
-    border-radius: 15px;
-
-    font-size: 19px;
-}
-
-
-.farmer-card .farmer-info {
-    min-width: 0;
-}
-
-
-.farmer-card .farmer-info h3 {
-    margin: 2px 0 6px;
-
-    overflow: hidden;
-
-    color: var(--text);
-
-    font-family: var(--font-serif);
-
-    font-size: 1.1rem;
-
+.farmer-approval {
+    flex-shrink: 0;
+    padding: 8px 13px;
+    border-radius: var(--radius-pill);
+    background: rgba(255, 249, 240, .16);
+    border: 1px solid rgba(255, 249, 240, .2);
+    font-family: var(--font-main);
+    font-size: .68rem;
     font-weight: 700;
-
-    text-overflow: ellipsis;
-
-    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: .08em;
 }
 
-
-.farmer-card .farmer-address {
-    margin: 0 0 7px;
-
-    overflow: hidden;
-
-    color: var(--text-muted);
-
-    font-size: 12px;
-
-    text-overflow: ellipsis;
-
-    white-space: nowrap;
+.farmer-approval.approved {
+    background: var(--sage);
 }
 
-
-.farmer-card .farmer-description {
-    display: -webkit-box;
-
-    margin: 0;
-
-    overflow: hidden;
-
-    color: var(--text-soft);
-
-    font-size: 12px;
-
-    line-height: 1.5;
-
-    -webkit-box-orient: vertical;
-
-    -webkit-line-clamp: 2;
+.farmer-approval.pending {
+    background: var(--marigold);
+    color: var(--text);
 }
 
-
-/* =========================================================
-   RESPONSIVE
-   ========================================================= */
-
-@media (max-width: 1200px) {
-
-    .quick-actions {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
-    }
-
-    .admin-stats-grid {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
-    }
-
-    .product-grid {
-        grid-template-columns:
-            repeat(3, minmax(0, 1fr));
-    }
-
-    .farmer-grid {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
-    }
+.farmer-approval.rejected {
+    background: var(--terracotta-dark);
 }
 
+@media (max-width: 1000px) {
 
-@media (max-width: 800px) {
-
-    .welcome {
-        min-height: auto;
-
-        padding: 30px;
+    .farmer-product-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .welcome h1 {
-        font-size: 2rem;
+    .farmer-overview-heading {
+        grid-template-columns: 1fr;
+        gap: 15px;
     }
 
-    .quick-actions {
+}
+
+@media (max-width: 600px) {
+
+    .farmer-dashboard-intro h1 {
+        font-size: 3rem;
+    }
+
+    .farmer-dashboard-intro p {
+        font-size: .95rem;
+    }
+
+    .farmer-product-grid {
         grid-template-columns: 1fr;
     }
 
-    .admin-stats-grid {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
+    .farmer-product-card {
+        display: grid;
+        grid-template-columns: 120px 1fr;
     }
 
-    .product-grid {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
+    .farmer-product-image {
+        aspect-ratio: auto;
+        min-height: 150px;
     }
 
-    .farmer-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-
-@media (max-width: 550px) {
-
-    .welcome {
-        padding: 26px;
-
-        border-radius: var(--radius-md);
+    .farmer-product-info {
+        padding: 18px;
     }
 
-    .welcome h1 {
-        font-size: 1.7rem;
-    }
-
-    .admin-stats-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .product-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .dashboard-section {
-        margin-bottom: 32px;
-    }
-
-    .section-heading {
-        align-items: flex-end;
-
-        gap: 12px;
-    }
-
-    .section-heading h2 {
-        font-size: 1.2rem;
-    }
-
-    .stall-summary {
+    .farmer-product-bottom {
         align-items: flex-start;
-
-        padding: 22px;
-    }
-
-    .farmer-icon {
-        flex-basis: 54px;
-
-        width: 54px;
-        height: 54px;
-
-        border-radius: 15px;
-
-        font-size: 20px;
-    }
-}
-
-
-@media (max-width: 500px) {
-
-    .welcome {
-        padding: 22px 20px;
-    }
-
-    .welcome h1 {
-        font-size: 1.55rem;
-    }
-
-    .welcome p {
-        font-size: 14px;
-    }
-
-    .section-heading h2 {
-        font-size: 1.1rem;
-    }
-
-    .section-heading a {
-        font-size: 13px;
-    }
-
-    .stall-summary {
         flex-direction: column;
     }
 
-    .farmer-info {
-        width: 100%;
+    .farmer-stall-card {
+        padding: 25px;
     }
 
-    .farmer-card {
-        padding: 17px;
+}
 
-        gap: 13px;
+@media (max-width: 1200px) {
+    .admin-stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 800px) {
+    .dashboard-header {
+        min-height: 220px;
+        padding: 42px 0 38px;
     }
 
-    .farmer-card .farmer-icon {
-        flex-basis: 46px;
-
-        width: 46px;
-        height: 46px;
-
-        border-radius: 13px;
-
-        font-size: 17px;
+    .dashboard-header h1 {
+        font-size: clamp(2.5rem, 8vw, 3.7rem);
     }
 
-    .farmer-card .farmer-info h3 {
-        font-size: 1rem;
+    .dashboard-mark {
+        right: 10px;
+        bottom: 25px;
+        width: 72px;
+        height: 72px;
+        font-size: 22px;
+    }
+
+    .dashboard-section {
+        margin-top: 70px;
+    }
+
+    .attention-grid {
+        grid-template-columns: 1fr;
+    }
+
+    
+    .farmer-dashboard-intro {
+        min-height: 270px;
+        padding: 55px 0 45px;
+    }
+
+    .farmer-dashboard-mark {
+        width: 150px;
+        height: 150px;
+        right: -25px;
+        bottom: -45px;
+        font-size: 2.2rem;
+    }
+
+    .farmer-stat-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .farmer-stat-card {
+        min-height: 260px;
+    }
+
+    .farmer-orders-section,
+    .farmer-products-section,
+    .farmer-stall-section {
+        margin-top: 75px;
+    }
+
+    .farmer-stall-card {
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+
+    .farmer-stall-mark {
+        width: 85px;
+        height: 85px;
+        font-size: 2.2rem;
+    }
+
+    .farmer-stall-heading {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 550px) {
+    .dashboard-header {
+        padding: 35px 0;
+    }
+
+    .dashboard-header h1 {
+        font-size: 2.35rem;
+    }
+
+    .dashboard-header p {
+        max-width: 85%;
+        font-size: 0.9rem;
+    }
+
+    .dashboard-mark {
+        right: -8px;
+        bottom: 20px;
+        width: 62px;
+        height: 62px;
+        font-size: 18px;
+    }
+
+    .admin-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-stat-card {
+        min-height: 125px;
+    }
+
+    .section-heading {
+        align-items: flex-start;
+    }
+
+    .section-heading h2 {
+        font-size: 1.3rem;
+    }
+
+    .attention-card {
+        min-height: 115px;
+        padding: 22px;
+        gap: 17px;
+    }
+
+    .attention-number {
+        min-width: 55px;
+        font-size: 2.25rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .dashboard-header h1 {
+        font-size: 2rem;
+    }
+
+    .dashboard-mark {
+        display: none;
+    }
+
+    .attention-card {
+        gap: 14px;
+    }
+
+    .attention-number {
+        min-width: 48px;
+        font-size: 2rem;
+    }
+
+    .attention-label {
+        font-size: 0.86rem;
     }
 }

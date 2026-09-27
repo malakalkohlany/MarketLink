@@ -78,7 +78,8 @@ require_once __DIR__ . '/../includes/session.php';
                 title="Notifications"
                 onclick="toggleNotifications()"
             >
-                ♡
+                <!-- ♡ -->
+                 <i data-lucide="bell"></i>
 
                 <?php if ($notification_count > 0): ?>
                     <span class="notification-badge">
@@ -191,8 +192,8 @@ require_once __DIR__ . '/../includes/session.php';
         <div class="navbar-divider"></div>
 
 
-        <a href="#" class="navbar-user">
-
+        
+        <div class="navbar-user">
             <div class="user-avatar">
                 <?= strtoupper(
                     substr(
@@ -204,7 +205,6 @@ require_once __DIR__ . '/../includes/session.php';
             </div>
 
             <div>
-
                 <div class="user-name">
                     <?= htmlspecialchars(
                         $_SESSION['name'] ?? 'User'
@@ -216,10 +216,8 @@ require_once __DIR__ . '/../includes/session.php';
                         $_SESSION['role'] ?? ''
                     ) ?>
                 </div>
-
             </div>
-
-        </a>
+        </div>
 
     </div>
 
@@ -231,3 +229,8 @@ require_once __DIR__ . '/../includes/session.php';
 
     <script src="../assets/js/navbar.js"></script>
     <script src="../assets/js/app.js"></script>
+    <script src="../assets/js/lucide.js"></script>
+
+    <script>
+        lucide.createIcons();
+    </script>

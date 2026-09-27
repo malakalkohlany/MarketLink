@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 require_once __DIR__ . '/../includes/include.php';
 
@@ -6,7 +6,6 @@ requireRole('farmer');
 requireApprovedFarmer();
 
 $user_id = getUserId();
-
 $farmer_id = $_SESSION['farmer_id'] ?? null;
 
 if (!$farmer_id) {
@@ -14,32 +13,36 @@ if (!$farmer_id) {
 }
 
 $farmer = null;
-// Dashboard Counts
+
 $product_count = 0;
 $order_count = 0;
 
-// Count products
 $count_stmt = $conn->prepare("
     SELECT COUNT(*) AS total_products
     FROM products
     WHERE farmer_id = ?
 ");
+
 $count_stmt->bind_param("i", $farmer_id);
 $count_stmt->execute();
+
 $count_result = $count_stmt->get_result();
 $product_count = $count_result->fetch_assoc()['total_products'] ?? 0;
+
 $count_stmt->close();
 
-// Count orders
 $count_stmt = $conn->prepare("
     SELECT COUNT(*) AS total_orders
     FROM orders
     WHERE farmer_id = ?
 ");
+
 $count_stmt->bind_param("i", $farmer_id);
 $count_stmt->execute();
+
 $count_result = $count_stmt->get_result();
 $order_count = $count_result->fetch_assoc()['total_orders'] ?? 0;
+
 $count_stmt->close();
 
 $stmt = $conn->prepare("
@@ -61,7 +64,6 @@ $result = $stmt->get_result();
 $farmer = $result->fetch_assoc();
 
 $stmt->close();
-
 
 $orders = [];
 
@@ -131,92 +133,124 @@ $stmt->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>Dashboard | MarketLink</title>
+
     <link rel="stylesheet" href="../assets/css/base.css">
     <link rel="stylesheet" href="../assets/css/navbar.css">
     <link rel="stylesheet" href="../assets/css/sidebar.css">
     <link rel="stylesheet" href="../assets/css/dashboard.css">
 </head>
+
 <body>
 
     <?php include __DIR__ . '/../includes/navbar.php'; ?>
     <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-    <main class="main-content">
+    <main class="main-content farmer-dashboard">
 
-        <section class="welcome">
-
+        <section class="farmer-dashboard-intro">
             <div>
+                <span class="eyebrow">Farmer / Dashboard</span>
 
                 <h1>
-                    Welcome,
-                    <?= e($_SESSION['name'] ?? 'Farmer') ?>
+                    Welcome back,
+                    <em><?= e($_SESSION['name'] ?? 'Farmer') ?>.</em>
                 </h1>
 
                 <p>
-                    Manage your stall, products, and customer orders.
+                    Keep your stall stocked, manage your products,
+                    and stay on top of customer orders.
                 </p>
-
             </div>
 
+            <div class="farmer-dashboard-mark">
+                ✦
+            </div>
         </section>
-     
-        <section class="dashboard-stats">
 
-    <div class="stat-card">
-        <div class="stat-info">
-            <span class="stat-label">Products</span>
-            <strong class="stat-value">
-                <?= (int)$product_count ?>
-            </strong>
-        </div>
-    </div>
+        <section class="farmer-overview">
 
-    <div class="stat-card">
-        <div class="stat-info">
-            <span class="stat-label">Orders</span>
-            <strong class="stat-value">
-                <?= (int)$order_count ?>
-            </strong>
-        </div>
-    </div>
+            <div class="farmer-overview-heading">
+                <span class="eyebrow">01 / Your stall</span>
 
-</section>
+                <h2>
+                    Your marketplace
+                    <em>at a glance.</em>
+                </h2>
+            </div>
 
+            <div class="farmer-stat-grid">
 
-        <section class="dashboard-section">
+                <a href="products.php" class="farmer-stat-card farmer-stat-products">
+                    <div class="farmer-stat-top">
+                        <span class="farmer-stat-number">01</span>
+                        <span class="farmer-stat-arrow">↗</span>
+                    </div>
 
-            <div class="section-heading">
+                    <div class="farmer-stat-content">
+                        <span class="farmer-stat-label">Products</span>
 
-                <h2>Recent Orders</h2>
+                        <strong class="farmer-stat-value">
+                            <?= (int) $product_count ?>
+                        </strong>
 
-                <a href="orders.php">
-                    View all →
+                        <p>
+                            Listings in your stall
+                        </p>
+                    </div>
+                </a>
+
+                <a href="orders.php" class="farmer-stat-card farmer-stat-orders">
+                    <div class="farmer-stat-top">
+                        <span class="farmer-stat-number">02</span>
+                        <span class="farmer-stat-arrow">↗</span>
+                    </div>
+
+                    <div class="farmer-stat-content">
+                        <span class="farmer-stat-label">Orders</span>
+
+                        <strong class="farmer-stat-value">
+                            <?= (int) $order_count ?>
+                        </strong>
+
+                        <p>
+                            Customer orders received
+                        </p>
+                    </div>
                 </a>
 
             </div>
 
+        </section>
+
+        <section class="dashboard-section farmer-orders-section">
+
+            <div class="section-heading">
+                <div>
+                    <span class="eyebrow">02 / Activity</span>
+                    <h2>Recent Orders</h2>
+                </div>
+
+                <a href="orders.php">
+                    View all →
+                </a>
+            </div>
 
             <?php if (empty($orders)): ?>
 
                 <div class="empty-state">
-
                     <h3>No orders yet</h3>
 
                     <p>
                         Customer orders will appear here once they place an order.
                     </p>
-
                 </div>
 
             <?php else: ?>
 
-                <div class="orders-table-wrapper">
-
-                    <table class="orders-table">
-
+                <div class="dashboard-table-wrapper">
+                    <table class="dashboard-table">
                         <thead>
-
                             <tr>
                                 <th>Customer</th>
                                 <th>Market</th>
@@ -225,9 +259,7 @@ $stmt->close();
                                 <th>Pickup</th>
                                 <th>Status</th>
                             </tr>
-
                         </thead>
-
 
                         <tbody>
 
@@ -235,17 +267,12 @@ $stmt->close();
 
                                 <tr>
 
-
                                     <td>
-                                        <?= e(
-                                            $order['customer_name']
-                                        ) ?>
+                                        <?= e($order['customer_name']) ?>
                                     </td>
 
                                     <td>
-                                        <?= e(
-                                            $order['market_name']
-                                        ) ?>
+                                        <?= e($order['market_name']) ?>
                                     </td>
 
                                     <td>
@@ -261,19 +288,11 @@ $stmt->close();
                                     </td>
 
                                     <td>
-
                                         <span
-                                            class="order-status <?= e(
-                                                $order['status']
-                                            ) ?>"
+                                            class="order-status <?= e($order['status']) ?>"
                                         >
-                                            <?= 
-                                                e(ucfirst(
-                                                    $order['status']
-                                                )
-                                            ) ?>
+                                            <?= e(ucfirst($order['status'])) ?>
                                         </span>
-
                                     </td>
 
                                 </tr>
@@ -281,127 +300,110 @@ $stmt->close();
                             <?php endforeach; ?>
 
                         </tbody>
-
                     </table>
-
                 </div>
 
             <?php endif; ?>
 
         </section>
 
-
-        <section class="dashboard-section">
+        <section class="dashboard-section farmer-products-section">
 
             <div class="section-heading">
-
-                <h2>My Products</h2>
+                <div>
+                    <span class="eyebrow">03 / Inventory</span>
+                    <h2>My Products</h2>
+                </div>
 
                 <a href="products.php">
                     View all →
                 </a>
-
             </div>
-
 
             <?php if (empty($products)): ?>
 
                 <div class="empty-state">
-
                     <h3>No products yet</h3>
 
                     <p>
                         Add your first product to start selling.
                     </p>
 
-                    <a href="add_product.php">
+                    <a href="add_product.php" class="btn btn-primary">
                         Add Product
                     </a>
-
                 </div>
 
             <?php else: ?>
 
-                <div class="product-grid">
+                <div class="farmer-product-grid">
 
                     <?php foreach ($products as $product): ?>
 
                         <a
                             href="edit_product.php?id=<?= (int) $product['id'] ?>"
-                            class="product-card"
+                            class="farmer-product-card"
                         >
 
-                            <div class="product-image">
+                            <div class="farmer-product-image">
 
                                 <?php if (!empty($product['image'])): ?>
 
                                     <img
-                                        src="../uploads/products/<?= e(
-                                            $product['image']
-                                        ) ?>"
-                                        alt="<?= e(
-                                            $product['name']
-                                        ) ?>"
+                                        src="../uploads/products/<?= e($product['image']) ?>"
+                                        alt="<?= e($product['name']) ?>"
                                     >
 
                                 <?php else: ?>
 
-                                    <span>
-                                        No image
-                                    </span>
+                                    <span>No image</span>
 
                                 <?php endif; ?>
 
                             </div>
 
+                            <div class="farmer-product-info">
 
-                            <div class="product-info">
+                                <div class="farmer-product-top">
+
+                                    <span class="farmer-product-label">
+                                        Product
+                                    </span>
+
+                                    <span class="farmer-product-arrow">
+                                        ↗
+                                    </span>
+
+                                </div>
 
                                 <h3>
-                                    <?= e(
-                                        $product['name']
-                                    ) ?>
+                                    <?= e($product['name']) ?>
                                 </h3>
 
-
-                                <div class="product-price">
-
+                                <div class="farmer-product-price">
                                     <strong>
                                         $<?= formatPrice($product['price']) ?>
                                     </strong>
 
                                     <span>
-                                        / <?= e(
-                                            $product['unit']
-                                        ) ?>
+                                        / <?= e($product['unit']) ?>
+                                    </span>
+                                </div>
+
+                                <div class="farmer-product-bottom">
+
+                                    <span class="farmer-product-stock">
+                                        <?= number_format((float) $product['stock_quantity'], 2) ?>
+                                        in stock
+                                    </span>
+
+                                    <span
+                                        class="product-status <?= e($product['moderation_status']) ?>"
+                                    >
+                                        <?= e(ucfirst($product['moderation_status'])) ?>
                                     </span>
 
                                 </div>
-
-
-                                <p class="product-stock">
-
-                                    Stock:
-                                    <?= number_format(
-                                        (float) $product['stock_quantity'],
-                                        2
-                                    ) ?>
-
-                                </p>
-
-
-                                <span
-                                    class="product-status <?= e(
-                                        $product['moderation_status']
-                                    ) ?>"
-                                >
-                                    <?= 
-                                        e(
-                                            ucfirst(
-                                            $product['moderation_status']
-                                        )
-                                    ) ?>
-                                </span>
 
                             </div>
 
@@ -415,78 +417,64 @@ $stmt->close();
 
         </section>
 
-
-        <section class="dashboard-section">
+        <section class="dashboard-section farmer-stall-section">
 
             <div class="section-heading">
-
-                <h2>My Stall</h2>
+                <div>
+                    <span class="eyebrow">04 / Your presence</span>
+                    <h2>My Stall</h2>
+                </div>
 
                 <a href="edit_profile.php">
                     Edit →
                 </a>
-
             </div>
-
 
             <?php if ($farmer): ?>
 
-                <div class="stall-summary">
+                <div class="farmer-stall-card">
 
-                    <div class="farmer-icon">
-                        <?= strtoupper(
-                            substr(
-                                $farmer['stall_name'],
-                                0,
-                                1
-                            )
-                        ) ?>
+                    <div class="farmer-stall-mark">
+                        <?= strtoupper(substr($farmer['stall_name'], 0, 1)) ?>
                     </div>
 
+                    <div class="farmer-stall-content">
 
-                    <div class="farmer-info">
+                        <div class="farmer-stall-heading">
 
-                        <h3>
-                            <?= e(
-                                $farmer['stall_name']
-                            ) ?>
-                        </h3>
+                            <div>
+                                <span class="farmer-stall-label">
+                                    Market stall
+                                </span>
 
+                                <h3>
+                                    <?= e($farmer['stall_name']) ?>
+                                </h3>
+                            </div>
+
+                            <span
+                                class="farmer-approval <?= e($farmer['approval_status']) ?>"
+                            >
+                                <?= e(ucfirst($farmer['approval_status'])) ?>
+                            </span>
+
+                        </div>
 
                         <?php if (!empty($farmer['address'])): ?>
 
                             <p class="farmer-address">
-                                <?= e(
-                                    $farmer['address']
-                                ) ?>
+                                <?= e($farmer['address']) ?>
                             </p>
 
                         <?php endif; ?>
-
 
                         <?php if (!empty($farmer['description'])): ?>
 
                             <p class="farmer-description">
-                                <?= e(
-                                    $farmer['description']
-                                ) ?>
+                                <?= e($farmer['description']) ?>
                             </p>
 
                         <?php endif; ?>
-
-
-                        <span
-                            class="farmer-approval <?= e(
-                                $farmer['approval_status']
-                            ) ?>"
-                        >
-                            Stall:
-                            <?= 
-                                e(ucfirst(
-                                    $farmer['approval_status']
-                                )
-                            ) ?>
-                        </span>
 
                     </div>
 
@@ -497,6 +485,7 @@ $stmt->close();
         </section>
 
     </main>
+
     <script src="../assets/js/app.js"></script>
     <script src="../assets/js/dashboard.js"></script>
 
