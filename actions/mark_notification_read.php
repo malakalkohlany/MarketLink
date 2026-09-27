@@ -15,6 +15,17 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+    http_response_code(403);
+
+    echo json_encode([
+        'success' => false,
+        'message' => 'Invalid CSRF token.'
+    ]);
+
+    exit;
+}
+
 if (!isset($_SESSION['user_id'])) {
     http_response_code(401);
 

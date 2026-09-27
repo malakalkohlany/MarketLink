@@ -30,7 +30,9 @@ function openNotification(notificationId) {
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
         },
-        body: 'notification_id=' + encodeURIComponent(notificationId)
+        body:
+        'notification_id=' + encodeURIComponent(notificationId) +
+        '&csrf_token=' + encodeURIComponent(csrfToken)
     })
     .then(response => response.json())
     .then(data => {

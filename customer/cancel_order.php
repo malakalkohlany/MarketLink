@@ -10,6 +10,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     redirect('customer/orders.php');
 }
 
+if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+    redirect('customer/orders.php');
+}
+
 $orderId = isset($_POST['order_id'])
     ? (int) $_POST['order_id']
     : 0;
