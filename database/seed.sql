@@ -83,23 +83,23 @@ VALUES
      '+1-202-555-0104', 'Portland, Oregon, USA', 'customer', 'active'),
 
     (5, 'Oliver Thompson', 'oliver.thompson@example.com',
-     '$2y$10$GBCQn0E9tKL/wy6gcDRyxDANNzWTpetmguhxMU6GyYHhl6W',
+     '$2y$10$GBCQn0E9tKL/wy6gc30AK.gDRyxDANNzWTpetmguhxMU6GyYHhl6W',
      '+1-202-555-0105', 'Seattle, Washington, USA', 'farmer', 'active'),
 
     (6, 'Grace Anderson', 'grace.anderson@example.com',
-     '$2y$10$GBCQn0E9tKL/wy6gcDRyxDANNzWTpetmguhxMU6GyYHhl6W',
+     '$2y$10$GBCQn0E9tKL/wy6gc30AK.gDRyxDANNzWTpetmguhxMU6GyYHhl6W',
      '+1-202-555-0106', 'Denver, Colorado, USA', 'farmer', 'active'),
 
     (7, 'Liam Parker', 'liam.parker@example.com',
-     '$2y$10$GBCQn0E9tKL/wy6gcDRyxDANNzWTpetmguhxMU6GyYHhl6W',
+     '$2y$10$GBCQn0E9tKL/wy6gc30AK.gDRyxDANNzWTpetmguhxMU6GyYHhl6W',
      '+1-202-555-0107', 'Chicago, Illinois, USA', 'farmer', 'active'),
 
     (8, 'Mia Richardson', 'mia.richardson@example.com',
-     '$2y$10$GBCQn0E9tKL/wy6gcDRyxDANNzWTpetmguhxMU6GyYHhl6W',
+     '$2y$10$GBCQn0E9tKL/wy6gc30AK.gDRyxDANNzWTpetmguhxMU6GyYHhl6W',
      '+1-202-555-0108', 'San Diego, California, USA', 'farmer', 'active'),
 
     (9, 'James Mitchell', 'james.mitchell@example.com',
-     '$2y$10$GBCQn0E9tKL/wy6gcDRyxDANNzWTpetmguhxMU6GyYHhl6W',
+     '$2y$10$GBCQn0E9tKL/wy6gc30AK.gDRyxDANNzWTpetmguhxMU6GyYHhl6W',
      '+1-202-555-0109', 'Boston, Massachusetts, USA', 'admin', 'active');
 
 
