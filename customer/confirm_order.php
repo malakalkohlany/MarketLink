@@ -479,32 +479,37 @@ if (
         $generateStmt->close();
     }
 }
-
 // ==================================================
 // Get Available Pickup Slots
 // ==================================================
 
 if (
     empty($error) &&
-    $farmerId !== null
+    $farmerId !== null &&
+    $cartMarketId !== null
 ) {
 
     $slotStmt = $conn->prepare("
         SELECT
-            id,
-            market_id,
-            day_of_week,
-            start_time,
-            end_time,
-            cutoff_time,
-            max_orders
-        FROM pickup_slots
-        WHERE farmer_id = ?
-          AND market_id = ?
-          AND is_available = 1
+            ps.id,
+            ps.farmer_id,
+            ps.market_id,
+            ps.day_of_week,
+            ps.start_time,
+            ps.end_time,
+            ps.cutoff_time,
+            ps.max_orders,
+            m.name AS market_name
+        FROM pickup_slots ps
+        INNER JOIN markets m
+            ON m.id = ps.market_id
+        WHERE ps.farmer_id = ?
+          AND ps.market_id = ?
+          AND ps.is_available = 1
+          AND m.status = 'active'
         ORDER BY
             FIELD(
-                day_of_week,
+                ps.day_of_week,
                 'Monday',
                 'Tuesday',
                 'Wednesday',
@@ -513,10 +518,14 @@ if (
                 'Saturday',
                 'Sunday'
             ),
-            start_time ASC
+            ps.start_time ASC
     ");
 
-    if ($slotStmt) {
+    if (!$slotStmt) {
+
+        $error = 'Unable to load pickup slots.';
+
+    } else {
 
         $slotStmt->bind_param(
             "ii",
@@ -524,30 +533,25 @@ if (
             $cartMarketId
         );
 
-        $slotStmt->execute();
+        if (!$slotStmt->execute()) {
 
-        $slotResult =
-            $slotStmt->get_result();
+            $error = 'Unable to load pickup slots.';
 
-        while (
-            $slot =
-                $slotResult->fetch_assoc()
-        ) {
+        } else {
 
-            $pickupSlots[] = $slot;
+            $slotResult = $slotStmt->get_result();
+
+            while ($slot = $slotResult->fetch_assoc()) {
+                $pickupSlots[] = $slot;
+            }
         }
 
         $slotStmt->close();
-
-    } else {
-
-        $error =
-            'Unable to load pickup slots.';
     }
 }
 
 // ==================================================
-// Build Pickup Dates For Current Week
+// Build Actual Pickup Dates
 // ==================================================
 
 if (
@@ -555,51 +559,121 @@ if (
     !empty($pickupSlots)
 ) {
 
-    foreach ($pickupSlots as $slot) {
+    /*
+     * We keep the recurring pickup slot in pickup_slots,
+     * but calculate its real calendar date here.
+     *
+     * Example:
+     *
+     * pickup_slots:
+     *     Sunday 14:00 - 16:00
+     *
+     * becomes:
+     *     2026-09-27
+     *
+     * when the current Sunday is September 27.
+     */
 
-        $dayName =
-            $slot['day_of_week'];
+    $dayOffsets = [
+        'Monday'    => 0,
+        'Tuesday'   => 1,
+        'Wednesday' => 2,
+        'Thursday'  => 3,
+        'Friday'    => 4,
+        'Saturday'  => 5,
+        'Sunday'    => 6
+    ];
 
-        $date = clone $weekStart;
+    $todayDate = $today->format('Y-m-d');
+    $nowTime   = $today->format('H:i:s');
 
-        $targetDayNumber =
-            (int) date(
-                'N',
-                strtotime($dayName)
-            );
+    foreach ($pickupSlots as &$slot) {
 
-        $date->modify(
-            '+' . ($targetDayNumber - 1) . ' days'
+        $dayName = $slot['day_of_week'];
+
+        if (!isset($dayOffsets[$dayName])) {
+            $slot['pickup_date'] = null;
+            $slot['pickup_date_label'] = null;
+            $slot['is_expired'] = true;
+            continue;
+        }
+
+        // Start from Monday of current week.
+        $slotDate = clone $weekStart;
+
+        $slotDate->modify(
+            '+' . $dayOffsets[$dayName] . ' days'
         );
 
-        $dateValue =
-            $date->format('Y-m-d');
+        $slotDateValue = $slotDate->format('Y-m-d');
+
+        $slot['pickup_date'] = $slotDateValue;
+
+        $slot['pickup_date_label'] =
+            $slotDate->format('l, F j, Y');
+
+        $slot['is_expired'] = false;
 
         /*
-         * Only expose dates that have not already
-         * completely passed.
+         * Past dates are unavailable.
          */
+        if ($slotDateValue < $todayDate) {
+            $slot['is_expired'] = true;
+            continue;
+        }
 
-        if ($dateValue < $today->format('Y-m-d')) {
+        /*
+         * Same-day cutoff.
+         */
+        if (
+            $slotDateValue === $todayDate &&
+            !empty($slot['cutoff_time'])
+        ) {
+
+            if ($nowTime >= $slot['cutoff_time']) {
+                $slot['is_expired'] = true;
+                continue;
+            }
+        }
+    }
+
+    unset($slot);
+
+    /*
+     * Remove expired slots.
+     */
+    $pickupSlots = array_values(
+        array_filter(
+            $pickupSlots,
+            function ($slot) {
+                return empty($slot['is_expired']);
+            }
+        )
+    );
+
+    /*
+     * Build unique pickup dates from the remaining slots.
+     */
+    foreach ($pickupSlots as $slot) {
+
+        $dateValue = $slot['pickup_date'];
+
+        if (!$dateValue) {
             continue;
         }
 
         if (!isset($pickupDates[$dateValue])) {
 
             $pickupDates[$dateValue] = [
-                'date' =>
-                    $dateValue,
-
-                'label' =>
-                    $date->format('l, F j, Y')
+                'date' => $dateValue,
+                'label' => $slot['pickup_date_label']
             ];
         }
     }
 
     ksort($pickupDates);
 
-    $pickupDates =
-        array_values($pickupDates);
+    $pickupDates = array_values($pickupDates);
 }
 
 // ==================================================
@@ -711,22 +785,14 @@ if (
 
     if (empty($error)) {
 
-        $selectedDateDay =
-            date(
-                'l',
-                strtotime($selectedPickupDate)
-            );
-
         foreach ($pickupSlots as $slot) {
 
             if (
-                (int) $slot['id'] ===
-                    $selectedPickupSlotId
+                (int)$slot['id'] ===
+                $selectedPickupSlotId
             ) {
 
-                $selectedSlotFromForm =
-                    $slot;
-
+                $selectedSlotFromForm = $slot;
                 break;
             }
         }
@@ -737,12 +803,22 @@ if (
                 'The selected pickup slot is no longer available.';
 
         } elseif (
-            $selectedSlotFromForm['day_of_week'] !==
-            $selectedDateDay
+            $selectedSlotFromForm['pickup_date'] !==
+            $selectedPickupDate
         ) {
 
             $error =
-                'The selected pickup date does not match the pickup slot.';
+                'The selected pickup date does not match the selected pickup slot.';
+
+        } elseif (
+            !empty($selectedSlotFromForm['cutoff_time']) &&
+            $selectedPickupDate === $today->format('Y-m-d') &&
+            $today->format('H:i:s') >=
+                $selectedSlotFromForm['cutoff_time']
+        ) {
+
+            $error =
+                'The cutoff time for this pickup slot has passed. Please select another pickup slot.';
         }
     }
 
@@ -813,20 +889,48 @@ if (
             }
 
             // ==================================================
-            // Validate Slot Day
+            // Validate Actual Pickup Date
             // ==================================================
 
-            $selectedDateDay =
-                date(
-                    'l',
-                    strtotime($selectedPickupDate)
-                );
+            $dayOffsets = [
+                'Monday'    => 0,
+                'Tuesday'   => 1,
+                'Wednesday' => 2,
+                'Thursday'  => 3,
+                'Friday'    => 4,
+                'Saturday'  => 5,
+                'Sunday'    => 6
+            ];
 
             if (
-                $selectedSlot['day_of_week'] !==
-                $selectedDateDay
+                !isset(
+                    $dayOffsets[
+                        $selectedSlot['day_of_week']
+                    ]
+                )
             ) {
+                throw new Exception(
+                    'The selected pickup day is invalid.'
+                );
+            }
 
+            $expectedPickupDate = clone $weekStart;
+
+            $expectedPickupDate->modify(
+                '+' .
+                $dayOffsets[
+                    $selectedSlot['day_of_week']
+                ] .
+                ' days'
+            );
+
+            $expectedPickupDate =
+                $expectedPickupDate->format('Y-m-d');
+
+            if (
+                $selectedPickupDate !==
+                $expectedPickupDate
+            ) {
                 throw new Exception(
                     'The selected pickup date does not match the selected pickup slot.'
                 );
@@ -854,7 +958,7 @@ if (
                 ) {
 
                     throw new Exception(
-                        'The cutoff time for this pickup slot has passed. Please select another pickup date.'
+                        'The cutoff time for this pickup slot has passed. Please select another pickup slot.'
                     );
                 }
             }
@@ -2121,25 +2225,21 @@ if (
                                         >
 
                                             <?= htmlspecialchars(
-                                                $slot['day_of_week']
+                                                $slot['pickup_date_label']
                                             ) ?>
 
                                             -
 
                                             <?= date(
                                                 'h:i A',
-                                                strtotime(
-                                                    $slot['start_time']
-                                                )
+                                                strtotime($slot['start_time'])
                                             ) ?>
 
                                             to
 
                                             <?= date(
                                                 'h:i A',
-                                                strtotime(
-                                                    $slot['end_time']
-                                                )
+                                                strtotime($slot['end_time'])
                                             ) ?>
 
                                         </option>
