@@ -1563,3 +1563,378 @@
         padding: 21px;
     }
 }
+
+.admin-reports-page {
+    background: var(--cream);
+}
+
+.admin-report-overview-section,
+.admin-report-section {
+    padding-bottom: var(--space-section-small);
+}
+
+.admin-report-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.admin-report-stat-card {
+    position: relative;
+    min-height: 155px;
+    padding: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
+    overflow: hidden;
+}
+
+.admin-report-stat-card::after {
+    content: "✦";
+    position: absolute;
+    top: 15px;
+    right: 18px;
+    color: var(--marigold);
+    font-family: var(--font-serif);
+    font-size: 1.8rem;
+    opacity: 0.5;
+}
+
+.admin-report-stat-farmers::after {
+    color: var(--sage);
+}
+
+.admin-report-stat-markets::after {
+    color: var(--terracotta-light);
+}
+
+.admin-report-stat-products::after {
+    color: var(--marigold-dark);
+}
+
+.admin-report-stat-orders::after {
+    color: var(--terracotta);
+}
+
+.admin-report-stat-completed::after {
+    color: var(--sage-dark);
+}
+
+.admin-report-stat-sales::after {
+    color: var(--marigold-dark);
+}
+
+.admin-report-stat-label {
+    display: block;
+    margin-bottom: 12px;
+    color: var(--text-muted);
+    font-family: var(--font-main);
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+}
+
+.admin-report-stat-card strong {
+    display: block;
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 2.2rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.admin-report-stat-sales strong {
+    font-size: 1.8rem;
+}
+
+.admin-report-stat-note {
+    display: block;
+    margin-top: 10px;
+    color: var(--text-muted);
+    font-size: 0.72rem;
+}
+
+.admin-reports-table {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.admin-reports-table table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.admin-reports-table th {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-alt);
+    color: var(--text-muted);
+    font-family: var(--font-main);
+    font-size: 0.63rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-align: left;
+    text-transform: uppercase;
+}
+
+.admin-reports-table td {
+    padding: 19px 20px;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-soft);
+    font-size: 0.81rem;
+    vertical-align: middle;
+    overflow-wrap: anywhere;
+}
+
+.admin-reports-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.admin-reports-table tbody tr:hover {
+    background: var(--cream-light);
+}
+
+.admin-report-order-id {
+    width: 11%;
+}
+
+.admin-report-order-customer {
+    width: 21%;
+}
+
+.admin-report-order-market {
+    width: 21%;
+}
+
+.admin-report-order-status {
+    width: 17%;
+}
+
+.admin-report-order-total {
+    width: 14%;
+}
+
+.admin-report-order-date {
+    width: 16%;
+}
+
+.admin-report-primary {
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 0.82rem;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.admin-report-secondary {
+    color: var(--text-soft);
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+
+.admin-report-total {
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.admin-report-date-wrap {
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-report-date {
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 0.74rem;
+    font-weight: 700;
+}
+
+.admin-report-time {
+    margin-top: 3px;
+    color: var(--text-muted);
+    font-size: 0.68rem;
+}
+
+.admin-report-ranking-id {
+    width: 15%;
+}
+
+.admin-report-ranking-name {
+    width: 55%;
+}
+
+.admin-report-ranking-orders {
+    width: 30%;
+}
+
+.admin-report-ranking-revenue {
+    width: 30%;
+}
+
+.admin-report-rank {
+    display: inline-flex;
+    width: 30px;
+    height: 30px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--surface-alt);
+    color: var(--text-muted);
+    font-family: var(--font-main);
+    font-size: 0.68rem;
+    font-weight: 700;
+}
+
+.admin-report-inline-label {
+    margin-left: 6px;
+    color: var(--text-muted);
+    font-size: 0.7rem;
+}
+
+.admin-reports-table .admin-status {
+    white-space: nowrap;
+}
+
+.admin-status-processing {
+    border-color: rgba(135, 72, 61, 0.25);
+    background: var(--terracotta-soft);
+    color: var(--terracotta-dark);
+}
+
+.admin-status-default {
+    background: var(--surface-alt);
+    color: var(--text-muted);
+}
+
+@media (max-width: 1100px) {
+    .admin-report-stat-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .admin-reports-table th,
+    .admin-reports-table td {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    .admin-report-order-customer {
+        width: 20%;
+    }
+
+    .admin-report-order-market {
+        width: 20%;
+    }
+
+    .admin-report-order-status {
+        width: 18%;
+    }
+
+    .admin-report-order-total {
+        width: 15%;
+    }
+
+    .admin-report-order-date {
+        width: 16%;
+    }
+}
+
+@media (max-width: 800px) {
+    .admin-reports-table table,
+    .admin-reports-table thead,
+    .admin-reports-table tbody,
+    .admin-reports-table tr,
+    .admin-reports-table th,
+    .admin-reports-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .admin-reports-table thead {
+        display: none;
+    }
+
+    .admin-reports-table tbody tr {
+        padding: 18px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .admin-reports-table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .admin-reports-table td {
+        padding: 8px 0;
+        border-bottom: none;
+    }
+
+    .admin-reports-table td::before {
+        display: block;
+        margin-bottom: 4px;
+        color: var(--text-muted);
+        font-family: var(--font-main);
+        font-size: 0.57rem;
+        font-weight: 700;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+    }
+
+    .admin-reports-table td:nth-child(1)::before {
+        content: "Order";
+    }
+
+    .admin-reports-table td:nth-child(2)::before {
+        content: "Customer";
+    }
+
+    .admin-reports-table td:nth-child(3)::before {
+        content: "Market";
+    }
+
+    .admin-reports-table td:nth-child(4)::before {
+        content: "Status";
+    }
+
+    .admin-reports-table td:nth-child(5)::before {
+        content: "Subtotal";
+    }
+
+    .admin-reports-table td:nth-child(6)::before {
+        content: "Date";
+    }
+
+    .admin-report-ranking-id {
+        width: 100%;
+    }
+
+    .admin-report-ranking-name {
+        width: 100%;
+    }
+
+    .admin-report-ranking-orders,
+    .admin-report-ranking-revenue {
+        width: 100%;
+    }
+}
+
+@media (max-width: 500px) {
+    .admin-report-stat-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-report-stat-card {
+        min-height: 140px;
+        padding: 21px;
+    }
+
+    .admin-reports-table tbody tr {
+        padding: 16px;
+    }
+}

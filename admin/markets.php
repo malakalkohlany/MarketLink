@@ -125,7 +125,7 @@ if ($stmt) {
 
             <div class="admin-section-heading">
                 <div>
-                    <span class="admin-section-number">01 / DIRECTORY</span>
+                    <span class="eyebrow">01 / DIRECTORY</span>
 
                     <h2>
                         Market <em>directory.</em>

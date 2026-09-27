@@ -430,7 +430,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="admin-form-section-heading">
 
-                <span class="admin-section-number">
+                <span class="eyebrow">
                     01 / LOCATION
                 </span>
 
@@ -523,7 +523,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="admin-form-section-heading">
 
-                <span class="admin-section-number">
+                <span class="eyebrow">
                     02 / LOCATION DATA
                 </span>
 
@@ -660,7 +660,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="admin-form-section-heading">
 
-                <span class="admin-section-number">
+                <span class="eyebrow">
                     03 / AVAILABILITY
                 </span>
 
@@ -772,7 +772,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="admin-form-section-heading">
 
-                <span class="admin-section-number">
+                <span class="eyebrow">
                     04 / VISIBILITY
                 </span>
 

@@ -325,7 +325,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <section class="admin-form-section">
 
             <div class="admin-form-section-heading">
-                <span class="admin-section-number">01 / LOCATION</span>
+                <span class="eyebrow">01 / LOCATION</span>
 
                 <h2>
                     Market <em>details.</em>
@@ -414,7 +414,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <section class="admin-form-section">
 
             <div class="admin-form-section-heading">
-                <span class="admin-section-number">02 / LOCATION DATA</span>
+                <span class="eyebrow">02 / LOCATION DATA</span>
 
                 <h2>
                     Map <em>coordinates.</em>
@@ -529,7 +529,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <section class="admin-form-section">
 
             <div class="admin-form-section-heading">
-                <span class="admin-section-number">03 / AVAILABILITY</span>
+                <span class="eyebrow">03 / AVAILABILITY</span>
 
                 <h2>
                     Market <em>hours.</em>
@@ -636,7 +636,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <section class="admin-form-section">
 
             <div class="admin-form-section-heading">
-                <span class="admin-section-number">04 / VISIBILITY</span>
+                <span class="eyebrow">04 / VISIBILITY</span>
 
                 <h2>
                     Market <em>status.</em>

@@ -166,7 +166,7 @@ foreach ($reviews as $review) {
 
         <div class="admin-section-heading">
             <div>
-                <span class="admin-section-number">
+                <span class="eyebrow">
                     01 / OVERVIEW
                 </span>
 
@@ -247,7 +247,7 @@ foreach ($reviews as $review) {
 
         <div class="admin-section-heading">
             <div>
-                <span class="admin-section-number">
+                <span class="eyebrow">
                     02 / MODERATION
                 </span>
 

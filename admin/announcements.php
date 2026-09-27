@@ -423,7 +423,7 @@ if ($result) {
 
         <div class="admin-section-heading">
             <div>
-                <span class="admin-section-number">01 / COMPOSE</span>
+                <span class="eyebrow">01 / COMPOSE</span>
 
                 <h2>
                     New <em>announcement.</em>
@@ -556,7 +556,7 @@ if ($result) {
 
         <div class="admin-section-heading">
             <div>
-                <span class="admin-section-number">02 / DIRECTORY</span>
+                <span class="eyebrow">02 / DIRECTORY</span>
 
                 <h2>
                     Announcement <em>archive.</em>

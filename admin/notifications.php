@@ -290,7 +290,7 @@ $query_string = http_build_query([
 
         <div class="admin-section-heading">
             <div>
-                <span class="admin-section-number">
+                <span class="eyebrow">
                     01 / OVERVIEW
                 </span>
 
@@ -343,7 +343,7 @@ $query_string = http_build_query([
 
         <div class="admin-section-heading">
             <div>
-                <span class="admin-section-number">
+                <span class="eyebrow">
                     02 / FILTER
                 </span>
 
@@ -456,7 +456,7 @@ $query_string = http_build_query([
 
         <div class="admin-section-heading">
             <div>
-                <span class="admin-section-number">
+                <span class="eyebrow">
                     03 / DIRECTORY
                 </span>
 

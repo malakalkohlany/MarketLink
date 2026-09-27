@@ -11,12 +11,10 @@ $stmt = $conn->prepare("
 ");
 
 $stmt->execute();
-
 $result = $stmt->get_result();
 $row = $result->fetch_row();
-
 $total_customers = (int) $row[0];
-
+$stmt->close();
 
 $stmt = $conn->prepare("
     SELECT COUNT(*)
@@ -24,12 +22,10 @@ $stmt = $conn->prepare("
 ");
 
 $stmt->execute();
-
 $result = $stmt->get_result();
 $row = $result->fetch_row();
-
 $total_farmers = (int) $row[0];
-
+$stmt->close();
 
 $stmt = $conn->prepare("
     SELECT COUNT(*)
@@ -37,12 +33,10 @@ $stmt = $conn->prepare("
 ");
 
 $stmt->execute();
-
 $result = $stmt->get_result();
 $row = $result->fetch_row();
-
 $total_markets = (int) $row[0];
-
+$stmt->close();
 
 $stmt = $conn->prepare("
     SELECT COUNT(*)
@@ -50,12 +44,10 @@ $stmt = $conn->prepare("
 ");
 
 $stmt->execute();
-
 $result = $stmt->get_result();
 $row = $result->fetch_row();
-
 $total_products = (int) $row[0];
-
+$stmt->close();
 
 $stmt = $conn->prepare("
     SELECT COUNT(*)
@@ -63,12 +55,10 @@ $stmt = $conn->prepare("
 ");
 
 $stmt->execute();
-
 $result = $stmt->get_result();
 $row = $result->fetch_row();
-
 $total_orders = (int) $row[0];
-
+$stmt->close();
 
 $stmt = $conn->prepare("
     SELECT COUNT(*)
@@ -77,12 +67,10 @@ $stmt = $conn->prepare("
 ");
 
 $stmt->execute();
-
 $result = $stmt->get_result();
 $row = $result->fetch_row();
-
 $completed_orders = (int) $row[0];
-
+$stmt->close();
 
 $stmt = $conn->prepare("
     SELECT COALESCE(SUM(subtotal), 0)
@@ -91,11 +79,11 @@ $stmt = $conn->prepare("
 ");
 
 $stmt->execute();
-
 $result = $stmt->get_result();
 $row = $result->fetch_row();
-
 $total_sales = (float) $row[0];
+$stmt->close();
+
 $stmt = $conn->prepare("
     SELECT
         o.id,
@@ -114,10 +102,9 @@ $stmt = $conn->prepare("
 ");
 
 $stmt->execute();
-
 $result = $stmt->get_result();
 $recent_orders = $result->fetch_all(MYSQLI_ASSOC);
-
+$stmt->close();
 
 $stmt = $conn->prepare("
     SELECT
@@ -135,9 +122,9 @@ $stmt = $conn->prepare("
 ");
 
 $stmt->execute();
-
 $result = $stmt->get_result();
 $top_farmers = $result->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
 
 $stmt = $conn->prepare("
     SELECT
@@ -155,17 +142,14 @@ $stmt = $conn->prepare("
 ");
 
 $stmt->execute();
-
 $result = $stmt->get_result();
 $market_revenue = $result->fetch_all(MYSQLI_ASSOC);
-
+$stmt->close();
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -175,438 +159,590 @@ $market_revenue = $result->fetch_all(MYSQLI_ASSOC);
 
     <title>Reports | MarketLink</title>
 
-    <link rel="stylesheet" href="../assets/css/base.css">
-    <link rel="stylesheet" href="../assets/css/navbar.css">
-    <link rel="stylesheet" href="../assets/css/sidebar.css">
+    <link
+        rel="stylesheet"
+        href="../assets/css/base.css"
+    >
 
+    <link
+        rel="stylesheet"
+        href="../assets/css/navbar.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/sidebar.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/admin.css"
+    >
+    
+    <link rel="stylesheet" href="../assets/css/admin_ann.css">
 </head>
 
 <body>
 
-    <?php include __DIR__ . '/../includes/navbar.php'; ?>
+<?php include __DIR__ . '/../includes/navbar.php'; ?>
+<?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
+<main class="main-content admin-reports-page">
 
-    <main class="main-content">
+    <section class="admin-page-hero">
+        <div class="admin-page-hero-copy">
+            <span class="eyebrow">
+                ADMIN / REPORTS
+            </span>
 
-        <div class="page-header">
+            <h1>
+                MarketLink <em>overview.</em>
+            </h1>
 
+            <p>
+                View system activity, order performance,
+                farmer activity, and market revenue.
+            </p>
+        </div>
+
+        <div class="admin-page-mark">
+            10
+        </div>
+    </section>
+
+    <section class="admin-report-overview-section">
+
+        <div class="admin-section-heading">
             <div>
+                <span class="admin-section-number">
+                    01 / OVERVIEW
+                </span>
 
-                <h1>
-                    Reports
-                </h1>
+                <h2>
+                    System <em>statistics.</em>
+                </h2>
+            </div>
 
-                <p>
-                    View system statistics and reports.
-                </p>
+            <span class="admin-record-count">
+                Live totals
+            </span>
+        </div>
 
+        <div class="admin-report-stat-grid">
+
+            <div class="admin-report-stat-card admin-report-stat-customers">
+                <span class="admin-report-stat-label">
+                    Total customers
+                </span>
+
+                <strong>
+                    <?= $total_customers ?>
+                </strong>
+
+                <span class="admin-report-stat-note">
+                    Registered accounts
+                </span>
+            </div>
+
+            <div class="admin-report-stat-card admin-report-stat-farmers">
+                <span class="admin-report-stat-label">
+                    Total farmers
+                </span>
+
+                <strong>
+                    <?= $total_farmers ?>
+                </strong>
+
+                <span class="admin-report-stat-note">
+                    Local farmer stalls
+                </span>
+            </div>
+
+            <div class="admin-report-stat-card admin-report-stat-markets">
+                <span class="admin-report-stat-label">
+                    Total markets
+                </span>
+
+                <strong>
+                    <?= $total_markets ?>
+                </strong>
+
+                <span class="admin-report-stat-note">
+                    Market locations
+                </span>
+            </div>
+
+            <div class="admin-report-stat-card admin-report-stat-products">
+                <span class="admin-report-stat-label">
+                    Total products
+                </span>
+
+                <strong>
+                    <?= $total_products ?>
+                </strong>
+
+                <span class="admin-report-stat-note">
+                    Listed produce
+                </span>
+            </div>
+
+            <div class="admin-report-stat-card admin-report-stat-orders">
+                <span class="admin-report-stat-label">
+                    Total orders
+                </span>
+
+                <strong>
+                    <?= $total_orders ?>
+                </strong>
+
+                <span class="admin-report-stat-note">
+                    All submitted orders
+                </span>
+            </div>
+
+            <div class="admin-report-stat-card admin-report-stat-completed">
+                <span class="admin-report-stat-label">
+                    Completed orders
+                </span>
+
+                <strong>
+                    <?= $completed_orders ?>
+                </strong>
+
+                <span class="admin-report-stat-note">
+                    Successfully completed
+                </span>
+            </div>
+
+            <div class="admin-report-stat-card admin-report-stat-sales">
+                <span class="admin-report-stat-label">
+                    Total sales
+                </span>
+
+                <strong>
+                    <?= number_format($total_sales, 2) ?>
+                </strong>
+
+                <span class="admin-report-stat-note">
+                    From completed orders
+                </span>
             </div>
 
         </div>
 
+    </section>
 
-        <section class="details-grid">
+    <section class="admin-report-section">
 
-
-            <div class="form-group">
-
-                <label>
-                    Total Customers
-                </label>
-
-                <p>
-                    <?= $total_customers ?>
-                </p>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Total Farmers
-                </label>
-
-                <p>
-                    <?= $total_farmers ?>
-                </p>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Total Markets
-                </label>
-
-                <p>
-                    <?= $total_markets ?>
-                </p>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Total Products
-                </label>
-
-                <p>
-                    <?= $total_products ?>
-                </p>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Total Orders
-                </label>
-
-                <p>
-                    <?= $total_orders ?>
-                </p>
-
-            </div>
-            <div class="form-group">
-
-                <label>
-                    Completed Orders
-                </label>
-
-                <p>
-                    <?= $completed_orders ?>
-                </p>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Total Sales
-                </label>
-
-                <p>
-                    <?= number_format(
-                        $total_sales,
-                        2
-                    ) ?>
-                </p>
-
-            </div>
-
-
-        </section>
-
-
-        <section class="table-section">
-
-            <div class="section-header">
+        <div class="admin-section-heading">
+            <div>
+                <span class="admin-section-number">
+                    02 / RECENT ORDERS
+                </span>
 
                 <h2>
-                    Recent Orders
+                    Recent <em>orders.</em>
                 </h2>
-
             </div>
 
+            <span class="admin-record-count">
+                Latest 10
+            </span>
+        </div>
 
-            <div class="table-responsive">
+        <div class="admin-reports-table">
 
-                <table class="data-table">
+            <table>
 
-                    <thead>
+                <thead>
+                    <tr>
+                        <th class="admin-report-order-id">
+                            Order
+                        </th>
+
+                        <th class="admin-report-order-customer">
+                            Customer
+                        </th>
+
+                        <th class="admin-report-order-market">
+                            Market
+                        </th>
+
+                        <th class="admin-report-order-status">
+                            Status
+                        </th>
+
+                        <th class="admin-report-order-total">
+                            Subtotal
+                        </th>
+
+                        <th class="admin-report-order-date">
+                            Date
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                <?php if (!empty($recent_orders)): ?>
+
+                    <?php foreach ($recent_orders as $order): ?>
+
+                        <?php
+                        $status = $order['status'] ?? 'unknown';
+
+                        $statusClass = match ($status) {
+                            'completed' => 'admin-status-active',
+                            'pending' => 'admin-status-pending',
+                            'processing' => 'admin-status-processing',
+                            'cancelled' => 'admin-status-rejected',
+                            'rejected' => 'admin-status-rejected',
+                            default => 'admin-status-default'
+                        };
+                        ?>
 
                         <tr>
 
-                            <th>
-                                Order ID
-                            </th>
+                            <td>
+                                <span class="admin-report-primary">
+                                    #<?= (int) $order['id'] ?>
+                                </span>
+                            </td>
 
-                            <th>
-                                Customer
-                            </th>
+                            <td>
+                                <span class="admin-report-primary">
+                                    <?= htmlspecialchars(
+                                        $order['customer_name'] ?? 'N/A',
+                                        ENT_QUOTES,
+                                        'UTF-8'
+                                    ) ?>
+                                </span>
+                            </td>
 
-                            <th>
-                                Market
-                            </th>
+                            <td>
+                                <span class="admin-report-secondary">
+                                    <?= htmlspecialchars(
+                                        $order['market_name'] ?? 'N/A',
+                                        ENT_QUOTES,
+                                        'UTF-8'
+                                    ) ?>
+                                </span>
+                            </td>
 
-                            <th>
-                                Status
-                            </th>
+                            <td>
+                                <span class="admin-status <?= $statusClass ?>">
+                                    <span class="admin-status-dot"></span>
+                                    <?= htmlspecialchars(
+                                        ucfirst($status),
+                                        ENT_QUOTES,
+                                        'UTF-8'
+                                    ) ?>
+                                </span>
+                            </td>
 
-                            <th>
-                                Subtotal
-                            </th>
+                            <td>
+                                <span class="admin-report-total">
+                                    <?= number_format(
+                                        (float) $order['subtotal'],
+                                        2
+                                    ) ?>
+                                </span>
+                            </td>
 
-                            <th>
-                                Date
-                            </th>
+                            <td>
+                                <?php if (!empty($order['created_at'])): ?>
 
-                        </tr>
-
-                    </thead>
-                    <tbody>
-
-                        <?php if (!empty($recent_orders)): ?>
-
-                            <?php foreach ($recent_orders as $order): ?>
-
-                                <tr>
-
-                                    <td>
-                                        #<?= (int)$order['id'] ?>
-                                    </td>
-
-                                    <td>
-                                        <?= htmlspecialchars(
-                                            $order['customer_name'] ?? 'N/A'
-                                        ) ?>
-                                    </td>
-
-                                    <td>
-                                        <?= htmlspecialchars(
-                                            $order['market_name'] ?? 'N/A'
-                                        ) ?>
-                                    </td>
-
-                                    <td>
-
-                                        <span
-                                            class="status status-<?= htmlspecialchars(
-                                                $order['status'] ?? ''
-                                            ) ?>"
-                                        >
-                                            <?= ucfirst(
-                                                htmlspecialchars(
-                                                    $order['status'] ?? 'N/A'
-                                                )
+                                    <div class="admin-report-date-wrap">
+                                        <span class="admin-report-date">
+                                            <?= date(
+                                                'Y-m-d',
+                                                strtotime($order['created_at'])
                                             ) ?>
                                         </span>
 
-                                    </td>
-
-                                    <td>
-                                        <?= number_format(
-                                            (float)$order['subtotal'],
-                                            2
-                                        ) ?>
-                                    </td>
-
-                                    <td>
-
-                                        <?php if (!empty($order['created_at'])): ?>
-
+                                        <span class="admin-report-time">
                                             <?= date(
-                                                'Y-m-d H:i',
-                                                strtotime(
-                                                    $order['created_at']
-                                                )
+                                                'H:i',
+                                                strtotime($order['created_at'])
                                             ) ?>
+                                        </span>
+                                    </div>
 
-                                        <?php else: ?>
+                                <?php else: ?>
 
-                                            N/A
+                                    <span class="admin-table-muted">
+                                        N/A
+                                    </span>
 
-                                        <?php endif; ?>
+                                <?php endif; ?>
+                            </td>
 
-                                    </td>
+                        </tr>
 
-                                </tr>
+                    <?php endforeach; ?>
 
-                            <?php endforeach; ?>
+                <?php else: ?>
 
-                        <?php else: ?>
+                    <tr>
+                        <td
+                            colspan="6"
+                            class="admin-table-empty"
+                        >
+                            <div class="admin-empty-state">
 
-                            <tr>
+                                <span class="admin-empty-mark">
+                                    ✦
+                                </span>
 
-                                <td colspan="6">
+                                <strong>
                                     No orders found.
-                                </td>
+                                </strong>
 
-                            </tr>
+                                <span>
+                                    Order activity will appear here
+                                    once customers place orders.
+                                </span>
 
-                        <?php endif; ?>
+                            </div>
+                        </td>
+                    </tr>
 
-                    </tbody>
+                <?php endif; ?>
 
-                </table>
+                </tbody>
 
-            </div>
+            </table>
 
-        </section>
+        </div>
 
+    </section>
 
-        <section class="table-section">
+    <section class="admin-report-section">
 
-            <div class="section-header">
+        <div class="admin-section-heading">
+            <div>
+                <span class="admin-section-number">
+                    03 / FARMER ACTIVITY
+                </span>
 
                 <h2>
-                    Farmers by Orders
+                    Farmers by <em>orders.</em>
                 </h2>
-
             </div>
 
+            <span class="admin-record-count">
+                Top 10
+            </span>
+        </div>
 
-            <div class="table-responsive">
+        <div class="admin-reports-table">
 
-                <table class="data-table">
+            <table>
 
-                    <thead>
+                <thead>
+                    <tr>
+                        <th class="admin-report-ranking-id">
+                            ID
+                        </th>
+
+                        <th class="admin-report-ranking-name">
+                            Farmer
+                        </th>
+
+                        <th class="admin-report-ranking-orders">
+                            Orders
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                <?php if (!empty($top_farmers)): ?>
+
+                    <?php foreach ($top_farmers as $index => $farmer): ?>
 
                         <tr>
 
-                            <th>
-                                ID
-                            </th>
+                            <td>
+                                <span class="admin-report-rank">
+                                    <?= $index + 1 ?>
+                                </span>
+                            </td>
 
-                            <th>
-                                Farmer
-                            </th>
+                            <td>
+                                <span class="admin-report-primary">
+                                    <?= htmlspecialchars(
+                                        $farmer['stall_name'] ?? 'N/A',
+                                        ENT_QUOTES,
+                                        'UTF-8'
+                                    ) ?>
+                                </span>
+                            </td>
 
-                            <th>
-                                Orders
-                            </th>
+                            <td>
+                                <span class="admin-report-total">
+                                    <?= (int) $farmer['orders_count'] ?>
+                                </span>
+
+                                <span class="admin-report-inline-label">
+                                    <?= (int) $farmer['orders_count'] === 1
+                                        ? 'order'
+                                        : 'orders' ?>
+                                </span>
+                            </td>
 
                         </tr>
 
-                    </thead>
-                     <tbody>
+                    <?php endforeach; ?>
 
-                        <?php if (!empty($top_farmers)): ?>
+                <?php else: ?>
 
-                            <?php foreach ($top_farmers as $farmer): ?>
+                    <tr>
+                        <td
+                            colspan="3"
+                            class="admin-table-empty"
+                        >
+                            <div class="admin-empty-state">
 
-                                <tr>
+                                <span class="admin-empty-mark">
+                                    ✦
+                                </span>
 
-                                    <td>
-                                        <?= (int)$farmer['id'] ?>
-                                    </td>
-
-                                    <td>
-                                        <?= htmlspecialchars(
-                                            $farmer['stall_name']
-                                        ) ?>
-                                    </td>
-
-                                    <td>
-                                        <?= (int)$farmer['orders_count'] ?>
-                                    </td>
-
-                                </tr>
-
-                            <?php endforeach; ?>
-
-                        <?php else: ?>
-
-                            <tr>
-
-                                <td colspan="3">
+                                <strong>
                                     No farmers found.
-                                </td>
+                                </strong>
 
-                            </tr>
+                                <span>
+                                    Farmer activity will appear here
+                                    once orders are placed.
+                                </span>
 
-                        <?php endif; ?>
+                            </div>
+                        </td>
+                    </tr>
 
-                    </tbody>
+                <?php endif; ?>
 
-                </table>
+                </tbody>
 
-            </div>
+            </table>
 
-        </section>
+        </div>
 
-        <section class="table-section">
+    </section>
 
-            <div class="section-header">
+    <section class="admin-report-section">
+
+        <div class="admin-section-heading">
+            <div>
+                <span class="admin-section-number">
+                    04 / MARKET REVENUE
+                </span>
 
                 <h2>
-                    Revenue by Market
+                    Revenue by <em>market.</em>
                 </h2>
-
             </div>
 
+            <span class="admin-record-count">
+                All markets
+            </span>
+        </div>
 
-            <div class="table-responsive">
+        <div class="admin-reports-table">
 
-                <table class="data-table">
+            <table>
 
-                    <thead>
+                <thead>
+                    <tr>
+                        <th class="admin-report-ranking-id">
+                            ID
+                        </th>
+
+                        <th class="admin-report-ranking-name">
+                            Market
+                        </th>
+
+                        <th class="admin-report-ranking-revenue">
+                            Revenue
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                <?php if (!empty($market_revenue)): ?>
+
+                    <?php foreach ($market_revenue as $index => $market): ?>
 
                         <tr>
 
-                            <th>
-                                ID
-                            </th>
+                            <td>
+                                <span class="admin-report-rank">
+                                    <?= $index + 1 ?>
+                                </span>
+                            </td>
 
-                            <th>
-                                Market
-                            </th>
+                            <td>
+                                <span class="admin-report-primary">
+                                    <?= htmlspecialchars(
+                                        $market['market_name'] ?? 'N/A',
+                                        ENT_QUOTES,
+                                        'UTF-8'
+                                    ) ?>
+                                </span>
+                            </td>
 
-                            <th>
-                                Revenue
-                            </th>
+                            <td>
+                                <span class="admin-report-total">
+                                    <?= number_format(
+                                        (float) $market['revenue'],
+                                        2
+                                    ) ?>
+                                </span>
+                            </td>
 
                         </tr>
 
-                    </thead>
+                    <?php endforeach; ?>
 
-                    <tbody>
+                <?php else: ?>
 
-                        <?php if (!empty($market_revenue)): ?>
+                    <tr>
+                        <td
+                            colspan="3"
+                            class="admin-table-empty"
+                        >
+                            <div class="admin-empty-state">
 
-                            <?php foreach ($market_revenue as $market): ?>
+                                <span class="admin-empty-mark">
+                                    ✦
+                                </span>
 
-                                <tr>
-
-                                    <td>
-                                        <?= (int)$market['id'] ?>
-                                    </td>
-
-                                    <td>
-                                        <?= htmlspecialchars(
-                                            $market['market_name']
-                                        ) ?>
-                                    </td>
-
-                                    <td>
-                                        <?= number_format(
-                                            (float)$market['revenue'],
-                                            2
-                                        ) ?>
-                                    </td>
-
-                                </tr>
-
-                            <?php endforeach; ?>
-
-                        <?php else: ?>
-
-                            <tr>
-
-                                <td colspan="3">
+                                <strong>
                                     No market revenue found.
-                                </td>
+                                </strong>
 
-                            </tr>
+                                <span>
+                                    Completed order revenue will appear
+                                    here by market.
+                                </span>
 
-                        <?php endif; ?>
+                            </div>
+                        </td>
+                    </tr>
 
-                    </tbody>
+                <?php endif; ?>
 
-                </table>
+                </tbody>
 
-            </div>
+            </table>
 
-        </section>
+        </div>
 
-    </main>
+    </section>
+
+</main>
 
 </body>
-
 </html>
