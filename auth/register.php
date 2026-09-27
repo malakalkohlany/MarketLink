@@ -105,6 +105,7 @@ $selectedRole = $role ?? '';
             class="auth-form"
         >
 
+        <?= csrf_field() ?>
 
             <!-- ==================================================
                  ROLE SELECTION

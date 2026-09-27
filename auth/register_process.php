@@ -8,9 +8,14 @@ $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    // --------------------------------------------------
-    // Get form values
-    // --------------------------------------------------
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+
+        $error = 'Invalid CSRF token.';
+
+    } else {
+
+        // --------------------------------------------------
+        // Get form values
 
     $name = trim($_POST['name'] ?? '');
     $email = trim($_POST['email'] ?? '');
@@ -270,4 +275,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     }
+}
 }
