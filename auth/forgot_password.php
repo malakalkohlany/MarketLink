@@ -1,8 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../includes/csrf.php';
+require_once __DIR__ . '/../includes/include.php';
 
 $error = '';
 $success = '';
@@ -118,10 +116,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <title>Reset Password | MarketLink</title>
 
-    <link
-        rel="stylesheet"
-        href="../assets/css/auth.css"
-    >
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="../assets/css/auth.css">
 
 </head>
 

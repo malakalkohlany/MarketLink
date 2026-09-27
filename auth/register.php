@@ -20,10 +20,9 @@ $selectedRole = $role ?? '';
 
     <title>Create Account - MarketLink</title>
 
-    <link
-        rel="stylesheet"
-        href="../assets/css/auth.css"
-    >
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="../assets/css/auth.css">
 
 </head>
 
