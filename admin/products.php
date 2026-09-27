@@ -6,6 +6,20 @@ requireRole(R_ADMIN);
 
 $errors = [];
 
+$perPage = 8;
+
+$currentPage = filter_input(
+    INPUT_GET,
+    'page',
+    FILTER_VALIDATE_INT,
+    [
+        'options' => [
+            'default' => 1,
+            'min_range' => 1
+        ]
+    ]
+);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
@@ -18,7 +32,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $action = $_POST['action'] ?? '';
 
         if ($product_id <= 0) {
+
             $errors[] = 'Invalid product.';
+
         } else {
 
             if ($action === 'approve') {
@@ -73,6 +89,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+$totalProducts = 0;
+
+$countStmt = $conn->prepare("
+    SELECT COUNT(*) AS total
+    FROM products
+");
+
+if ($countStmt) {
+
+    if ($countStmt->execute()) {
+
+        $countResult = $countStmt->get_result();
+        $countRow = $countResult->fetch_assoc();
+
+        $totalProducts = (int) ($countRow['total'] ?? 0);
+
+    } else {
+
+        $errors[] = 'Failed to count products: ' . $countStmt->error;
+    }
+
+    $countStmt->close();
+
+} else {
+
+    $errors[] = 'Failed to prepare product count query: ' . $conn->error;
+}
+
+$totalPages = max(1, (int) ceil($totalProducts / $perPage));
+
+if ($currentPage > $totalPages) {
+    $currentPage = $totalPages;
+}
+
+$offset = ($currentPage - 1) * $perPage;
+
 $products = [];
 
 $stmt = $conn->prepare("
@@ -95,9 +147,16 @@ $stmt = $conn->prepare("
     LEFT JOIN categories c
         ON p.category_id = c.id
     ORDER BY p.created_at DESC
+    LIMIT ? OFFSET ?
 ");
 
 if ($stmt) {
+
+    $stmt->bind_param(
+        "ii",
+        $perPage,
+        $offset
+    );
 
     if ($stmt->execute()) {
 
@@ -115,6 +174,15 @@ if ($stmt) {
 
     $errors[] = 'Failed to prepare product query: ' . $conn->error;
 }
+
+$startItem = $totalProducts > 0
+    ? $offset + 1
+    : 0;
+
+$endItem = min(
+    $offset + $perPage,
+    $totalProducts
+);
 
 ?>
 
@@ -144,394 +212,566 @@ if ($stmt) {
 
     <link
         rel="stylesheet"
-        href="../assets/css/dashboard.css"
+        href="../assets/css/sidebar.css"
     >
 
     <link
         rel="stylesheet"
-        href="../assets/css/sidebar.css"
+        href="../assets/css/admin.css"
     >
 
 </head>
 
 <body>
 
-    <?php include __DIR__ . '/../includes/navbar.php'; ?>
+<?php include __DIR__ . '/../includes/navbar.php'; ?>
 
-    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
+<?php include __DIR__ . '/../includes/sidebar.php'; ?>
+
+<main class="main-content admin-products-page">
+
+    <section class="admin-page-hero">
+
+        <div>
+
+            <span class="eyebrow">
+                ADMIN / PRODUCTS
+            </span>
+
+            <h1>
+                Manage local <em>produce.</em>
+            </h1>
+
+            <p>
+                Review products listed by farmers, moderate
+                submissions, and manage their availability.
+            </p>
+
+        </div>
+
+        <div class="admin-page-mark">
+            <span>05</span>
+        </div>
+
+    </section>
 
 
-    <div class="admin-container">
+    <?php if (!empty($errors)): ?>
 
-        <main class="main-content">
+        <div class="admin-page-alert alert-danger">
 
+            <span class="admin-alert-mark">
+                !
+            </span>
 
-            <!-- Page Header -->
+            <div>
 
-            <div class="page-header">
-
-                <div>
-
-                    <h1>Products</h1>
+                <?php foreach ($errors as $error): ?>
 
                     <p>
-                        View all products listed by farmers.
+                        <?= e($error) ?>
                     </p>
+
+                <?php endforeach; ?>
+
+            </div>
+
+        </div>
+
+    <?php endif; ?>
+
+
+    <section class="admin-management-section">
+
+        <div class="admin-section-heading">
+
+            <div>
+
+                <span class="eyebrow">
+                    01 / Inventory
+                </span>
+
+                <h2>
+                    All <em>products.</em>
+                </h2>
+
+            </div>
+
+            <span class="admin-record-count">
+
+                <?= $totalProducts ?>
+
+                <?= $totalProducts === 1
+                    ? 'product'
+                    : 'products'
+                ?>
+
+            </span>
+
+        </div>
+
+
+        <div class="admin-products-table">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+                        <th>Product</th>
+                        <th>Farmer</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Status</th>
+                        <th>Added</th>
+                        <th>Actions</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                <?php if (!empty($products)): ?>
+
+                    <?php foreach ($products as $product): ?>
+
+                        <?php
+
+                        $availability =
+                            (int) $product['is_available'] === 1
+                                ? 'available'
+                                : 'unavailable';
+
+                        $moderation =
+                            $product['moderation_status'] ?? '';
+
+                        ?>
+
+                        <tr>
+
+                            <td class="admin-product-id">
+
+                                #<?= (int) $product['id'] ?>
+
+                            </td>
+
+
+                            <td>
+
+                                <div class="admin-product-name">
+
+                                    <div class="admin-product-mark">
+
+                                        <?php if (!empty($product['image'])): ?>
+
+                                            <img
+                                                src="../<?= e($product['image']) ?>"
+                                                alt="<?= e($product['name'] ?? 'Product') ?>"
+                                            >
+
+                                        <?php else: ?>
+
+                                            <span>✦</span>
+
+                                        <?php endif; ?>
+
+                                    </div>
+
+                                    <div>
+
+                                        <strong>
+                                            <?= e(
+                                                $product['name'] ?? 'N/A'
+                                            ) ?>
+                                        </strong>
+
+                                        <span>
+                                            <?= e(
+                                                $product['unit'] ?? 'N/A'
+                                            ) ?>
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            </td>
+
+
+                            <td class="admin-product-farmer">
+
+                                <?= e(
+                                    $product['farmer_name'] ?? 'N/A'
+                                ) ?>
+
+                            </td>
+
+
+                            <td class="admin-product-category">
+
+                                <?= e(
+                                    $product['category_name'] ?? 'N/A'
+                                ) ?>
+
+                            </td>
+
+
+                            <td class="admin-product-price">
+
+                                $<?= number_format(
+                                    (float) $product['price'],
+                                    2
+                                ) ?>
+
+                            </td>
+
+
+                            <td class="admin-product-stock">
+
+                                <?= number_format(
+                                    (float) $product['stock_quantity'],
+                                    2
+                                ) ?>
+
+                            </td>
+
+
+                            <td>
+
+                                <div class="admin-product-statuses">
+
+                                    <span
+                                        class="admin-status admin-status-<?= $availability ?>"
+                                    >
+                                        <?= ucfirst($availability) ?>
+                                    </span>
+
+                                    <?php if ($moderation): ?>
+
+                                        <span
+                                            class="admin-status admin-moderation-<?= e($moderation) ?>"
+                                        >
+                                            <?= ucfirst(e($moderation)) ?>
+                                        </span>
+
+                                    <?php endif; ?>
+
+                                </div>
+
+                            </td>
+
+
+                            <td class="admin-product-date">
+
+                                <?= !empty($product['created_at'])
+                                    ? date(
+                                        'M j, Y',
+                                        strtotime(
+                                            $product['created_at']
+                                        )
+                                    )
+                                    : 'N/A'
+                                ?>
+
+                            </td>
+
+
+                            <td>
+
+                                <div class="admin-product-actions">
+
+                                    <?php if ($moderation === 'pending'): ?>
+
+                                        <form method="POST">
+
+                                            <?= csrf_field() ?>
+
+                                            <input
+                                                type="hidden"
+                                                name="product_id"
+                                                value="<?= (int) $product['id'] ?>"
+                                            >
+
+                                            <button
+                                                type="submit"
+                                                name="action"
+                                                value="approve"
+                                                class="admin-action-approve"
+                                            >
+                                                Approve
+                                            </button>
+
+                                        </form>
+
+                                        <form method="POST">
+
+                                            <?= csrf_field() ?>
+
+                                            <input
+                                                type="hidden"
+                                                name="product_id"
+                                                value="<?= (int) $product['id'] ?>"
+                                            >
+
+                                            <button
+                                                type="submit"
+                                                name="action"
+                                                value="reject"
+                                                class="admin-action-reject"
+                                            >
+                                                Reject
+                                            </button>
+
+                                        </form>
+
+                                    <?php endif; ?>
+
+
+                                    <?php if (
+                                        $moderation === 'approved' &&
+                                        (int) $product['is_available'] === 1
+                                    ): ?>
+
+                                        <form method="POST">
+
+                                            <?= csrf_field() ?>
+
+                                            <input
+                                                type="hidden"
+                                                name="product_id"
+                                                value="<?= (int) $product['id'] ?>"
+                                            >
+
+                                            <button
+                                                type="submit"
+                                                name="action"
+                                                value="remove"
+                                                class="admin-action-reject"
+                                            >
+                                                Remove
+                                            </button>
+
+                                        </form>
+
+                                    <?php endif; ?>
+
+
+                                    <?php if (
+                                        (int) $product['is_available'] === 0
+                                    ): ?>
+
+                                        <form method="POST">
+
+                                            <?= csrf_field() ?>
+
+                                            <input
+                                                type="hidden"
+                                                name="product_id"
+                                                value="<?= (int) $product['id'] ?>"
+                                            >
+
+                                            <button
+                                                type="submit"
+                                                name="action"
+                                                value="restore"
+                                                class="admin-action-approve"
+                                            >
+                                                Restore
+                                            </button>
+
+                                        </form>
+
+                                    <?php endif; ?>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    <?php endforeach; ?>
+
+                <?php else: ?>
+
+                    <tr>
+
+                        <td
+                            colspan="9"
+                            class="admin-table-empty"
+                        >
+
+                            <span>✦</span>
+
+                            <strong>
+                                No products found.
+                            </strong>
+
+                            <p>
+                                Products listed by farmers will
+                                appear here.
+                            </p>
+
+                        </td>
+
+                    </tr>
+
+                <?php endif; ?>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <?php if ($totalPages > 1): ?>
+
+            <div class="admin-pagination">
+
+                <div class="admin-pagination-info">
+
+                    Showing
+                    <strong><?= $startItem ?></strong>
+                    –
+                    <strong><?= $endItem ?></strong>
+                    of
+                    <strong><?= $totalProducts ?></strong>
+
+                </div>
+
+
+                <div class="admin-pagination-controls">
+
+                    <?php if ($currentPage > 1): ?>
+
+                        <a
+                            href="?page=<?= $currentPage - 1 ?>"
+                            class="admin-pagination-arrow"
+                        >
+                            Previous
+                        </a>
+
+                    <?php else: ?>
+
+                        <span class="admin-pagination-arrow disabled">
+                            Previous
+                        </span>
+
+                    <?php endif; ?>
+
+
+                    <?php
+
+                    $paginationStart = max(
+                        1,
+                        $currentPage - 2
+                    );
+
+                    $paginationEnd = min(
+                        $totalPages,
+                        $currentPage + 2
+                    );
+
+                    ?>
+
+                    <?php if ($paginationStart > 1): ?>
+
+                        <a
+                            href="?page=1"
+                            class="admin-pagination-number"
+                        >
+                            1
+                        </a>
+
+                        <?php if ($paginationStart > 2): ?>
+
+                            <span class="admin-pagination-dots">
+                                …
+                            </span>
+
+                        <?php endif; ?>
+
+                    <?php endif; ?>
+
+
+                    <?php for (
+                        $page = $paginationStart;
+                        $page <= $paginationEnd;
+                        $page++
+                    ): ?>
+
+                        <?php if ($page === $currentPage): ?>
+
+                            <span
+                                class="admin-pagination-number active"
+                            >
+                                <?= $page ?>
+                            </span>
+
+                        <?php else: ?>
+
+                            <a
+                                href="?page=<?= $page ?>"
+                                class="admin-pagination-number"
+                            >
+                                <?= $page ?>
+                            </a>
+
+                        <?php endif; ?>
+
+                    <?php endfor; ?>
+
+
+                    <?php if ($paginationEnd < $totalPages): ?>
+
+                        <?php if ($paginationEnd < $totalPages - 1): ?>
+
+                            <span class="admin-pagination-dots">
+                                …
+                            </span>
+
+                        <?php endif; ?>
+
+                        <a
+                            href="?page=<?= $totalPages ?>"
+                            class="admin-pagination-number"
+                        >
+                            <?= $totalPages ?>
+                        </a>
+
+                    <?php endif; ?>
+
+
+                    <?php if ($currentPage < $totalPages): ?>
+
+                        <a
+                            href="?page=<?= $currentPage + 1 ?>"
+                            class="admin-pagination-arrow"
+                        >
+                            Next
+                        </a>
+
+                    <?php else: ?>
+
+                        <span class="admin-pagination-arrow disabled">
+                            Next
+                        </span>
+
+                    <?php endif; ?>
 
                 </div>
 
             </div>
 
+        <?php endif; ?>
 
-            <!-- Errors -->
+    </section>
 
-            <?php if (!empty($errors)): ?>
-
-                <div class="alert alert-danger">
-
-                    <?php foreach ($errors as $error): ?>
-
-                        <p>
-                            <?= e($error) ?>
-                        </p>
-
-                    <?php endforeach; ?>
-
-                </div>
-
-            <?php endif; ?>
-
-
-            <!-- Products Table -->
-
-            <section class="table-section">
-
-                <div class="section-header">
-
-                    <h2>All Products</h2>
-
-                </div>
-
-
-                <div class="table-responsive">
-
-                    <table class="data-table">
-
-                        <thead>
-
-                            <tr>
-
-                                <th>ID</th>
-
-                                <th>Product</th>
-
-                                <th>Farmer</th>
-
-                                <th>Category</th>
-
-                                <th>Price</th>
-
-                                <th>Unit</th>
-
-                                <th>Stock</th>
-
-                                <th>Status</th>
-
-                                <th>Added</th>
-
-                                <th>Actions</th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody>
-
-                            <?php if (!empty($products)): ?>
-
-                                <?php foreach ($products as $product): ?>
-
-                                    <?php
-
-                                    $availability =
-                                        ((int) $product['is_available'] === 1)
-                                            ? 'Available'
-                                            : 'Unavailable';
-
-                                            $moderation = $product['moderation_status'] ?? '';
-
-
-                                    ?>
-
-                                    <tr>
-
-                                        <!-- ID -->
-
-                                        <td>
-
-                                            <?= (int) $product['id'] ?>
-
-                                        </td>
-
-
-                                        <!-- Product -->
-
-                                        <td>
-
-                                            <strong>
-                                                <?= e(
-                                                    $product['name'] ?? 'N/A'
-                                                ) ?>
-
-                                            </strong>
-
-                                        </td>
-
-
-                                        <!-- Farmer -->
-
-                                        <td>
-
-                                            <?= e(
-                                                $product['farmer_name'] ?? 'N/A'
-                                            ) ?>
-
-                                        </td>
-
-
-                                        <!-- Category -->
-
-                                        <td>
-
-                                            <?= e(
-                                                $product['category_name'] ?? 'N/A'
-                                            ) ?>
-
-                                        </td>
-
-
-                                        <!-- Price -->
-
-                                        <td>
-
-                                            $<?= number_format(
-                                                (float) $product['price'],
-                                                2
-                                            ) ?>
-
-                                        </td>
-
-
-                                        <!-- Unit -->
-
-                                        <td>
-
-                                            <?= e(
-                                                $product['unit'] ?? 'N/A'
-                                            ) ?>
-
-                                        </td>
-
-
-                                        <!-- Stock -->
-
-                                        <td>
-
-                                            <?= number_format(
-                                                (float) $product['stock_quantity'],
-                                                2
-                                            ) ?>
-
-                                        </td>
-
-
-                                        <!-- Status -->
-
-                                        <td>
-
-                                            <?php if ($availability === 'Available'): ?>
-
-                                                <span class="status status-active">
-
-                                                    Available
-
-                                                </span>
-
-                                            <?php else: ?>
-
-                                                <span class="status status-inactive">
-
-                                                    Unavailable
-
-                                                </span>
-
-                                            <?php endif; ?>
-
-                                            <br>
-
-
-                                        </td>
-
-
-                                        <!-- Added -->
-
-                                        <td>
-
-                                            <?= !empty($product['created_at'])
-
-                                                ? date(
-
-                                                    'Y-m-d',
-
-                                                    strtotime(
-
-                                                        $product['created_at']
-
-                                                    )
-
-                                                )
-
-                                                : 'N/A'
-
-                                            ?>
-
-                                        </td>
-
-
-                                        <!-- Actions -->
-
-                                        <td>
-
-                                            <?php if ($moderation === 'pending'): ?>
-
-                                                <form method="POST" style="display:inline;">
-
-                                                <?= csrf_field() ?>
-
-                                                    <input
-                                                        type="hidden"
-                                                        name="product_id"
-                                                        value="<?= (int) $product['id'] ?>"
-                                                    >
-
-                                                    <button
-                                                        type="submit"
-                                                        name="action"
-                                                        value="approve"
-                                                    >
-                                                        Approve
-                                                    </button>
-
-                                                </form>
-
-
-                                                <form method="POST" style="display:inline;">
-
-                                                <?= csrf_field() ?>
-
-                                                    <input
-                                                        type="hidden"
-                                                        name="product_id"
-                                                        value="<?= (int) $product['id'] ?>"
-                                                    >
-
-                                                    <button
-                                                        type="submit"
-                                                        name="action"
-                                                        value="reject"
-                                                    >
-                                                        Reject
-                                                    </button>
-
-                                                </form>
-
-                                            <?php endif; ?>
-
-
-                                            <?php if (
-                                                $moderation === 'approved'
-                                                && (int) $product['is_available'] === 1
-                                            ): ?>
-
-                                                <form method="POST" style="display:inline;">
-
-                                                <?= csrf_field() ?>
-
-                                                    <input
-                                                        type="hidden"
-                                                        name="product_id"
-                                                        value="<?= (int) $product['id'] ?>"
-                                                    >
-
-                                                    <button
-                                                        type="submit"
-                                                        name="action"
-                                                        value="remove"
-                                                    >
-                                                        Remove
-                                                    </button>
-
-                                                </form>
-
-                                            <?php endif; ?>
-
-
-                                            <?php if ((int) $product['is_available'] === 0): ?>
-
-                                                <form method="POST" style="display:inline;">
-
-                                                <?= csrf_field() ?>
-
-                                                    <input
-                                                        type="hidden"
-                                                        name="product_id"
-                                                        value="<?= (int) $product['id'] ?>"
-                                                    >
-
-                                                    <button
-                                                        type="submit"
-                                                        name="action"
-                                                        value="restore"
-                                                    >
-                                                        Restore
-                                                    </button>
-
-                                                </form>
-
-                                            <?php endif; ?>
-
-                                        </td>
-
-                                    </tr>
-
-                                <?php endforeach; ?>
-
-                            <?php else: ?>
-
-                                <tr>
-
-                                    <td colspan="10">
-
-                                        No products found.
-
-                                    </td>
-
-                                </tr>
-
-                            <?php endif; ?>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </section>
-
-        </main>
-
-    </div>
+</main>
 
 </body>
 

@@ -15,4 +15,3 @@ require_once __DIR__ . '/csrf.php';
 // Utility functions
 require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/notifications.php';
-require_once __DIR__ . '/flash.php';
