@@ -6,8 +6,6 @@ requireRole(R_FARMER);
 requireApprovedFarmer();
 
 $farmer_id = $_SESSION['farmer_id'];
-
-// Products Pagination
 $products_per_page = 10;
 
 $products_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;

@@ -1,8 +1,5 @@
 <?php
 
-/**
- * Generate and return the CSRF token.
- */
 function csrf_token(): string
 {
     if (empty($_SESSION['csrf_token'])) {
@@ -12,9 +9,6 @@ function csrf_token(): string
     return $_SESSION['csrf_token'];
 }
 
-/**
- * Return a hidden CSRF input field.
- */
 function csrf_field(): string
 {
     return '<input type="hidden" name="csrf_token" value="' .
@@ -22,9 +16,6 @@ function csrf_field(): string
         '">';
 }
 
-/**
- * Validate the submitted CSRF token.
- */
 function verify_csrf_token(?string $token): bool
 {
     if (

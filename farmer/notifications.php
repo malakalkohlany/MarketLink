@@ -8,9 +8,6 @@ requireApprovedFarmer();
 // Get current user
 $userId = (int) $_SESSION['user_id'];
 
-// --------------------------------------------------
-// Pagination
-// --------------------------------------------------
 
 $notifications_per_page = 10;
 
@@ -24,10 +21,6 @@ if ($notifications_page < 1) {
 
 $notifications_offset =
     ($notifications_page - 1) * $notifications_per_page;
-
-// --------------------------------------------------
-// Count total notifications
-// --------------------------------------------------
 
 $count_notifications_stmt = $conn->prepare("
     SELECT COUNT(*) AS total_notifications
@@ -62,10 +55,6 @@ if (
         ($notifications_page - 1) * $notifications_per_page;
 }
 
-// --------------------------------------------------
-// Count unread notifications
-// --------------------------------------------------
-
 $unreadCount = 0;
 
 $count_unread_stmt = $conn->prepare("
@@ -86,10 +75,6 @@ $unreadCount =
         ->fetch_assoc()['unread_notifications'];
 
 $count_unread_stmt->close();
-
-// --------------------------------------------------
-// Get notifications for current page
-// --------------------------------------------------
 
 $notifications = [];
 
@@ -252,9 +237,6 @@ if ($stmt) {
                 </div>
 
             </div>
-
-
-            <!-- Notifications -->
 
             <section class="notifications-section">
 
@@ -698,5 +680,4 @@ if ($stmt) {
     </script>
 
 </body>
-
 </html>

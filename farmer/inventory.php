@@ -175,7 +175,5 @@ $products = $product_stmt->get_result();
     </div>
     <?php endif; ?>
     </main>
-
-
 </body>
 </html>

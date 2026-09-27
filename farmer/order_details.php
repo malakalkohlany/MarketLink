@@ -159,6 +159,5 @@ $items = $item_stmt->get_result();
 
 </body>
 </html>
-
 </body>
 </html>

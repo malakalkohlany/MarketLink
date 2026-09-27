@@ -34,6 +34,11 @@ $user_id = getUserId();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST'){
 
+        if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        header('Location: add_product.php');
+        exit;
+        }
+
 $stmt = $conn->prepare("
     SELECT id
     FROM farmers
@@ -144,11 +149,6 @@ if (!$stmt->execute()) {
 
 $stmt->close();
 
-
-// ==================================================
-// Notify interested customers about new stock
-// ==================================================
-
 $farmerInfoStmt = $conn->prepare("
     SELECT
         f.stall_name,
@@ -173,11 +173,6 @@ if ($farmerInfoStmt) {
     if ($farmerInfo) {
 
         $stallName = $farmerInfo['stall_name'];
-
-        // ------------------------------------------
-        // Customers who favorited this farmer
-        // OR any market this farmer belongs to
-        // ------------------------------------------
 
         $customerStmt = $conn->prepare("
             SELECT DISTINCT customer_id
@@ -262,6 +257,7 @@ $categories = $category_stmt->get_result();
         <?php endif; ?>
 
         <form action="" method="POST" enctype="multipart/form-data">
+            <?= csrf_field() ?>
             <label for="name">Product Name</label>
             <input type="text" id="name" name="name" required>
             <br><br>
@@ -302,6 +298,5 @@ $categories = $category_stmt->get_result();
     </main>
 
     <script src="../assets/js/app.js"></script>
-
 </body>
 </html>
