@@ -274,9 +274,9 @@ $stmt->close();
 
             <?php else: ?>
 
-                <div class="orders-table-wrapper">
+                <div class="dashboard-table-wrapper">
 
-                    <table class="orders-table">
+                    <table class="dashboard-table">
 
                         <thead>
                             <tr>

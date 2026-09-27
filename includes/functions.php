@@ -11,9 +11,9 @@ function e($value): string
 
 function redirect(string $path): never
 {
-    redirect(BASE_URL . ltrim($path, '/'));
+    header('Location: ' . BASE_URL . ltrim($path, '/'));
+    exit;
 }
-
 function formatPrice(float|int $price): string
 {
     return number_format($price, 2);
