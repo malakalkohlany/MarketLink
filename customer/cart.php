@@ -4,6 +4,19 @@ require_once __DIR__ . '/../includes/include.php';
 
 requireRole(R_CUSTOMER);
 
+// --------------------------------------------------
+// Clear Cart
+// --------------------------------------------------
+
+if (
+    $_SERVER['REQUEST_METHOD'] === 'POST' &&
+    isset($_POST['clear_cart'])
+) {
+    $_SESSION['cart'] = [];
+
+    header('Location: cart.php');
+    exit;
+}
 
 // --------------------------------------------------
 // Get Cart
@@ -90,6 +103,41 @@ foreach ($cart as $item) {
         .cart-header p {
             margin: 0;
             color: #777;
+        }
+
+        .cart-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .clear-cart-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 15px;
+            border: 1px solid #d7b9b0;
+            border-radius: 8px;
+            background: #fff;
+            color: #8a5a5a;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .clear-cart-button:hover {
+            background: #f8e8e5;
+            border-color: #c99e94;
+        }
+
+        @media (max-width: 650px) {
+            .cart-header-row {
+                align-items: flex-start;
+                flex-direction: column;
+            }
         }
 
         .cart-layout {
@@ -336,11 +384,34 @@ foreach ($cart as $item) {
 
         <div class="cart-header">
 
-            <h1>My Cart</h1>
+            <div class="cart-header-row">
 
-            <p>
-                Review the products you want to order.
-            </p>
+                <div>
+                    <h1>My Cart</h1>
+                    <p>
+                        Review the products you want to order.
+                    </p>
+                </div>
+
+                <?php if (!empty($cart)): ?>
+                    <form
+                        method="POST"
+                        action="cart.php"
+                        onsubmit="return confirm('Are you sure you want to clear your entire cart?');"
+                    >
+                        <button
+                            type="submit"
+                            name="clear_cart"
+                            value="1"
+                            class="clear-cart-button"
+                        >
+                            <i class="fa-solid fa-trash"></i>
+                            Clear Cart
+                        </button>
+                    </form>
+                <?php endif; ?>
+
+            </div>
 
         </div>
 
