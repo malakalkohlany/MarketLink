@@ -564,7 +564,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($errorMessage === '') {
 
             header(
-                'Location: cart.php?added=1'
+                'Location: products.php'
             );
 
             exit;
