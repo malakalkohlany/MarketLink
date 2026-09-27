@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     );
 
     if (!$stmt->execute()) {
-        die("Insert failed: " . $stmt->error);
+        die("Insert failed.");
     }
 
     $stmt->close();

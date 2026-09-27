@@ -107,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt = $conn->prepare($sql);
 
     if (!$stmt) {
-        die("Failed to prepare user update: " . $conn->error);
+        die("Failed to prepare user update.");
     }
 
     $stmt->bind_param(
@@ -120,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     );
 
     if (!$stmt->execute()) {
-        die("Failed to update user information: " . $stmt->error);
+        die("Failed to update user information.");
     }
 
     $stmt->close();
@@ -138,7 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt = $conn->prepare($sql);
 
     if (!$stmt) {
-        die("Failed to prepare farmer update: " . $conn->error);
+        die("Failed to prepare farmer update.");
     }
 
     $stmt->bind_param(
@@ -153,7 +153,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     );
 
     if (!$stmt->execute()) {
-        die("Failed to update farmer information: " . $stmt->error);
+        die("Failed to update farmer information.");
     }
 
     $stmt->close();
@@ -181,7 +181,7 @@ $sql = "SELECT
 $stmt = $conn->prepare($sql);
 
 if (!$stmt) {
-    die("Failed to prepare farmer profile query: " . $conn->error);
+    die("Failed to prepare farmer profile query.");
 }
 
 $stmt->bind_param("i", $user_id);

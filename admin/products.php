@@ -114,7 +114,7 @@ if ($countStmt) {
 
 } else {
 
-    $errors[] = 'Failed to prepare product count query: ' . $conn->error;
+    $errors[] = 'Failed to prepare product count query.';
 }
 
 $totalPages = max(1, (int) ceil($totalProducts / $perPage));
