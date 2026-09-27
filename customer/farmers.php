@@ -10,6 +10,12 @@ if (
     $_SERVER['REQUEST_METHOD'] === 'POST'
     && isset($_POST['toggle_favorite'])
 ) {
+
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        header('Location: farmers.php');
+        exit;
+    }
+
     $farmerId = filter_input(
         INPUT_POST,
         'farmer_id',
@@ -561,6 +567,9 @@ if ($result) {
                             action="farmers.php"
                             class="farmer-favorite-form"
                         >
+
+                        <?= csrf_field() ?>
+                        
                             <input
                                 type="hidden"
                                 name="farmer_id"

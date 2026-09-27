@@ -498,7 +498,11 @@ if (
     $_SERVER['REQUEST_METHOD'] === 'POST' &&
     empty($error)
 ) {
-    $selectedPickupSlotId =
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        $error = 'Invalid CSRF token.';
+    } else {
+
+        $selectedPickupSlotId =
         (int) (
             $_POST['pickup_slot_id'] ?? 0
         );
@@ -1230,6 +1234,7 @@ if (
                 $e->getMessage();
         }
     }
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -1646,6 +1651,7 @@ if (
                     </h2>
 
                     <form method="POST">
+                        <?= csrf_field() ?>
                         <div class="form-group">
                             <label
                                 for="pickup_date"

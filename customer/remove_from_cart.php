@@ -12,6 +12,7 @@ if ($productId <= 0) {
     header('Location: cart.php');
     exit;
 }
+
 if (
     isset($_SESSION['cart']) &&
     is_array($_SESSION['cart']) &&
@@ -20,5 +21,6 @@ if (
 
     unset($_SESSION['cart'][$productId]);
 }
+
 header('Location: cart.php');
 exit;
