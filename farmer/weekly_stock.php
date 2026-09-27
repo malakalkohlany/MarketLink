@@ -32,6 +32,7 @@ $week_start_date = $week_start->format('Y-m-d');
 $errors = [];
 
 $success = $_SESSION['weekly_stock_success'] ?? '';
+
 unset($_SESSION['weekly_stock_success']);
 
 /* =========================================================
@@ -49,23 +50,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'update') {
 
         $weekly_stock_id = (int) ($_POST['weekly_stock_id'] ?? 0);
+
         $actual_quantity = $_POST['actual_quantity'] ?? '';
+
         $status = $_POST['status'] ?? '';
 
-        /* ---------------------------------------------
+        $allowed_statuses = [
+            'available',
+            'sold_out',
+            'unavailable'
+        ];
+
+        /* -------------------------------------------------
            Validate ID
-        --------------------------------------------- */
+           ------------------------------------------------- */
 
         if ($weekly_stock_id <= 0) {
             $errors[] = 'Invalid weekly stock item.';
         }
 
-        /* ---------------------------------------------
+        /* -------------------------------------------------
            Validate quantity
-        --------------------------------------------- */
+           ------------------------------------------------- */
 
-        if ($actual_quantity === '' || !is_numeric($actual_quantity)) {
+        if (
+            $actual_quantity === '' ||
+            !is_numeric($actual_quantity)
+        ) {
+
             $errors[] = 'Quantity must be a valid number.';
+
         } else {
 
             $actual_quantity = (float) $actual_quantity;
@@ -75,28 +89,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        /* ---------------------------------------------
+        /* -------------------------------------------------
            Validate status
-        --------------------------------------------- */
-
-        $allowed_statuses = [
-            'available',
-            'sold_out',
-            'unavailable'
-        ];
+           ------------------------------------------------- */
 
         if (!in_array($status, $allowed_statuses, true)) {
             $errors[] = 'Invalid stock status.';
         }
 
-        /* ---------------------------------------------
-           Verify stock belongs to this farmer/current week
-        --------------------------------------------- */
+        /* -------------------------------------------------
+           Find existing row
+           ------------------------------------------------- */
+
+        $old_stock = null;
 
         if (empty($errors)) {
 
-            $check_stmt = $conn->prepare("
-                SELECT id
+            $old_stmt = $conn->prepare("
+                SELECT
+                    actual_quantity,
+                    status
                 FROM weekly_stock
                 WHERE id = ?
                   AND farmer_id = ?
@@ -104,29 +116,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 LIMIT 1
             ");
 
-            $check_stmt->bind_param(
-                "iis",
-                $weekly_stock_id,
-                $farmer_id,
-                $week_start_date
-            );
+            if (!$old_stmt) {
 
-            $check_stmt->execute();
+                $errors[] =
+                    'Failed to check weekly stock item.';
 
-            $check_result = $check_stmt->get_result();
+            } else {
 
-            if ($check_result->num_rows === 0) {
-                $errors[] = 'Weekly stock item not found.';
+                $old_stmt->bind_param(
+                    "iis",
+                    $weekly_stock_id,
+                    $farmer_id,
+                    $week_start_date
+                );
+
+                if (!$old_stmt->execute()) {
+
+                    $errors[] =
+                        'Failed to check weekly stock item.';
+
+                } else {
+
+                    $old_result = $old_stmt->get_result();
+
+                    $old_stock = $old_result->fetch_assoc();
+
+                    if (!$old_stock) {
+
+                        $errors[] =
+                            'Weekly stock item not found.';
+                    }
+                }
+
+                $old_stmt->close();
             }
-
-            $check_stmt->close();
         }
 
-        /* ---------------------------------------------
-           Update
-        --------------------------------------------- */
+        /* -------------------------------------------------
+           Update row
+           ------------------------------------------------- */
 
-        if (empty($errors)) {
+        if (empty($errors) && $old_stock) {
+
+            $old_quantity =
+                (float) $old_stock['actual_quantity'];
+
+            $old_status =
+                (string) $old_stock['status'];
+
+            $stock_changed =
+                abs($old_quantity - $actual_quantity) > 0.00001
+                || $old_status !== $status;
 
             $update_stmt = $conn->prepare("
                 UPDATE weekly_stock
@@ -138,30 +178,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   AND week_start = ?
             ");
 
-            $update_stmt->bind_param(
-                "dsiis",
-                $actual_quantity,
-                $status,
-                $weekly_stock_id,
-                $farmer_id,
-                $week_start_date
-            );
+            if (!$update_stmt) {
 
-            if ($update_stmt->execute()) {
+                $errors[] =
+                    'Failed to prepare weekly stock update.';
+
+            } else {
+
+                $update_stmt->bind_param(
+                    "dsiis",
+                    $actual_quantity,
+                    $status,
+                    $weekly_stock_id,
+                    $farmer_id,
+                    $week_start_date
+                );
+
+                if (!$update_stmt->execute()) {
+
+                    $errors[] =
+                        'Failed to update weekly stock.';
+                }
+
+                $update_stmt->close();
+            }
+
+            /* ---------------------------------------------
+               Notify customers after successful update
+               --------------------------------------------- */
+
+            if (empty($errors)) {
+
+                if ($stock_changed) {
+
+                    notifyWeeklyStockUpdated(
+                        $conn,
+                        (int) $farmer_id,
+                        $week_start_date
+                    );
+                }
 
                 $_SESSION['weekly_stock_success'] =
                     'Weekly stock updated successfully.';
 
-                $update_stmt->close();
-
                 redirect('farmer/weekly_stock.php');
-
-            } else {
-
-                $errors[] = 'Failed to update weekly stock.';
             }
-
-            $update_stmt->close();
         }
     }
 
@@ -171,20 +232,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     elseif ($action === 'update_all') {
 
-        $quantities = $_POST['actual_quantity'] ?? [];
-        $statuses = $_POST['status'] ?? [];
+        $quantities =
+            $_POST['actual_quantity'] ?? [];
 
-        if (!is_array($quantities) || !is_array($statuses)) {
+        $statuses =
+            $_POST['status'] ?? [];
 
-            $errors[] = 'Invalid weekly stock data.';
+        /* -------------------------------------------------
+           Validate arrays
+           ------------------------------------------------- */
 
-        } else {
+        if (
+            !is_array($quantities) ||
+            !is_array($statuses)
+        ) {
 
-            /*
-             * First validate everything BEFORE updating anything.
-             * This prevents half of the rows from being saved
-             * if one row contains invalid data.
-             */
+            $errors[] =
+                'Invalid weekly stock data.';
+        }
+
+        /* -------------------------------------------------
+           Validate every submitted row
+           ------------------------------------------------- */
+
+        if (empty($errors)) {
 
             $validated_rows = [];
 
@@ -193,33 +264,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stock_id = (int) $stock_id;
 
                 if ($stock_id <= 0) {
-                    $errors[] = 'Invalid weekly stock item.';
+
+                    $errors[] =
+                        'Invalid weekly stock item.';
+
                     break;
                 }
 
-                if ($quantity === '' || !is_numeric($quantity)) {
+                if (
+                    $quantity === '' ||
+                    !is_numeric($quantity)
+                ) {
+
                     $errors[] =
                         'Quantity for one of the products is invalid.';
+
                     break;
                 }
 
                 $quantity = (float) $quantity;
 
                 if ($quantity < 0) {
+
                     $errors[] =
                         'Quantity cannot be negative.';
+
                     break;
                 }
 
-                $status = $statuses[$stock_id] ?? '';
+                $status =
+                    $statuses[$stock_id] ?? '';
 
                 if (!in_array(
                     $status,
-                    ['available', 'sold_out', 'unavailable'],
+                    [
+                        'available',
+                        'sold_out',
+                        'unavailable'
+                    ],
                     true
                 )) {
+
                     $errors[] =
                         'One of the stock statuses is invalid.';
+
                     break;
                 }
 
@@ -229,92 +317,249 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'status' => $status
                 ];
             }
+        }
 
-            /* -----------------------------------------
-               Make sure both arrays represent rows
-            ----------------------------------------- */
+        /* -------------------------------------------------
+           Make sure both arrays contain matching rows
+           ------------------------------------------------- */
 
-            if (empty($errors)) {
+        if (empty($errors)) {
 
-                foreach ($statuses as $stock_id => $status) {
+            foreach ($statuses as $stock_id => $status) {
 
-                    if (!array_key_exists($stock_id, $quantities)) {
+                if (
+                    !array_key_exists(
+                        $stock_id,
+                        $quantities
+                    )
+                ) {
 
-                        $errors[] =
-                            'Invalid weekly stock data.';
-                        break;
-                    }
+                    $errors[] =
+                        'Invalid weekly stock data.';
+
+                    break;
                 }
             }
+        }
 
-            /* -----------------------------------------
-               Save everything
-            ----------------------------------------- */
+        /* -------------------------------------------------
+           Get current database values
+           ------------------------------------------------- */
 
-            if (empty($errors)) {
+        $old_stock = [];
+
+        if (empty($errors)) {
+
+            $old_stmt = $conn->prepare("
+                SELECT
+                    id,
+                    actual_quantity,
+                    status
+                FROM weekly_stock
+                WHERE farmer_id = ?
+                  AND week_start = ?
+            ");
+
+            if (!$old_stmt) {
+
+                $errors[] =
+                    'Failed to check current weekly stock.';
+
+            } else {
+
+                $old_stmt->bind_param(
+                    "is",
+                    $farmer_id,
+                    $week_start_date
+                );
+
+                if (!$old_stmt->execute()) {
+
+                    $errors[] =
+                        'Failed to check current weekly stock.';
+
+                } else {
+
+                    $old_result =
+                        $old_stmt->get_result();
+
+                    while (
+                        $old_row =
+                        $old_result->fetch_assoc()
+                    ) {
+
+                        $id =
+                            (int) $old_row['id'];
+
+                        $old_stock[$id] = [
+                            'quantity' =>
+                                (float) $old_row['actual_quantity'],
+
+                            'status' =>
+                                (string) $old_row['status']
+                        ];
+                    }
+                }
+
+                $old_stmt->close();
+            }
+        }
+
+        /* -------------------------------------------------
+           Check submitted rows actually belong to farmer
+           ------------------------------------------------- */
+
+        $stock_changed = false;
+
+        if (empty($errors)) {
+
+            foreach ($validated_rows as $row) {
+
+                $stock_id = $row['id'];
+
+                if (!isset($old_stock[$stock_id])) {
+
+                    $errors[] =
+                        'One of the weekly stock items could not be found.';
+
+                    break;
+                }
+
+                $old_quantity =
+                    $old_stock[$stock_id]['quantity'];
+
+                $old_status =
+                    $old_stock[$stock_id]['status'];
+
+                if (
+                    abs(
+                        $old_quantity -
+                        $row['quantity']
+                    ) > 0.00001
+                    ||
+                    $old_status !== $row['status']
+                ) {
+
+                    $stock_changed = true;
+
+                    /*
+                     * We only need to know whether
+                     * something changed.
+                     */
+                    break;
+                }
+            }
+        }
+
+        /* -------------------------------------------------
+           Update everything
+           ------------------------------------------------- */
+
+        if (empty($errors)) {
+
+            $update_stmt = null;
+
+            $transaction_started = false;
+
+            try {
 
                 $conn->begin_transaction();
 
-                try {
+                $transaction_started = true;
 
-                    $update_stmt = $conn->prepare("
-                        UPDATE weekly_stock
-                        SET
-                            actual_quantity = ?,
-                            status = ?
-                        WHERE id = ?
-                          AND farmer_id = ?
-                          AND week_start = ?
-                    ");
+                $update_stmt = $conn->prepare("
+                    UPDATE weekly_stock
+                    SET
+                        actual_quantity = ?,
+                        status = ?
+                    WHERE id = ?
+                      AND farmer_id = ?
+                      AND week_start = ?
+                ");
 
-                    foreach ($validated_rows as $row) {
+                if (!$update_stmt) {
 
-                        $update_stmt->bind_param(
-                            "dsiis",
-                            $row['quantity'],
-                            $row['status'],
-                            $row['id'],
-                            $farmer_id,
-                            $week_start_date
+                    throw new Exception(
+                        'Failed to prepare weekly stock update.'
+                    );
+                }
+
+                foreach ($validated_rows as $row) {
+
+                    $quantity = $row['quantity'];
+                    $status = $row['status'];
+                    $stock_id = $row['id'];
+
+                    $update_stmt->bind_param(
+                        "dsiis",
+                        $quantity,
+                        $status,
+                        $stock_id,
+                        $farmer_id,
+                        $week_start_date
+                    );
+
+                    if (!$update_stmt->execute()) {
+
+                        throw new Exception(
+                            'Failed to update weekly stock.'
                         );
-
-                        if (!$update_stmt->execute()) {
-                            throw new Exception(
-                                'Failed to update weekly stock.'
-                            );
-                        }
-
-                        /*
-                         * If the ID did not actually belong to this
-                         * farmer/current week, affected_rows will be 0.
-                         */
-                        if ($update_stmt->affected_rows < 0) {
-                            throw new Exception(
-                                'Failed to update weekly stock.'
-                            );
-                        }
                     }
+                }
+
+                /*
+                 * The statement is no longer needed.
+                 * Close it BEFORE committing.
+                 */
+                $update_stmt->close();
+                $update_stmt = null;
+
+                $conn->commit();
+
+                $transaction_started = false;
+
+                /* -----------------------------------------
+                   Notify customers ONCE
+                   ----------------------------------------- */
+
+                if ($stock_changed) {
+
+                    notifyWeeklyStockUpdated(
+                        $conn,
+                        (int) $farmer_id,
+                        $week_start_date
+                    );
+                }
+
+                $_SESSION['weekly_stock_success'] =
+                    'All weekly stock changes saved successfully.';
+
+                redirect('farmer/weekly_stock.php');
+
+            } catch (Throwable $e) {
+
+                /*
+                 * Only rollback if the transaction
+                 * is actually still active.
+                 */
+                if ($transaction_started) {
+                    $conn->rollback();
+                }
+
+                /*
+                 * Close the statement only if it
+                 * still exists and has not already
+                 * been closed.
+                 */
+                if ($update_stmt !== null) {
 
                     $update_stmt->close();
 
-                    $conn->commit();
-
-                    $_SESSION['weekly_stock_success'] =
-                        'All weekly stock changes saved successfully.';
-
-                    redirect('farmer/weekly_stock.php');
-
-                } catch (Throwable $e) {
-
-                    $conn->rollback();
-
-                    if (isset($update_stmt)) {
-                        $update_stmt->close();
-                    }
-
-                    $errors[] =
-                        'Failed to save weekly stock changes.';
+                    $update_stmt = null;
                 }
+
+                $errors[] =
+                    'Failed to save weekly stock changes.';
             }
         }
     }
@@ -354,19 +599,34 @@ $generate_stmt = $conn->prepare("
       )
 ");
 
-$generate_stmt->bind_param(
-    "sis",
-    $week_start_date,
-    $farmer_id,
+if ($generate_stmt) {
+
+    $generate_stmt->bind_param(
+        "sis",
+        $week_start_date,
+        $farmer_id,
+        $week_start_date
+    );
+
+    $generate_stmt->execute();
+
+    $generate_stmt->close();
+}
+
+/* =========================================================
+   SEND WEEKLY FARMER REMINDER
+   ========================================================= */
+
+sendWeeklyStockReminders(
+    $conn,
     $week_start_date
 );
-
-$generate_stmt->execute();
-$generate_stmt->close();
 
 /* =========================================================
    GET CURRENT WEEKLY STOCK
    ========================================================= */
+
+$weekly_stock = [];
 
 $stock_stmt = $conn->prepare("
     SELECT
@@ -393,23 +653,30 @@ $stock_stmt = $conn->prepare("
     ORDER BY p.name ASC
 ");
 
-$stock_stmt->bind_param(
-    "is",
-    $farmer_id,
-    $week_start_date
-);
+if ($stock_stmt) {
 
-$stock_stmt->execute();
+    $stock_stmt->bind_param(
+        "is",
+        $farmer_id,
+        $week_start_date
+    );
 
-$stock_result = $stock_stmt->get_result();
+    if ($stock_stmt->execute()) {
 
-$weekly_stock = [];
+        $stock_result =
+            $stock_stmt->get_result();
 
-while ($row = $stock_result->fetch_assoc()) {
-    $weekly_stock[] = $row;
+        while (
+            $row =
+            $stock_result->fetch_assoc()
+        ) {
+
+            $weekly_stock[] = $row;
+        }
+    }
+
+    $stock_stmt->close();
 }
-
-$stock_stmt->close();
 
 ?>
 
@@ -639,38 +906,38 @@ $stock_stmt->close();
 <body>
 
 <?php include __DIR__ . '/../includes/navbar.php'; ?>
+
 <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
 <div class="page-layout">
 
-    
-
     <main class="main-content">
 
-        <!-- ============================================
+        <!-- =================================================
              PAGE HEADER
-        ============================================= -->
+             ================================================= -->
 
         <div class="page-header">
 
             <h1>Weekly Stock</h1>
 
             <p>
-                Manage the quantity and availability of your products
-                for the current week.
+                Manage the quantity and availability of your
+                products for the current week.
             </p>
 
         </div>
 
-
-        <!-- ============================================
+        <!-- =================================================
              ALERTS
-        ============================================= -->
+             ================================================= -->
 
         <?php if (!empty($success)): ?>
 
             <div class="alert alert-success">
+
                 <?= htmlspecialchars($success) ?>
+
             </div>
 
         <?php endif; ?>
@@ -693,9 +960,9 @@ $stock_stmt->close();
         <?php endif; ?>
 
 
-        <!-- ============================================
+        <!-- =================================================
              WEEK INFO
-        ============================================= -->
+             ================================================= -->
 
         <div class="week-info">
 
@@ -716,9 +983,9 @@ $stock_stmt->close();
         </div>
 
 
-        <!-- ============================================
+        <!-- =================================================
              ACTIONS
-        ============================================= -->
+             ================================================= -->
 
         <div class="stock-actions">
 
@@ -732,6 +999,7 @@ $stock_stmt->close();
                 </a>
 
             </div>
+
 
             <?php if (!empty($weekly_stock)): ?>
 
@@ -752,15 +1020,9 @@ $stock_stmt->close();
         </div>
 
 
-        <!-- ============================================
+        <!-- =================================================
              SAVE ALL FORM
-             
-             IMPORTANT:
-             This is the ONLY large form around the table.
-
-             Individual Save forms are placed AFTER this
-             form, so they are NOT nested.
-        ============================================= -->
+             ================================================= -->
 
         <form
             method="POST"
@@ -773,7 +1035,6 @@ $stock_stmt->close();
                 value="update_all"
             >
 
-
             <div class="stock-table-wrapper">
 
                 <?php if (empty($weekly_stock)): ?>
@@ -783,8 +1044,9 @@ $stock_stmt->close();
                         <h3>No weekly stock yet</h3>
 
                         <p>
-                            Add active products to your weekly stock
-                            template to generate your weekly stock.
+                            Add active products to your weekly
+                            stock template to generate your
+                            weekly stock.
                         </p>
 
                     </div>
@@ -821,12 +1083,16 @@ $stock_stmt->close();
 
                         </thead>
 
+
                         <tbody>
 
                         <?php foreach ($weekly_stock as $stock): ?>
 
                             <?php
-                                $stock_id = (int) $stock['id'];
+
+                            $stock_id =
+                                (int) $stock['id'];
+
                             ?>
 
                             <tr>
@@ -836,18 +1102,26 @@ $stock_stmt->close();
                                 <td>
 
                                     <div class="product-name">
+
                                         <?= htmlspecialchars(
                                             $stock['product_name']
                                         ) ?>
+
                                     </div>
 
-                                    <?php if (!empty($stock['unit'])): ?>
+
+                                    <?php if (
+                                        !empty($stock['unit'])
+                                    ): ?>
 
                                         <div class="product-unit">
+
                                             Unit:
+
                                             <?= htmlspecialchars(
                                                 $stock['unit']
                                             ) ?>
+
                                         </div>
 
                                     <?php endif; ?>
@@ -861,7 +1135,9 @@ $stock_stmt->close();
 
                                     <?= htmlspecialchars(
                                         number_format(
-                                            (float) $stock['planned_quantity'],
+                                            (float) $stock[
+                                                'planned_quantity'
+                                            ],
                                             2
                                         )
                                     ) ?>
@@ -878,7 +1154,9 @@ $stock_stmt->close();
                                         id="quantity-<?= $stock_id ?>"
                                         name="actual_quantity[<?= $stock_id ?>]"
                                         value="<?= htmlspecialchars(
-                                            $stock['actual_quantity']
+                                            $stock[
+                                                'actual_quantity'
+                                            ]
                                         ) ?>"
                                         min="0"
                                         step="0.1"
@@ -957,20 +1235,17 @@ $stock_stmt->close();
         </form>
 
 
-        <!-- ============================================
+        <!-- =================================================
              INDIVIDUAL UPDATE FORMS
-             
-             These are OUTSIDE the Save All form.
-
-             The Save button above copies the current
-             visible quantity/status into these hidden
-             forms and submits only that row.
-        ============================================= -->
+             ================================================= -->
 
         <?php foreach ($weekly_stock as $stock): ?>
 
             <?php
-                $stock_id = (int) $stock['id'];
+
+            $stock_id =
+                (int) $stock['id'];
+
             ?>
 
             <form
@@ -1007,7 +1282,6 @@ $stock_stmt->close();
 
         <?php endforeach; ?>
 
-
     </main>
 
 </div>
@@ -1015,34 +1289,36 @@ $stock_stmt->close();
 
 <script>
 
-/*
- * ========================================================
- * SAVE ONE ROW
- * ========================================================
- *
- * The visible quantity and status controls belong to the
- * Save All form.
- *
- * The individual Save button copies their current values
- * into a separate hidden form and submits only that row.
- */
+/* =========================================================
+   SAVE ONE ROW
+   ========================================================= */
 
 function saveSingleStock(id) {
 
     const quantityInput =
-        document.getElementById('quantity-' + id);
+        document.getElementById(
+            'quantity-' + id
+        );
 
     const statusInput =
-        document.getElementById('status-' + id);
+        document.getElementById(
+            'status-' + id
+        );
 
     const singleQuantity =
-        document.getElementById('single-quantity-' + id);
+        document.getElementById(
+            'single-quantity-' + id
+        );
 
     const singleStatus =
-        document.getElementById('single-status-' + id);
+        document.getElementById(
+            'single-status-' + id
+        );
 
     const singleForm =
-        document.getElementById('single-update-' + id);
+        document.getElementById(
+            'single-update-' + id
+        );
 
 
     if (
@@ -1052,12 +1328,14 @@ function saveSingleStock(id) {
         !singleStatus ||
         !singleForm
     ) {
+
         return;
     }
 
 
     /*
-     * Copy current values into the individual form.
+     * Copy the visible values into
+     * the individual hidden form.
      */
 
     singleQuantity.value =
