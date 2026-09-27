@@ -10,6 +10,11 @@ if (
     $_SERVER['REQUEST_METHOD'] === 'POST'
     && isset($_POST['remove_product'])
 ) {
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        header('Location: favorites.php');
+        exit;
+    }
+
     $productId = filter_input(
         INPUT_POST,
         'product_id',
@@ -48,6 +53,11 @@ if (
     $_SERVER['REQUEST_METHOD'] === 'POST'
     && isset($_POST['remove_farmer'])
 ) {
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        header('Location: favorites.php');
+        exit;
+    }
+
     $farmerId = filter_input(
         INPUT_POST,
         'farmer_id',
@@ -86,6 +96,11 @@ if (
     $_SERVER['REQUEST_METHOD'] === 'POST'
     && isset($_POST['remove_market'])
 ) {
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        header('Location: favorites.php');
+        exit;
+    }
+
     $marketId = filter_input(
         INPUT_POST,
         'market_id',
@@ -549,6 +564,9 @@ $stmt->close();
                                 action="favorites.php"
                                 class="remove-favorite-form"
                             >
+
+                            <?= csrf_field() ?>
+                            
                                 <input
                                     type="hidden"
                                     name="product_id"
@@ -651,6 +669,9 @@ $stmt->close();
                                 action="favorites.php"
                                 class="remove-favorite-form"
                             >
+
+                            <?= csrf_field() ?>
+
                                 <input
                                     type="hidden"
                                     name="farmer_id"
@@ -752,6 +773,9 @@ $stmt->close();
                                 action="favorites.php"
                                 class="remove-favorite-form"
                             >
+
+                            <?= csrf_field() ?>
+
                                 <input
                                     type="hidden"
                                     name="market_id"

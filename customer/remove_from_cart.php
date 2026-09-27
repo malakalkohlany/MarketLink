@@ -4,29 +4,14 @@ require_once __DIR__ . '/../includes/include.php';
 
 requireRole(R_CUSTOMER);
 
-
-// --------------------------------------------------
-// Get Product ID
-// --------------------------------------------------
-
 $productId = isset($_GET['product_id'])
     ? (int) $_GET['product_id']
     : 0;
-
-
-// --------------------------------------------------
-// Validate Product ID
-// --------------------------------------------------
 
 if ($productId <= 0) {
     header('Location: cart.php');
     exit;
 }
-
-
-// --------------------------------------------------
-// Check Cart
-// --------------------------------------------------
 
 if (
     isset($_SESSION['cart']) &&
@@ -34,14 +19,8 @@ if (
     isset($_SESSION['cart'][$productId])
 ) {
 
-    // Remove product from cart
     unset($_SESSION['cart'][$productId]);
 }
-
-
-// --------------------------------------------------
-// Return To Cart
-// --------------------------------------------------
 
 header('Location: cart.php');
 exit;

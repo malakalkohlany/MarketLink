@@ -64,10 +64,8 @@ $farmer_id =$farmer['id'];
 if (
     empty($name) ||
     $category_id <= 0 ||
-    !is_numeric($price_input) ||
     $price < 0 ||
     empty($unit) ||
-    !is_numeric($stock_input) ||
     $stock_quantity < 0 ||
     empty($description)
 ) {
@@ -93,19 +91,27 @@ if (
         die("Uploaded file is not a valid image.");
     }
 
-    $allowed_types = ['image/jpeg', 'image/png', 'image/webp'];
+$allowed_types = [
+    'image/jpeg' => 'jpg',
+    'image/png' => 'png',
+    'image/webp' => 'webp'
+];
 
-    if (!in_array($image_info['mime'], $allowed_types, true)) {
-        die("Invalid image type.");
-    }
+if (!isset($allowed_types[$image_info['mime']])) {
+    die("Only JPG, PNG, and WebP images are allowed.");
+}
 
-    $image_extension = strtolower(
-        pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION)
-    );
+$max_file_size = 5 * 1024 * 1024; // 5 MB
 
-    $new_image_name = uniqid('product_', true) . '.' . $image_extension;
+if ($_FILES['image']['size'] > $max_file_size) {
+    die("Image size must not exceed 5 MB.");
+}
 
-    $image_path = __DIR__ . '/../assets/images/products/' . $new_image_name;
+$image_extension = $allowed_types[$image_info['mime']];
+
+$new_image_name = uniqid('product_', true) . '.' . $image_extension;
+
+$image_path = __DIR__ . '/../assets/images/products/' . $new_image_name;
 
     $image_db_path = 'assets/images/products/' . $new_image_name;
 

@@ -19,6 +19,10 @@ if (
     isset($_POST['add_announcement'])
 ) {
 
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        $errors[] = 'Invalid CSRF token.';
+    }
+
     $title = trim($_POST['title'] ?? '');
     $message = trim($_POST['message'] ?? '');
     $status = $_POST['status'] ?? 'draft';
@@ -166,6 +170,10 @@ if (
     $_SERVER['REQUEST_METHOD'] === 'POST' &&
     isset($_POST['update_status'])
 ) {
+
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        $errors[] = 'Invalid CSRF token.';
+    }
 
     $announcement_id = filter_input(
         INPUT_POST,
@@ -328,6 +336,10 @@ if (
     isset($_POST['delete_announcement'])
 ) {
 
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        $errors[] = 'Invalid CSRF token.';
+    }
+
     $announcement_id = filter_input(
         INPUT_POST,
         'id',
@@ -487,6 +499,8 @@ if ($result) {
                         method="POST"
                         action="announcements.php"
                     >
+
+                    <?= csrf_field() ?>
 
                         <div class="form-group">
 
@@ -720,6 +734,8 @@ if ($result) {
                                                             action="announcements.php"
                                                         >
 
+                                                            <?= csrf_field() ?>
+
                                                             <input
                                                                 type="hidden"
                                                                 name="id"
@@ -753,6 +769,8 @@ if ($result) {
                                                             action="announcements.php"
                                                         >
 
+                                                            <?= csrf_field() ?>
+
                                                             <input
                                                                 type="hidden"
                                                                 name="id"
@@ -785,6 +803,7 @@ if ($result) {
                                                             method="POST"
                                                             action="announcements.php"
                                                         >
+                                                            <?= csrf_field() ?>
 
                                                             <input
                                                                 type="hidden"
@@ -815,6 +834,8 @@ if ($result) {
                                                         action="announcements.php"
                                                         onsubmit="return confirm('Are you sure you want to delete this announcement?');"
                                                     >
+
+                                                        <?= csrf_field() ?>
 
                                                         <input
                                                             type="hidden"

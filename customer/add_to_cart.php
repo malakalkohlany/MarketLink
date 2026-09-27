@@ -238,7 +238,12 @@ if ($cartMarketId !== null) {
 $errorMessage = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $postedProductId = filter_input(
+
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        $errorMessage = 'Invalid CSRF token.';
+    } else {
+
+        $postedProductId = filter_input(
         INPUT_POST,
         'product_id',
         FILTER_VALIDATE_INT
@@ -405,6 +410,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
     }
+}
 }
 ?>
 <!DOCTYPE html>
@@ -709,6 +715,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     method="POST"
                     action="add_to_cart.php?id=<?= $productId ?>"
                 >
+
+                <?= csrf_field() ?>
+                
                     <input
                         type="hidden"
                         name="product_id"

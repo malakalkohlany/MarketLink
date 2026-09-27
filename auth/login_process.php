@@ -6,11 +6,19 @@ require_once __DIR__ .   '/../config/database.php';
 
 require_once __DIR__ . '/../includes/session.php';
 
+require_once __DIR__ . '/../includes/csrf.php';
+
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $email = trim($_POST['email'] ?? '');
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+
+        $error = 'Invalid CSRF token.';
+
+    } else {
+
+        $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
 
     // Validation
@@ -105,5 +113,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $stmt->close();
     }
-}
+}}
 ?>

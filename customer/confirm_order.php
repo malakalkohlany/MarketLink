@@ -1,18 +1,8 @@
 <?php
-
 require_once __DIR__ . '/../includes/include.php';
-
 requireRole(R_CUSTOMER);
 
-// ==================================================
-// Get Logged-in Customer
-// ==================================================
-
 $customerId = (int) getUserId();
-
-// ==================================================
-// Get Cart
-// ==================================================
 
 $cart = [];
 
@@ -23,18 +13,10 @@ if (
     $cart = $_SESSION['cart'];
 }
 
-// ==================================================
-// Empty Cart
-// ==================================================
-
 if (empty($cart)) {
     header('Location: cart.php');
     exit;
 }
-
-// ==================================================
-// Variables
-// ==================================================
 
 $error = '';
 
@@ -54,10 +36,6 @@ $selectedPickupDate = '';
 $selectedPickupSlotId = 0;
 $notes = '';
 
-// ==================================================
-// Current Week
-// ==================================================
-
 $today = new DateTime();
 
 $weekStart = clone $today;
@@ -73,12 +51,7 @@ $weekEnd->modify('+6 days');
 
 $weekEndDate = $weekEnd->format('Y-m-d');
 
-// ==================================================
-// Get Cart Market
-// ==================================================
-
 foreach ($cart as $item) {
-
     if (
         isset($item['market_id']) &&
         (int) $item['market_id'] > 0
@@ -98,14 +71,9 @@ foreach ($cart as $item) {
     }
 }
 
-// ==================================================
-// Get Product IDs
-// ==================================================
-
 $productIds = [];
 
 foreach ($cart as $item) {
-
     $productId = (int) (
         $item['product_id'] ?? 0
     );
@@ -119,21 +87,9 @@ $productIds = array_values(
     array_unique($productIds)
 );
 
-// ==================================================
-// Validate Product IDs
-// ==================================================
-
 if (empty($productIds)) {
-
-    $error =
-        'Your cart contains invalid products.';
-
+    $error = 'Your cart contains invalid products.';
 } else {
-
-    // ==================================================
-    // Load Products
-    // ==================================================
-
     $productStmt = $conn->prepare("
         SELECT
             id,
@@ -151,14 +107,9 @@ if (empty($productIds)) {
     ");
 
     if (!$productStmt) {
-
-        $error =
-            'Unable to load products.';
-
+        $error = 'Unable to load products.';
     } else {
-
         foreach ($productIds as $productId) {
-
             $productStmt->bind_param(
                 "i",
                 $productId
@@ -173,9 +124,7 @@ if (empty($productIds)) {
                 $product =
                     $productResult->fetch_assoc()
             ) {
-
-                $products[$productId] =
-                    $product;
+                $products[$productId] = $product;
             }
         }
 
@@ -183,14 +132,8 @@ if (empty($productIds)) {
     }
 }
 
-// ==================================================
-// Validate Cart Products
-// ==================================================
-
 if (empty($error)) {
-
     foreach ($cart as $item) {
-
         $productId = (int) (
             $item['product_id'] ?? 0
         );
@@ -199,23 +142,13 @@ if (empty($error)) {
             $item['quantity'] ?? 0
         );
 
-        // ==================================================
-        // Product Exists
-        // ==================================================
-
         if (!isset($products[$productId])) {
-
             $error =
                 'One of the products in your cart no longer exists.';
-
             break;
         }
 
         $product = $products[$productId];
-
-        // ==================================================
-        // Product Availability
-        // ==================================================
 
         if (
             (int) $product['is_available'] !== 1 ||
@@ -223,85 +156,55 @@ if (empty($error)) {
                 (string) $product['moderation_status']
             ) !== 'approved'
         ) {
-
             $error =
                 'The product "' .
                 htmlspecialchars(
                     $product['name']
                 ) .
                 '" is no longer available.';
-
             break;
         }
-
-        // ==================================================
-        // Validate Quantity
-        // ==================================================
 
         if ($quantity <= 0) {
-
             $error =
                 'Invalid quantity for one of the products.';
-
             break;
         }
-
-        // ==================================================
-        // Validate Farmer
-        // ==================================================
 
         $productFarmerId =
             (int) $product['farmer_id'];
 
         if ($farmerId === null) {
-
             $farmerId =
                 $productFarmerId;
-
         } elseif (
             $farmerId !== $productFarmerId
         ) {
-
             $error =
                 'Products from different farmers cannot be placed in the same order. Please place separate orders.';
-
             break;
         }
-
-        // ==================================================
-        // Validate Cart Market
-        // ==================================================
 
         $itemMarketId = (int) (
             $item['market_id'] ?? 0
         );
 
         if ($itemMarketId <= 0) {
-
             $error =
                 'Your cart contains an item without a valid market. Please clear your cart and add the products again.';
-
             break;
         }
 
         if ($cartMarketId === null) {
-
             $cartMarketId =
                 $itemMarketId;
-
         } elseif (
             $cartMarketId !== $itemMarketId
         ) {
-
             $error =
                 'Your cart contains products from different markets. Please clear your cart and create a new order.';
-
             break;
         }
-
-        // ==================================================
-        // Calculate Price
-        // ==================================================
 
         $unitPrice =
             (float) $product['price'];
@@ -312,46 +215,30 @@ if (empty($error)) {
         $cartSubtotal +=
             $itemSubtotal;
 
-        // ==================================================
-        // Prepare Cart Item
-        // ==================================================
-
         $cartItems[] = [
-
             'product_id' =>
                 $productId,
-
             'name' =>
                 $product['name'],
-
             'quantity' =>
                 $quantity,
-
             'unit' =>
                 $product['unit'],
-
             'unit_price' =>
                 $unitPrice,
-
             'subtotal' =>
                 $itemSubtotal,
-
             'image' =>
                 $product['image']
         ];
     }
 }
 
-// ==================================================
-// Verify Cart Market
-// ==================================================
-
 if (
     empty($error) &&
     $farmerId !== null &&
     $cartMarketId !== null
 ) {
-
     $marketStmt = $conn->prepare("
         SELECT
             m.id,
@@ -366,12 +253,9 @@ if (
     ");
 
     if (!$marketStmt) {
-
         $error =
             'Unable to verify the selected market.';
-
     } else {
-
         $marketStmt->bind_param(
             "ii",
             $farmerId,
@@ -389,34 +273,19 @@ if (
         $marketStmt->close();
 
         if (!$cartMarket) {
-
             $error =
                 'The market selected for your cart is no longer available for this farmer.';
-
         } else {
-
             $cartMarketName =
                 $cartMarket['name'];
         }
     }
 }
 
-// ==================================================
-// Ensure Current Weekly Stock Exists
-// ==================================================
-
 if (
     empty($error) &&
     $farmerId !== null
 ) {
-
-    /*
-     * Generate this week's rows from the farmer's
-     * active recurring weekly stock templates.
-     *
-     * Existing rows are never overwritten.
-     */
-
     $generateStmt = $conn->prepare("
         INSERT INTO weekly_stock
         (
@@ -457,12 +326,9 @@ if (
     ");
 
     if (!$generateStmt) {
-
         $error =
             'Unable to prepare weekly stock.';
-
     } else {
-
         $generateStmt->bind_param(
             "sis",
             $weekStartDate,
@@ -471,7 +337,6 @@ if (
         );
 
         if (!$generateStmt->execute()) {
-
             $error =
                 'Unable to prepare this week\'s stock.';
         }
@@ -479,16 +344,12 @@ if (
         $generateStmt->close();
     }
 }
-// ==================================================
-// Get Available Pickup Slots
-// ==================================================
 
 if (
     empty($error) &&
     $farmerId !== null &&
     $cartMarketId !== null
 ) {
-
     $slotStmt = $conn->prepare("
         SELECT
             ps.id,
@@ -522,11 +383,8 @@ if (
     ");
 
     if (!$slotStmt) {
-
         $error = 'Unable to load pickup slots.';
-
     } else {
-
         $slotStmt->bind_param(
             "ii",
             $farmerId,
@@ -534,11 +392,8 @@ if (
         );
 
         if (!$slotStmt->execute()) {
-
             $error = 'Unable to load pickup slots.';
-
         } else {
-
             $slotResult = $slotStmt->get_result();
 
             while ($slot = $slotResult->fetch_assoc()) {
@@ -550,45 +405,24 @@ if (
     }
 }
 
-// ==================================================
-// Build Actual Pickup Dates
-// ==================================================
-
 if (
     empty($error) &&
     !empty($pickupSlots)
 ) {
-
-    /*
-     * We keep the recurring pickup slot in pickup_slots,
-     * but calculate its real calendar date here.
-     *
-     * Example:
-     *
-     * pickup_slots:
-     *     Sunday 14:00 - 16:00
-     *
-     * becomes:
-     *     2026-09-27
-     *
-     * when the current Sunday is September 27.
-     */
-
     $dayOffsets = [
-        'Monday'    => 0,
-        'Tuesday'   => 1,
+        'Monday' => 0,
+        'Tuesday' => 1,
         'Wednesday' => 2,
-        'Thursday'  => 3,
-        'Friday'    => 4,
-        'Saturday'  => 5,
-        'Sunday'    => 6
+        'Thursday' => 3,
+        'Friday' => 4,
+        'Saturday' => 5,
+        'Sunday' => 6
     ];
 
     $todayDate = $today->format('Y-m-d');
-    $nowTime   = $today->format('H:i:s');
+    $nowTime = $today->format('H:i:s');
 
     foreach ($pickupSlots as &$slot) {
-
         $dayName = $slot['day_of_week'];
 
         if (!isset($dayOffsets[$dayName])) {
@@ -598,7 +432,6 @@ if (
             continue;
         }
 
-        // Start from Monday of current week.
         $slotDate = clone $weekStart;
 
         $slotDate->modify(
@@ -614,22 +447,15 @@ if (
 
         $slot['is_expired'] = false;
 
-        /*
-         * Past dates are unavailable.
-         */
         if ($slotDateValue < $todayDate) {
             $slot['is_expired'] = true;
             continue;
         }
 
-        /*
-         * Same-day cutoff.
-         */
         if (
             $slotDateValue === $todayDate &&
             !empty($slot['cutoff_time'])
         ) {
-
             if ($nowTime >= $slot['cutoff_time']) {
                 $slot['is_expired'] = true;
                 continue;
@@ -639,9 +465,6 @@ if (
 
     unset($slot);
 
-    /*
-     * Remove expired slots.
-     */
     $pickupSlots = array_values(
         array_filter(
             $pickupSlots,
@@ -651,11 +474,7 @@ if (
         )
     );
 
-    /*
-     * Build unique pickup dates from the remaining slots.
-     */
     foreach ($pickupSlots as $slot) {
-
         $dateValue = $slot['pickup_date'];
 
         if (!$dateValue) {
@@ -663,7 +482,6 @@ if (
         }
 
         if (!isset($pickupDates[$dateValue])) {
-
             $pickupDates[$dateValue] = [
                 'date' => $dateValue,
                 'label' => $slot['pickup_date_label']
@@ -676,20 +494,15 @@ if (
     $pickupDates = array_values($pickupDates);
 }
 
-// ==================================================
-// Process Confirm Order
-// ==================================================
-
 if (
     $_SERVER['REQUEST_METHOD'] === 'POST' &&
     empty($error)
 ) {
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        $error = 'Invalid CSRF token.';
+    } else {
 
-    // ==================================================
-    // Get Form Data
-    // ==================================================
-
-    $selectedPickupSlotId =
+        $selectedPickupSlotId =
         (int) (
             $_POST['pickup_slot_id'] ?? 0
         );
@@ -704,17 +517,10 @@ if (
             $_POST['notes'] ?? ''
         );
 
-    // ==================================================
-    // Validate Pickup Date
-    // ==================================================
-
     if ($selectedPickupDate === '') {
-
         $error =
             'Please select a pickup date.';
-
     } else {
-
         $pickupDateObject =
             DateTime::createFromFormat(
                 'Y-m-d',
@@ -727,118 +533,81 @@ if (
                 $selectedPickupDate;
 
         if (!$dateIsValid) {
-
             $error =
                 'The selected pickup date is invalid.';
-
         } elseif (
             $selectedPickupDate <
             $today->format('Y-m-d')
         ) {
-
             $error =
                 'The selected pickup date has already passed.';
-
         } elseif (
             $selectedPickupDate <
             $weekStartDate ||
             $selectedPickupDate >
             $weekEndDate
         ) {
-
             $error =
                 'Pickup must be scheduled within the current week.';
         }
     }
 
-    // ==================================================
-    // Validate Pickup Slot
-    // ==================================================
-
     if (
         empty($error) &&
         $selectedPickupSlotId <= 0
     ) {
-
         $error =
             'Please select a pickup slot.';
     }
-
-    // ==================================================
-    // Validate Notes
-    // ==================================================
 
     if (
         empty($error) &&
         strlen($notes) > 1000
     ) {
-
         $error =
             'Notes cannot exceed 1000 characters.';
     }
 
-    // ==================================================
-    // Validate Selected Date + Slot Combination
-    // ==================================================
-
     $selectedSlotFromForm = null;
 
     if (empty($error)) {
-
         foreach ($pickupSlots as $slot) {
-
             if (
                 (int)$slot['id'] ===
                 $selectedPickupSlotId
             ) {
-
                 $selectedSlotFromForm = $slot;
                 break;
             }
         }
 
         if (!$selectedSlotFromForm) {
-
             $error =
                 'The selected pickup slot is no longer available.';
-
         } elseif (
             $selectedSlotFromForm['pickup_date'] !==
             $selectedPickupDate
         ) {
-
             $error =
                 'The selected pickup date does not match the selected pickup slot.';
-
         } elseif (
             !empty($selectedSlotFromForm['cutoff_time']) &&
             $selectedPickupDate === $today->format('Y-m-d') &&
             $today->format('H:i:s') >=
                 $selectedSlotFromForm['cutoff_time']
         ) {
-
             $error =
                 'The cutoff time for this pickup slot has passed. Please select another pickup slot.';
         }
     }
 
-    // ==================================================
-    // Start Transaction
-    // ==================================================
-
     if (empty($error)) {
-
         $transactionStarted = false;
 
         try {
-
             $conn->begin_transaction();
 
             $transactionStarted = true;
-
-            // ==================================================
-            // Lock + Validate Pickup Slot
-            // ==================================================
 
             $slotStmt = $conn->prepare("
                 SELECT
@@ -858,7 +627,6 @@ if (
             ");
 
             if (!$slotStmt) {
-
                 throw new Exception(
                     'Unable to verify the pickup slot.'
                 );
@@ -882,24 +650,19 @@ if (
             $slotStmt->close();
 
             if (!$selectedSlot) {
-
                 throw new Exception(
                     'The selected pickup slot is no longer available.'
                 );
             }
 
-            // ==================================================
-            // Validate Actual Pickup Date
-            // ==================================================
-
             $dayOffsets = [
-                'Monday'    => 0,
-                'Tuesday'   => 1,
+                'Monday' => 0,
+                'Tuesday' => 1,
                 'Wednesday' => 2,
-                'Thursday'  => 3,
-                'Friday'    => 4,
-                'Saturday'  => 5,
-                'Sunday'    => 6
+                'Thursday' => 3,
+                'Friday' => 4,
+                'Saturday' => 5,
+                'Sunday' => 6
             ];
 
             if (
@@ -936,10 +699,6 @@ if (
                 );
             }
 
-            // ==================================================
-            // Check Pickup Cutoff
-            // ==================================================
-
             $currentDate =
                 $today->format('Y-m-d');
 
@@ -948,7 +707,6 @@ if (
                 $currentDate &&
                 !empty($selectedSlot['cutoff_time'])
             ) {
-
                 $nowTime =
                     date('H:i:s');
 
@@ -956,16 +714,11 @@ if (
                     $nowTime >=
                     $selectedSlot['cutoff_time']
                 ) {
-
                     throw new Exception(
                         'The cutoff time for this pickup slot has passed. Please select another pickup slot.'
                     );
                 }
             }
-
-            // ==================================================
-            // Check Pickup Slot Capacity
-            // ==================================================
 
             $countStmt = $conn->prepare("
                 SELECT
@@ -982,7 +735,6 @@ if (
             ");
 
             if (!$countStmt) {
-
                 throw new Exception(
                     'Unable to check pickup slot capacity.'
                 );
@@ -1015,17 +767,12 @@ if (
             if (
                 $maxOrders !== null &&
                 $currentOrders >=
-                    (int) $maxOrders
+                (int) $maxOrders
             ) {
-
                 throw new Exception(
                     'This pickup slot is already full. Please select another slot.'
                 );
             }
-
-            // ==================================================
-            // Verify Cart Market
-            // ==================================================
 
             $marketStmt = $conn->prepare("
                 SELECT
@@ -1041,7 +788,6 @@ if (
             ");
 
             if (!$marketStmt) {
-
                 throw new Exception(
                     'Unable to verify the market.'
                 );
@@ -1064,15 +810,10 @@ if (
             $marketStmt->close();
 
             if (!$selectedMarket) {
-
                 throw new Exception(
                     'The selected market is no longer available.'
                 );
             }
-
-            // ==================================================
-            // Recheck Weekly Stock
-            // ==================================================
 
             $stockStmt = $conn->prepare("
                 SELECT
@@ -1095,14 +836,12 @@ if (
             ");
 
             if (!$stockStmt) {
-
                 throw new Exception(
                     'Unable to verify weekly stock.'
                 );
             }
 
             foreach ($cartItems as &$cartItem) {
-
                 $productId =
                     (int) $cartItem['product_id'];
 
@@ -1122,17 +861,12 @@ if (
                     $stockResult->fetch_assoc();
 
                 if (!$currentStock) {
-
                     throw new Exception(
                         'Weekly stock for "' .
                         $cartItem['name'] .
                         '" is no longer available.'
                     );
                 }
-
-                // ==================================================
-                // Product Validation
-                // ==================================================
 
                 if (
                     (int) $currentStock['is_available'] !== 1 ||
@@ -1141,7 +875,6 @@ if (
                         $currentStock['moderation_status']
                     ) !== 'approved'
                 ) {
-
                     throw new Exception(
                         'The product "' .
                         $cartItem['name'] .
@@ -1153,20 +886,14 @@ if (
                     (int) $currentStock['farmer_id'] !==
                     $farmerId
                 ) {
-
                     throw new Exception(
                         'Product farmer information has changed.'
                     );
                 }
 
-                // ==================================================
-                // Weekly Stock Status
-                // ==================================================
-
                 if (
                     (int) $currentStock['is_active'] !== 1
                 ) {
-
                     throw new Exception(
                         'The weekly stock for "' .
                         $cartItem['name'] .
@@ -1181,7 +908,6 @@ if (
                     );
 
                 if ($weeklyStatus === 'sold_out') {
-
                     throw new Exception(
                         '"' .
                         $cartItem['name'] .
@@ -1190,7 +916,6 @@ if (
                 }
 
                 if ($weeklyStatus === 'unavailable') {
-
                     throw new Exception(
                         '"' .
                         $cartItem['name'] .
@@ -1199,17 +924,12 @@ if (
                 }
 
                 if ($weeklyStatus !== 'available') {
-
                     throw new Exception(
                         '"' .
                         $cartItem['name'] .
                         '" cannot currently be ordered.'
                     );
                 }
-
-                // ==================================================
-                // Quantity Check
-                // ==================================================
 
                 $quantity =
                     (float) $cartItem['quantity'];
@@ -1218,10 +938,7 @@ if (
                     (float)
                     $currentStock['actual_quantity'];
 
-                if (
-                    $availableStock <= 0
-                ) {
-
+                if ($availableStock <= 0) {
                     throw new Exception(
                         '"' .
                         $cartItem['name'] .
@@ -1233,7 +950,6 @@ if (
                     $quantity >
                     $availableStock
                 ) {
-
                     throw new Exception(
                         'Not enough weekly stock is available for "' .
                         $cartItem['name'] .
@@ -1247,10 +963,6 @@ if (
                         ' remaining.'
                     );
                 }
-
-                // ==================================================
-                // Use Current Database Price
-                // ==================================================
 
                 $currentPrice =
                     (float)
@@ -1275,22 +987,13 @@ if (
 
             $stockStmt->close();
 
-            // ==================================================
-            // Recalculate Subtotal
-            // ==================================================
-
             $cartSubtotal = 0;
 
             foreach ($cartItems as $cartItem) {
-
                 $cartSubtotal +=
                     (float)
                     $cartItem['subtotal'];
             }
-
-            // ==================================================
-            // Insert Order
-            // ==================================================
 
             $status = 'pending';
 
@@ -1324,7 +1027,6 @@ if (
             ");
 
             if (!$orderStmt) {
-
                 throw new Exception(
                     'Unable to create the order.'
                 );
@@ -1343,7 +1045,6 @@ if (
             );
 
             if (!$orderStmt->execute()) {
-
                 throw new Exception(
                     'Unable to save the order.'
                 );
@@ -1353,10 +1054,6 @@ if (
                 (int) $conn->insert_id;
 
             $orderStmt->close();
-
-            // ==================================================
-            // Insert Order Items
-            // ==================================================
 
             $itemStmt = $conn->prepare("
                 INSERT INTO order_items
@@ -1378,14 +1075,12 @@ if (
             ");
 
             if (!$itemStmt) {
-
                 throw new Exception(
                     'Unable to save order items.'
                 );
             }
 
             foreach ($cartItems as $cartItem) {
-
                 $productId =
                     (int)
                     $cartItem['product_id'];
@@ -1412,7 +1107,6 @@ if (
                 );
 
                 if (!$itemStmt->execute()) {
-
                     throw new Exception(
                         'Unable to save one of the order items.'
                     );
@@ -1420,10 +1114,6 @@ if (
             }
 
             $itemStmt->close();
-
-            // ==================================================
-            // Deduct Weekly Stock
-            // ==================================================
 
             $updateStockStmt = $conn->prepare("
                 UPDATE weekly_stock
@@ -1441,14 +1131,12 @@ if (
             ");
 
             if (!$updateStockStmt) {
-
                 throw new Exception(
                     'Unable to update weekly stock.'
                 );
             }
 
             foreach ($cartItems as $cartItem) {
-
                 $quantity =
                     (float)
                     $cartItem['quantity'];
@@ -1473,7 +1161,6 @@ if (
                     !$updateStockStmt->execute() ||
                     $updateStockStmt->affected_rows !== 1
                 ) {
-
                     throw new Exception(
                         'Weekly stock changed while placing your order. Please try again.'
                     );
@@ -1482,17 +1169,9 @@ if (
 
             $updateStockStmt->close();
 
-            // ==================================================
-            // Commit Transaction
-            // ==================================================
-
             $conn->commit();
 
             $transactionStarted = false;
-
-            // ==================================================
-            // Notify Farmer
-            // ==================================================
 
             $farmerUserStmt = $conn->prepare("
                 SELECT user_id
@@ -1502,7 +1181,6 @@ if (
             ");
 
             if ($farmerUserStmt) {
-
                 $farmerUserStmt->bind_param(
                     "i",
                     $farmerId
@@ -1519,7 +1197,6 @@ if (
                 $farmerUserStmt->close();
 
                 if ($farmerUser) {
-
                     createNotification(
                         $conn,
                         (int)
@@ -1531,10 +1208,6 @@ if (
                 }
             }
 
-            // ==================================================
-            // Notify Customer
-            // ==================================================
-
             createNotification(
                 $conn,
                 $customerId,
@@ -1543,30 +1216,16 @@ if (
                 "Your order (#{$orderId}) has been placed successfully and is pending farmer confirmation."
             );
 
-            // ==================================================
-            // Empty Cart
-            // ==================================================
-
             $_SESSION['cart'] = [];
-
-            // ==================================================
-            // Success Message
-            // ==================================================
 
             $_SESSION['order_success'] =
                 'Order #' .
                 $orderId .
                 ' has been placed successfully.';
 
-            // ==================================================
-            // Redirect
-            // ==================================================
-
             header('Location: orders.php');
             exit;
-
         } catch (Throwable $e) {
-
             if ($transactionStarted) {
                 $conn->rollback();
             }
@@ -1575,25 +1234,18 @@ if (
                 $e->getMessage();
         }
     }
+    }
 }
-
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
-
-    <title>
-        Confirm Order - MarketLink
-    </title>
+    <title>Confirm Order - MarketLink</title>
 
     <link
         rel="stylesheet"
@@ -1611,7 +1263,6 @@ if (
     >
 
     <style>
-
         * {
             box-sizing: border-box;
         }
@@ -1623,19 +1274,11 @@ if (
             color: #333;
         }
 
-        /* ===============================
-           Page Container
-        =============================== */
-
         .confirm-container {
             width: 92%;
             max-width: 1100px;
             margin: 40px auto 60px;
         }
-
-        /* ===============================
-           Page Header
-        =============================== */
 
         .page-header {
             margin-bottom: 30px;
@@ -1653,10 +1296,6 @@ if (
             font-size: 15px;
         }
 
-        /* ===============================
-           Error Message
-        =============================== */
-
         .error-message {
             background: #fee2e2;
             color: #b91c1c;
@@ -1666,10 +1305,6 @@ if (
             margin-bottom: 20px;
             line-height: 1.5;
         }
-
-        /* ===============================
-           Market Notice
-        =============================== */
 
         .market-notice {
             background: #f5eee7;
@@ -1686,20 +1321,12 @@ if (
             color: #443223;
         }
 
-        /* ===============================
-           Layout
-        =============================== */
-
         .confirm-layout {
             display: grid;
             grid-template-columns: 1.7fr 1fr;
             gap: 25px;
             align-items: start;
         }
-
-        /* ===============================
-           Cards
-        =============================== */
 
         .confirm-card,
         .summary-card {
@@ -1715,10 +1342,6 @@ if (
             font-size: 20px;
             color: #222;
         }
-
-        /* ===============================
-           Order Items
-        =============================== */
 
         .confirm-item {
             display: flex;
@@ -1776,10 +1399,6 @@ if (
             text-align: right;
         }
 
-        /* ===============================
-           Form
-        =============================== */
-
         .form-group {
             margin-bottom: 22px;
         }
@@ -1819,10 +1438,6 @@ if (
             font-size: 13px;
         }
 
-        /* ===============================
-           Summary
-        =============================== */
-
         .summary-card {
             position: sticky;
             top: 25px;
@@ -1858,10 +1473,6 @@ if (
             color: #72583e;
         }
 
-        /* ===============================
-           Buttons
-        =============================== */
-
         .confirm-button {
             width: 100%;
             border: none;
@@ -1896,10 +1507,6 @@ if (
             background: #e5e7eb;
         }
 
-        /* ===============================
-           Empty Pickup Slots
-        =============================== */
-
         .no-slots {
             background: #fff7ed;
             color: #9a3412;
@@ -1910,12 +1517,7 @@ if (
             line-height: 1.5;
         }
 
-        /* ===============================
-           Mobile
-        =============================== */
-
         @media (max-width: 800px) {
-
             .confirm-container {
                 width: 94%;
                 margin-top: 25px;
@@ -1931,7 +1533,6 @@ if (
         }
 
         @media (max-width: 600px) {
-
             .confirm-card,
             .summary-card {
                 padding: 20px;
@@ -1945,27 +1546,17 @@ if (
                 min-width: auto;
             }
         }
-
     </style>
-
 </head>
 
 <body>
-
     <?php include __DIR__ . '/../includes/navbar.php'; ?>
 
     <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
     <main class="main-content">
-
         <div class="confirm-container">
-
-            <!-- ===============================
-                 Page Header
-            =============================== -->
-
             <div class="page-header">
-
                 <h1>
                     Confirm Order
                 </h1>
@@ -1973,31 +1564,17 @@ if (
                 <p>
                     Review your order and select a pickup date and time.
                 </p>
-
             </div>
 
-            <!-- ===============================
-                 Error
-            =============================== -->
-
             <?php if (!empty($error)): ?>
-
                 <div class="error-message">
                     <?= htmlspecialchars($error) ?>
                 </div>
-
             <?php endif; ?>
 
-            <!-- ===============================
-                 Market
-            =============================== -->
-
             <?php if ($cartMarketId !== null): ?>
-
                 <div class="market-notice">
-
                     <strong>Pickup Market:</strong>
-
                     <?= htmlspecialchars(
                         $cartMarketName ??
                         'Selected Market'
@@ -2007,65 +1584,38 @@ if (
 
                     All products in this order must be collected
                     from this market.
-
                 </div>
-
             <?php endif; ?>
 
-            <!-- ===============================
-                 Main Layout
-            =============================== -->
-
             <div class="confirm-layout">
-
-                <!-- ===============================
-                     Order Details
-                =============================== -->
-
                 <div class="confirm-card">
-
                     <h2 class="card-title">
                         Order Details
                     </h2>
 
                     <?php foreach ($cartItems as $item): ?>
-
                         <div class="confirm-item">
-
-                            <!-- Product Image -->
-
                             <?php if (!empty($item['image'])): ?>
-
                                 <img
                                     src="../uploads/products/<?= htmlspecialchars($item['image']) ?>"
                                     alt="<?= htmlspecialchars($item['name']) ?>"
                                     class="confirm-image"
                                 >
-
                             <?php else: ?>
-
                                 <div class="confirm-no-image">
                                     No Image
                                 </div>
-
                             <?php endif; ?>
 
-                            <!-- Product Information -->
-
                             <div class="confirm-item-info">
-
                                 <div class="confirm-product-name">
-
                                     <?= htmlspecialchars(
                                         $item['name']
                                     ) ?>
-
                                 </div>
 
                                 <div class="confirm-product-details">
-
                                     Quantity:
-
                                     <?= number_format(
                                         (float) $item['quantity'],
                                         2
@@ -2081,48 +1631,28 @@ if (
                                         (float) $item['unit_price'],
                                         2
                                     ) ?>
-
                                 </div>
-
                             </div>
 
-                            <!-- Item Total -->
-
                             <div class="confirm-item-total">
-
                                 $
-
                                 <?= number_format(
                                     (float) $item['subtotal'],
                                     2
                                 ) ?>
-
                             </div>
-
                         </div>
-
                     <?php endforeach; ?>
-
                 </div>
 
-                <!-- ===============================
-                     Order Summary
-                =============================== -->
-
                 <div class="summary-card">
-
                     <h2 class="card-title">
                         Order Summary
                     </h2>
 
                     <form method="POST">
-
-                        <!-- ===============================
-                             Pickup Date
-                        =============================== -->
-
+                        <?= csrf_field() ?>
                         <div class="form-group">
-
                             <label
                                 for="pickup_date"
                                 class="form-label"
@@ -2131,20 +1661,17 @@ if (
                             </label>
 
                             <?php if (!empty($pickupDates)): ?>
-
                                 <select
                                     name="pickup_date"
                                     id="pickup_date"
                                     class="form-select"
                                     required
                                 >
-
                                     <option value="">
                                         Select a pickup date
                                     </option>
 
                                     <?php foreach ($pickupDates as $date): ?>
-
                                         <option
                                             value="<?= htmlspecialchars($date['date']) ?>"
                                             <?=
@@ -2154,43 +1681,26 @@ if (
                                                     : ''
                                             ?>
                                         >
-
                                             <?= htmlspecialchars(
                                                 $date['label']
                                             ) ?>
-
                                         </option>
-
                                     <?php endforeach; ?>
-
                                 </select>
 
                                 <div class="form-help">
-
                                     Pickup dates are based on the farmer's
                                     available pickup days this week.
-
                                 </div>
-
                             <?php else: ?>
-
                                 <div class="no-slots">
-
                                     No pickup dates are currently
                                     available for this farmer.
-
                                 </div>
-
                             <?php endif; ?>
-
                         </div>
 
-                        <!-- ===============================
-                             Pickup Slot
-                        =============================== -->
-
                         <div class="form-group">
-
                             <label
                                 for="pickup_slot_id"
                                 class="form-label"
@@ -2199,20 +1709,17 @@ if (
                             </label>
 
                             <?php if (!empty($pickupSlots)): ?>
-
                                 <select
                                     name="pickup_slot_id"
                                     id="pickup_slot_id"
                                     class="form-select"
                                     required
                                 >
-
                                     <option value="">
                                         Select a pickup time
                                     </option>
 
                                     <?php foreach ($pickupSlots as $slot): ?>
-
                                         <option
                                             value="<?= (int) $slot['id'] ?>"
                                             data-day="<?= htmlspecialchars($slot['day_of_week']) ?>"
@@ -2223,7 +1730,6 @@ if (
                                                     : ''
                                             ?>
                                         >
-
                                             <?= htmlspecialchars(
                                                 $slot['pickup_date_label']
                                             ) ?>
@@ -2241,39 +1747,23 @@ if (
                                                 'h:i A',
                                                 strtotime($slot['end_time'])
                                             ) ?>
-
                                         </option>
-
                                     <?php endforeach; ?>
-
                                 </select>
 
                                 <div class="form-help">
-
                                     Select the pickup time that matches
                                     your selected pickup day.
-
                                 </div>
-
                             <?php else: ?>
-
                                 <div class="no-slots">
-
                                     No pickup slots are currently
                                     available for this farmer.
-
                                 </div>
-
                             <?php endif; ?>
-
                         </div>
 
-                        <!-- ===============================
-                             Notes
-                        =============================== -->
-
                         <div class="form-group">
-
                             <label
                                 for="notes"
                                 class="form-label"
@@ -2290,19 +1780,11 @@ if (
                             ><?= htmlspecialchars($notes) ?></textarea>
 
                             <div class="form-help">
-
                                 Optional. Maximum 1000 characters.
-
                             </div>
-
                         </div>
 
-                        <!-- ===============================
-                             Summary Rows
-                        =============================== -->
-
                         <div class="summary-row">
-
                             <span>
                                 Items
                             </span>
@@ -2310,11 +1792,9 @@ if (
                             <span>
                                 <?= count($cartItems) ?>
                             </span>
-
                         </div>
 
                         <div class="summary-row">
-
                             <span>
                                 Market
                             </span>
@@ -2325,69 +1805,44 @@ if (
                                     'Selected Market'
                                 ) ?>
                             </span>
-
                         </div>
 
                         <div class="summary-row">
-
                             <span>
                                 Subtotal
                             </span>
 
                             <span>
-
                                 $
-
                                 <?= number_format(
                                     $cartSubtotal,
                                     2
                                 ) ?>
-
                             </span>
-
                         </div>
 
-                        <!-- ===============================
-                             Total
-                        =============================== -->
-
                         <div class="summary-total">
-
                             <span class="summary-total-label">
                                 Order Total
                             </span>
 
                             <span class="summary-total-price">
-
                                 $
-
                                 <?= number_format(
                                     $cartSubtotal,
                                     2
                                 ) ?>
-
                             </span>
-
                         </div>
 
-                        <!-- ===============================
-                             Confirm Button
-                        =============================== -->
-
                         <?php if (!empty($pickupSlots)): ?>
-
                             <button
                                 type="submit"
                                 class="confirm-button"
                             >
                                 Confirm Order
                             </button>
-
                         <?php endif; ?>
-
-                        <!-- ===============================
-                             Back To Cart
-                        =============================== -->
 
                         <a
                             href="cart.php"
@@ -2395,27 +1850,13 @@ if (
                         >
                             Back to Cart
                         </a>
-
                     </form>
-
                 </div>
-
             </div>
-
         </div>
-
     </main>
 
     <script>
-
-        /*
-         * Keep pickup-date and pickup-slot choices
-         * synchronized on the client side.
-         *
-         * Server-side validation still performs the
-         * real security check.
-         */
-
         const pickupDate =
             document.getElementById('pickup_date');
 
@@ -2423,7 +1864,6 @@ if (
             document.getElementById('pickup_slot_id');
 
         function updatePickupSlots() {
-
             if (!pickupDate || !pickupSlot) {
                 return;
             }
@@ -2458,7 +1898,6 @@ if (
             Array.from(
                 pickupSlot.options
             ).forEach(function(option, index) {
-
                 if (index === 0) {
                     return;
                 }
@@ -2481,11 +1920,9 @@ if (
                 ) {
                     selectedStillValid = true;
                 }
-
             });
 
             if (!selectedStillValid) {
-
                 const currentOption =
                     pickupSlot.options[
                         pickupSlot.selectedIndex
@@ -2501,7 +1938,6 @@ if (
         }
 
         if (pickupDate) {
-
             pickupDate.addEventListener(
                 'change',
                 updatePickupSlots
@@ -2509,9 +1945,6 @@ if (
         }
 
         updatePickupSlots();
-
     </script>
-
 </body>
-
 </html>
