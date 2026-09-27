@@ -590,9 +590,13 @@
 
 
 .contact-info-dark {
-    background: var(--brown-dark);
+    background: var(--terracotta-dark);
 
     color: var(--cream-light);
+}
+
+.contact-info-dark h3{
+    color: var(--cream);
 }
 
 

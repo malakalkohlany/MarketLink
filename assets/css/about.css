@@ -342,6 +342,11 @@
 
 .about-feature-sage {
     background: var(--sage);
+    color: var(--cream);
+}
+
+.about-feature-sage h3 {
+    color: var(--cream);
 }
 
 .about-feature-terracotta {
@@ -354,8 +359,12 @@
 }
 
 .about-feature-dark {
-    background: var(--brown-dark);
+    background: var(--terracotta-dark);
     color: var(--cream-light);
+}
+
+.about-feature-dark h3 {
+    color: var(--cream);
 }
 
 .feature-number {
@@ -737,7 +746,7 @@
 
     border-radius: 25px;
 
-    background: var(--brown-dark);
+    background: var(--terracotta-dark);
     color: var(--cream-light);
 }
 
