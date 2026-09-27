@@ -203,13 +203,6 @@ if ($result) {
 
             </div>
 
-            <div class="about-hero-note">
-
-                <span>LOCAL</span>
-                <span>FRESH</span>
-                <span>CONNECTED</span>
-
-            </div>
 
         </div>
 
