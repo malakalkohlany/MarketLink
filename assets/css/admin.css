@@ -3200,3 +3200,420 @@
         flex-wrap: wrap;
     }
 }
+
+.admin-markets-page {
+    background: var(--cream);
+}
+
+.admin-markets-table {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.admin-markets-table table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.admin-markets-table th {
+    padding: 15px 20px;
+    background: var(--surface-alt);
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: var(--font-main);
+    font-size: .64rem;
+    font-weight: 700;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    white-space: normal;
+}
+
+.admin-markets-table td {
+    padding: 19px 20px;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-soft);
+    font-size: .84rem;
+    vertical-align: middle;
+    overflow-wrap: anywhere;
+}
+
+.admin-markets-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.admin-markets-table tbody tr {
+    transition: background var(--transition-fast);
+}
+
+.admin-markets-table tbody tr:hover {
+    background: var(--cream-light);
+}
+
+.admin-market-id {
+    width: 7%;
+}
+
+.admin-market-name {
+    width: 21%;
+}
+
+.admin-market-address {
+    width: 20%;
+}
+
+.admin-market-hours {
+    width: 15%;
+}
+
+.admin-market-status {
+    width: 12%;
+}
+
+.admin-market-created {
+    width: 11%;
+}
+
+.admin-market-actions {
+    width: 14%;
+}
+
+.admin-table-id {
+    color: var(--text-muted);
+    font-family: var(--font-main);
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+}
+
+.admin-market-name-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.admin-market-icon {
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--sage-soft);
+    border: 1px solid var(--sage-light);
+    border-radius: 50%;
+    color: var(--sage-dark);
+    font-size: .9rem;
+}
+
+.admin-market-name-wrap > div {
+    min-width: 0;
+}
+
+.admin-market-name-wrap strong {
+    display: block;
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: .88rem;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.admin-market-name-wrap span:last-child {
+    display: block;
+    margin-top: 4px;
+    color: var(--text-muted);
+    font-size: .7rem;
+}
+
+.admin-market-address {
+    color: var(--text-soft);
+    line-height: 1.45;
+}
+
+.admin-hours-main {
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: .76rem;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.admin-table-muted {
+    color: var(--text-muted);
+    font-size: .75rem;
+}
+
+.admin-table-date {
+    color: var(--text-muted);
+    font-size: .75rem;
+    white-space: nowrap;
+}
+
+.admin-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 29px;
+    padding: 5px 10px;
+    border-radius: var(--radius-pill);
+    font-family: var(--font-main);
+    font-size: .62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    white-space: nowrap;
+}
+
+.admin-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.admin-status-active {
+    background: var(--sage-soft);
+    border: 1px solid var(--sage-light);
+    color: var(--sage-dark);
+}
+
+.admin-status-inactive {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+}
+
+.admin-market-action-group {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 7px;
+    flex-wrap: wrap;
+}
+
+.admin-market-action-group form {
+    margin: 0;
+}
+
+.admin-market-action-group button {
+    font: inherit;
+}
+
+.admin-table-empty {
+    min-height: 260px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    text-align: center;
+}
+
+.admin-empty-mark {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+    background: var(--sage-soft);
+    border: 1px solid var(--sage-light);
+    border-radius: 50%;
+    color: var(--sage-dark);
+    font-size: 1.1rem;
+}
+
+.admin-table-empty strong {
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: .95rem;
+}
+
+.admin-table-empty p {
+    max-width: 360px;
+    margin: 7px 0 18px;
+    color: var(--text-muted);
+    font-size: .8rem;
+    line-height: 1.6;
+}
+
+@media (max-width: 1100px) {
+    .admin-market-id {
+        width: 8%;
+    }
+
+    .admin-market-name {
+        width: 22%;
+    }
+
+    .admin-market-address {
+        width: 19%;
+    }
+
+    .admin-market-hours {
+        width: 14%;
+    }
+
+    .admin-market-status {
+        width: 12%;
+    }
+
+    .admin-market-created {
+        width: 11%;
+    }
+
+    .admin-market-actions {
+        width: 14%;
+    }
+
+    .admin-markets-table th,
+    .admin-markets-table td {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    .admin-market-name-wrap {
+        gap: 8px;
+    }
+
+    .admin-market-icon {
+        width: 30px;
+        height: 30px;
+        flex-basis: 30px;
+    }
+}
+
+@media (max-width: 850px) {
+    .admin-markets-table table {
+        table-layout: auto;
+    }
+
+    .admin-markets-table th,
+    .admin-markets-table td {
+        padding: 14px 11px;
+    }
+
+    .admin-market-icon {
+        display: none;
+    }
+
+    .admin-market-name-wrap strong {
+        font-size: .8rem;
+    }
+
+    .admin-market-name-wrap span:last-child {
+        font-size: .64rem;
+    }
+
+    .admin-market-action-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-market-action-group .admin-action-view,
+    .admin-market-action-group button {
+        text-align: center;
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 700px) {
+    .admin-page-hero {
+        padding-bottom: 35px;
+    }
+
+    .admin-section-heading {
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .admin-record-count {
+        flex-shrink: 0;
+    }
+
+    .admin-markets-table {
+        border-radius: var(--radius-md);
+    }
+
+    .admin-markets-table table,
+    .admin-markets-table thead,
+    .admin-markets-table tbody,
+    .admin-markets-table th,
+    .admin-markets-table td,
+    .admin-markets-table tr {
+        display: block;
+    }
+
+    .admin-markets-table thead {
+        display: none;
+    }
+
+    .admin-markets-table tbody tr {
+        padding: 18px;
+        border-bottom: 1px solid var(--border-light);
+    }
+
+    .admin-markets-table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .admin-markets-table td {
+        width: 100%;
+        padding: 6px 0;
+        border: none;
+    }
+
+    .admin-markets-table td::before {
+        display: block;
+        margin-bottom: 3px;
+        color: var(--text-muted);
+        font-family: var(--font-main);
+        font-size: .58rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+    }
+
+    .admin-markets-table td.admin-market-id::before {
+        content: "ID";
+    }
+
+    .admin-markets-table td.admin-market-name::before {
+        content: "Market";
+    }
+
+    .admin-markets-table td.admin-market-address::before {
+        content: "Address";
+    }
+
+    .admin-markets-table td.admin-market-hours::before {
+        content: "Hours";
+    }
+
+    .admin-markets-table td.admin-market-status::before {
+        content: "Status";
+    }
+
+    .admin-markets-table td.admin-market-created::before {
+        content: "Created";
+    }
+
+    .admin-markets-table td.admin-market-actions::before {
+        content: "Action";
+    }
+
+    .admin-market-action-group {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .admin-market-action-group .admin-action-view,
+    .admin-market-action-group button {
+        flex: 0 0 auto;
+    }
+}
