@@ -32,6 +32,4 @@ if (!in_array($returnTo, $allowedPages, true)) {
     $returnTo = '../customer/products.php';
 }
 
-
-header('Location: ' . $returnTo);
-exit;
+redirect($returnTo);
