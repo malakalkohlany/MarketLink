@@ -4,26 +4,16 @@ require_once __DIR__ . '/../includes/include.php';
 
 requireRole(R_ADMIN);
 
-/*
-|--------------------------------------------------------------------------
-| Handle Review Actions
-|--------------------------------------------------------------------------
-*/
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
     if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
-        header('Location: reviews.php');
-        exit;
+        redirect('reviews.php');
     }
 
     $reviewId = (int) ($_POST['review_id'] ?? 0);
-    $action   = $_POST['action'] ?? '';
+    $action = $_POST['action'] ?? '';
 
     if ($reviewId > 0) {
-
         if ($action === 'approve') {
-
             $stmt = $conn->prepare("
                 UPDATE reviews
                 SET status = 'approved'
@@ -36,9 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute();
                 $stmt->close();
             }
-
         } elseif ($action === 'remove') {
-
             $stmt = $conn->prepare("
                 UPDATE reviews
                 SET status = 'rejected'
@@ -56,16 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect('reviews.php');
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| Get Reviews
-|--------------------------------------------------------------------------
-|
-| Farmer is joined directly through reviews.farmer_id.
-| This is important because farmer reviews have product_id = NULL.
-|
-*/
+$reviews = [];
 
 $stmt = $conn->prepare("
     SELECT
@@ -74,24 +53,16 @@ $stmt = $conn->prepare("
         r.comment,
         r.status,
         r.created_at,
-
         u.name AS customer_name,
-
         p.name AS product_name,
-
         f.stall_name AS farmer_name
-
     FROM reviews r
-
     LEFT JOIN users u
         ON r.customer_id = u.id
-
     LEFT JOIN products p
         ON r.product_id = p.id
-
     LEFT JOIN farmers f
         ON r.farmer_id = f.id
-
     ORDER BY
         CASE
             WHEN r.status = 'pending' THEN 0
@@ -102,19 +73,35 @@ $stmt = $conn->prepare("
         r.created_at DESC
 ");
 
-$stmt->execute();
+if ($stmt) {
+    if ($stmt->execute()) {
+        $reviews = $stmt
+            ->get_result()
+            ->fetch_all(MYSQLI_ASSOC);
+    }
 
-$reviews = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+}
 
-$stmt->close();
+$totalReviews = count($reviews);
+$pendingReviews = 0;
+$approvedReviews = 0;
+$rejectedReviews = 0;
 
+foreach ($reviews as $review) {
+    if (($review['status'] ?? '') === 'pending') {
+        $pendingReviews++;
+    } elseif (($review['status'] ?? '') === 'approved') {
+        $approvedReviews++;
+    } elseif (($review['status'] ?? '') === 'rejected') {
+        $rejectedReviews++;
+    }
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -139,384 +126,453 @@ $stmt->close();
         href="../assets/css/sidebar.css"
     >
 
+    <link
+        rel="stylesheet"
+        href="../assets/css/admin.css"
+    >
+    
+    <link rel="stylesheet" href="../assets/css/admin_ann.css">
 </head>
 
 <body>
 
-    <?php include __DIR__ . '/../includes/navbar.php'; ?>
+<?php include __DIR__ . '/../includes/navbar.php'; ?>
+<?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
+<main class="main-content admin-reviews-page">
 
+    <section class="admin-page-hero">
+        <div class="admin-page-hero-copy">
+            <span class="eyebrow">
+                ADMIN / REVIEWS
+            </span>
 
-    <main class="main-content">
+            <h1>
+                Customer <em>feedback.</em>
+            </h1>
 
-        <div class="page-header">
+            <p>
+                Review customer feedback and manage
+                submitted reviews across MarketLink.
+            </p>
+        </div>
 
+        <div class="admin-page-mark">
+            09
+        </div>
+    </section>
+
+    <section class="admin-review-summary-section">
+
+        <div class="admin-section-heading">
             <div>
+                <span class="admin-section-number">
+                    01 / OVERVIEW
+                </span>
 
-                <h1>
-                    Reviews
-                </h1>
+                <h2>
+                    Review <em>activity.</em>
+                </h2>
+            </div>
 
-                <p>
-                    Review customer feedback and manage submitted reviews.
-                </p>
+            <span class="admin-record-count">
+                <?= $totalReviews ?>
+                total
+            </span>
+        </div>
 
+        <div class="admin-review-summary">
+
+            <div class="admin-review-summary-card">
+                <span class="admin-review-summary-label">
+                    Total reviews
+                </span>
+
+                <strong>
+                    <?= $totalReviews ?>
+                </strong>
+
+                <span class="admin-review-summary-note">
+                    All submitted feedback
+                </span>
+            </div>
+
+            <div class="admin-review-summary-card admin-review-summary-pending">
+                <span class="admin-review-summary-label">
+                    Pending reviews
+                </span>
+
+                <strong>
+                    <?= $pendingReviews ?>
+                </strong>
+
+                <span class="admin-review-summary-note">
+                    Awaiting moderation
+                </span>
+            </div>
+
+            <div class="admin-review-summary-card admin-review-summary-approved">
+                <span class="admin-review-summary-label">
+                    Approved
+                </span>
+
+                <strong>
+                    <?= $approvedReviews ?>
+                </strong>
+
+                <span class="admin-review-summary-note">
+                    Visible feedback
+                </span>
+            </div>
+
+            <div class="admin-review-summary-card admin-review-summary-rejected">
+                <span class="admin-review-summary-label">
+                    Removed
+                </span>
+
+                <strong>
+                    <?= $rejectedReviews ?>
+                </strong>
+
+                <span class="admin-review-summary-note">
+                    Rejected feedback
+                </span>
             </div>
 
         </div>
 
+    </section>
 
-        <section class="table-section">
+    <section class="admin-reviews-section">
 
-            <div class="section-header">
+        <div class="admin-section-heading">
+            <div>
+                <span class="admin-section-number">
+                    02 / MODERATION
+                </span>
 
                 <h2>
-                    Customer Reviews
+                    Customer <em>reviews.</em>
                 </h2>
-
             </div>
 
+            <span class="admin-record-count">
+                <?= $totalReviews ?>
+                <?= $totalReviews === 1 ? 'review' : 'reviews' ?>
+            </span>
+        </div>
 
-            <div class="table-responsive">
+        <div class="admin-reviews-table">
 
-                <table class="data-table">
+            <table>
 
-                    <thead>
+                <thead>
+                    <tr>
+                        <th class="admin-review-id">
+                            ID
+                        </th>
+
+                        <th class="admin-review-customer">
+                            Customer
+                        </th>
+
+                        <th class="admin-review-subject">
+                            Review
+                        </th>
+
+                        <th class="admin-review-rating">
+                            Rating
+                        </th>
+
+                        <th class="admin-review-status">
+                            Status
+                        </th>
+
+                        <th class="admin-review-date">
+                            Date
+                        </th>
+
+                        <th class="admin-review-actions">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                <?php if (!empty($reviews)): ?>
+
+                    <?php foreach ($reviews as $review): ?>
+
+                        <?php
+                        $status = $review['status'] ?? 'pending';
+
+                        $isFarmerReview =
+                            empty($review['product_name']);
+
+                        $statusLabel = ucfirst($status);
+
+                        if ($status === 'rejected') {
+                            $statusLabel = 'Removed';
+                        }
+
+                        $statusClass = match ($status) {
+                            'approved' => 'admin-status-active',
+                            'pending' => 'admin-status-pending',
+                            'rejected' => 'admin-status-rejected',
+                            default => 'admin-status-default'
+                        };
+                        ?>
 
                         <tr>
 
-                            <th>
-                                ID
-                            </th>
+                            <td class="admin-review-id-cell">
+                                #<?= (int) $review['id'] ?>
+                            </td>
 
-                            <th>
-                                Customer
-                            </th>
+                            <td>
+                                <span class="admin-review-customer-name">
+                                    <?= htmlspecialchars(
+                                        $review['customer_name'] ?? 'N/A',
+                                        ENT_QUOTES,
+                                        'UTF-8'
+                                    ) ?>
+                                </span>
+                            </td>
 
-                            <th>
-                                Type
-                            </th>
+                            <td>
+                                <div class="admin-review-subject-wrap">
 
-                            <th>
-                                Product
-                            </th>
+                                    <span class="admin-review-type">
+                                        <?= $isFarmerReview
+                                            ? 'Farmer Review'
+                                            : 'Product Review' ?>
+                                    </span>
 
-                            <th>
-                                Farmer
-                            </th>
+                                    <span class="admin-review-subject-name">
+                                        <?= htmlspecialchars(
+                                            $isFarmerReview
+                                                ? ($review['farmer_name'] ?? 'N/A')
+                                                : ($review['product_name'] ?? 'N/A'),
+                                            ENT_QUOTES,
+                                            'UTF-8'
+                                        ) ?>
+                                    </span>
 
-                            <th>
-                                Rating
-                            </th>
+                                    <span class="admin-review-comment">
+                                        <?= htmlspecialchars(
+                                            $review['comment'] ?? '',
+                                            ENT_QUOTES,
+                                            'UTF-8'
+                                        ) ?>
+                                    </span>
 
-                            <th>
-                                Comment
-                            </th>
+                                </div>
+                            </td>
 
-                            <th>
-                                Status
-                            </th>
+                            <td>
+                                <div class="admin-review-rating-wrap">
 
-                            <th>
-                                Date
-                            </th>
+                                    <span class="admin-review-rating-value">
+                                        <?= (int) $review['rating'] ?>/5
+                                    </span>
 
-                            <th>
-                                Actions
-                            </th>
+                                    <span class="admin-review-stars">
+                                        <?php for (
+                                            $i = 1;
+                                            $i <= 5;
+                                            $i++
+                                        ): ?>
+                                            <span class="<?= $i <= (int) $review['rating']
+                                                ? 'filled'
+                                                : '' ?>">
+                                                ★
+                                            </span>
+                                        <?php endfor; ?>
+                                    </span>
+
+                                </div>
+                            </td>
+
+                            <td>
+                                <span class="admin-status <?= $statusClass ?>">
+                                    <span class="admin-status-dot"></span>
+                                    <?= htmlspecialchars(
+                                        $statusLabel,
+                                        ENT_QUOTES,
+                                        'UTF-8'
+                                    ) ?>
+                                </span>
+                            </td>
+
+                            <td>
+                                <?php if (!empty($review['created_at'])): ?>
+
+                                    <div class="admin-review-date-wrap">
+                                        <span class="admin-review-date-value">
+                                            <?= date(
+                                                'Y-m-d',
+                                                strtotime(
+                                                    $review['created_at']
+                                                )
+                                            ) ?>
+                                        </span>
+
+                                        <span class="admin-review-time">
+                                            <?= date(
+                                                'H:i',
+                                                strtotime(
+                                                    $review['created_at']
+                                                )
+                                            ) ?>
+                                        </span>
+                                    </div>
+
+                                <?php else: ?>
+
+                                    <span class="admin-table-muted">
+                                        N/A
+                                    </span>
+
+                                <?php endif; ?>
+                            </td>
+
+                            <td>
+
+                                <?php if ($status === 'pending'): ?>
+
+                                    <div class="admin-review-actions-wrap">
+
+                                        <form method="POST">
+                                            <?= csrf_field() ?>
+
+                                            <input
+                                                type="hidden"
+                                                name="review_id"
+                                                value="<?= (int) $review['id'] ?>"
+                                            >
+
+                                            <input
+                                                type="hidden"
+                                                name="action"
+                                                value="approve"
+                                            >
+
+                                            <button
+                                                type="submit"
+                                                class="admin-action-approve"
+                                            >
+                                                Approve
+                                            </button>
+                                        </form>
+
+                                        <form method="POST">
+                                            <?= csrf_field() ?>
+
+                                            <input
+                                                type="hidden"
+                                                name="review_id"
+                                                value="<?= (int) $review['id'] ?>"
+                                            >
+
+                                            <input
+                                                type="hidden"
+                                                name="action"
+                                                value="remove"
+                                            >
+
+                                            <button
+                                                type="submit"
+                                                class="admin-action-reject"
+                                            >
+                                                Remove
+                                            </button>
+                                        </form>
+
+                                    </div>
+
+                                <?php elseif ($status === 'approved'): ?>
+
+                                    <form method="POST">
+                                        <?= csrf_field() ?>
+
+                                        <input
+                                            type="hidden"
+                                            name="review_id"
+                                            value="<?= (int) $review['id'] ?>"
+                                        >
+
+                                        <input
+                                            type="hidden"
+                                            name="action"
+                                            value="remove"
+                                        >
+
+                                        <button
+                                            type="submit"
+                                            class="admin-action-reject"
+                                        >
+                                            Remove
+                                        </button>
+                                    </form>
+
+                                <?php elseif ($status === 'rejected'): ?>
+
+                                    <span class="admin-review-removed">
+                                        Removed
+                                    </span>
+
+                                <?php else: ?>
+
+                                    <span class="admin-table-muted">
+                                        —
+                                    </span>
+
+                                <?php endif; ?>
+
+                            </td>
 
                         </tr>
 
-                    </thead>
+                    <?php endforeach; ?>
 
+                <?php else: ?>
 
-                    <tbody>
+                    <tr>
+                        <td
+                            colspan="7"
+                            class="admin-table-empty"
+                        >
+                            <div class="admin-empty-state">
 
-                        <?php if (!empty($reviews)): ?>
+                                <span class="admin-empty-mark">
+                                    ✦
+                                </span>
 
-                            <?php foreach ($reviews as $review): ?>
-
-                                <?php
-                                    $status = $review['status'] ?? 'pending';
-
-                                    $isFarmerReview =
-                                        empty($review['product_name']);
-                                ?>
-
-                                <tr>
-
-                                    <!-- ID -->
-
-                                    <td>
-                                        <?= (int) $review['id'] ?>
-                                    </td>
-
-
-                                    <!-- Customer -->
-
-                                    <td>
-
-                                        <?= htmlspecialchars(
-                                            $review['customer_name'] ?? 'N/A'
-                                        ) ?>
-
-                                    </td>
-
-
-                                    <!-- Type -->
-
-                                    <td>
-
-                                        <?php if ($isFarmerReview): ?>
-
-                                            <span>
-                                                Farmer Review
-                                            </span>
-
-                                        <?php else: ?>
-
-                                            <span>
-                                                Product Review
-                                            </span>
-
-                                        <?php endif; ?>
-
-                                    </td>
-
-
-                                    <!-- Product -->
-
-                                    <td>
-
-                                        <?php if ($isFarmerReview): ?>
-
-                                            —
-                                            
-                                        <?php else: ?>
-
-                                            <?= htmlspecialchars(
-                                                $review['product_name'] ?? 'N/A'
-                                            ) ?>
-
-                                        <?php endif; ?>
-
-                                    </td>
-
-
-                                    <!-- Farmer -->
-
-                                    <td>
-
-                                        <?= htmlspecialchars(
-                                            $review['farmer_name'] ?? 'N/A'
-                                        ) ?>
-
-                                    </td>
-
-
-                                    <!-- Rating -->
-
-                                    <td>
-
-                                        <?= (int) $review['rating'] ?>/5
-
-                                    </td>
-
-
-                                    <!-- Comment -->
-
-                                    <td>
-
-                                        <?= htmlspecialchars(
-                                            $review['comment'] ?? ''
-                                        ) ?>
-
-                                    </td>
-
-
-                                    <!-- Status -->
-
-                                    <td>
-
-                                        <span
-                                            class="status status-<?= htmlspecialchars($status) ?>"
-                                        >
-
-                                            <?= ucfirst(
-                                                htmlspecialchars($status)
-                                            ) ?>
-
-                                        </span>
-
-                                    </td>
-
-
-                                    <!-- Date -->
-
-                                    <td>
-
-                                        <?php if (!empty($review['created_at'])): ?>
-
-                                            <?= date(
-                                                'Y-m-d H:i',
-                                                strtotime($review['created_at'])
-                                            ) ?>
-
-                                        <?php else: ?>
-
-                                            N/A
-
-                                        <?php endif; ?>
-
-                                    </td>
-
-
-                                    <!-- Actions -->
-
-                                    <td>
-
-                                        <?php if ($status === 'pending'): ?>
-
-                                            <div
-                                                style="
-                                                    display: flex;
-                                                    gap: 6px;
-                                                    flex-wrap: wrap;
-                                                "
-                                            >
-
-                                                <!-- Approve -->
-
-                                                <form method="POST">
-                                                    <?= csrf_field() ?>
-
-                                                    <input
-                                                        type="hidden"
-                                                        name="review_id"
-                                                        value="<?= (int) $review['id'] ?>"
-                                                    >
-
-                                                    <input
-                                                        type="hidden"
-                                                        name="action"
-                                                        value="approve"
-                                                    >
-
-                                                    <button
-                                                        type="submit"
-                                                        class="btn btn-sm"
-                                                    >
-                                                        Approve
-                                                    </button>
-
-                                                </form>
-
-
-                                                <!-- Remove -->
-
-                                                <form method="POST">
-                                                    <?= csrf_field() ?>
-
-                                                    <input
-                                                        type="hidden"
-                                                        name="review_id"
-                                                        value="<?= (int) $review['id'] ?>"
-                                                    >
-
-                                                    <input
-                                                        type="hidden"
-                                                        name="action"
-                                                        value="remove"
-                                                    >
-
-                                                    <button
-                                                        type="submit"
-                                                        class="btn btn-sm btn-secondary"
-                                                    >
-                                                        Remove
-                                                    </button>
-
-                                                </form>
-
-                                            </div>
-
-
-                                        <?php elseif ($status === 'approved'): ?>
-
-                                            <!-- Approved reviews can still be removed -->
-
-                                            <form method="POST">
-                                                <?= csrf_field() ?>
-
-                                                <input
-                                                    type="hidden"
-                                                    name="review_id"
-                                                    value="<?= (int) $review['id'] ?>"
-                                                >
-
-                                                <input
-                                                    type="hidden"
-                                                    name="action"
-                                                    value="remove"
-                                                >
-
-                                                <button
-                                                    type="submit"
-                                                    class="btn btn-sm btn-secondary"
-                                                >
-                                                    Remove
-                                                </button>
-
-                                            </form>
-
-
-                                        <?php elseif ($status === 'rejected'): ?>
-
-                                            <span>
-                                                Removed
-                                            </span>
-
-
-                                        <?php else: ?>
-
-                                            <span>
-                                                —
-                                            </span>
-
-                                        <?php endif; ?>
-
-                                    </td>
-
-                                </tr>
-
-                            <?php endforeach; ?>
-
-
-                        <?php else: ?>
-
-                            <tr>
-
-                                <td colspan="10">
-
+                                <strong>
                                     No reviews found.
+                                </strong>
 
-                                </td>
+                                <span>
+                                    Customer reviews will appear here
+                                    once they are submitted.
+                                </span>
 
-                            </tr>
+                            </div>
+                        </td>
+                    </tr>
 
-                        <?php endif; ?>
+                <?php endif; ?>
 
-                    </tbody>
+                </tbody>
 
-                </table>
+            </table>
 
-            </div>
+        </div>
 
-        </section>
+    </section>
 
-    </main>
+</main>
 
 </body>
-
 </html>
