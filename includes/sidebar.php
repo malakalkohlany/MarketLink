@@ -43,8 +43,8 @@ function hasSubmenu(array $pages): bool
 
 
     <div class="sidebar-role">
-        <span class="role-dot"></span>
-
+    <span class="role-dot"></span>
+    <span>
         <?php
         if ($role === 'customer') {
             echo 'Customer';
@@ -56,7 +56,8 @@ function hasSubmenu(array $pages): bool
             echo 'Account';
         }
         ?>
-    </div>
+    </span>
+</div>
 
     <?php if ($role === 'customer'): ?>
 
@@ -137,6 +138,19 @@ function hasSubmenu(array $pages): bool
                     </a>
                 </li>
 
+                <li>
+                    <a
+                        href="<?= BASE_URL ?>customer/favorites.php"
+                        class="<?= isActive(['favorites.php']) ?>"
+                    >
+                        <span class="nav-icon">
+                            <i data-lucide="heart"></i>
+                        </span>
+
+                        <span>Favorites</span>
+                    </a>
+                </li>
+
             </ul>
 
         </div>
@@ -185,7 +199,7 @@ function hasSubmenu(array $pages): bool
                         class="<?= isActive(['reviews.php']) ?>"
                     >
                         <span class="nav-icon">
-                            <i data-lucide="clipboard-list"></i>
+                            <i data-lucide="message-square-heart"></i>
                         </span>
 
                         <span>My Reviews</span>
@@ -221,18 +235,6 @@ function hasSubmenu(array $pages): bool
                     </a>
                 </li>
 
-                <li>
-                    <a
-                        href="<?= BASE_URL ?>customer/favorites.php"
-                        class="<?= isActive(['favorites.php']) ?>"
-                    >
-                        <span class="nav-icon">
-                            <i data-lucide="heart"></i>
-                        </span>
-
-                        <span>Favorites</span>
-                    </a>
-                </li>
 
 
                 <!-- Notifications -->
