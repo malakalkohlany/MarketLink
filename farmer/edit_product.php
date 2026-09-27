@@ -67,6 +67,11 @@ if (!$product) {
 // Update product
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        header('Location: edit_product.php?id=' . $product_id);
+        exit;
+    }
+
     $name = trim($_POST['name'] ?? '');
     $category_id = (int) ($_POST['category_id'] ?? 0);
     $description = trim($_POST['description'] ?? '');
@@ -225,6 +230,8 @@ $categories = $category_stmt->get_result();
         method="POST"
         enctype="multipart/form-data"
     >
+
+            <?= csrf_field() ?>
 
         <label for="name">
             Product Name
