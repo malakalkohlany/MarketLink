@@ -40,6 +40,11 @@ $market_stmt->execute();
 $markets = $market_stmt->get_result();
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        header('Location: pickup_slots.php');
+        exit;
+    }
+
     $market_id = (int) $_POST['market_id'];
     $day_of_week = trim($_POST['day_of_week']);
     $start_time = $_POST['start_time'];
@@ -237,6 +242,7 @@ $orders = $order_stmt->get_result();
         <h2>Add Pickup Slots</h2>
 
         <form method="POST">
+              <?= csrf_field() ?>
             <label for="market_id">Market</label>
             <select name="market_id" id="market_id" required>
             <option value="">Select Market</option>
