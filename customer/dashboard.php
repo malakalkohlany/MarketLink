@@ -1,7 +1,5 @@
 <?php
-
 require_once __DIR__ . '/../includes/include.php';
-
 requireRole(R_CUSTOMER);
 
 $user_id = getUserId();
@@ -36,11 +34,6 @@ while ($row = $result->fetch_assoc()) {
 }
 
 $stmt->close();
-
-
-// ==========================================================
-// Featured Products
-// ==========================================================
 
 $featured_products = [];
 
@@ -81,11 +74,6 @@ while ($row = $result->fetch_assoc()) {
 
 $stmt->close();
 
-
-// ==========================================================
-// Farmers
-// ==========================================================
-
 $farmers = [];
 
 $stmt = $conn->prepare("
@@ -115,73 +103,51 @@ while ($row = $result->fetch_assoc()) {
 }
 
 $stmt->close();
-
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
-
     <title>Dashboard</title>
-
     <link
         rel="stylesheet"
         href="../assets/css/base.css"
     >
-
     <link
         rel="stylesheet"
         href="../assets/css/navbar.css"
     >
-
     <link
         rel="stylesheet"
         href="../assets/css/dashboard.css"
     >
-
     <link
         rel="stylesheet"
         href="../assets/css/sidebar.css"
     >
-
 </head>
-
 <body>
-
     <?php include __DIR__ . '/../includes/navbar.php'; ?>
-
     <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
     <main class="main-content">
-
         <section class="welcome">
-
             <div>
-
                 <h1>
                     Welcome,
                     <?= e($user_name) ?>!
                 </h1>
-
                 <p>
                     Discover fresh products from local farmers.
                 </p>
-
             </div>
-
         </section>
 
-
         <section class="quick-actions">
-
             <a
                 href="products.php"
                 class="dashboard-action"
@@ -189,12 +155,10 @@ $stmt->close();
                 <h3>
                     Browse Products
                 </h3>
-
                 <p>
                     Find fresh products from local farmers.
                 </p>
             </a>
-
 
             <a
                 href="farmers.php"
@@ -203,200 +167,130 @@ $stmt->close();
                 <h3>
                     Find Farmers
                 </h3>
-
                 <p>
                     Discover farmers and local stalls near you.
                 </p>
             </a>
-
         </section>
 
-
         <section class="dashboard-section">
-
             <div class="section-heading">
-
                 <h2>
                     Recent Orders
                 </h2>
-
                 <a href="orders.php">
                     View all →
                 </a>
-
             </div>
 
-
             <?php if (empty($orders)): ?>
-
                 <div class="empty-state">
-
                     <h3>
                         No orders yet
                     </h3>
-
                     <p>
                         Browse products from local farmers and place your first order.
                     </p>
-
                     <a href="products.php">
                         Browse Products
                     </a>
-
                 </div>
-
             <?php else: ?>
-
                 <div class="orders-table-wrapper">
-
                     <table class="orders-table">
-
                         <thead>
-
                             <tr>
-
                                 <th>
                                     Order
                                 </th>
-
                                 <th>
                                     Farmer
                                 </th>
-
                                 <th>
                                     Date
                                 </th>
-
                                 <th>
                                     Total
                                 </th>
-
                                 <th>
                                     Pickup
                                 </th>
-
                                 <th>
                                     Status
                                 </th>
-
                             </tr>
-
                         </thead>
 
                         <tbody>
-
                             <?php foreach ($orders as $order): ?>
-
                                 <tr>
-
                                     <td>
                                         #<?= (int) $order['id'] ?>
                                     </td>
-
                                     <td>
                                         <?= e($order['stall_name']) ?>
                                     </td>
-
                                     <td>
                                         <?= formatDate($order['created_at']) ?>
                                     </td>
-
                                     <td>
                                         $<?= number_format($order['subtotal'], 2) ?>
                                     </td>
-
                                     <td>
                                         <?= e($order['market_name']) ?>
                                     </td>
-
                                     <td>
-
                                         <span
                                             class="order-status <?= e($order['status']) ?>"
                                         >
                                             <?= e(ucfirst($order['status'])) ?>
                                         </span>
-
                                     </td>
-
                                 </tr>
-
                             <?php endforeach; ?>
-
                         </tbody>
-
                     </table>
-
                 </div>
-
             <?php endif; ?>
-
         </section>
 
-
         <section class="dashboard-section">
-
             <div class="section-heading">
-
                 <h2>
                     Featured Products
                 </h2>
-
                 <a href="products.php">
                     View all →
                 </a>
-
             </div>
 
-
             <?php if (empty($featured_products)): ?>
-
                 <div class="dashboard-placeholder">
-
                     <p>
                         No products are available yet.
                     </p>
-
                 </div>
-
             <?php else: ?>
-
                 <div class="product-grid">
-
                     <?php foreach ($featured_products as $product): ?>
-
-                        <!--
-                            IMPORTANT:
-                            from=dashboard tells product_details.php
-                            that this product was opened from Dashboard.
-                        -->
                         <a
                             href="product_details.php?id=<?= (int) $product['id'] ?>&from=dashboard"
                             class="product-card"
                         >
-
                             <div class="product-image">
-
                                 <?php if (!empty($product['image'])): ?>
-
                                     <img
                                         src="../uploads/products/<?= e($product['image']) ?>"
                                         alt="<?= e($product['name']) ?>"
                                     >
-
                                 <?php else: ?>
-
                                     <span>
                                         No image
                                     </span>
-
                                 <?php endif; ?>
-
                             </div>
 
-
                             <div class="product-info">
-
                                 <h3>
                                     <?= e($product['name']) ?>
                                 </h3>
@@ -406,68 +300,44 @@ $stmt->close();
                                 </p>
 
                                 <div class="product-price">
-
                                     <strong>
                                         $<?= formatPrice($product['price']) ?>
                                     </strong>
-
                                     <span>
                                         / <?= e($product['unit']) ?>
                                     </span>
-
                                 </div>
-
                             </div>
-
                         </a>
-
                     <?php endforeach; ?>
-
                 </div>
-
             <?php endif; ?>
-
         </section>
 
-
         <section class="dashboard-section">
-
             <div class="section-heading">
-
                 <h2>
                     Farmers Near You
                 </h2>
-
                 <a href="farmers.php">
                     View all →
                 </a>
-
             </div>
 
-
             <?php if (empty($farmers)): ?>
-
                 <div class="dashboard-placeholder">
-
                     <p>
                         No approved farmers are available yet.
                     </p>
-
                 </div>
-
             <?php else: ?>
-
                 <div class="farmer-grid">
-
                     <?php foreach ($farmers as $farmer): ?>
-
                         <a
                             href="farmer_details.php?id=<?= (int) $farmer['id'] ?>"
                             class="farmer-card"
                         >
-
                             <div class="farmer-icon">
-
                                 <?= strtoupper(
                                     substr(
                                         $farmer['stall_name'],
@@ -475,57 +345,33 @@ $stmt->close();
                                         1
                                     )
                                 ) ?>
-
                             </div>
 
-
                             <div class="farmer-info">
-
                                 <h3>
                                     <?= e($farmer['stall_name']) ?>
                                 </h3>
 
-
                                 <?php if (!empty($farmer['address'])): ?>
-
                                     <p class="farmer-address">
                                         <?= e($farmer['address']) ?>
                                     </p>
-
                                 <?php endif; ?>
-
 
                                 <?php if (!empty($farmer['description'])): ?>
-
                                     <p class="farmer-description">
-
-                                        <?= e(
-                                            $farmer['description']
-                                        ) ?>
-
+                                        <?= e($farmer['description']) ?>
                                     </p>
-
                                 <?php endif; ?>
-
                             </div>
-
                         </a>
-
                     <?php endforeach; ?>
-
                 </div>
-
             <?php endif; ?>
-
         </section>
-
     </main>
 
-
     <script src="../assets/js/app.js"></script>
-
     <script src="../assets/js/dashboard.js"></script>
-
 </body>
-
 </html>
