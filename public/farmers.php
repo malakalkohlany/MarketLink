@@ -125,7 +125,7 @@ $hasMoreFarmers = count($farmers) > 3;
     <header class="home-navbar">
         <div class="home-nav-inner">
 
-            <a href="index.php" class="home-brand">
+            <a href="../index.php" class="home-brand">
             <span class="brand-mark">M</span>
             <span class="brand-name">MarketLink</span>
         </a>
