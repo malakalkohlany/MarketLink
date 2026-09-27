@@ -11,6 +11,8 @@ require_once 'login_process.php';
 
     <title>Sign In | MarketLink</title>
 
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
     <link rel="stylesheet" href="../assets/css/auth.css">
 </head>
 
@@ -30,7 +32,7 @@ require_once 'login_process.php';
                 <div class="auth-heading">
                     <span class="eyebrow">Welcome back.</span>
                     <h1>Sign in to your MarketLink account.</h1>
-                    <p>Continue to ...</p>
+                    <p>Pick up where you left off with your local market.</p>
                 </div>
 
                 <?php if ($error): ?>
@@ -102,7 +104,7 @@ require_once 'login_process.php';
 
                     <h2>
                         Local markets.<br>
-                        Better connections.
+                        Better <em>connections.</em> 
                     </h2>
 
                     <p>
