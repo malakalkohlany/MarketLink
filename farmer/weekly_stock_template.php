@@ -18,6 +18,11 @@ unset($_SESSION['weekly_stock_success']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        header('Location: weekly_stock_template.php');
+        exit;
+    }
+
     $action = $_POST['action'] ?? '';
 
     if ($action === 'add') {
@@ -660,6 +665,8 @@ $stmt->close();
                 class="weekly-stock-form"
             >
 
+            <?= csrf_field() ?>
+
                 <input
                     type="hidden"
                     name="action"
@@ -789,6 +796,8 @@ $stmt->close();
                 method="POST"
                 id="save-all-template-form"
             >
+
+            <?= csrf_field() ?>
 
                 <input
                     type="hidden"
@@ -957,6 +966,8 @@ $stmt->close();
                     style="display: none;"
                 >
 
+                    <?= csrf_field() ?>
+
                     <input
                         type="hidden"
                         name="action"
@@ -982,6 +993,8 @@ $stmt->close();
                     id="toggle-template-<?= $template_id ?>"
                     style="display: none;"
                 >
+
+                    <?= csrf_field() ?>
 
                     <input
                         type="hidden"
