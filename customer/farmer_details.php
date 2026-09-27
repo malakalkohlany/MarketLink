@@ -168,6 +168,55 @@ while ($row = $productResult->fetch_assoc()) {
 }
 
 $productStmt->close();
+
+/*
+|--------------------------------------------------------------------------
+| Get Approved Farmer Reviews
+|--------------------------------------------------------------------------
+|
+| These are reviews specifically about the farmer.
+| Product reviews are excluded with product_id IS NULL.
+|
+*/
+
+$reviews = [];
+
+$reviewStmt = $conn->prepare("
+    SELECT
+        r.id,
+        r.rating,
+        r.comment,
+        r.created_at,
+        r.farmer_response,
+        r.farmer_response_at,
+        u.name AS customer_name
+    FROM reviews r
+    INNER JOIN users u
+        ON r.customer_id = u.id
+    WHERE r.farmer_id = ?
+      AND r.product_id IS NULL
+      AND r.status = 'approved'
+    ORDER BY r.created_at DESC
+");
+
+if ($reviewStmt) {
+
+    $reviewStmt->bind_param(
+        "i",
+        $farmerId
+    );
+
+    $reviewStmt->execute();
+
+    $reviewResult = $reviewStmt->get_result();
+
+    while ($row = $reviewResult->fetch_assoc()) {
+        $reviews[] = $row;
+    }
+
+    $reviewStmt->close();
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -507,6 +556,175 @@ $productStmt->close();
             background: #6c7a7b;
         }
 
+        /* =========================================================
+   REVIEWS
+   ========================================================= */
+
+.reviews-section {
+    padding: 30px 35px 40px;
+    background: #ffffff;
+    border-top: 1px solid #eeeeee;
+}
+
+.reviews-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.reviews-header h2 {
+    margin: 0 0 6px;
+    font-size: 24px;
+    color: #222;
+}
+
+.reviews-header p {
+    margin: 0;
+    color: #777;
+    font-size: 14px;
+}
+
+.review-count {
+    color: #777;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.review-card {
+    background: #f8f9fb;
+    border: 1px solid #eeeeee;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.review-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.review-customer {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.review-customer strong {
+    color: #333;
+    font-size: 15px;
+}
+
+.review-date {
+    color: #999;
+    font-size: 12px;
+}
+
+.review-rating {
+    white-space: nowrap;
+}
+
+.star {
+    color: #d5d5d5;
+    font-size: 18px;
+}
+
+.star.filled {
+    color: #d4a72c;
+}
+
+.review-comment {
+    margin: 15px 0 0;
+    color: #555;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.farmer-response {
+    margin-top: 18px;
+    padding: 15px 18px;
+    background: #eaf8ef;
+    border-left: 4px solid #27ae60;
+    border-radius: 8px;
+}
+
+.farmer-response-title {
+    font-size: 13px;
+    font-weight: bold;
+    color: #27ae60;
+    margin-bottom: 7px;
+}
+
+.farmer-response p {
+    margin: 0;
+    color: #555;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.farmer-response-date {
+    display: block;
+    margin-top: 8px;
+    color: #888;
+    font-size: 11px;
+}
+
+.no-reviews {
+    background: #f8f9fb;
+    border: 1px solid #eeeeee;
+    border-radius: 12px;
+    padding: 35px 20px;
+    text-align: center;
+}
+
+.no-reviews-icon {
+    font-size: 28px;
+    color: #d5d5d5;
+    margin-bottom: 8px;
+}
+
+.no-reviews h3 {
+    margin: 0 0 8px;
+    color: #444;
+    font-size: 18px;
+}
+
+.no-reviews p {
+    margin: 0;
+    color: #888;
+    font-size: 14px;
+}
+
+@media (max-width: 768px) {
+
+    .reviews-section {
+        padding: 25px;
+    }
+
+    .reviews-header {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .review-top {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .review-rating {
+        order: -1;
+    }
+
+}
+
         @media (max-width: 768px) {
             .details-container {
                 width: 94%;
@@ -544,6 +762,7 @@ $productStmt->close();
                 text-align: left;
             }
         }
+
     </style>
 </head>
 
@@ -837,6 +1056,178 @@ $productStmt->close();
                     <div class="no-products">
                         This farmer currently has no
                         available products.
+                    </div>
+
+                <?php endif; ?>
+
+            </div>
+
+                        <!-- =========================================================
+                 FARMER REVIEWS
+                 ========================================================= -->
+
+            <div class="reviews-section">
+
+                <div class="reviews-header">
+
+                    <div>
+
+                        <h2>
+                            Customer Reviews
+                        </h2>
+
+                        <p>
+                            Reviews from customers who have purchased from
+                            this farmer.
+                        </p>
+
+                    </div>
+
+                    <span class="review-count">
+                        <?= count($reviews); ?>
+                        review<?= count($reviews) === 1 ? '' : 's'; ?>
+                    </span>
+
+                </div>
+
+
+                <?php if (!empty($reviews)): ?>
+
+                    <div class="reviews-list">
+
+                        <?php foreach ($reviews as $review): ?>
+
+                            <div class="review-card">
+
+                                <div class="review-top">
+
+                                    <div class="review-customer">
+
+                                        <strong>
+                                            <?= e(
+                                                $review['customer_name']
+                                                ?? 'Customer'
+                                            ); ?>
+                                        </strong>
+
+                                        <span class="review-date">
+                                            <?= date(
+                                                'M d, Y',
+                                                strtotime(
+                                                    $review['created_at']
+                                                )
+                                            ); ?>
+                                        </span>
+
+                                    </div>
+
+
+                                    <div class="review-rating">
+
+                                        <?php for (
+                                            $i = 1;
+                                            $i <= 5;
+                                            $i++
+                                        ): ?>
+
+                                            <span
+                                                class="<?= $i <= (int)$review['rating']
+                                                    ? 'star filled'
+                                                    : 'star'; ?>"
+                                            >
+                                                ★
+                                            </span>
+
+                                        <?php endfor; ?>
+
+                                    </div>
+
+                                </div>
+
+
+                                <?php if (
+                                    !empty($review['comment'])
+                                ): ?>
+
+                                    <p class="review-comment">
+                                        <?= nl2br(
+                                            e($review['comment'])
+                                        ); ?>
+                                    </p>
+
+                                <?php endif; ?>
+
+
+                                <?php if (
+                                    !empty($review['farmer_response'])
+                                ): ?>
+
+                                    <div class="farmer-response">
+
+                                        <div class="farmer-response-title">
+                                            Farmer Response
+                                        </div>
+
+                                        <p>
+                                            <?= nl2br(
+                                                e(
+                                                    $review[
+                                                        'farmer_response'
+                                                    ]
+                                                )
+                                            ); ?>
+                                        </p>
+
+                                        <?php if (
+                                            !empty(
+                                                $review[
+                                                    'farmer_response_at'
+                                                ]
+                                            )
+                                        ): ?>
+
+                                            <span
+                                                class="farmer-response-date"
+                                            >
+                                                <?= date(
+                                                    'M d, Y',
+                                                    strtotime(
+                                                        $review[
+                                                            'farmer_response_at'
+                                                        ]
+                                                    )
+                                                ); ?>
+                                            </span>
+
+                                        <?php endif; ?>
+
+                                    </div>
+
+                                <?php endif; ?>
+
+                            </div>
+
+                        <?php endforeach; ?>
+
+                    </div>
+
+                <?php else: ?>
+
+                    <div class="no-reviews">
+
+                        <div class="no-reviews-icon">
+                            ★
+                        </div>
+
+                        <h3>
+                            No reviews yet
+                        </h3>
+
+                        <p>
+                            This farmer hasn't received any approved
+                            reviews yet.
+                        </p>
+
                     </div>
 
                 <?php endif; ?>
