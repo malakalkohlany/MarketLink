@@ -13,6 +13,10 @@ if (
     $_SERVER['REQUEST_METHOD'] === 'POST' &&
     isset($_POST['toggle_favorite'])
 ) {
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        redirect('market_details.php?id=' . $marketId);
+    }
+
     $checkStmt = mysqli_prepare(
         $conn,
         "
@@ -120,7 +124,7 @@ if (
         mysqli_stmt_close($insertStmt);
     }
 
-    redirect('market-details.php?id=' . $marketId);
+    redirect('market_details.php?id=' . $marketId);
 }
 
 $stmt = mysqli_prepare(
@@ -562,9 +566,12 @@ mysqli_stmt_close($favoriteStmt);
 
                 <form
                     method="POST"
-                    action="market-details.php?id=<?= (int)$market['id'] ?>"
+                    action="market_details.php?id=<?= (int)$market['id'] ?>"
                     class="market-favorite-form"
                 >
+
+                    <?= csrf_field() ?>
+
                     <button
                         type="submit"
                         name="toggle_favorite"
