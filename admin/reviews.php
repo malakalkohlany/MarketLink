@@ -4,6 +4,32 @@ require_once __DIR__ . '/../includes/include.php';
 
 requireRole(R_ADMIN);
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $reviewId = (int) ($_POST['review_id'] ?? 0);
+    $action = $_POST['action'] ?? '';
+
+    if ($reviewId > 0 && $action === 'remove') {
+
+        $stmt = $conn->prepare("
+            UPDATE reviews
+            SET status = 'rejected'
+            WHERE id = ?
+        ");
+
+        $stmt->bind_param(
+            'i',
+            $reviewId
+        );
+
+        $stmt->execute();
+        $stmt->close();
+    }
+
+    header('Location: reviews.php');
+    exit;
+}
+
 $stmt = $conn->prepare("
     SELECT
         r.id,
@@ -12,12 +38,15 @@ $stmt = $conn->prepare("
         r.status,
         r.created_at,
         u.name AS customer_name,
-        p.name AS product_name
+        p.name AS product_name,
+        f.stall_name AS farmer_name
     FROM reviews r
     LEFT JOIN users u
         ON r.customer_id = u.id
     LEFT JOIN products p
         ON r.product_id = p.id
+    LEFT JOIN farmers f
+         ON p.farmer_id = f.id
     ORDER BY r.created_at DESC
 ");
 
@@ -27,8 +56,6 @@ $reviews = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
 ?>
 
-
-?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -51,9 +78,11 @@ $reviews = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
 <body>
 
-<div class="admin-container">
+    <?php include __DIR__ . '/../includes/navbar.php'; ?>
 
-     <main class="main-content">
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
+
+    <main class="main-content">
 
         <div class="page-header">
 
@@ -121,6 +150,10 @@ $reviews = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                             </th>
 
                             <th>
+                                Farmer
+                            </th>
+
+                            <th>
                                 Rating
                             </th>
 
@@ -134,6 +167,10 @@ $reviews = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
                             <th>
                                 Date
+                            </th>
+
+                            <th>
+                                Actions
                             </th>
 
                         </tr>
@@ -162,6 +199,12 @@ $reviews = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                                     <td>
                                         <?= htmlspecialchars(
                                             $review['product_name'] ?? 'N/A'
+                                        ) ?>
+                                    </td>
+
+                                    <td>
+                                        <?= htmlspecialchars(
+                                            $review['farmer_name'] ?? 'N/A'
                                         ) ?>
                                     </td>
 
@@ -210,6 +253,41 @@ $reviews = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
                                     </td>
 
+                                    <td>
+
+                                        <?php if (($review['status'] ?? '') !== 'rejected'): ?>
+
+                                            <form method="POST">
+
+                                                <input
+                                                    type="hidden"
+                                                    name="review_id"
+                                                    value="<?= (int)$review['id'] ?>"
+                                                >
+
+                                                <input
+                                                    type="hidden"
+                                                    name="action"
+                                                    value="remove"
+                                                >
+
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-sm btn-secondary"
+                                                >
+                                                    Remove
+                                                </button>
+
+                                            </form>
+
+                                        <?php else: ?>
+
+                                            Removed
+
+                                        <?php endif; ?>
+
+                                    </td>
+
                                 </tr>
 
                             <?php endforeach; ?>
@@ -218,7 +296,7 @@ $reviews = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
                             <tr>
 
-                                <td colspan="7">
+                                <td colspan="9">
                                     No reviews found.
                                 </td>
 
@@ -235,8 +313,6 @@ $reviews = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         </section>
 
     </main>
-
-</div>
 
 </body>
 

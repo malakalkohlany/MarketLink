@@ -296,13 +296,19 @@ if ($result) {
         */
 
         #map {
-
             width: 100%;
-
             height: 500px;
-
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow:
+                0 2px 10px
+                rgba(0, 0, 0, 0.06);
+            border: 1px solid #e5e9e6;
         }
 
+        #map .leaflet-container {
+            border-radius: 14px;
+        }
 
         /*
         |--------------------------------------------------------------------------
@@ -434,6 +440,7 @@ if ($result) {
     transition: background 0.2s ease,
                 border-color 0.2s ease,
                 transform 0.15s ease;
+                box-shadow 0.2s ease;
 }
 
 #findNearbyMarkets {
@@ -560,27 +567,31 @@ if ($result) {
         */
 
         .market-card {
-
             position: relative;
-
             background: #ffffff;
-
+            border: 1px solid #e5e9e6;
             border-radius: 14px;
-
             padding: 22px;
-
             box-shadow:
                 0 2px 10px
-                rgba(0, 0, 0, 0.08);
-
+                rgba(0, 0, 0, 0.06);
             display: flex;
-
             flex-direction: column;
-
             min-height: 220px;
-
             box-sizing: border-box;
 
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease,
+                border-color 0.2s ease;
+        }
+
+        .market-card:hover {
+            transform: translateY(-4px);
+            border-color: #d5ddd8;
+            box-shadow:
+                0 8px 22px
+                rgba(0, 0, 0, 0.10);
         }
 
 
@@ -618,17 +629,11 @@ if ($result) {
         */
 
         .market-favorite-form {
-
             position: absolute !important;
-
             top: 12px !important;
-
             right: 12px !important;
-
-            z-index: 100 !important;
-
+            z-index: 3 !important;
             margin: 0 !important;
-
         }
 
 
