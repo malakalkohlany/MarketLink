@@ -1,5 +1,6 @@
 <?php
-
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../includes/include.php';
 
 $user_id = getUserId();
@@ -109,6 +110,28 @@ $slot_stmt->bind_param("i", $farmer_id);
 $slot_stmt->execute();
 
 $slots = $slot_stmt->get_result();
+$order_stmt = $conn->prepare("
+    SELECT
+        orders.id AS order_id,
+        orders.status,
+        orders.created_at,
+        pickup_slots.day_of_week,
+        pickup_slots.start_time,
+        pickup_slots.end_time,
+        markets.name AS market_name
+    FROM orders
+    INNER JOIN pickup_slots
+        ON orders.pickup_slot_id = pickup_slots.id
+    INNER JOIN markets
+        ON orders.market_id = markets.id
+    WHERE orders.farmer_id = ?
+    ORDER BY pickup_slots.day_of_week ASC, pickup_slots.start_time ASC
+");
+
+$order_stmt->bind_param("i", $farmer_id);
+$order_stmt->execute();
+$orders = $order_stmt->get_result();
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -204,6 +227,36 @@ $slots = $slot_stmt->get_result();
             <?php endwhile; ?>
         </tbody>
     </table>
+
+    <h2>My Pickup Slots</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Market</th>
+                <th>Day</th>
+                <th>Packup Time</th>
+                <th>Status</th>
+                <th>Order Date</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <?php while ($order = $orders->fetch_assoc()): ?>
+                <tr>
+                    <td><?= e($order['order_id']) ?></td>
+                    <td><?= e($order['market_name']) ?></td>
+                    <td><?= e($order['day_of_week']) ?></td>
+                    <td>
+                    <?= e($order['start_time']) ?>
+                    -<?= e($order['end_time']) ?></td>    
+                    <td><?= e($order['status']) ?></td>     
+                    <td><?= formatDate($order['created_at']) ?></td>       
+                </tr>
+            <?php endwhile; ?>    
+        </tbody>
+    </table>
+
 
 </body>
 </html>
