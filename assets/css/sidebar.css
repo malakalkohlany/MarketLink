@@ -1,6 +1,6 @@
 :root {
     --sidebar-width: 240px;
-    --sidebar-bg: var(--text);
+    --sidebar-bg: #381b0d;
     --sidebar-bg-light: #4B3B30;
     --sidebar-text: var(--cream);
     --sidebar-text-soft: rgba(248, 241, 229, 0.76);
