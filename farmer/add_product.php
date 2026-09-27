@@ -34,6 +34,11 @@ $user_id = getUserId();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST'){
 
+        if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        header('Location: add_product.php');
+        exit;
+        }
+
 $stmt = $conn->prepare("
     SELECT id
     FROM farmers
@@ -262,6 +267,7 @@ $categories = $category_stmt->get_result();
         <?php endif; ?>
 
         <form action="" method="POST" enctype="multipart/form-data">
+            <?= csrf_field() ?>
             <label for="name">Product Name</label>
             <input type="text" id="name" name="name" required>
             <br><br>
