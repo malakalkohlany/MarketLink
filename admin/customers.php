@@ -73,14 +73,14 @@ if ($stmt) {
 
     } else {
 
-        $errors[] = 'Failed to load customers: ' . $stmt->error;
+        $errors[] = 'Failed to load customers.';
     }
 
     $stmt->close();
 
 } else {
 
-    $errors[] = 'Failed to prepare customer query: ' . $conn->error;
+    $errors[] = 'Failed to prepare customer query.';
 }
 
 ?>

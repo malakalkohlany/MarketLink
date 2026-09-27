@@ -35,6 +35,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ? 'approved'
                 : 'rejected';
 
+            /*
+             * Get the farmer first so we have their
+             * user_id and stall_name for the notification.
+             */
             $stmt = $conn->prepare("
                 SELECT
                     f.id,
@@ -48,7 +52,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if (!$stmt) {
 
-                $errors[] = 'Failed to prepare farmer lookup: ' . $conn->error;
+                $errors[] =
+                    'Failed to prepare farmer lookup: ' . $conn->error;
 
             } else {
 
@@ -66,10 +71,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 } elseif ($farmer['approval_status'] !== 'pending') {
 
-                    $errors[] = 'This farmer has already been processed.';
+                    $errors[] =
+                        'This farmer has already been processed.';
 
                 } else {
 
+                    /*
+                     * Only update a farmer who is still pending.
+                     * This also protects against two admin requests
+                     * processing the same farmer.
+                     */
                     $updateStmt = $conn->prepare("
                         UPDATE farmers
                         SET approval_status = ?
@@ -79,7 +90,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     if (!$updateStmt) {
 
-                        $errors[] = 'Failed to prepare approval update: ' . $conn->error;
+                        $errors[] =
+                            'Failed to prepare approval update: '
+                            . $conn->error;
 
                     } else {
 
@@ -93,6 +106,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                             if ($updateStmt->affected_rows === 1) {
 
+                                /*
+                                 * Notify the farmer.
+                                 */
                                 if (!empty($farmer['user_id'])) {
 
                                     if ($newStatus === 'approved') {
@@ -105,7 +121,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             "Your farmer account for {$farmer['stall_name']} has been approved. You can now access your farmer dashboard."
                                         );
 
-                                        $success = 'Farmer approved successfully.';
+                                        $success =
+                                            'Farmer approved successfully.';
 
                                     } else {
 
@@ -117,11 +134,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             "Your farmer account for {$farmer['stall_name']} has been rejected."
                                         );
 
-                                        $success = 'Farmer rejected successfully.';
+                                        $success =
+                                            'Farmer rejected successfully.';
                                     }
 
                                 } else {
 
+                                    /*
+                                     * Fallback if the farmer has no
+                                     * associated user account.
+                                     */
                                     $success = $newStatus === 'approved'
                                         ? 'Farmer approved successfully.'
                                         : 'Farmer rejected successfully.';
@@ -129,12 +151,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                             } else {
 
-                                $errors[] = 'The farmer could not be updated. They may have already been processed.';
+                                $errors[] =
+                                    'The farmer could not be updated. '
+                                    . 'They may have already been processed.';
                             }
 
                         } else {
 
-                            $errors[] = 'Failed to update farmer: ' . $updateStmt->error;
+                            $errors[] =
+                                'Failed to update farmer: '
+                                . $updateStmt->error;
                         }
 
                         $updateStmt->close();
@@ -145,6 +171,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+
+/*
+ * Load all farmers for the directory.
+ */
 $farmers = [];
 
 $stmt = $conn->prepare("
@@ -177,14 +207,14 @@ if ($stmt) {
 
     } else {
 
-        $errors[] = 'Failed to load farmers: ' . $stmt->error;
+        $errors[] = 'Failed to load farmers.';
     }
 
     $stmt->close();
 
 } else {
 
-    $errors[] = 'Failed to prepare farmer query: ' . $conn->error;
+    $errors[] = 'Failed to prepare farmer query.';
 }
 
 ?>
