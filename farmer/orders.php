@@ -31,6 +31,12 @@ $farmer_id = (int)$farmer['id'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        header('Location: orders.php');
+        exit;
+    }
+
+
     $order_id = isset($_POST['order_id'])
         ? (int)$_POST['order_id']
         : 0;
@@ -459,6 +465,8 @@ $orders = $order_stmt->get_result();
                                     method="POST"
                                     style="margin-top: 8px;"
                                 >
+
+                                <?= csrf_field() ?>
 
                                     <input
                                         type="hidden"

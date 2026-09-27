@@ -8,6 +8,11 @@ $user_id = getUserId();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        header('Location: edit_profile.php');
+        exit;
+    }
+
     // Get and clean form data
     $name = trim($_POST['name'] ?? '');
     $phone = trim($_POST['phone'] ?? '');
@@ -212,6 +217,9 @@ $stmt->close();
     <main class="main-content">
         <h1>Edit Profile</h1>
         <form action="edit_profile.php" method="post" enctype="multipart/form-data">
+
+         <?= csrf_field() ?>
+         
         <section>
             <h2>Profile Image</h2>
             <div>
