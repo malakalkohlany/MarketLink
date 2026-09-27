@@ -5,16 +5,9 @@ require_once __DIR__ . '/../includes/include.php';
 requireRole(R_CUSTOMER);
 
 $userId = getUserId();
-
 $message = '';
 $error = '';
-
 $section = $_GET['section'] ?? 'profile';
-
-
-// ===============================
-// Success Messages
-// ===============================
 
 if (isset($_GET['updated'])) {
     $message = "Profile updated successfully.";
@@ -24,28 +17,18 @@ if (isset($_GET['password_changed'])) {
     $message = "Password changed successfully.";
 }
 
-
-// ===============================
-// Update Profile
-// ===============================
-
 if (
     $_SERVER['REQUEST_METHOD'] === 'POST'
     && isset($_POST['update_profile'])
 ) {
-
     $section = 'edit';
-
     $name = trim($_POST['name'] ?? '');
     $phone = trim($_POST['phone'] ?? '');
     $address = trim($_POST['address'] ?? '');
 
     if ($name === '') {
-
         $error = "Name cannot be empty.";
-
     } else {
-
         $stmt = $conn->prepare("
             UPDATE users
             SET name = ?, phone = ?, address = ?
@@ -61,35 +44,22 @@ if (
         );
 
         if ($stmt->execute()) {
-
             $_SESSION['name'] = $name;
-
             $stmt->close();
-
             header("Location: profile.php?updated=1");
             exit;
-
         } else {
-
             $error = "Failed to update profile.";
-
             $stmt->close();
         }
     }
 }
 
-
-// ===============================
-// Change Password
-// ===============================
-
 if (
     $_SERVER['REQUEST_METHOD'] === 'POST'
     && isset($_POST['change_password'])
 ) {
-
     $section = 'password';
-
     $currentPassword = $_POST['current_password'] ?? '';
     $newPassword = $_POST['new_password'] ?? '';
     $confirmPassword = $_POST['confirm_password'] ?? '';
@@ -99,20 +69,12 @@ if (
         || $newPassword === ''
         || $confirmPassword === ''
     ) {
-
         $error = "Please fill in all password fields.";
-
     } elseif ($newPassword !== $confirmPassword) {
-
         $error = "New password and confirmation do not match.";
-
     } elseif (strlen($newPassword) < 6) {
-
         $error = "New password must be at least 6 characters.";
-
     } else {
-
-        // Get current password hash
         $stmt = $conn->prepare("
             SELECT password_hash
             FROM users
@@ -128,8 +90,6 @@ if (
 
         $stmt->close();
 
-
-        // Check current password
         if (
             !$passwordData ||
             !password_verify(
@@ -137,19 +97,13 @@ if (
                 $passwordData['password_hash']
             )
         ) {
-
             $error = "Current password is incorrect.";
-
         } else {
-
-            // Hash new password
             $hashedPassword = password_hash(
                 $newPassword,
                 PASSWORD_DEFAULT
             );
 
-
-            // Update password
             $stmt = $conn->prepare("
                 UPDATE users
                 SET password_hash = ?
@@ -163,30 +117,16 @@ if (
             );
 
             if ($stmt->execute()) {
-
                 $stmt->close();
-
-                // Return to main profile page
-                header(
-                    "Location: profile.php?password_changed=1"
-                );
-
+                header("Location: profile.php?password_changed=1");
                 exit;
-
             } else {
-
                 $error = "Failed to change password.";
-
                 $stmt->close();
             }
         }
     }
 }
-
-
-// ===============================
-// Get User Information
-// ===============================
 
 $stmt = $conn->prepare("
     SELECT id, name, email, phone, address
@@ -203,7 +143,6 @@ $user = $result->fetch_assoc();
 
 $stmt->close();
 
-
 if (!$user) {
     die("User not found.");
 }
@@ -212,24 +151,17 @@ if (!$user) {
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
-
     <title>My Profile - MarketLink</title>
-
     <link rel="stylesheet" href="../assets/css/base.css">
     <link rel="stylesheet" href="../assets/css/navbar.css">
     <link rel="stylesheet" href="../assets/css/sidebar.css">
-
     <style>
-
         * {
             box-sizing: border-box;
         }
@@ -394,70 +326,49 @@ if (!$user) {
             text-decoration: none;
             color: #3498db;
         }
-
     </style>
-
 </head>
-
 <body>
 
     <?php include __DIR__ . '/../includes/navbar.php'; ?>
     <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
     <main class="main-content">
-
         <div class="profile-container">
-
             <div class="profile-card">
 
                 <?php if ($message !== ''): ?>
-
                     <div class="message">
                         <?php echo e($message); ?>
                     </div>
-
                 <?php endif; ?>
 
-
                 <?php if ($error !== ''): ?>
-
                     <div class="error">
                         <?php echo e($error); ?>
                     </div>
-
                 <?php endif; ?>
 
-
                 <?php if ($section === 'profile'): ?>
-
-
-                    <!-- ===============================
-                        MAIN PROFILE
-                    ================================ -->
 
                     <h1 class="profile-title">
                         My Profile
                     </h1>
 
-
                     <div class="profile-icon">
                         👤
                     </div>
 
-
                     <div class="profile-info">
-
                         <div class="info-row">
                             <span class="info-label">Name:</span>
                             <?php echo e($user['name']); ?>
                         </div>
 
-
                         <div class="info-row">
                             <span class="info-label">Email:</span>
                             <?php echo e($user['email']); ?>
                         </div>
-
 
                         <div class="info-row">
                             <span class="info-label">Phone:</span>
@@ -468,7 +379,6 @@ if (!$user) {
                             ?>
                         </div>
 
-
                         <div class="info-row">
                             <span class="info-label">Address:</span>
                             <?php
@@ -477,19 +387,15 @@ if (!$user) {
                             );
                             ?>
                         </div>
-
                     </div>
 
-
                     <div class="buttons">
-
                         <a
                             href="profile.php?section=edit"
                             class="profile-button edit-button"
                         >
                             Edit
                         </a>
-
 
                         <a
                             href="profile.php?section=password"
@@ -498,35 +404,23 @@ if (!$user) {
                             Change Password
                         </a>
 
-
                         <a
                             href="../auth/logout.php"
                             class="profile-button logout-button"
                         >
                             Logout
                         </a>
-
                     </div>
 
-
                 <?php elseif ($section === 'edit'): ?>
-
-
-                    <!-- ===============================
-                        EDIT PROFILE
-                    ================================ -->
 
                     <h1 class="profile-title">
                         Edit Profile
                     </h1>
 
-
                     <form method="POST" autocomplete="off">
-
                         <div class="form-group">
-
                             <label>Name</label>
-
                             <input
                                 type="text"
                                 name="name"
@@ -534,54 +428,39 @@ if (!$user) {
                                 autocomplete="name"
                                 required
                             >
-
                         </div>
 
-
                         <div class="form-group">
-
                             <label>Email</label>
-
                             <input
                                 type="email"
                                 value="<?php echo e($user['email']); ?>"
                                 readonly
                                 autocomplete="off"
                             >
-
                         </div>
 
-
                         <div class="form-group">
-
                             <label>Phone</label>
-
                             <input
                                 type="text"
                                 name="phone"
                                 value="<?php echo e($user['phone'] ?? ''); ?>"
                                 autocomplete="tel"
                             >
-
                         </div>
 
-
                         <div class="form-group">
-
                             <label>Address</label>
-
                             <input
                                 type="text"
                                 name="address"
                                 value="<?php echo e($user['address'] ?? ''); ?>"
                                 autocomplete="street-address"
                             >
-
                         </div>
 
-
                         <div class="form-buttons">
-
                             <button
                                 type="submit"
                                 name="update_profile"
@@ -590,39 +469,27 @@ if (!$user) {
                                 Save Changes
                             </button>
 
-
                             <a
                                 href="profile.php"
                                 class="profile-button cancel-button"
                             >
                                 Cancel
                             </a>
-
                         </div>
-
                     </form>
 
-
                 <?php elseif ($section === 'password'): ?>
-
-
-                    <!-- ===============================
-                        CHANGE PASSWORD
-                    ================================ -->
 
                     <h1 class="profile-title">
                         Change Password
                     </h1>
-
 
                     <form
                         method="POST"
                         autocomplete="off"
                         novalidate
                     >
-
                         <div class="form-group">
-
                             <label>
                                 Current Password
                             </label>
@@ -633,12 +500,9 @@ if (!$user) {
                                 autocomplete="current-password"
                                 required
                             >
-
                         </div>
 
-
                         <div class="form-group">
-
                             <label>
                                 New Password
                             </label>
@@ -650,12 +514,9 @@ if (!$user) {
                                 minlength="6"
                                 required
                             >
-
                         </div>
 
-
                         <div class="form-group">
-
                             <label>
                                 Confirm New Password
                             </label>
@@ -667,12 +528,9 @@ if (!$user) {
                                 minlength="6"
                                 required
                             >
-
                         </div>
 
-
                         <div class="form-buttons">
-
                             <button
                                 type="submit"
                                 name="change_password"
@@ -681,28 +539,20 @@ if (!$user) {
                                 Change Password
                             </button>
 
-
                             <a
                                 href="profile.php"
                                 class="profile-button cancel-button"
                             >
                                 Cancel
                             </a>
-
                         </div>
-
                     </form>
-
 
                 <?php endif; ?>
 
-
             </div>
-
         </div>
     </main>
 
 </body>
-
 </html>
-
