@@ -32,16 +32,12 @@ require_once '../includes/functions.php';
 
 <body>
     <h1>Contact Us</h1>
-
     <p>
         If you have any questions, suggestions, or problems,
         please contact the MarketLink team.
     </p>
-
     <h2>How Can We Help?</h2>
-
     <div>
-
         <button
             type="button"
             onclick="selectContactType('Question')"
