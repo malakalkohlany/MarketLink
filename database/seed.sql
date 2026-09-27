@@ -104,96 +104,7 @@ VALUES
 
 
 -- ============================================================
--- 2. CATEGORIES
--- ============================================================
-
-INSERT INTO categories
-    (id, name, description, image, status)
-VALUES
-    (1, 'Vegetables',
-     'Fresh locally grown vegetables including leafy greens, roots, and seasonal produce.',
-     'vegetables.jpg', 'active'),
-
-    (2, 'Fruits',
-     'Fresh seasonal fruits sourced directly from local growers.',
-     'fruits.jpg', 'active'),
-
-    (3, 'Herbs',
-     'Fresh culinary herbs grown and harvested by local farmers.',
-     'herbs.jpg', 'active'),
-
-    (4, 'Dairy',
-     'Fresh dairy products from independent local producers.',
-     'dairy.jpg', 'active'),
-
-    (5, 'Eggs',
-     'Fresh farm eggs from local producers.',
-     'eggs.jpg', 'active'),
-
-    (6, 'Honey',
-     'Natural honey produced by local beekeepers.',
-     'honey.jpg', 'active'),
-
-    (7, 'Bakery',
-     'Fresh bread and baked goods from independent producers.',
-     'bakery.jpg', 'active'),
-
-    (8, 'Organic Produce',
-     'Certified and naturally grown organic produce.',
-     'organic.jpg', 'active');
-
-
--- ============================================================
--- 3. MARKETS
--- ============================================================
-
-INSERT INTO markets
-    (id, name, description, address, latitude, longitude,
-     opening_time, closing_time, operating_days, map_provider, status)
-VALUES
-    (1,
-     'Riverside Farmers Market',
-     'A weekend farmers market featuring fresh produce, dairy, eggs, honey, and artisan products.',
-     'Riverside Park, New York, NY, USA',
-     40.80070000, -73.97070000,
-     '08:00:00', '14:00:00',
-     'Saturday,Sunday',
-     'OpenStreetMap',
-     'active'),
-
-    (2,
-     'Greenfield Community Market',
-     'A neighborhood market connecting shoppers with independent local growers and producers.',
-     'Greenfield Avenue, Portland, OR, USA',
-     45.52310000, -122.67650000,
-     '09:00:00', '15:00:00',
-     'Saturday',
-     'OpenStreetMap',
-     'active'),
-
-    (3,
-     'Central Harvest Market',
-     'A large community market offering seasonal produce and locally produced food.',
-     'Market Street, Chicago, IL, USA',
-     41.88370000, -87.63240000,
-     '08:00:00', '15:00:00',
-     'Saturday,Sunday',
-     'OpenStreetMap',
-     'active'),
-
-    (4,
-     'Sunrise Organic Market',
-     'A market focused on organic produce, natural products, and sustainable farming.',
-     'Harbor Drive, San Diego, CA, USA',
-     32.71570000, -117.16110000,
-     '08:00:00', '14:00:00',
-     'Sunday',
-     'OpenStreetMap',
-     'active');
-
-
--- ============================================================
--- 4. FARMERS
+-- 2. FARMERS
 -- ============================================================
 
 INSERT INTO farmers
@@ -238,221 +149,858 @@ VALUES
 
 
 -- ============================================================
--- 5. MARKET-FARMER RELATIONSHIPS
+-- 2. CATEGORIES
+-- ============================================================
+
+INSERT INTO categories
+    (id, name, description, image, status)
+VALUES
+    (
+        1,
+        'Vegetables',
+        'Fresh seasonal vegetables grown by local farmers.',
+        NULL,
+        'active'
+    ),
+    (
+        2,
+        'Fruits',
+        'Fresh locally grown seasonal fruits.',
+        NULL,
+        'active'
+    ),
+    (
+        3,
+        'Herbs',
+        'Fresh culinary herbs and aromatic greens.',
+        NULL,
+        'active'
+    ),
+    (
+        4,
+        'Eggs & Dairy',
+        'Fresh eggs and locally produced dairy products.',
+        NULL,
+        'active'
+    ),
+    (
+        5,
+        'Honey',
+        'Natural honey and bee products from local producers.',
+        NULL,
+        'active'
+    ),
+    (
+        6,
+        'Leafy Greens',
+        'Fresh lettuce, spinach, kale and other leafy greens.',
+        NULL,
+        'active'
+    ),
+    (
+        7,
+        'Root Vegetables',
+        'Fresh potatoes, carrots, onions and other root crops.',
+        NULL,
+        'active'
+    ),
+    (
+        8,
+        'Pantry & Artisan',
+        'Locally made preserves, sauces and artisan farm products.',
+        NULL,
+        'active'
+    );
+
+
+-- ============================================================
+-- 3. MARKETS
+-- ============================================================
+
+INSERT INTO markets
+    (
+        id,
+        name,
+        description,
+        address,
+        latitude,
+        longitude,
+        opening_time,
+        closing_time,
+        operating_days,
+        map_provider,
+        status
+    )
+VALUES
+    (
+        1,
+        'Riverside Farmers Market',
+        'A lively community market featuring fresh produce, herbs, eggs and artisan farm products.',
+        'Riverside Square, Seattle, Washington, USA',
+        47.60620000,
+        -122.33210000,
+        '09:00:00',
+        '17:00:00',
+        'Wednesday,Saturday,Sunday',
+        'OpenStreetMap',
+        'active'
+    ),
+    (
+        2,
+        'Greenfield Market',
+        'A neighborhood farmers market focused on fresh vegetables, fruit and seasonal produce.',
+        'Greenfield Community Center, Denver, Colorado, USA',
+        39.73920000,
+        -104.99030000,
+        '09:00:00',
+        '17:00:00',
+        'Friday,Saturday,Sunday',
+        'OpenStreetMap',
+        'active'
+    ),
+    (
+        3,
+        'Oak Street Market',
+        'A friendly neighborhood market with local produce, honey and artisan goods.',
+        'Oak Street Plaza, Chicago, Illinois, USA',
+        41.87810000,
+        -87.62980000,
+        '10:00:00',
+        '16:00:00',
+        'Saturday,Sunday',
+        'OpenStreetMap',
+        'active'
+    ),
+    (
+        4,
+        'Harborview Market',
+        'A coastal market featuring fresh vegetables, citrus, herbs and natural honey.',
+        'Harborview Community Park, San Diego, California, USA',
+        32.71570000,
+        -117.16110000,
+        '09:00:00',
+        '16:00:00',
+        'Saturday,Sunday',
+        'OpenStreetMap',
+        'active'
+    );
+
+
+-- ============================================================
+-- 4. FARMER ↔ MARKET RELATIONSHIPS
 -- ============================================================
 
 INSERT INTO market_farmer
     (market_id, farmer_id)
 VALUES
+    -- Oliver / Morgan Valley
     (1, 1),
-    (1, 2),
-    (1, 3),
 
-    (2, 1),
+    -- Grace / Green Meadow
+    (1, 2),
     (2, 2),
 
-    (3, 2),
+    -- Liam / Parker Family
+    (2, 3),
     (3, 3),
-    (3, 4),
 
-    (4, 3),
+    -- Mia / Sunrise Harvest
+    (3, 4),
     (4, 4);
 
 
 -- ============================================================
--- 6. PRODUCTS
+-- 5. PRODUCTS
 -- ============================================================
 
 INSERT INTO products
-    (id, farmer_id, category_id, name, description, price, unit,
-     stock_quantity, image, is_available, moderation_status, moderation_reason)
+    (
+        id,
+        farmer_id,
+        category_id,
+        name,
+        description,
+        price,
+        unit,
+        stock_quantity,
+        image,
+        is_available,
+        moderation_status,
+        moderation_reason
+    )
 VALUES
-    (1,
-     1, 1,
-     'Fresh Tomatoes',
-     'Vine-ripened tomatoes harvested at peak freshness.',
-     3.50, 'kg',
-     45.00,
-     'tomatoes.jpg',
-     1, 'approved', NULL),
 
-    (2,
-     1, 1,
-     'Baby Spinach',
-     'Freshly harvested baby spinach leaves.',
-     4.25, '500g',
-     30.00,
-     'spinach.jpg',
-     1, 'approved', NULL),
+    -- ========================================================
+    -- FARMER 1 - MORGAN VALLEY FARMS
+    -- ========================================================
 
-    (3,
-     1, 3,
-     'Fresh Basil',
-     'Aromatic fresh basil suitable for cooking and salads.',
-     2.50, 'bunch',
-     40.00,
-     'basil.jpg',
-     1, 'approved', NULL),
+    (
+        1,
+        1,
+        1,
+        'Vine Tomatoes',
+        'Fresh ripe tomatoes harvested from Morgan Valley Farms.',
+        3.50,
+        'kg',
+        100.00,
+        NULL,
+        1,
+        'approved',
+        NULL
+    ),
 
-    (4,
-     1, 5,
-     'Farm Fresh Eggs',
-     'Fresh free-range eggs collected from the farm.',
-     5.75, 'dozen',
-     60.00,
-     'eggs.jpg',
-     1, 'approved', NULL),
+    (
+        2,
+        1,
+        6,
+        'Baby Spinach',
+        'Tender baby spinach leaves harvested fresh each week.',
+        2.75,
+        '250 g',
+        80.00,
+        NULL,
+        1,
+        'approved',
+        NULL
+    ),
 
-    (5,
-     2, 1,
-     'Organic Carrots',
-     'Organic carrots grown without synthetic pesticides.',
-     3.75, 'kg',
-     50.00,
-     'carrots.jpg',
-     1, 'approved', NULL),
+    (
+        3,
+        1,
+        3,
+        'Fresh Basil',
+        'Fragrant fresh basil suitable for salads, sauces and cooking.',
+        2.25,
+        'bunch',
+        50.00,
+        NULL,
+        1,
+        'approved',
+        NULL
+    ),
 
-    (6,
-     2, 1,
-     'Organic Potatoes',
-     'Fresh organic potatoes suitable for roasting, baking, and cooking.',
-     3.25, 'kg',
-     70.00,
-     'potatoes.jpg',
-     1, 'approved', NULL),
+    (
+        4,
+        1,
+        4,
+        'Farm Fresh Eggs',
+        'Fresh free-range eggs collected from the farm.',
+        5.50,
+        'dozen',
+        60.00,
+        NULL,
+        1,
+        'approved',
+        NULL
+    ),
 
-    (7,
-     2, 2,
-     'Strawberries',
-     'Sweet seasonal strawberries picked fresh from the farm.',
-     6.50, '500g',
-     35.00,
-     'strawberries.jpg',
-     1, 'approved', NULL),
 
-    (8,
-     2, 8,
-     'Organic Mixed Greens',
-     'A seasonal mix of fresh organic salad greens.',
-     5.25, '500g',
-     25.00,
-     'mixed-greens.jpg',
-     1, 'approved', NULL),
+    -- ========================================================
+    -- FARMER 2 - GREEN MEADOW ORGANICS
+    -- ========================================================
 
-    (9,
-     3, 2,
-     'Honeycrisp Apples',
-     'Crisp and naturally sweet seasonal apples.',
-     4.50, 'kg',
-     45.00,
-     'apples.jpg',
-     1, 'approved', NULL),
+    (
+        5,
+        2,
+        1,
+        'Organic Carrots',
+        'Crisp organic carrots grown without synthetic pesticides.',
+        2.90,
+        'kg',
+        100.00,
+        NULL,
+        1,
+        'approved',
+        NULL
+    ),
 
-    (10,
-     3, 6,
-     'Wildflower Honey',
-     'Naturally produced honey collected from diverse wildflowers.',
-     9.50, '500g',
-     25.00,
-     'honey.jpg',
-     1, 'approved', NULL),
+    (
+        6,
+        2,
+        7,
+        'Golden Potatoes',
+        'Fresh golden potatoes ideal for roasting, baking and cooking.',
+        2.40,
+        'kg',
+        120.00,
+        NULL,
+        1,
+        'approved',
+        NULL
+    ),
 
-    (11,
-     3, 1,
-     'Sweet Bell Peppers',
-     'Colorful fresh bell peppers with a naturally sweet flavor.',
-     5.25, 'kg',
-     35.00,
-     'peppers.jpg',
-     1, 'approved', NULL),
+    (
+        7,
+        2,
+        6,
+        'Crisp Lettuce',
+        'Fresh crisp heads of locally grown lettuce.',
+        2.20,
+        'head',
+        60.00,
+        NULL,
+        1,
+        'approved',
+        NULL
+    ),
 
-    (12,
-     4, 2,
-     'Fresh Oranges',
-     'Juicy seasonal oranges harvested from the farm.',
-     4.75, 'kg',
-     55.00,
-     'oranges.jpg',
-     1, 'approved', NULL),
 
-    (13,
-     4, 3,
-     'Fresh Rosemary',
-     'Fragrant rosemary harvested fresh for culinary use.',
-     2.75, 'bunch',
-     30.00,
-     'rosemary.jpg',
-     1, 'approved', NULL),
+    -- ========================================================
+    -- FARMER 3 - PARKER FAMILY FARM
+    -- ========================================================
 
-    (14,
-     4, 8,
-     'Organic Lettuce',
-     'Crisp organic lettuce harvested fresh.',
-     2.95, 'head',
-     40.00,
-     'lettuce.jpg',
-     1, 'approved', NULL),
+    (
+        8,
+        3,
+        2,
+        'Strawberries',
+        'Sweet seasonal strawberries harvested at peak ripeness.',
+        4.80,
+        '500 g',
+        70.00,
+        NULL,
+        1,
+        'approved',
+        NULL
+    ),
 
-    (15,
-     4, 6,
-     'Clover Honey',
-     'Smooth natural honey with a mild floral flavor.',
-     8.75, '500g',
-     20.00,
-     'clover-honey.jpg',
-     1, 'approved', NULL),
+    (
+        9,
+        3,
+        5,
+        'Wildflower Honey',
+        'Natural honey collected from local wildflower fields.',
+        8.50,
+        'jar',
+        40.00,
+        NULL,
+        1,
+        'approved',
+        NULL
+    ),
 
-    (16,
-     2, 1,
-     'Organic Cucumbers',
-     'Fresh crisp cucumbers grown organically.',
-     3.95, 'kg',
-     40.00,
-     'cucumbers.jpg',
-     1, 'approved', NULL);
+    (
+        10,
+        3,
+        1,
+        'Sweet Bell Peppers',
+        'Colorful sweet peppers with a crisp texture.',
+        4.25,
+        'kg',
+        75.00,
+        NULL,
+        1,
+        'approved',
+        NULL
+    ),
+
+
+    -- ========================================================
+    -- FARMER 4 - SUNRISE HARVEST
+    -- ========================================================
+
+    (
+        11,
+        4,
+        2,
+        'Fresh Oranges',
+        'Juicy seasonal oranges grown in the coastal climate.',
+        3.80,
+        'kg',
+        100.00,
+        NULL,
+        1,
+        'approved',
+        NULL
+    ),
+
+    (
+        12,
+        4,
+        3,
+        'Fresh Mint',
+        'Aromatic fresh mint harvested throughout the growing season.',
+        1.90,
+        'bunch',
+        60.00,
+        NULL,
+        1,
+        'approved',
+        NULL
+    ),
+
+    (
+        13,
+        4,
+        5,
+        'Coastal Wildflower Honey',
+        'Natural local honey produced from coastal wildflowers.',
+        9.00,
+        'jar',
+        35.00,
+        NULL,
+        1,
+        'approved',
+        NULL
+    );
 
 
 -- ============================================================
--- 7. PICKUP SLOTS
+-- 6. WEEKLY STOCK TEMPLATES
+--
+-- These are recurring defaults.
+-- They are NOT the actual current-week quantities.
+-- ============================================================
+
+INSERT INTO weekly_stock_templates
+    (
+        id,
+        farmer_id,
+        product_id,
+        default_quantity,
+        is_active
+    )
+VALUES
+
+    -- Farmer 1
+    (1, 1, 1, 60.00, 1),
+    (2, 1, 2, 40.00, 1),
+    (3, 1, 3, 25.00, 1),
+    (4, 1, 4, 30.00, 1),
+
+    -- Farmer 2
+    (5, 2, 5, 50.00, 1),
+    (6, 2, 6, 70.00, 1),
+    (7, 2, 7, 35.00, 1),
+
+    -- Farmer 3
+    (8, 3, 8, 40.00, 1),
+    (9, 3, 9, 20.00, 1),
+    (10, 3, 10, 45.00, 1),
+
+    -- Farmer 4
+    (11, 4, 11, 60.00, 1),
+    (12, 4, 12, 30.00, 1),
+    (13, 4, 13, 20.00, 1);
+
+
+-- ============================================================
+-- 7. CURRENT WEEKLY STOCK
+--
+-- Current week:
+-- 2026-09-21 -> 2026-09-27
+--
+-- Some quantities intentionally differ from the templates
+-- so we can test farmer weekly adjustments.
+-- ============================================================
+
+INSERT INTO weekly_stock
+    (
+        id,
+        farmer_id,
+        product_id,
+        week_start,
+        planned_quantity,
+        actual_quantity,
+        status,
+        is_active
+    )
+VALUES
+
+    -- ========================================================
+    -- FARMER 1
+    -- ========================================================
+
+    (
+        1,
+        1,
+        1,
+        '2026-09-21',
+        60.00,
+        60.00,
+        'available',
+        1
+    ),
+
+    (
+        2,
+        1,
+        2,
+        '2026-09-21',
+        40.00,
+        27.50,
+        'available',
+        1
+    ),
+
+    (
+        3,
+        1,
+        3,
+        '2026-09-21',
+        25.00,
+        0.00,
+        'sold_out',
+        1
+    ),
+
+    (
+        4,
+        1,
+        4,
+        '2026-09-21',
+        30.00,
+        30.00,
+        'unavailable',
+        1
+    ),
+
+
+    -- ========================================================
+    -- FARMER 2
+    -- ========================================================
+
+    (
+        5,
+        2,
+        5,
+        '2026-09-21',
+        50.00,
+        50.00,
+        'available',
+        1
+    ),
+
+    (
+        6,
+        2,
+        6,
+        '2026-09-21',
+        70.00,
+        48.00,
+        'available',
+        1
+    ),
+
+    (
+        7,
+        2,
+        7,
+        '2026-09-21',
+        35.00,
+        0.00,
+        'sold_out',
+        1
+    ),
+
+
+    -- ========================================================
+    -- FARMER 3
+    -- ========================================================
+
+    (
+        8,
+        3,
+        8,
+        '2026-09-21',
+        40.00,
+        32.00,
+        'available',
+        1
+    ),
+
+    (
+        9,
+        3,
+        9,
+        '2026-09-21',
+        20.00,
+        20.00,
+        'available',
+        1
+    ),
+
+    (
+        10,
+        3,
+        10,
+        '2026-09-21',
+        45.00,
+        45.00,
+        'available',
+        1
+    ),
+
+
+    -- ========================================================
+    -- FARMER 4
+    -- ========================================================
+
+    (
+        11,
+        4,
+        11,
+        '2026-09-21',
+        60.00,
+        60.00,
+        'available',
+        1
+    ),
+
+    (
+        12,
+        4,
+        12,
+        '2026-09-21',
+        30.00,
+        18.00,
+        'available',
+        1
+    ),
+
+    (
+        13,
+        4,
+        13,
+        '2026-09-21',
+        20.00,
+        0.00,
+        'sold_out',
+        1
+    );
+
+
+-- ============================================================
+-- 8. PICKUP SLOTS
+--
+-- IMPORTANT:
+-- Today = Sunday, September 27, 2026.
+--
+-- These Sunday slots intentionally have FUTURE cutoff times
+-- so you can test checkout right now.
+--
+-- Current local time is around 13:07.
 -- ============================================================
 
 INSERT INTO pickup_slots
-    (id, farmer_id, market_id, day_of_week,
-     start_time, end_time, cutoff_time, max_orders, is_available)
+    (
+        id,
+        farmer_id,
+        market_id,
+        day_of_week,
+        start_time,
+        end_time,
+        cutoff_time,
+        max_orders,
+        is_available
+    )
 VALUES
-    (1, 1, 1, 'Saturday',
-     '09:00:00', '10:00:00', '08:00:00', 10, 1),
 
-    (2, 1, 1, 'Saturday',
-     '10:00:00', '11:00:00', '09:00:00', 10, 1),
+    -- ========================================================
+    -- FARMER 1 / RIVERSIDE MARKET
+    -- ========================================================
 
-    (3, 1, 2, 'Saturday',
-     '11:00:00', '12:00:00', '10:00:00', 8, 1),
+    (
+        1,
+        1,
+        1,
+        'Sunday',
+        '14:00:00',
+        '16:00:00',
+        '13:30:00',
+        20,
+        1
+    ),
 
-    (4, 2, 1, 'Sunday',
-     '09:00:00', '10:00:00', '08:00:00', 12, 1),
+    (
+        2,
+        1,
+        1,
+        'Sunday',
+        '16:30:00',
+        '18:00:00',
+        '16:00:00',
+        20,
+        1
+    ),
 
-    (5, 2, 3, 'Saturday',
-     '10:00:00', '11:00:00', '09:00:00', 12, 1),
 
-    (6, 2, 3, 'Sunday',
-     '11:00:00', '12:00:00', '10:00:00', 10, 1),
+    -- ========================================================
+    -- FARMER 2 / RIVERSIDE MARKET
+    -- ========================================================
 
-    (7, 3, 3, 'Saturday',
-     '09:00:00', '10:00:00', '08:00:00', 10, 1),
+    (
+        3,
+        2,
+        1,
+        'Sunday',
+        '14:00:00',
+        '16:00:00',
+        '13:30:00',
+        15,
+        1
+    ),
 
-    (8, 3, 4, 'Sunday',
-     '09:00:00', '10:00:00', '08:00:00', 8, 1),
+    (
+        4,
+        2,
+        1,
+        'Sunday',
+        '16:30:00',
+        '18:00:00',
+        '16:00:00',
+        15,
+        1
+    ),
 
-    (9, 4, 4, 'Sunday',
-     '10:00:00', '11:00:00', '09:00:00', 10, 1),
 
-    (10, 4, 3, 'Sunday',
-     '12:00:00', '13:00:00', '11:00:00', 10, 1);
+    -- ========================================================
+    -- FARMER 2 / GREENFIELD MARKET
+    -- ========================================================
+
+    (
+        5,
+        2,
+        2,
+        'Sunday',
+        '14:30:00',
+        '16:30:00',
+        '14:00:00',
+        15,
+        1
+    ),
+
+    (
+        6,
+        2,
+        2,
+        'Sunday',
+        '17:00:00',
+        '18:30:00',
+        '16:30:00',
+        15,
+        1
+    ),
+
+
+    -- ========================================================
+    -- FARMER 3 / GREENFIELD MARKET
+    -- ========================================================
+
+    (
+        7,
+        3,
+        2,
+        'Sunday',
+        '14:00:00',
+        '16:00:00',
+        '13:30:00',
+        15,
+        1
+    ),
+
+    (
+        8,
+        3,
+        2,
+        'Sunday',
+        '16:30:00',
+        '18:00:00',
+        '16:00:00',
+        15,
+        1
+    ),
+
+
+    -- ========================================================
+    -- FARMER 3 / OAK STREET MARKET
+    -- ========================================================
+
+    (
+        9,
+        3,
+        3,
+        'Sunday',
+        '14:30:00',
+        '16:30:00',
+        '14:00:00',
+        15,
+        1
+    ),
+
+    (
+        10,
+        3,
+        3,
+        'Sunday',
+        '17:00:00',
+        '18:30:00',
+        '16:30:00',
+        15,
+        1
+    ),
+
+
+    -- ========================================================
+    -- FARMER 4 / OAK STREET MARKET
+    -- ========================================================
+
+    (
+        11,
+        4,
+        3,
+        'Sunday',
+        '14:00:00',
+        '16:00:00',
+        '13:30:00',
+        15,
+        1
+    ),
+
+    (
+        12,
+        4,
+        3,
+        'Sunday',
+        '16:30:00',
+        '18:00:00',
+        '16:00:00',
+        15,
+        1
+    ),
+
+
+    -- ========================================================
+    -- FARMER 4 / HARBORVIEW MARKET
+    -- ========================================================
+
+    (
+        13,
+        4,
+        4,
+        'Sunday',
+        '14:30:00',
+        '16:30:00',
+        '14:00:00',
+        15,
+        1
+    ),
+
+    (
+        14,
+        4,
+        4,
+        'Sunday',
+        '17:00:00',
+        '18:30:00',
+        '16:30:00',
+        15,
+        1
+    );
 
 
 -- ============================================================
--- 8. FAVORITE FARMERS
+-- 9. FAVORITES
 -- ============================================================
 
 INSERT INTO favorite_farmers
@@ -461,404 +1009,192 @@ VALUES
     (1, 1),
     (1, 2),
     (2, 2),
-    (2, 4),
+    (2, 3),
     (3, 3),
-    (4, 1),
     (4, 4);
 
-
--- ============================================================
--- 9. FAVORITE MARKETS
--- ============================================================
 
 INSERT INTO favorite_markets
     (customer_id, market_id)
 VALUES
     (1, 1),
-    (1, 3),
     (2, 2),
     (3, 3),
-    (3, 4),
-    (4, 1),
     (4, 4);
 
-
--- ============================================================
--- 10. FAVORITE PRODUCTS
--- ============================================================
 
 INSERT INTO favorite_products
     (customer_id, product_id)
 VALUES
     (1, 1),
     (1, 4),
-    (1, 10),
     (2, 5),
-    (2, 7),
-    (2, 12),
+    (2, 8),
     (3, 9),
-    (3, 11),
-    (4, 2),
-    (4, 14),
-    (4, 15);
+    (4, 11);
 
 
 -- ============================================================
--- 11. ORDERS
--- ============================================================
--- Orders are distributed across customers, farmers and markets.
--- Completed orders are used for review data.
-
-INSERT INTO orders
-    (id, customer_id, farmer_id, market_id, pickup_slot_id,
-     status, subtotal, notes, created_at)
-VALUES
-    (1,
-     1, 1, 1, 1,
-     'completed', 14.50,
-     'Please pack the vegetables separately.',
-     '2026-09-18 09:15:00'),
-
-    (2,
-     2, 2, 3, 5,
-     'completed', 19.25,
-     'Please use paper bags if available.',
-     '2026-09-19 10:30:00'),
-
-    (3,
-     3, 3, 3, 7,
-     'ready', 18.50,
-     'I will collect the order during the selected slot.',
-     '2026-09-23 11:00:00'),
-
-    (4,
-     4, 4, 4, 9,
-     'preparing', 17.45,
-     'Please keep the honey upright.',
-     '2026-09-24 14:20:00'),
-
-    (5,
-     1, 2, 1, 4,
-     'accepted', 13.75,
-     'Thank you!',
-     '2026-09-24 16:10:00'),
-
-    (6,
-     2, 1, 2, 3,
-     'pending', 10.25,
-     'Fresh produce preferred.',
-     '2026-09-25 08:30:00');
-
-
--- ============================================================
--- 12. ORDER ITEMS
--- ============================================================
-
-INSERT INTO order_items
-    (id, order_id, product_id, quantity, unit_price, subtotal)
-VALUES
-    -- Order 1
-    (1, 1, 1, 2.00, 3.50, 7.00),
-    (2, 1, 3, 1.00, 2.50, 2.50),
-    (3, 1, 4, 1.00, 5.00, 5.00),
-
-    -- Order 2
-    (4, 2, 5, 2.00, 3.75, 7.50),
-    (5, 2, 7, 1.00, 6.50, 6.50),
-    (6, 2, 8, 1.00, 5.25, 5.25),
-
-    -- Order 3
-    (7, 3, 9, 2.00, 4.50, 9.00),
-    (8, 3, 10, 1.00, 9.50, 9.50),
-
-    -- Order 4
-    (9, 4, 12, 1.00, 4.75, 4.75),
-    (10, 4, 13, 1.00, 2.75, 2.75),
-    (11, 4, 15, 1.00, 8.75, 8.75),
-
-    -- Order 5
-    (12, 5, 6, 2.00, 3.25, 6.50),
-    (13, 5, 16, 1.00, 3.95, 3.95),
-    (14, 5, 5, 1.00, 3.30, 3.30),
-
-    -- Order 6
-    (15, 6, 2, 1.00, 4.25, 4.25),
-    (16, 6, 3, 1.00, 2.50, 2.50),
-    (17, 6, 1, 1.00, 3.50, 3.50);
-
-
--- ============================================================
--- 13. ORDER STATUS HISTORY
--- ============================================================
-
-INSERT INTO order_status_history
-    (id, order_id, status, changed_by, created_at)
-VALUES
-    -- Order 1
-    (1, 1, 'pending', 1, '2026-09-18 09:15:00'),
-    (2, 1, 'accepted', 5, '2026-09-18 09:30:00'),
-    (3, 1, 'preparing', 5, '2026-09-18 10:00:00'),
-    (4, 1, 'ready', 5, '2026-09-19 08:00:00'),
-    (5, 1, 'completed', 1, '2026-09-19 09:15:00'),
-
-    -- Order 2
-    (6, 2, 'pending', 2, '2026-09-19 10:30:00'),
-    (7, 2, 'accepted', 6, '2026-09-19 11:00:00'),
-    (8, 2, 'preparing', 6, '2026-09-19 12:00:00'),
-    (9, 2, 'ready', 6, '2026-09-20 09:00:00'),
-    (10, 2, 'completed', 2, '2026-09-20 10:15:00'),
-
-    -- Order 3
-    (11, 3, 'pending', 3, '2026-09-23 11:00:00'),
-    (12, 3, 'accepted', 7, '2026-09-23 11:20:00'),
-    (13, 3, 'preparing', 7, '2026-09-24 08:30:00'),
-    (14, 3, 'ready', 7, '2026-09-25 08:00:00'),
-
-    -- Order 4
-    (15, 4, 'pending', 4, '2026-09-24 14:20:00'),
-    (16, 4, 'accepted', 8, '2026-09-24 14:45:00'),
-    (17, 4, 'preparing', 8, '2026-09-25 08:30:00'),
-
-    -- Order 5
-    (18, 5, 'pending', 1, '2026-09-24 16:10:00'),
-    (19, 5, 'accepted', 6, '2026-09-24 17:00:00'),
-
-    -- Order 6
-    (20, 6, 'pending', 2, '2026-09-25 08:30:00');
-
-
--- ============================================================
--- 14. REVIEWS
--- ============================================================
-
-INSERT INTO reviews
-    (id, customer_id, farmer_id, product_id, order_id,
-     rating, comment, status, farmer_response, farmer_response_at, created_at)
-VALUES
-    (1,
-     1, 1, 1, 1,
-     5,
-     'The tomatoes were fresh and tasted excellent. I will definitely order again.',
-     'approved',
-     'Thank you for the kind review! We are glad you enjoyed the tomatoes.',
-     '2026-09-20 10:00:00',
-     '2026-09-20 09:30:00'),
-
-    (2,
-     2, 2, 7, 2,
-     4,
-     'The strawberries were fresh and sweet. Packaging was also very good.',
-     'approved',
-     'Thank you! We appreciate your feedback.',
-     '2026-09-21 11:00:00',
-     '2026-09-21 10:30:00'),
-
-    (3,
-     1, 1, 4, 1,
-     5,
-     'The eggs were excellent and arrived in perfect condition.',
-     'approved',
-     NULL,
-     NULL,
-     '2026-09-20 09:45:00');
-
-
--- ============================================================
--- 15. NOTIFICATIONS
+-- 10. NOTIFICATIONS
 -- ============================================================
 
 INSERT INTO notifications
-    (id, user_id, type, title, message, is_read, created_at)
+    (
+        id,
+        user_id,
+        type,
+        title,
+        message,
+        is_read
+    )
 VALUES
-    (1,
-     1,
-     'order',
-     'Order Completed',
-     'Your order #1 has been completed. Thank you for shopping with MarketLink!',
-     1,
-     '2026-09-19 09:20:00'),
-
-    (2,
-     1,
-     'review',
-     'Review Published',
-     'Your review for Morgan Valley Farms has been published.',
-     1,
-     '2026-09-20 09:35:00'),
-
-    (3,
-     2,
-     'order',
-     'Order Completed',
-     'Your order #2 is ready for pickup and has been completed.',
-     1,
-     '2026-09-20 10:20:00'),
-
-    (4,
-     2,
-     'announcement',
-     'New Market Announcement',
-     'Central Harvest Market has added new weekend pickup slots.',
-     0,
-     '2026-09-22 09:00:00'),
-
-    (5,
-     3,
-     'order',
-     'Order Ready',
-     'Your order #3 is ready for pickup.',
-     0,
-     '2026-09-25 08:05:00'),
-
-    (6,
-     4,
-     'order',
-     'Order Being Prepared',
-     'Your order #4 is currently being prepared by Sunrise Harvest Co.',
-     0,
-     '2026-09-25 08:35:00'),
-
-    (7,
-     5,
-     'system',
-     'New Order',
-     'You have received a new order (#6).',
-     0,
-     '2026-09-25 08:35:00'),
-
-    (8,
-     6,
-     'system',
-     'New Order',
-     'You have received a new order (#5).',
-     1,
-     '2026-09-24 17:05:00'),
-
-    (9,
-     9,
-     'system',
-     'Weekly Activity',
-     'Your MarketLink weekly activity report is ready.',
-     0,
-     '2026-09-25 08:00:00');
+    (
+        1,
+        1,
+        'weekly_stock_updated',
+        'Weekly Stock Updated',
+        'Morgan Valley Farms has updated their stock for this week.',
+        0
+    ),
+    (
+        2,
+        1,
+        'announcement',
+        'Welcome to MarketLink',
+        'Discover fresh products from local farmers and shop your weekly market.',
+        1
+    ),
+    (
+        3,
+        2,
+        'weekly_stock_updated',
+        'Weekly Stock Updated',
+        'Green Meadow Organics has updated their stock for this week.',
+        0
+    ),
+    (
+        4,
+        3,
+        'weekly_stock_updated',
+        'Weekly Stock Updated',
+        'Parker Family Farm has updated their stock for this week.',
+        0
+    ),
+    (
+        5,
+        4,
+        'weekly_stock_updated',
+        'Weekly Stock Updated',
+        'Sunrise Harvest Co. has updated their stock for this week.',
+        1
+    ),
+    (
+        6,
+        5,
+        'weekly_stock_reminder',
+        'Weekly Stock Reminder',
+        'It is a new week! Please review and update your weekly stock.',
+        0
+    ),
+    (
+        7,
+        6,
+        'weekly_stock_reminder',
+        'Weekly Stock Reminder',
+        'It is a new week! Please review and update your weekly stock.',
+        0
+    ),
+    (
+        8,
+        7,
+        'weekly_stock_reminder',
+        'Weekly Stock Reminder',
+        'It is a new week! Please review and update your weekly stock.',
+        1
+    ),
+    (
+        9,
+        8,
+        'weekly_stock_reminder',
+        'Weekly Stock Reminder',
+        'It is a new week! Please review and update your weekly stock.',
+        0
+    );
 
 
 -- ============================================================
--- 16. ANNOUNCEMENTS
+-- 11. ANNOUNCEMENTS
 -- ============================================================
 
 INSERT INTO announcements
-    (id, admin_id, title, message, status, created_at, expires_at)
+    (
+        id,
+        admin_id,
+        title,
+        message,
+        status,
+        expires_at
+    )
 VALUES
-    (1,
-     9,
-     'Welcome to MarketLink',
-     'Discover fresh local products, connect with farmers, and schedule convenient market pickups through MarketLink.',
-     'published',
-     '2026-09-01 09:00:00',
-     '2026-12-31 23:59:59'),
-
-    (2,
-     9,
-     'Weekend Market Update',
-     'Several participating markets have added new weekend pickup slots. Check your favorite markets for updated availability.',
-     'published',
-     '2026-09-20 09:00:00',
-     '2026-10-20 23:59:59'),
-
-    (3,
-     9,
-     'Seasonal Produce Available',
-     'New seasonal fruits and vegetables are now available from participating farmers.',
-     'published',
-     '2026-09-22 10:00:00',
-     '2026-10-15 23:59:59'),
-
-    (4,
-     9,
-     'System Maintenance Notice',
-     'A short maintenance period is scheduled for upcoming system improvements.',
-     'draft',
-     '2026-09-24 12:00:00',
-     NULL);
+    (
+        1,
+        9,
+        'Welcome to MarketLink',
+        'MarketLink connects customers with local farmers and their weekly fresh stock.',
+        'published',
+        '2026-12-31 23:59:59'
+    ),
+    (
+        2,
+        9,
+        'Weekly Stock Is Now Available',
+        'Farmers have updated their stock for the current week. Browse products and plan your pickup.',
+        'published',
+        '2026-10-04 23:59:59'
+    ),
+    (
+        3,
+        9,
+        'MarketLink Test Announcement',
+        'This is a development announcement for testing the notification and announcement system.',
+        'draft',
+        NULL
+    );
 
 
 -- ============================================================
--- 17. REPORTS
+-- 12. RESET AUTO-INCREMENT VALUES
 -- ============================================================
 
-INSERT INTO reports
-    (id, generated_by, report_type, generated_at)
-VALUES
-    (1, 9, 'sales_summary', '2026-09-01 09:00:00'),
-    (2, 9, 'farmer_activity', '2026-09-10 09:30:00'),
-    (3, 9, 'market_activity', '2026-09-15 10:00:00'),
-    (4, 9, 'order_summary', '2026-09-20 10:30:00'),
-    (5, 9, 'product_inventory', '2026-09-25 08:00:00');
+ALTER TABLE categories
+    AUTO_INCREMENT = 9;
 
+ALTER TABLE markets
+    AUTO_INCREMENT = 5;
 
--- ============================================================
--- 18. WEEKLY STOCK
--- ============================================================
+ALTER TABLE products
+    AUTO_INCREMENT = 14;
 
-INSERT INTO weekly_stock
-    (id, farmer_id, product_id, week_start, planned_quantity, is_active)
-VALUES
-    (1, 1, 1, '2026-09-21', 60.00, 1),
-    (2, 1, 2, '2026-09-21', 40.00, 1),
-    (3, 1, 3, '2026-09-21', 50.00, 1),
-    (4, 1, 4, '2026-09-21', 80.00, 1),
+ALTER TABLE weekly_stock_templates
+    AUTO_INCREMENT = 14;
 
-    (5, 2, 5, '2026-09-21', 70.00, 1),
-    (6, 2, 6, '2026-09-21', 90.00, 1),
-    (7, 2, 7, '2026-09-21', 45.00, 1),
-    (8, 2, 8, '2026-09-21', 35.00, 1),
-    (9, 2, 16, '2026-09-21', 50.00, 1),
+ALTER TABLE weekly_stock
+    AUTO_INCREMENT = 14;
 
-    (10, 3, 9, '2026-09-21', 60.00, 1),
-    (11, 3, 10, '2026-09-21', 30.00, 1),
-    (12, 3, 11, '2026-09-21', 45.00, 1),
+ALTER TABLE pickup_slots
+    AUTO_INCREMENT = 15;
 
-    (13, 4, 12, '2026-09-21', 70.00, 1),
-    (14, 4, 13, '2026-09-21', 40.00, 1),
-    (15, 4, 14, '2026-09-21', 50.00, 1),
-    (16, 4, 15, '2026-09-21', 25.00, 1);
+ALTER TABLE notifications
+    AUTO_INCREMENT = 10;
+
+ALTER TABLE announcements
+    AUTO_INCREMENT = 4;
 
 
 -- ============================================================
 -- FINISH
 -- ============================================================
 
-SET FOREIGN_KEY_CHECKS = 1;
-
 COMMIT;
 
--- ============================================================
--- OPTIONAL QUICK CHECKS
--- ============================================================
-
-SELECT 'Users' AS table_name, COUNT(*) AS records FROM users
-UNION ALL
-SELECT 'Categories', COUNT(*) FROM categories
-UNION ALL
-SELECT 'Markets', COUNT(*) FROM markets
-UNION ALL
-SELECT 'Farmers', COUNT(*) FROM farmers
-UNION ALL
-SELECT 'Products', COUNT(*) FROM products
-UNION ALL
-SELECT 'Pickup Slots', COUNT(*) FROM pickup_slots
-UNION ALL
-SELECT 'Orders', COUNT(*) FROM orders
-UNION ALL
-SELECT 'Order Items', COUNT(*) FROM order_items
-UNION ALL
-SELECT 'Reviews', COUNT(*) FROM reviews
-UNION ALL
-SELECT 'Notifications', COUNT(*) FROM notifications
-UNION ALL
-SELECT 'Announcements', COUNT(*) FROM announcements
-UNION ALL
-SELECT 'Reports', COUNT(*) FROM reports
-UNION ALL
-SELECT 'Weekly Stock', COUNT(*) FROM weekly_stock;
+SET FOREIGN_KEY_CHECKS = 1;
