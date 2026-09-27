@@ -210,175 +210,197 @@ $orders = $order_stmt->get_result();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pickup Slots</title>
+    <link
+        rel="stylesheet"
+        href="../assets/css/base.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/navbar.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/sidebar.css"
+    >
 </head>
 <body>
-    <h1>Pickup Slots</h1>
 
-    <?php if (isset($success_message)): ?>
-        <p><?= e($success_message) ?></p>
-    <?php endif; ?>
-    
-    <h2>Add Pickup Slots</h2>
+    <?php include __DIR__ . '/../includes/navbar.php'; ?>
+    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-    <form method="POST">
-        <label for="market_id">Market</label>
-        <select name="market_id" id="market_id" required>
-        <option value="">Select Market</option>
-        <?php while ($market = $markets->fetch_assoc()): ?>
-            <option value="<?= e($market['id']) ?>">
-                <?= e($market['name']) ?>
-            </option>
-        <?php endwhile; ?>   
-    </select>
-    <br><br>
-    
-    <label for="day_of_week">Day</label>
-    <select name="day_of_week" id="day_of_week" required>
-            <option value="">Select Day</option>
-            <option value="Monday">Monday</option>
-            <option value="Tuesday">Tuesday</option>
-            <option value="Wednesday">Wednesday</option>
-            <option value="Thursday">Thursday</option>
-            <option value="Friday">Friday</option>
-            <option value="Saturday">Saturday</option>
-            <option value="Sunday">Sunday</option>
-    </select>
-    <br><br>
 
-    <label for="start_time">Start Time</label>
-    <input type="time" name="start_time" id="start_time" required>
-    <br><br>
+    <main class="main-content">
 
-    <label for="end_time">End Time</label>
-    <input type="time" name="end_time" id="end_time" required>
-    <br><br>
-    
-    <label for="cutoff_time">Cutoff Time</label>
-    <input type="time" name="cutoff_time" id="cutoff_time" required>
-    <br><br>
-    
-    <label for="max_orders">Maximun Orders</label>
-    <input type="number" name="max_orders" id="max_orders" min="1" required>
-    <br><br>    
+        <h1>Pickup Slots</h1>
 
-    <button type="submit">Add Pickup Slot</button>
-    </form>
-
-    <h2>My Pickup Slot</h2>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Market</th>
-                <th>Day</th>
-                <th>Start Time</th>
-                <th>End Time</th>
-                <th>Cutoff Time</th>
-                <th>Maximun Orders</th>
-                <th>Availability</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            <?php while ($slot = $slots->fetch_assoc()): ?>
-             <tr>
-                <td><?= e($slot['market_name']) ?></td>
-                <td><?= e($slot['day_of_week']) ?></td>
-                <td><?= e($slot['start_time']) ?></td>
-                <td><?= e($slot['end_time']) ?></td>
-                <td><?= e($slot['cutoff_time']) ?></td>
-                <td><?= e($slot['max_orders']) ?></td>
-                <td>
-                    <?php if ($slot['is_available']): ?>
-                        Available
-                    <?php else: ?>
-                        Unavailable
-                    <?php endif; ?>                    
-                </td>
-             </tr>
-            <?php endwhile; ?>
-        </tbody>
-    </table>    
-<?php if ($total_slots_pages > 1): ?>
-
-    <div class="pagination">
-
-        <?php if ($slots_page > 1): ?>
-            <a href="?slots_page=<?= $slots_page - 1 ?>&orders_page=<?= $orders_page ?>">
-                Previous
-            </a>
+        <?php if (isset($success_message)): ?>
+            <p><?= e($success_message) ?></p>
         <?php endif; ?>
+        
+        <h2>Add Pickup Slots</h2>
 
-        <?php for ($i = 1; $i <= $total_slots_pages; $i++): ?>
-            <a href="?slots_page=<?= $i ?>&orders_page=<?= $orders_page ?>"
-               <?= $i == $slots_page ? 'class="active"' : '' ?>>
-                <?= $i ?>
-            </a>
-        <?php endfor; ?>
+        <form method="POST">
+            <label for="market_id">Market</label>
+            <select name="market_id" id="market_id" required>
+            <option value="">Select Market</option>
+            <?php while ($market = $markets->fetch_assoc()): ?>
+                <option value="<?= e($market['id']) ?>">
+                    <?= e($market['name']) ?>
+                </option>
+            <?php endwhile; ?>   
+        </select>
+        <br><br>
+        
+        <label for="day_of_week">Day</label>
+        <select name="day_of_week" id="day_of_week" required>
+                <option value="">Select Day</option>
+                <option value="Monday">Monday</option>
+                <option value="Tuesday">Tuesday</option>
+                <option value="Wednesday">Wednesday</option>
+                <option value="Thursday">Thursday</option>
+                <option value="Friday">Friday</option>
+                <option value="Saturday">Saturday</option>
+                <option value="Sunday">Sunday</option>
+        </select>
+        <br><br>
 
-        <?php if ($slots_page < $total_slots_pages): ?>
-            <a href="?slots_page=<?= $slots_page + 1 ?>&orders_page=<?= $orders_page ?>">
-                Next
-            </a>
-        <?php endif; ?>
+        <label for="start_time">Start Time</label>
+        <input type="time" name="start_time" id="start_time" required>
+        <br><br>
 
-    </div>
+        <label for="end_time">End Time</label>
+        <input type="time" name="end_time" id="end_time" required>
+        <br><br>
+        
+        <label for="cutoff_time">Cutoff Time</label>
+        <input type="time" name="cutoff_time" id="cutoff_time" required>
+        <br><br>
+        
+        <label for="max_orders">Maximun Orders</label>
+        <input type="number" name="max_orders" id="max_orders" min="1" required>
+        <br><br>    
 
-<?php endif; ?>
+        <button type="submit">Add Pickup Slot</button>
+        </form>
 
-    <h2>Orders Using My Pickup Slots</h2>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Order ID</th>
-                <th>Market</th>
-                <th>Day</th>
-                <th>Packup Time</th>
-                <th>Status</th>
-                <th>Order Date</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            <?php while ($order = $orders->fetch_assoc()): ?>
+        <h2>My Pickup Slot</h2>
+        <table border="1">
+            <thead>
                 <tr>
-                    <td><?= e($order['order_id']) ?></td>
-                    <td><?= e($order['market_name']) ?></td>
-                    <td><?= e($order['day_of_week']) ?></td>
-                    <td>
-                    <?= e($order['start_time']) ?>
-                    -<?= e($order['end_time']) ?></td>    
-                    <td><?= e($order['status']) ?></td>     
-                    <td><?= formatDate($order['created_at']) ?></td>       
+                    <th>Market</th>
+                    <th>Day</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Cutoff Time</th>
+                    <th>Maximun Orders</th>
+                    <th>Availability</th>
                 </tr>
-            <?php endwhile; ?>    
-        </tbody>
-    </table>
+            </thead>
 
-<?php if ($total_orders_pages > 1): ?>
+            <tbody>
+                <?php while ($slot = $slots->fetch_assoc()): ?>
+                <tr>
+                    <td><?= e($slot['market_name']) ?></td>
+                    <td><?= e($slot['day_of_week']) ?></td>
+                    <td><?= e($slot['start_time']) ?></td>
+                    <td><?= e($slot['end_time']) ?></td>
+                    <td><?= e($slot['cutoff_time']) ?></td>
+                    <td><?= e($slot['max_orders']) ?></td>
+                    <td>
+                        <?php if ($slot['is_available']): ?>
+                            Available
+                        <?php else: ?>
+                            Unavailable
+                        <?php endif; ?>                    
+                    </td>
+                </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>    
+        <?php if ($total_slots_pages > 1): ?>
 
-    <div class="pagination">
+            <div class="pagination">
 
-        <?php if ($orders_page > 1): ?>
-            <a href="?orders_page=<?= $orders_page - 1 ?>&slots_page=<?= $slots_page ?>">
-                Previous
-            </a>
+                <?php if ($slots_page > 1): ?>
+                    <a href="?slots_page=<?= $slots_page - 1 ?>&orders_page=<?= $orders_page ?>">
+                        Previous
+                    </a>
+                <?php endif; ?>
+
+                <?php for ($i = 1; $i <= $total_slots_pages; $i++): ?>
+                    <a href="?slots_page=<?= $i ?>&orders_page=<?= $orders_page ?>"
+                    <?= $i == $slots_page ? 'class="active"' : '' ?>>
+                        <?= $i ?>
+                    </a>
+                <?php endfor; ?>
+
+                <?php if ($slots_page < $total_slots_pages): ?>
+                    <a href="?slots_page=<?= $slots_page + 1 ?>&orders_page=<?= $orders_page ?>">
+                        Next
+                    </a>
+                <?php endif; ?>
+
+            </div>
+
         <?php endif; ?>
 
-        <?php for ($i = 1; $i <= $total_orders_pages; $i++): ?>
-            <a href="?orders_page=<?= $i ?>&slots_page=<?= $slots_page ?>"
-               <?= $i == $orders_page ? 'class="active"' : '' ?>>
-                <?= $i ?>
-            </a>
-        <?php endfor; ?>
+            <h2>Orders Using My Pickup Slots</h2>
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Market</th>
+                        <th>Day</th>
+                        <th>Packup Time</th>
+                        <th>Status</th>
+                        <th>Order Date</th>
+                    </tr>
+                </thead>
 
-        <?php if ($orders_page < $total_orders_pages): ?>
-            <a href="?orders_page=<?= $orders_page + 1 ?>&slots_page=<?= $slots_page ?>">
-                Next
-            </a>
+                <tbody>
+                    <?php while ($order = $orders->fetch_assoc()): ?>
+                        <tr>
+                            <td><?= e($order['order_id']) ?></td>
+                            <td><?= e($order['market_name']) ?></td>
+                            <td><?= e($order['day_of_week']) ?></td>
+                            <td>
+                            <?= e($order['start_time']) ?>
+                            -<?= e($order['end_time']) ?></td>    
+                            <td><?= e($order['status']) ?></td>     
+                            <td><?= formatDate($order['created_at']) ?></td>       
+                        </tr>
+                    <?php endwhile; ?>    
+                </tbody>
+            </table>
+
+        <?php if ($total_orders_pages > 1): ?>
+
+            <div class="pagination">
+
+                <?php if ($orders_page > 1): ?>
+                    <a href="?orders_page=<?= $orders_page - 1 ?>&slots_page=<?= $slots_page ?>">
+                        Previous
+                    </a>
+                <?php endif; ?>
+
+                <?php for ($i = 1; $i <= $total_orders_pages; $i++): ?>
+                    <a href="?orders_page=<?= $i ?>&slots_page=<?= $slots_page ?>"
+                    <?= $i == $orders_page ? 'class="active"' : '' ?>>
+                        <?= $i ?>
+                    </a>
+                <?php endfor; ?>
+
+                <?php if ($orders_page < $total_orders_pages): ?>
+                    <a href="?orders_page=<?= $orders_page + 1 ?>&slots_page=<?= $slots_page ?>">
+                        Next
+                    </a>
+                <?php endif; ?>
+
+            </div>
+
         <?php endif; ?>
-
-    </div>
-
-<?php endif; ?>
+    </main>
 </body>
 </html>
