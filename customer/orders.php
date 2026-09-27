@@ -512,13 +512,43 @@ unset($order);
                         <?php endif; ?>
 
                         <div class="order-footer">
+
+                            <div class="order-actions">
+
+                                <?php if ($status === 'pending'): ?>
+
+                                    <form
+                                        method="POST"
+                                        action="cancel_order.php"
+                                        class="cancel-form"
+                                        onsubmit="return confirm(
+                                            'Are you sure you want to cancel Order #<?php echo (int) $order['id']; ?>?'
+                                        );"
+                                    >
+                                        <input
+                                            type="hidden"
+                                            name="order_id"
+                                            value="<?php echo (int) $order['id']; ?>"
+                                        >
+
+                                        <button
+                                            type="submit"
+                                            class="cancel-button"
+                                        >
+                                            Cancel Order
+                                        </button>
+                                    </form>
+
+                                <?php endif; ?>
+
+                            </div>
+
                             <span class="total-label">
                                 Order Total:
                             </span>
 
                             <span class="total-price">
                                 $
-
                                 <?php
                                 echo number_format(
                                     (float) $order['subtotal'],
@@ -526,6 +556,7 @@ unset($order);
                                 );
                                 ?>
                             </span>
+
                         </div>
 
                     </div>
