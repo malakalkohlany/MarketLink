@@ -45,13 +45,13 @@ $stmt = $conn->prepare("
 ");
 
 if (!$stmt) {
-    die('Failed to prepare farmer query: ' . $conn->error);
+    die('Failed to prepare farmer query.');
 }
 
 $stmt->bind_param('i', $id);
 
 if (!$stmt->execute()) {
-    die('Failed to load farmer: ' . $stmt->error);
+    die('Failed to load farmer.');
 }
 
 $result = $stmt->get_result();
@@ -85,13 +85,13 @@ $stmt = $conn->prepare("
 ");
 
 if (!$stmt) {
-    die('Failed to prepare products query: ' . $conn->error);
+    die('Failed to prepare products query.');
 }
 
 $stmt->bind_param('i', $id);
 
 if (!$stmt->execute()) {
-    die('Failed to load farmer products: ' . $stmt->error);
+    die('Failed to load farmer products.');
 }
 
 $result = $stmt->get_result();
