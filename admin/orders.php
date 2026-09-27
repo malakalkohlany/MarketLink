@@ -1,4 +1,3 @@
-```php
 <?php
 
 require_once __DIR__ . '/../includes/include.php';
@@ -8,11 +7,62 @@ requireRole(R_ADMIN);
 $errors = [];
 $orders = [];
 
-/*
-|--------------------------------------------------------------------------
-| Load all customer orders
-|--------------------------------------------------------------------------
-*/
+$items_per_page = 10;
+
+$page = isset($_GET['page'])
+    ? (int) $_GET['page']
+    : 1;
+
+if ($page < 1) {
+    $page = 1;
+}
+
+$offset = ($page - 1) * $items_per_page;
+$count_stmt = $conn->prepare("
+    SELECT COUNT(*) AS total_orders
+    FROM orders
+    INNER JOIN users
+        ON orders.customer_id = users.id
+    WHERE users.role = 'customer'
+");
+
+if ($count_stmt) {
+
+    if ($count_stmt->execute()) {
+
+        $count_result = $count_stmt->get_result();
+
+        $total_orders = (int) $count_result
+            ->fetch_assoc()['total_orders'];
+
+    } else {
+
+        $total_orders = 0;
+
+        $errors[] =
+            'Failed to count orders: ' . $count_stmt->error;
+    }
+
+    $count_stmt->close();
+
+} else {
+
+    $total_orders = 0;
+
+    $errors[] =
+        'Failed to prepare count query: ' . $conn->error;
+}
+$total_pages = $total_orders > 0
+    ? (int) ceil(
+        $total_orders / $items_per_page
+    )
+    : 0;
+    if ($total_pages > 0 && $page > $total_pages) {
+
+    $page = $total_pages;
+
+    $offset = ($page - 1) * $items_per_page;
+}
 
 $stmt = $conn->prepare("
     SELECT
@@ -43,9 +93,18 @@ $stmt = $conn->prepare("
     WHERE users.role = 'customer'
 
     ORDER BY orders.created_at DESC
+
+    LIMIT ? OFFSET ?
 ");
 
 if ($stmt) {
+
+    
+    $stmt->bind_param(
+        "ii",
+        $items_per_page,
+        $offset
+    );
 
     if ($stmt->execute()) {
 
@@ -55,18 +114,19 @@ if ($stmt) {
 
     } else {
 
-        $errors[] = 'Failed to load orders: ' . $stmt->error;
+        $errors[] =
+            'Failed to load orders: ' . $stmt->error;
     }
 
     $stmt->close();
 
 } else {
 
-    $errors[] = 'Failed to prepare order query: ' . $conn->error;
+    $errors[] =
+        'Failed to prepare order query: ' . $conn->error;
 }
 
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -100,6 +160,70 @@ if ($stmt) {
         rel="stylesheet"
         href="../assets/css/sidebar.css"
     >
+
+    <style>
+            .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 25px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .pagination a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            min-width: 40px;
+            height: 40px;
+
+            padding: 0 12px;
+
+            border: 1px solid #ddd;
+            border-radius: 8px;
+
+            background: #fff;
+            color: #333;
+
+            text-decoration: none;
+
+            font-size: 14px;
+            font-weight: 600;
+
+            transition: 0.2s;
+        }
+
+        .pagination a:hover {
+            background: #27ae60;
+            border-color: #27ae60;
+            color: #fff;
+        }
+
+        .pagination a.active {
+            background: #27ae60;
+            border-color: #27ae60;
+            color: #fff;
+        }
+
+        @media (max-width: 600px) {
+
+            .pagination {
+                gap: 5px;
+            }
+
+            .pagination a {
+                min-width: 36px;
+                height: 36px;
+                padding: 0 9px;
+                font-size: 13px;
+            }
+
+        }
+
+    </style>
 
 </head>
 
@@ -213,8 +337,7 @@ if ($stmt) {
                             </tr>
 
                         </thead>
-
-
+                        
                         <tbody>
 
                             <?php if (!empty($orders)): ?>
@@ -224,7 +347,9 @@ if ($stmt) {
                                     <?php
 
                                     $status = strtolower(
-                                        trim($order['status'] ?? 'pending')
+                                        trim(
+                                            $order['status'] ?? 'pending'
+                                        )
                                     );
 
                                     ?>
@@ -246,7 +371,8 @@ if ($stmt) {
                                         <td>
 
                                             <?= htmlspecialchars(
-                                                $order['customer_name'] ?? 'N/A'
+                                                $order['customer_name']
+                                                    ?? 'N/A'
                                             ) ?>
 
                                         </td>
@@ -257,7 +383,8 @@ if ($stmt) {
                                         <td>
 
                                             <?= htmlspecialchars(
-                                                $order['customer_email'] ?? 'N/A'
+                                                $order['customer_email']
+                                                    ?? 'N/A'
                                             ) ?>
 
                                         </td>
@@ -268,7 +395,8 @@ if ($stmt) {
                                         <td>
 
                                             <?= htmlspecialchars(
-                                                $order['customer_phone'] ?? 'N/A'
+                                                $order['customer_phone']
+                                                    ?? 'N/A'
                                             ) ?>
 
                                         </td>
@@ -279,7 +407,8 @@ if ($stmt) {
                                         <td>
 
                                             <?= htmlspecialchars(
-                                                $order['farmer_name'] ?? 'N/A'
+                                                $order['farmer_name']
+                                                    ?? 'N/A'
                                             ) ?>
 
                                         </td>
@@ -290,7 +419,8 @@ if ($stmt) {
                                         <td>
 
                                             <?= htmlspecialchars(
-                                                $order['market_name'] ?? 'N/A'
+                                                $order['market_name']
+                                                    ?? 'N/A'
                                             ) ?>
 
                                         </td>
@@ -301,7 +431,10 @@ if ($stmt) {
                                         <td>
 
                                             $<?= number_format(
-                                                (float) ($order['subtotal'] ?? 0),
+                                                (float) (
+                                                    $order['subtotal']
+                                                        ?? 0
+                                                ),
                                                 2
                                             ) ?>
 
@@ -313,7 +446,9 @@ if ($stmt) {
                                         <td>
 
                                             <span
-                                                class="status status-<?= htmlspecialchars($status) ?>"
+                                                class="status status-<?= htmlspecialchars(
+                                                    $status
+                                                ) ?>"
                                             >
 
                                                 <?= htmlspecialchars(
@@ -329,7 +464,9 @@ if ($stmt) {
 
                                         <td>
 
-                                            <?= !empty($order['created_at'])
+                                            <?= !empty(
+                                                $order['created_at']
+                                            )
 
                                                 ? date(
                                                     'Y-m-d',
@@ -368,6 +505,62 @@ if ($stmt) {
                     </table>
 
                 </div>
+                
+                <?php if ($total_pages > 1): ?>
+
+                    <div class="pagination">
+
+
+                        <!-- PREVIOUS -->
+
+                        <?php if ($page > 1): ?>
+
+                            <a
+                                href="?page=<?= $page - 1 ?>"
+                            >
+                                Previous
+                            </a>
+
+                        <?php endif; ?>
+
+
+                        <!-- PAGE NUMBERS -->
+
+                        <?php for (
+                            $i = 1;
+                            $i <= $total_pages;
+                            $i++
+                        ): ?>
+
+                            <a
+                                href="?page=<?= $i ?>"
+                                class="<?= $i === $page
+                                    ? 'active'
+                                    : '' ?>"
+                            >
+                                <?= $i ?>
+                            </a>
+
+                        <?php endfor; ?>
+
+
+                        <!-- NEXT -->
+
+                        <?php if ($page < $total_pages): ?>
+
+                            <a
+                                href="?page=<?= $page + 1 ?>"
+                            >
+                                Next
+                            </a>
+
+                        <?php endif; ?>
+
+
+                    </div>
+
+                <?php endif; ?>
+
 
             </section>
 
@@ -380,4 +573,3 @@ if ($stmt) {
 </body>
 
 </html>
-```

@@ -6,6 +6,45 @@ requireRole(R_CUSTOMER);
 
 $customerId = getUserId();
 
+$ordersPerPage = 5;
+
+$currentPage = isset($_GET['page'])
+    ? (int) $_GET['page']
+    : 1;
+
+if ($currentPage < 1) {
+    $currentPage = 1;
+}
+
+$countStmt = $conn->prepare("
+    SELECT COUNT(*) AS total
+    FROM orders
+    WHERE customer_id = ?
+");
+
+$countStmt->bind_param("i", $customerId);
+$countStmt->execute();
+
+$countResult = $countStmt->get_result();
+$totalOrdersRow = $countResult->fetch_assoc();
+
+$totalOrders = (int) $totalOrdersRow['total'];
+
+$countStmt->close();
+
+$totalPages = max(
+    1,
+    (int) ceil($totalOrders / $ordersPerPage)
+);
+
+if ($currentPage > $totalPages) {
+    $currentPage = $totalPages;
+}
+
+$offset = (
+    $currentPage - 1
+) * $ordersPerPage;
+
 $stmt = $conn->prepare("
     SELECT
         o.id,
@@ -17,9 +56,16 @@ $stmt = $conn->prepare("
     FROM orders o
     WHERE o.customer_id = ?
     ORDER BY o.created_at DESC
+    LIMIT ? OFFSET ?
 ");
 
-$stmt->bind_param("i", $customerId);
+$stmt->bind_param(
+    "iii",
+    $customerId,
+    $ordersPerPage,
+    $offset
+);
+
 $stmt->execute();
 
 $ordersResult = $stmt->get_result();
@@ -288,6 +334,59 @@ unset($order);
         .browse-button:hover {
             background: #219150;
         }
+  .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 35px;
+            flex-wrap: wrap;
+        }
+
+        .pagination a,
+        .pagination span {
+            min-width: 40px;
+            height: 40px;
+            padding: 0 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .pagination a {
+            background: #f1f1f1;
+            color: #333;
+            transition:
+                background 0.2s ease,
+                color 0.2s ease;
+        }
+
+        .pagination a:hover {
+            background: #27ae60;
+            color: #ffffff;
+        }
+
+        .pagination .active {
+            background: #27ae60;
+            color: #ffffff;
+        }
+
+        .pagination .disabled {
+            background: #eeeeee;
+            color: #aaaaaa;
+        }
+
+        .pagination-info {
+            text-align: center;
+            margin-top: 15px;
+            color: #777;
+            font-size: 14px;
+        }
 
         @media (max-width: 700px) {
             .orders-container {
@@ -339,7 +438,7 @@ unset($order);
                 </p>
             </div>
 
-            <?php if (empty($orders)): ?>
+            <?php if (empty($orders) && $totalOrders === 0): ?>
 
                 <div class="empty-orders">
                     <h2>
@@ -581,6 +680,85 @@ unset($order);
                     </div>
 
                 <?php endforeach; ?>
+                
+                <?php if ($totalPages > 1): ?>
+
+                    <div class="pagination">
+
+                        <?php if ($currentPage > 1): ?>
+
+                            <a
+                                href="?page=<?php echo $currentPage - 1; ?>"
+                            >
+                                Previous
+                            </a>
+
+                        <?php else: ?>
+
+                            <span class="disabled">
+                                Previous
+                            </span>
+
+                        <?php endif; ?>
+
+
+                        <?php for (
+                            $page = 1;
+                            $page <= $totalPages;
+                            $page++
+                        ): ?>
+
+                            <?php if ($page === $currentPage): ?>
+
+                                <span class="active">
+                                    <?php echo $page; ?>
+                                </span>
+
+                            <?php else: ?>
+
+                                <a
+                                    href="?page=<?php echo $page; ?>"
+                                >
+                                    <?php echo $page; ?>
+                                </a>
+
+                            <?php endif; ?>
+
+                        <?php endfor; ?>
+
+
+                        <?php if ($currentPage < $totalPages): ?>
+
+                            <a
+                                href="?page=<?php echo $currentPage + 1; ?>"
+                            >
+                                Next
+                            </a>
+
+                        <?php else: ?>
+
+                            <span class="disabled">
+                                Next
+                            </span>
+
+                        <?php endif; ?>
+
+                    </div>
+    <div class="pagination-info">
+
+                        Page
+                        <?php echo $currentPage; ?>
+                        of
+                        <?php echo $totalPages; ?>
+
+                        —
+                        <?php echo $totalOrders; ?>
+                        total orders
+
+                    </div>
+
+                <?php endif; ?>
+
 
             <?php endif; ?>
 

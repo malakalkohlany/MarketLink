@@ -9,11 +9,15 @@ $customerId = (int) getUserId();
 $errors = [];
 $successMessage = '';
 
+$reviewsPerPage = 10;
 
-// ==================================================
-// HANDLE REVIEW SUBMISSION
-// ==================================================
+$currentPage = isset($_GET['page'])
+    ? (int) $_GET['page']
+    : 1;
 
+if ($currentPage < 1) {
+    $currentPage = 1;
+}
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
@@ -32,13 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         : 0;
 
     $comment = trim($_POST['comment'] ?? '');
-
-
-    // --------------------------------------------------
-    // Basic validation
-    // --------------------------------------------------
-
-    if (!in_array($reviewType, ['product', 'farmer'], true)) {
+     if (!in_array($reviewType, ['product', 'farmer'], true)) {
         $errors[] = 'Invalid review type.';
     }
 
@@ -51,15 +49,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (mb_strlen($comment) > 2000) {
-        $errors[] = 'Your comment is too long. Please keep it under 2000 characters.';
+        $errors[] =
+            'Your comment is too long. Please keep it under 2000 characters.';
     }
-
-
-    // ==================================================
-    // PRODUCT REVIEW
-    // ==================================================
-
-    if (empty($errors) && $reviewType === 'product') {
+      if (empty($errors) && $reviewType === 'product') {
 
         $productId = isset($_POST['product_id'])
             ? (int) $_POST['product_id']
@@ -70,14 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = 'Please select a valid product.';
 
         } else {
-
-            // ------------------------------------------
-            // Verify:
-            // - order belongs to customer
-            // - order is completed
-            // - product belongs to that order
-            // ------------------------------------------
-
+            
             $stmt = $conn->prepare("
                 SELECT
                     o.id AS order_id,
@@ -117,13 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $errors[] =
                     'This product is not part of the selected completed order.';
 
-            } else {
-
-                // --------------------------------------
-                // Prevent duplicate product review
-                // --------------------------------------
-
-                $stmt = $conn->prepare("
+            } else { $stmt = $conn->prepare("
                     SELECT id
                     FROM reviews
                     WHERE customer_id = ?
@@ -155,14 +135,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 } else {
 
-                    $farmerId = (int) $orderData['farmer_id'];
-
-
-                    // ----------------------------------
-                    // Insert product review
-                    // ----------------------------------
-
-                    $stmt = $conn->prepare("
+                    $farmerId =
+                        (int) $orderData['farmer_id'];
+                            $stmt = $conn->prepare("
                         INSERT INTO reviews
                         (
                             customer_id,
@@ -203,13 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     }
-
-
-    // ==================================================
-    // FARMER REVIEW
-    // ==================================================
-
-    if (empty($errors) && $reviewType === 'farmer') {
+ if (empty($errors) && $reviewType === 'farmer') {
 
         $farmerId = isset($_POST['farmer_id'])
             ? (int) $_POST['farmer_id']
@@ -220,16 +189,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $errors[] = 'Please select a valid farmer.';
 
-        } else {
-
-            // ------------------------------------------
-            // Verify:
-            // - order belongs to customer
-            // - order is completed
-            // - farmer belongs to that order
-            // ------------------------------------------
-
-            $stmt = $conn->prepare("
+        } else {    $stmt = $conn->prepare("
                 SELECT
                     o.id AS order_id,
                     o.farmer_id
@@ -263,15 +223,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'This farmer is not associated with the selected completed order.';
 
             } else {
-
-                // --------------------------------------
-                // Prevent duplicate farmer review
-                //
-                // product_id IS NULL identifies a
-                // farmer-level review.
-                // --------------------------------------
-
-                $stmt = $conn->prepare("
+ $stmt = $conn->prepare("
                     SELECT id
                     FROM reviews
                     WHERE customer_id = ?
@@ -303,12 +255,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'You have already reviewed this farmer for this order.';
 
                 } else {
-
-                    // ----------------------------------
-                    // Insert farmer review
-                    // ----------------------------------
-
-                    $stmt = $conn->prepare("
+  $stmt = $conn->prepare("
                         INSERT INTO reviews
                         (
                             customer_id,
@@ -349,12 +296,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-
-
-// ==================================================
-// GET PRODUCTS AVAILABLE FOR REVIEW
-// ==================================================
-
 $productOrders = [];
 
 $stmt = $conn->prepare("
@@ -396,12 +337,6 @@ while ($row = $result->fetch_assoc()) {
 }
 
 $stmt->close();
-
-
-// ==================================================
-// GET FARMERS AVAILABLE FOR REVIEW
-// ==================================================
-
 $farmerOrders = [];
 
 $stmt = $conn->prepare("
@@ -439,12 +374,41 @@ while ($row = $result->fetch_assoc()) {
 
 $stmt->close();
 
+$countStmt = $conn->prepare("
+    SELECT COUNT(*) AS total_reviews
+    FROM reviews
+    WHERE customer_id = ?
+");
 
-// ==================================================
-// GET CUSTOMER'S EXISTING REVIEWS
-// ==================================================
+$countStmt->bind_param(
+    "i",
+    $customerId
+);
 
-$myReviews = [];
+$countStmt->execute();
+
+$countResult = $countStmt->get_result();
+
+$countRow = $countResult->fetch_assoc();
+
+$totalReviews =
+    (int) ($countRow['total_reviews'] ?? 0);
+
+$countStmt->close();$totalPages =
+    $totalReviews > 0
+        ? (int) ceil(
+            $totalReviews / $reviewsPerPage
+        )
+        : 1;
+
+if ($currentPage > $totalPages) {
+    $currentPage = $totalPages;
+}
+
+$offset =
+    ($currentPage - 1) *
+    $reviewsPerPage;
+    $myReviews = [];
 
 $stmt = $conn->prepare("
     SELECT
@@ -473,11 +437,15 @@ $stmt = $conn->prepare("
     WHERE r.customer_id = ?
 
     ORDER BY r.created_at DESC
+
+    LIMIT ? OFFSET ?
 ");
 
 $stmt->bind_param(
-    "i",
-    $customerId
+    "iii",
+    $customerId,
+    $reviewsPerPage,
+    $offset
 );
 
 $stmt->execute();
@@ -825,6 +793,51 @@ $stmt->close();
             margin: 0 0 10px;
             color: #444;
         }
+ .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-top: 30px;
+        }
+
+        .pagination a,
+        .pagination span {
+            min-width: 38px;
+            height: 38px;
+            padding: 0 12px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .pagination a {
+            background: #f1f3f5;
+            color: #333;
+            transition: 0.2s ease;
+        }
+
+        .pagination a:hover {
+            background: #27ae60;
+            color: white;
+        }
+
+        .pagination .active {
+            background: #27ae60;
+            color: white;
+        }
+
+        .pagination .disabled {
+            background: #eeeeee;
+            color: #aaaaaa;
+            cursor: not-allowed;
+        }
+
 
         @media (max-width: 900px) {
 
@@ -860,6 +873,18 @@ $stmt->close();
                 gap: 12px;
             }
 
+            .pagination {
+                gap: 5px;
+            }
+
+            .pagination a,
+            .pagination span {
+                min-width: 34px;
+                height: 34px;
+                padding: 0 9px;
+                font-size: 13px;
+            }
+
         }
 
     </style>
@@ -876,13 +901,7 @@ $stmt->close();
 <main class="main-content">
 
     <div class="reviews-container">
-
-
-        <!-- ========================================= -->
-        <!-- PAGE HEADER -->
-        <!-- ========================================= -->
-
-        <div class="page-header">
+          <div class="page-header">
 
             <h1>Reviews</h1>
 
@@ -891,13 +910,7 @@ $stmt->close();
             </p>
 
         </div>
-
-
-        <!-- ========================================= -->
-        <!-- MESSAGES -->
-        <!-- ========================================= -->
-
-        <?php if (!empty($successMessage)): ?>
+           <?php if (!empty($successMessage)): ?>
 
             <div class="message success-message">
 
@@ -924,19 +937,8 @@ $stmt->close();
 
         <?php endif; ?>
 
-
-        <!-- ========================================= -->
-        <!-- REVIEW OPTIONS -->
-        <!-- ========================================= -->
-
         <div class="review-grid">
-
-
-            <!-- ===================================== -->
-            <!-- PRODUCT REVIEW -->
-            <!-- ===================================== -->
-
-            <div class="review-card">
+       <div class="review-card">
 
                 <h2>Product Review</h2>
 
@@ -1137,13 +1139,7 @@ $stmt->close();
                 <?php endif; ?>
 
             </div>
-
-
-            <!-- ===================================== -->
-            <!-- FARMER REVIEW -->
-            <!-- ===================================== -->
-
-            <div class="review-card">
+               <div class="review-card">
 
                 <h2>Farmer Review</h2>
 
@@ -1346,13 +1342,7 @@ $stmt->close();
             </div>
 
         </div>
-
-
-        <!-- ========================================= -->
-        <!-- MY REVIEWS -->
-        <!-- ========================================= -->
-
-        <div class="my-reviews-section">
+           <div class="my-reviews-section">
 
             <div class="my-reviews-header">
 
@@ -1362,9 +1352,9 @@ $stmt->close();
 
                 <div class="review-count">
 
-                    <?= count($myReviews) ?>
+                    <?= $totalReviews ?>
 
-                    <?= count($myReviews) === 1
+                    <?= $totalReviews === 1
                         ? 'review'
                         : 'reviews'
                     ?>
@@ -1379,12 +1369,7 @@ $stmt->close();
                 <?php foreach ($myReviews as $review): ?>
 
                     <?php
-
-                    // ----------------------------------
-                    // Determine review type
-                    // ----------------------------------
-
-                    if (!empty($review['product_name'])) {
+ if (!empty($review['product_name'])) {
 
                         $reviewTitle =
                             $review['product_name'];
@@ -1408,14 +1393,7 @@ $stmt->close();
                         $reviewType =
                             'Review';
 
-                    }
-
-
-                    // ----------------------------------
-                    // Rating stars
-                    // ----------------------------------
-
-                    $rating =
+                    }$rating =
                         (int) $review['rating'];
 
                     $stars = '';
@@ -1427,12 +1405,6 @@ $stmt->close();
                                 ? '★'
                                 : '☆';
                     }
-
-
-                    // ----------------------------------
-                    // Status
-                    // ----------------------------------
-
                     $statusClass =
                         'status-pending';
 
@@ -1574,6 +1546,72 @@ $stmt->close();
                     </div>
 
                 <?php endforeach; ?>
+                   <?php if ($totalPages > 1): ?>
+
+                    <div class="pagination">
+
+                        <?php if ($currentPage > 1): ?>
+
+                            <a
+                                href="?page=<?= $currentPage - 1 ?>"
+                            >
+                                Previous
+                            </a>
+
+                        <?php else: ?>
+
+                            <span class="disabled">
+                                Previous
+                            </span>
+
+                        <?php endif; ?>
+
+
+                        <?php for (
+                            $page = 1;
+                            $page <= $totalPages;
+                            $page++
+                        ): ?>
+
+                            <?php if ($page === $currentPage): ?>
+
+                                <span class="active">
+                                    <?= $page ?>
+                                </span>
+
+                            <?php else: ?>
+
+                                <a
+                                    href="?page=<?= $page ?>"
+                                >
+                                    <?= $page ?>
+                                </a>
+
+                            <?php endif; ?>
+
+                        <?php endfor; ?>
+
+
+                        <?php if ($currentPage < $totalPages): ?>
+
+                            <a
+                                href="?page=<?= $currentPage + 1 ?>"
+                            >
+                                Next
+                            </a>
+
+                        <?php else: ?>
+
+                            <span class="disabled">
+                                Next
+                            </span>
+
+                        <?php endif; ?>
+
+                    </div>
+
+                <?php endif; ?>
+
 
             <?php else: ?>
 
