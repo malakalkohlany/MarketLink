@@ -1,16 +1,14 @@
 <?php
 
-require_once __DIR__ . '/../config/config.php';
-
-require_once __DIR__ .   '/../config/database.php';
-
-require_once __DIR__ . '/../includes/session.php';
-
-require_once __DIR__ . '/../includes/csrf.php';
+require_once __DIR__ . '/../includes/include.php';
 
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    // ===============================
+    // CSRF CHECK
+    // ===============================
 
     if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
 
@@ -18,91 +16,165 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     } else {
 
+        // ===============================
+        // GET FORM DATA
+        // ===============================
+
         $email = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
+        $password = $_POST['password'] ?? '';
 
-    // Validation
-    if ($email === '' || $password === '') {
-        $error = 'Please enter your email and password.';
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error = 'Please enter a valid email address.';
-    } else {
+        // ===============================
+        // VALIDATION
+        // ===============================
 
-        // Find user
-        $stmt = $conn->prepare("
-            SELECT id, name, email, password_hash, role, status
-            FROM users
-            WHERE email = ?
-            LIMIT 1
-        ");
+        if ($email === '' || $password === '') {
 
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
+            $error = 'Please enter your email and password.';
 
-        $result = $stmt->get_result();
-        $user = $result->fetch_assoc();
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 
-        if (!$user || !password_verify($password, $user['password_hash'])) {
-            $error = 'Invalid email or password.';
-        } elseif ($user['status'] !== 'active') {
-            $error = 'Your account is not currently active.';
+            $error = 'Please enter a valid email address.';
+
         } else {
 
-            // Login successful
-            session_regenerate_id(true);
+            // ===============================
+            // FIND USER
+            // ===============================
 
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['name'] = $user['name'];
-            $_SESSION['email'] = $user['email'];
-            $_SESSION['role'] = $user['role'];
+            $stmt = $conn->prepare("
+                SELECT id, name, email, password_hash, role, status
+                FROM users
+                WHERE email = ?
+                LIMIT 1
+            ");
 
-            // Farmer-specific information
-            if ($user['role'] === 'farmer') {
+            $stmt->bind_param("s", $email);
+            $stmt->execute();
 
-                $farmerStmt = $conn->prepare("
-                    SELECT id, stall_name, approval_status
-                    FROM farmers
-                    WHERE user_id = ?
-                    LIMIT 1
-                ");
+            $result = $stmt->get_result();
+            $user = $result->fetch_assoc();
 
-                $farmerStmt->bind_param("i", $user['id']);
-                $farmerStmt->execute();
+            // ===============================
+            // CHECK LOGIN
+            // ===============================
 
-                $farmerResult = $farmerStmt->get_result();
-                $farmer = $farmerResult->fetch_assoc();
+            if (
+                !$user ||
+                !password_verify($password, $user['password_hash'])
+            ) {
 
-                if (!$farmer) {
+                $error = 'Invalid email or password.';
+
+            } elseif ($user['status'] !== 'active') {
+
+                $error = 'Your account is not currently active.';
+
+            } else {
+
+                // ===============================
+                // LOGIN SUCCESSFUL
+                // ===============================
+
+                session_regenerate_id(true);
+
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['name'] = $user['name'];
+                $_SESSION['email'] = $user['email'];
+                $_SESSION['role'] = $user['role'];
+
+                // ===============================
+                // FARMER
+                // ===============================
+
+                if ($user['role'] === 'farmer') {
+
+                    $farmerStmt = $conn->prepare("
+                        SELECT id, stall_name, approval_status
+                        FROM farmers
+                        WHERE user_id = ?
+                        LIMIT 1
+                    ");
+
+                    $farmerStmt->bind_param("i", $user['id']);
+                    $farmerStmt->execute();
+
+                    $farmerResult = $farmerStmt->get_result();
+                    $farmer = $farmerResult->fetch_assoc();
+
+                    if (!$farmer) {
+
+                        session_unset();
+                        session_destroy();
+
+                        $error = 'Farmer profile not found.';
+
+                    } else {
+
+                        $_SESSION['farmer_id'] = $farmer['id'];
+                        $_SESSION['stall_name'] = $farmer['stall_name'];
+                        $_SESSION['approval_status'] = $farmer['approval_status'];
+
+                        if ($farmer['approval_status'] === 'approved') {
+
+                            redirect(
+                                BASE_URL . 'farmer/dashboard.php'
+                            );
+
+                        } elseif ($farmer['approval_status'] === 'pending') {
+
+                            redirect(
+                                BASE_URL . 'farmer/pending.php'
+                            );
+
+                        } elseif ($farmer['approval_status'] === 'rejected') {
+
+                            redirect(
+                                BASE_URL . 'farmer/rejected.php'
+                            );
+
+                        } else {
+
+                            $error = 'Invalid farmer approval status.';
+                        }
+                    }
+
+                    $farmerStmt->close();
+
+                // ===============================
+                // CUSTOMER
+                // ===============================
+
+                } elseif ($user['role'] === 'customer') {
+
+                    redirect(
+                        BASE_URL . 'customer/dashboard.php'
+                    );
+
+                // ===============================
+                // ADMIN
+                // ===============================
+
+                } elseif ($user['role'] === 'admin') {
+
+                    redirect(
+                        BASE_URL . 'admin/dashboard.php'
+                    );
+
+                // ===============================
+                // UNKNOWN ROLE
+                // ===============================
+
+                } else {
+
                     session_unset();
                     session_destroy();
 
-                    $error = 'Farmer profile not found.';
-                } else {
+                    $error = 'Invalid account role.';
+                }
+            }
 
-                    $_SESSION['farmer_id'] = $farmer['id'];
-                    $_SESSION['stall_name'] = $farmer['stall_name'];
-                    $_SESSION['approval_status'] = $farmer['approval_status'];
-
-                    if ($farmer['approval_status'] === 'approved') {
-    redirect(BASE_URL . 'farmer/dashboard.php');
-}
-
-if ($farmer['approval_status'] === 'pending') {
-    redirect(BASE_URL . 'farmer/pending.php');
-}
-
-if ($farmer['approval_status'] === 'rejected') {
-    redirect(BASE_URL . 'farmer/rejected.php');
-}
-
-} elseif ($user['role'] === 'customer') {
-    redirect(BASE_URL . 'customer/dashboard.php');
-
-} elseif ($user['role'] === 'admin') {
-    redirect(BASE_URL . 'admin/dashboard.php');
-}
-
-        $stmt->close();
+            $stmt->close();
+        }
     }
-}}
+}
 ?>
