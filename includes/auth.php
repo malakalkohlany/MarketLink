@@ -8,8 +8,7 @@ function isLoggedIn(): bool
 function requireLogin(): void
 {
     if (!isLoggedIn()) {
-        header('Location: ' . BASE_URL . 'auth/login.php');
-        exit;
+        redirect(BASE_URL . 'auth/login.php');
     }
 }
 
@@ -38,8 +37,7 @@ function requireRole(string $role): void
     requireLogin();
 
     if (getUserRole() !== $role) {
-        header('Location: ' . BASE_URL . 'index.php');
-        exit;
+        redirect(BASE_URL . 'index.php');
     }
 }
 
@@ -55,16 +53,14 @@ function requireApprovedFarmer(): void
 
     if (($_SESSION['approval_status'] ?? null) !== 'approved') {
         if (($_SESSION['approval_status'] ?? null) === 'pending') {
-            header('Location: ' . BASE_URL . 'farmer/pending.php');
-            exit;
+            redirect(BASE_URL . 'farmer/pending.php');
         }
 
         if (($_SESSION['approval_status'] ?? null) === 'rejected') {
-            header('Location: ' . BASE_URL . 'farmer/rejected.php');
-            exit;
+            redirect(BASE_URL . 'farmer/rejected.php');
         }
 
-        header('Location: ' . BASE_URL . 'index.php');
-        exit;
+// Unexpected approval status
+redirect(BASE_URL . 'index.php');
     }
 }

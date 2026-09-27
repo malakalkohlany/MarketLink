@@ -11,13 +11,11 @@ $productId = isset($_GET['product_id'])
 $action = $_GET['action'] ?? '';
 
 if ($productId <= 0) {
-    header('Location: cart.php');
-    exit;
+    redirecr('cart.php');
 }
 
 if (!in_array($action, ['increase', 'decrease'], true)) {
-    header('Location: cart.php');
-    exit;
+    redirecr('cart.php');
 }
 
 if (
@@ -25,8 +23,7 @@ if (
     !is_array($_SESSION['cart']) ||
     !isset($_SESSION['cart'][$productId])
 ) {
-    header('Location: cart.php');
-    exit;
+    redirecr('cart.php');
 }
 
 $product_stmt = $conn->prepare("
@@ -57,8 +54,7 @@ if (!$product) {
 
     unset($_SESSION['cart'][$productId]);
 
-    header('Location: cart.php');
-    exit;
+    redirecr('cart.php');
 }
 
 $currentQuantity = (float)
@@ -98,5 +94,7 @@ if ($action === 'decrease') {
     }
 }
 
-header('Location: cart.php');
-exit;
+// --------------------------------------------------
+// Return To Cart
+// --------------------------------------------------
+redirect('cart.php');

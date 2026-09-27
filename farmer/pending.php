@@ -28,13 +28,7 @@ if (!$farmer) {
     session_unset();
     session_destroy();
 
-    header(
-        'Location: ' .
-        BASE_URL .
-        'auth/login.php'
-    );
-
-    exit;
+ redirect(BASE_URL . 'auth/login.php');
 }
 
 $approvalStatus = $farmer['approval_status'];
@@ -45,13 +39,7 @@ if ($approvalStatus === 'approved') {
     $_SESSION['farmer_id'] = $farmer['farmer_id'];
     $_SESSION['approval_status'] = 'approved';
 
-    header(
-        'Location: ' .
-        BASE_URL .
-        'farmer/dashboard.php'
-    );
-
-    exit;
+   redirect(BASE_URL . 'farmer/dashboard.php');
 }
 
 
@@ -60,13 +48,7 @@ if ($approvalStatus === 'rejected') {
     $_SESSION['farmer_id'] = $farmer['farmer_id'];
     $_SESSION['approval_status'] = 'rejected';
 
-    header(
-        'Location: ' .
-        BASE_URL .
-        'farmer/rejected.php'
-    );
-
-    exit;
+ redirect(BASE_URL . 'farmer/rejected.php');
 }
 
 ?>

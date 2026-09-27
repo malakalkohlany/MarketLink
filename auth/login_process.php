@@ -84,32 +84,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['approval_status'] = $farmer['approval_status'];
 
                     if ($farmer['approval_status'] === 'approved') {
-                        header('Location: ' . BASE_URL . 'farmer/dashboard.php');
-                        exit;
-                    }
+    redirect(BASE_URL . 'farmer/dashboard.php');
+}
 
-                    if ($farmer['approval_status'] === 'pending') {
-                        header('Location: ' . BASE_URL . 'farmer/pending.php');
-                        exit;
-                    }
+if ($farmer['approval_status'] === 'pending') {
+    redirect(BASE_URL . 'farmer/pending.php');
+}
 
-                    if ($farmer['approval_status'] === 'rejected') {
-                        header('Location: ' . BASE_URL . 'farmer/rejected.php');
-                        exit;
-                    }
-                }
+if ($farmer['approval_status'] === 'rejected') {
+    redirect(BASE_URL . 'farmer/rejected.php');
+}
 
-            } elseif ($user['role'] === 'customer') {
+} elseif ($user['role'] === 'customer') {
+    redirect(BASE_URL . 'customer/dashboard.php');
 
-                header('Location: ' . BASE_URL . 'customer/dashboard.php');
-                exit;
-
-            } elseif ($user['role'] === 'admin') {
-
-                header('Location: ' . BASE_URL . 'admin/dashboard.php');
-                exit;
-            }
-        }
+} elseif ($user['role'] === 'admin') {
+    redirect(BASE_URL . 'admin/dashboard.php');
+}
 
         $stmt->close();
     }

@@ -23,8 +23,7 @@ if (
     );
 
     if (!$productId || !$customerId) {
-        header('Location: products.php');
-        exit;
+        redirect('products.php');
     }
 
     $checkStmt = mysqli_prepare(
@@ -129,8 +128,7 @@ if (
         mysqli_stmt_close($insertStmt);
     }
 
-    header('Location: products.php');
-    exit;
+    redirect('products.php');
 }
 
 $favoriteProducts = [];

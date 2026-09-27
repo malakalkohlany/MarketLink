@@ -95,9 +95,7 @@ if ($total_reviews_pages > 0 && $reviews_page > $total_reviews_pages) {
     }
 
     $response_stmt->close();
-
-    header("Location: reviews.php");
-    exit;
+    redirect('reviews.php');
 }
 
 
