@@ -120,7 +120,7 @@ if ($customer_id) {
             Products
         </a>
 
-        <a href="users.php" class="active">
+        <a href="customers.php" class="active">
             Customers
         </a>
 
@@ -184,7 +184,7 @@ if ($customer_id) {
             <div class="form-actions">
 
                 <a
-                    href="users.php"
+                    href="customers.php"
                     class="btn btn-secondary"
                 >
                     Back to Customers
@@ -204,7 +204,7 @@ if ($customer_id) {
                 </h2>
 
                 <a
-                    href="users.php"
+                    href="customers.php"
                     class="btn btn-secondary"
                 >
                     Back

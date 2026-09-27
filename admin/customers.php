@@ -7,6 +7,45 @@ requireRole(R_ADMIN);
 $errors = [];
 $customers = [];
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $customerId = filter_input(
+        INPUT_POST,
+        'customer_id',
+        FILTER_VALIDATE_INT
+    );
+
+    $newStatus = $_POST['status'] ?? '';
+
+    if (
+        $customerId &&
+        in_array($newStatus, ['active', 'inactive'], true)
+    ) {
+
+        $stmt = $conn->prepare("
+            UPDATE users
+            SET status = ?
+            WHERE id = ?
+              AND role = 'customer'
+        ");
+
+        if ($stmt) {
+
+            $stmt->bind_param(
+                'si',
+                $newStatus,
+                $customerId
+            );
+
+            $stmt->execute();
+            $stmt->close();
+        }
+    }
+
+    header('Location: customers.php');
+    exit;
+}
+
 $stmt = $conn->prepare("
     SELECT
         id,
@@ -147,9 +186,9 @@ if ($stmt) {
                                 <?php foreach ($customers as $customer): ?>
 
                                     <?php
-                                    $status = ((int) $customer['status'] === 1)
-                                        ? 'active'
-                                        : 'inactive';
+                                        $status = ($customer['status'] ?? '') === 'active'
+                                            ? 'active'
+                                            : 'inactive';
                                     ?>
 
                                     <tr>
@@ -219,6 +258,38 @@ if ($stmt) {
                                             >
                                                 View
                                             </a>
+
+                                            <form
+                                                method="POST"
+                                                style="display: inline;"
+                                            >
+
+                                                <input
+                                                    type="hidden"
+                                                    name="customer_id"
+                                                    value="<?= (int) $customer['id'] ?>"
+                                                >
+
+                                                <input
+                                                    type="hidden"
+                                                    name="status"
+                                                    value="<?= $status === 'active'
+                                                        ? 'inactive'
+                                                        : 'active'
+                                                    ?>"
+                                                >
+
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-sm btn-secondary"
+                                                >
+                                                    <?= $status === 'active'
+                                                        ? 'Deactivate'
+                                                        : 'Activate'
+                                                    ?>
+                                                </button>
+
+                                            </form>
 
                                         </td>
 
