@@ -1,5 +1,5 @@
 <?php
-require_once DIR . '/../includes/include.php';
+require_once __DIR__ . '/../includes/include.php';
 
 requireRole(R_ADMIN);
 
@@ -95,8 +95,7 @@ if ($count_stmt->execute()) {
     $total_notifications = 0;
 
     $errors[] =
-        'Failed to count notifications: ' .
-        $count_stmt->error;
+        'Failed to count notifications.';
 }
 
 $count_stmt->close();
@@ -106,8 +105,7 @@ $count_stmt->close();
 $total_notifications = 0;
 
 $errors[] =
-    'Failed to prepare notification count query: ' .
-    $conn->error;
+    'Failed to prepare notification count query.';
 
 }
 $total_pages = $total_notifications > 0
@@ -178,8 +176,7 @@ if ($stmt->execute()) {
 } else {
 
     $errors[] =
-        'Failed to load notifications: ' .
-        $stmt->error;
+        'Failed to load notifications.';
 }
 
 $stmt->close();
@@ -187,8 +184,7 @@ $stmt->close();
 } else {
 
 $errors[] =
-    'Failed to prepare notifications query: ' .
-    $conn->error;
+    'Failed to prepare notifications query.';
 
 }
 $unread_stmt = $conn->prepare("
