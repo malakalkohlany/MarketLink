@@ -1,10 +1,14 @@
+<?php
+require_once __DIR__ . '/config/config.php';
+require_once __DIR__ . '/config/constants.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>MarketLink | Fresh. Local. Connected.</title>
+    <title>MarketLink — Your Local Market, In One Place</title>
 
     <link rel="stylesheet" href="assets/css/base.css">
     <link rel="stylesheet" href="assets/css/components.css">
@@ -13,518 +17,569 @@
 
 <body>
 
-    <!-- =========================
-         Navigation
-    ========================== -->
-    <header class="home-navbar">
+<!-- =========================================================
+     NAVBAR
+========================================================= -->
 
-        <div class="home-container home-nav-inner">
+<header class="home-navbar">
+    <div class="home-nav-inner">
 
-            <a href="index.php" class="home-brand">
-                <span class="brand-mark">M</span>
+        <a href="index.php" class="home-brand">
+            <span class="brand-mark">M</span>
+            <span class="brand-name">MarketLink</span>
+        </a>
 
-                <span class="brand-text">
-                    <strong>MarketLink</strong>
-                    <small>Fresh. Local. Connected.</small>
-                </span>
+        <nav class="home-nav-links">
+            <a href="public/about.php">About</a>
+            <a href="public/farmers.php">Farmers</a>
+            <a href="public/markets.php">Markets</a>
+            <a href="public/contact.php">Contact</a>
+        </nav>
+
+        <div class="home-nav-actions">
+            <a href="auth/login.php" class="home-login">
+                Log in
             </a>
 
-            <nav class="home-nav-links">
-                <a href="public/about.php">About</a>
-                <a href="public/farmers.php">Farmers</a>
-                <a href="public/markets.php">Markets</a>
-                <a href="public/contact.php">Contact</a>
-            </nav>
+            <a href="auth/register.php" class="home-join">
+                Join MarketLink
+                <span>↗</span>
+            </a>
+        </div>
 
-            <div class="home-nav-actions">
-                <a href="auth/login.php" class="home-login">
-                    Log in
+    </div>
+</header>
+
+
+<main>
+
+<!-- =========================================================
+     HERO
+========================================================= -->
+
+<section class="hero">
+
+    <div class="hero-inner">
+
+        <div class="hero-copy">
+
+            <div class="hero-eyebrow">
+                <span></span>
+                LOCAL • FRESH • CONNECTED
+            </div>
+
+            <h1>
+                Your local market,
+                <em>in one place.</em>
+            </h1>
+
+            <p class="hero-description">
+                Discover local farmers, explore nearby markets,
+                and find fresh products — all through one simple
+                marketplace.
+            </p>
+
+            <div class="hero-actions">
+
+                <a href="public/markets.php" class="hero-primary">
+                    Explore markets
+                    <span>↗</span>
                 </a>
 
-                <a href="auth/register.php" class="btn btn-primary">
-                    Join MarketLink
+                <a href="public/farmers.php" class="hero-secondary">
+                    Meet the farmers
                 </a>
+
+            </div>
+
+            <div class="hero-note">
+                <span class="hero-note-line"></span>
+                Supporting local food, one connection at a time.
             </div>
 
         </div>
 
-    </header>
 
+        <!-- IMAGE SIDE -->
 
-    <main>
+        <div class="hero-visual">
 
-        <!-- =========================
-             Hero
-        ========================== -->
-        <section class="home-hero">
+            <div class="hero-image-frame">
 
-            <div class="home-container home-hero-grid">
+                <img
+                    src="assets/images/hero-produce.jpg"
+                    alt="Fresh local vegetables arranged at a market"
+                >
 
-                <div class="home-hero-content">
+                <div class="hero-image-overlay"></div>
 
-                    <span class="home-eyebrow">
-                        LOCAL FOOD. REAL CONNECTIONS.
-                    </span>
-
-                    <h1>
-                        Bringing the
-                        <span>market</span>
-                        closer to you.
-                    </h1>
-
-                    <p>
-                        Discover fresh products, explore local markets,
-                        and connect directly with the farmers who grow them.
-                    </p>
-
-                    <div class="home-hero-actions">
-
-                        <a href="public/markets.php" class="btn btn-primary btn-lg">
-                            Explore Markets
-                        </a>
-
-                        <a href="public/farmers.php" class="btn btn-outline-sage btn-lg">
-                            Meet Farmers
-                        </a>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Decorative visual -->
-                <div class="home-hero-visual">
-
-                    <div class="hero-circle hero-circle-back"></div>
-
-                    <div class="hero-produce-card">
-
-                        <div class="hero-produce-top">
-                            <span>FRESH PICK</span>
-                            <span>✦</span>
-                        </div>
-
-                        <div class="hero-produce">
-                            <span class="produce produce-tomato">🍅</span>
-                            <span class="produce produce-carrot">🥕</span>
-                            <span class="produce produce-apple">🍎</span>
-                        </div>
-
-                        <div class="hero-produce-label">
-                            <strong>From local farms</strong>
-                            <span>to your table.</span>
-                        </div>
-
-                    </div>
-
-                    <div class="hero-floating-card hero-card-market">
-                        <span class="floating-icon">⌂</span>
-                        <div>
-                            <strong>Local Markets</strong>
-                            <small>Find one near you</small>
-                        </div>
-                    </div>
-
-                    <div class="hero-floating-card hero-card-fresh">
-                        <span class="floating-icon">✦</span>
-                        <div>
-                            <strong>Fresh Produce</strong>
-                            <small>Direct from farmers</small>
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- =========================
-             Introduction
-        ========================== -->
-        <section class="home-intro">
-
-            <div class="home-container">
-
-                <div class="home-section-heading">
-
-                    <span class="home-eyebrow">
-                        WHY MARKETLINK?
-                    </span>
-
-                    <h2>
-                        More than a marketplace.
-                        <span>A local connection.</span>
-                    </h2>
-
-                    <p>
-                        MarketLink makes it easier to discover local farmers,
-                        find nearby markets, and shop for fresh products in one place.
-                    </p>
-
-                </div>
-
-
-                <div class="home-feature-grid">
-
-                    <!-- Feature 1 -->
-                    <article class="home-feature-card">
-
-                        <div class="feature-number">01</div>
-
-                        <div class="feature-icon feature-icon-terracotta">
-                            ⌖
-                        </div>
-
-                        <h3>Discover Local</h3>
-
-                        <p>
-                            Find farmers, markets, and fresh products
-                            available around you.
-                        </p>
-
-                        <a href="public/markets.php" class="feature-link">
-                            Explore markets →
-                        </a>
-
-                    </article>
-
-
-                    <!-- Feature 2 -->
-                    <article class="home-feature-card">
-
-                        <div class="feature-number">02</div>
-
-                        <div class="feature-icon feature-icon-sage">
-                            ✦
-                        </div>
-
-                        <h3>Shop Fresh</h3>
-
-                        <p>
-                            Browse locally grown products and discover
-                            what's available from farmers.
-                        </p>
-
-                        <a href="auth/register.php" class="feature-link">
-                            Start exploring →
-                        </a>
-
-                    </article>
-
-
-                    <!-- Feature 3 -->
-                    <article class="home-feature-card">
-
-                        <div class="feature-number">03</div>
-
-                        <div class="feature-icon feature-icon-marigold">
-                            ♡
-                        </div>
-
-                        <h3>Connect Directly</h3>
-
-                        <p>
-                            Build stronger connections between farmers,
-                            markets, and customers.
-                        </p>
-
-                        <a href="public/farmers.php" class="feature-link">
-                            Meet farmers →
-                        </a>
-
-                    </article>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- =========================
-             Explore Section
-        ========================== -->
-        <section class="home-explore">
-
-            <div class="home-container">
-
-                <div class="home-section-heading home-section-heading-row">
-
-                    <div>
-                        <span class="home-eyebrow">
-                            START EXPLORING
-                        </span>
-
-                        <h2>
-                            What's waiting
-                            <span>for you?</span>
-                        </h2>
-                    </div>
-
-                    <a href="public/markets.php" class="btn btn-outline">
-                        View all markets
-                    </a>
-
-                </div>
-
-
-                <div class="home-category-grid">
-
-                    <a href="public/markets.php" class="home-category-card category-market">
-
-                        <div class="category-content">
-                            <span class="category-label">01</span>
-
-                            <h3>Local Markets</h3>
-
-                            <p>
-                                Explore markets and discover what's available.
-                            </p>
-
-                            <span class="category-arrow">→</span>
-                        </div>
-
-                    </a>
-
-
-                    <a href="public/farmers.php" class="home-category-card category-farmer">
-
-                        <div class="category-content">
-                            <span class="category-label">02</span>
-
-                            <h3>Local Farmers</h3>
-
-                            <p>
-                                Get to know the people behind your food.
-                            </p>
-
-                            <span class="category-arrow">→</span>
-                        </div>
-
-                    </a>
-
-
-                    <a href="auth/register.php" class="home-category-card category-products">
-
-                        <div class="category-content">
-                            <span class="category-label">03</span>
-
-                            <h3>Fresh Products</h3>
-
-                            <p>
-                                Discover products from local growers.
-                            </p>
-
-                            <span class="category-arrow">→</span>
-                        </div>
-
-                    </a>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- =========================
-             How It Works
-        ========================== -->
-        <section class="home-how">
-
-            <div class="home-container home-how-grid">
-
-                <div class="home-how-intro">
-
-                    <span class="home-eyebrow">
-                        HOW IT WORKS
-                    </span>
-
-                    <h2>
-                        From farm
-                        <span>to community.</span>
-                    </h2>
-
-                    <p>
-                        MarketLink brings everything together so finding
-                        local food feels simple.
-                    </p>
-
-                    <a href="public/about.php" class="btn btn-secondary">
-                        Learn more about us
-                    </a>
-
-                </div>
-
-
-                <div class="home-steps">
-
-                    <div class="home-step">
-
-                        <span class="step-number">01</span>
-
-                        <div>
-                            <h3>Discover</h3>
-                            <p>
-                                Explore farmers, markets, and products
-                                available through MarketLink.
-                            </p>
-                        </div>
-
-                    </div>
-
-
-                    <div class="home-step">
-
-                        <span class="step-number">02</span>
-
-                        <div>
-                            <h3>Explore</h3>
-                            <p>
-                                Browse products and find what fits
-                                what you're looking for.
-                            </p>
-                        </div>
-
-                    </div>
-
-
-                    <div class="home-step">
-
-                        <span class="step-number">03</span>
-
-                        <div>
-                            <h3>Connect</h3>
-                            <p>
-                                Connect customers and farmers through
-                                a more direct local marketplace.
-                            </p>
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- =========================
-             Final CTA
-        ========================== -->
-        <section class="home-cta">
-
-            <div class="home-container">
-
-                <div class="home-cta-box">
-
-                    <div>
-                        <span class="home-eyebrow">
-                            FRESH STARTS HERE
-                        </span>
-
-                        <h2>
-                            Ready to explore
-                            your local market?
-                        </h2>
-
-                        <p>
-                            Join MarketLink and discover what's growing
-                            around you.
-                        </p>
-                    </div>
-
-                    <div class="home-cta-actions">
-
-                        <a href="auth/register.php" class="btn btn-marigold btn-lg">
-                            Join MarketLink
-                        </a>
-
-                        <a href="auth/login.php" class="home-cta-login">
-                            Already have an account? Log in →
-                        </a>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-    </main>
-
-
-    <!-- =========================
-         Footer
-    ========================== -->
-    <footer class="home-footer">
-
-        <div class="home-container">
-
-            <div class="home-footer-grid">
-
-                <div class="home-footer-brand">
-
-                    <a href="index.php" class="home-brand">
-                        <span class="brand-mark">M</span>
-
-                        <span class="brand-text">
-                            <strong>MarketLink</strong>
-                            <small>Fresh. Local. Connected.</small>
-                        </span>
-                    </a>
-
-                    <p>
-                        Connecting communities with local farmers,
-                        markets, and fresh products.
-                    </p>
-
-                </div>
-
-
-                <div class="home-footer-links">
-
-                    <div>
-                        <h4>Explore</h4>
-
-                        <a href="public/markets.php">Markets</a>
-                        <a href="public/farmers.php">Farmers</a>
-                        <a href="public/about.php">About</a>
-                    </div>
-
-
-                    <div>
-                        <h4>MarketLink</h4>
-
-                        <a href="public/contact.php">Contact</a>
-                        <a href="auth/login.php">Log in</a>
-                        <a href="auth/register.php">Register</a>
-                    </div>
-
+                <div class="hero-image-label">
+                    <span class="label-dot"></span>
+                    Fresh from local growers
                 </div>
 
             </div>
 
 
-            <div class="home-footer-bottom">
+            <div class="hero-side-note">
+                <span class="side-note-number">01</span>
 
-                <span>
-                    © <?php echo date('Y'); ?> MarketLink. All rights reserved.
+                <span class="side-note-text">
+                    FIND<br>
+                    WHAT'S<br>
+                    NEARBY
                 </span>
+            </div>
 
-                <span>
-                    Fresh. Local. Connected.
-                </span>
+        </div>
+
+    </div>
+
+
+    <!-- Bottom information strip -->
+
+    <div class="hero-bottom">
+
+        <div class="hero-bottom-inner">
+
+            <div class="hero-stat">
+                <strong>LOCAL</strong>
+                <span>Farmers & growers</span>
+            </div>
+
+            <div class="hero-stat">
+                <strong>FRESH</strong>
+                <span>Seasonal products</span>
+            </div>
+
+            <div class="hero-stat">
+                <strong>NEARBY</strong>
+                <span>Markets around you</span>
+            </div>
+
+            <div class="hero-scroll">
+                <span>SCROLL TO EXPLORE</span>
+                <span class="scroll-arrow">↓</span>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     VALUE SECTION
+========================================================= -->
+
+<section class="value-section">
+
+    <div class="value-inner">
+
+        <div class="value-heading">
+
+            <div class="section-marker">
+                <span>01</span>
+                WHY MARKETLINK
+            </div>
+
+            <h2>
+                Local food starts
+                <span>with a connection.</span>
+            </h2>
+
+            <p>
+                MarketLink brings customers, farmers, products,
+                and markets together in one place.
+            </p>
+
+        </div>
+
+
+        <div class="value-grid">
+
+            <article class="value-card value-card-sage">
+
+                <div class="value-card-top">
+                    <span class="value-card-number">01</span>
+
+                    <span class="value-icon">
+                        ↗
+                    </span>
+                </div>
+
+                <div>
+                    <h3>Discover</h3>
+
+                    <p>
+                        Find farmers and markets around you
+                        without the usual searching.
+                    </p>
+                </div>
+
+            </article>
+
+
+            <article class="value-card value-card-terracotta">
+
+                <div class="value-card-top">
+                    <span class="value-card-number">02</span>
+
+                    <span class="value-icon">
+                        ↗
+                    </span>
+                </div>
+
+                <div>
+                    <h3>Explore</h3>
+
+                    <p>
+                        Browse fresh products, learn about
+                        local growers, and see what's available.
+                    </p>
+                </div>
+
+            </article>
+
+
+            <article class="value-card value-card-yellow">
+
+                <div class="value-card-top">
+                    <span class="value-card-number">03</span>
+
+                    <span class="value-icon">
+                        ↗
+                    </span>
+                </div>
+
+                <div>
+                    <h3>Connect</h3>
+
+                    <p>
+                        Make local food easier to find and
+                        easier to access.
+                    </p>
+                </div>
+
+            </article>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     EXPLORE
+========================================================= -->
+
+<section class="explore-section">
+
+    <div class="explore-inner">
+
+        <div class="explore-heading">
+
+            <div>
+                <div class="section-marker">
+                    <span>02</span>
+                    EXPLORE MARKETLINK
+                </div>
+
+                <h2>
+                    Something fresh
+                    <span>is waiting.</span>
+                </h2>
+            </div>
+
+            <a href="public/markets.php" class="outline-link">
+                Explore everything
+                <span>↗</span>
+            </a>
+
+        </div>
+
+
+        <div class="explore-grid">
+
+            <a href="public/markets.php"
+               class="explore-card explore-market">
+
+                <div class="explore-card-top">
+                    <span>01 / MARKETS</span>
+                    <span class="card-arrow">↗</span>
+                </div>
+
+                <div class="explore-card-bottom">
+                    <h3>
+                        Find your
+                        <em>market.</em>
+                    </h3>
+
+                    <p>
+                        Discover markets and places
+                        where local products come together.
+                    </p>
+                </div>
+
+            </a>
+
+
+            <a href="public/farmers.php"
+               class="explore-card explore-farmers">
+
+                <div class="explore-card-top">
+                    <span>02 / FARMERS</span>
+                    <span class="card-arrow">↗</span>
+                </div>
+
+                <div class="explore-card-bottom">
+                    <h3>
+                        Meet the
+                        <em>growers.</em>
+                    </h3>
+
+                    <p>
+                        Learn about the people behind
+                        the products you buy.
+                    </p>
+                </div>
+
+            </a>
+
+
+            <a href="auth/register.php"
+               class="explore-card explore-products">
+
+                <div class="explore-card-top">
+                    <span>03 / PRODUCTS</span>
+                    <span class="card-arrow">↗</span>
+                </div>
+
+                <div class="explore-card-bottom">
+                    <h3>
+                        Shop what's
+                        <em>fresh.</em>
+                    </h3>
+
+                    <p>
+                        Browse products and discover
+                        what's available locally.
+                    </p>
+                </div>
+
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     HOW IT WORKS
+========================================================= -->
+
+<section class="how-section">
+
+    <div class="how-inner">
+
+        <div class="how-heading">
+
+            <div class="section-marker section-marker-light">
+                <span>03</span>
+                HOW IT WORKS
+            </div>
+
+            <h2>
+                Simple by design.
+            </h2>
+
+            <p>
+                MarketLink makes discovering local food
+                feel less like searching and more like exploring.
+            </p>
+
+        </div>
+
+
+        <div class="steps">
+
+            <div class="step">
+
+                <div class="step-number">01</div>
+
+                <div class="step-content">
+                    <h3>Discover</h3>
+
+                    <p>
+                        Find farmers, markets, and fresh
+                        products available around you.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="step">
+
+                <div class="step-number">02</div>
+
+                <div class="step-content">
+                    <h3>Explore</h3>
+
+                    <p>
+                        Browse products, compare options,
+                        and learn more about local sellers.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="step">
+
+                <div class="step-number">03</div>
+
+                <div class="step-content">
+                    <h3>Connect</h3>
+
+                    <p>
+                        Get closer to the people and places
+                        behind your local food.
+                    </p>
+                </div>
 
             </div>
 
         </div>
 
-    </footer>
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     CTA
+========================================================= -->
+
+<section class="final-cta">
+
+    <div class="final-cta-inner">
+
+        <div class="cta-copy">
+
+            <div class="section-marker section-marker-light">
+                READY WHEN YOU ARE
+            </div>
+
+            <h2>
+                Get closer to
+                <em>local.</em>
+            </h2>
+
+            <p>
+                Explore what's growing, selling, and happening
+                around you.
+            </p>
+
+        </div>
+
+
+        <div class="cta-actions">
+
+            <a href="auth/register.php" class="cta-button">
+                Join MarketLink
+                <span>↗</span>
+            </a>
+
+            <a href="auth/login.php" class="cta-login">
+                Already a member?
+                <strong>Log in</strong>
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+</main>
+
+
+<!-- =========================================================
+     FOOTER
+========================================================= -->
+
+<footer class="home-footer">
+
+    <div class="footer-inner">
+
+        <div class="footer-top">
+
+            <div class="footer-brand">
+
+                <a href="index.php" class="home-brand">
+
+                    <span class="brand-mark">
+                        M
+                    </span>
+
+                    <span class="brand-name">
+                        MarketLink
+                    </span>
+
+                </a>
+
+                <p>
+                    Bringing local food closer
+                    to the people who love it.
+                </p>
+
+            </div>
+
+
+            <div class="footer-columns">
+
+                <div>
+                    <h4>Explore</h4>
+
+                    <a href="public/markets.php">Markets</a>
+                    <a href="public/farmers.php">Farmers</a>
+                    <a href="auth/register.php">Products</a>
+                </div>
+
+                <div>
+                    <h4>MarketLink</h4>
+
+                    <a href="public/about.php">About</a>
+                    <a href="public/contact.php">Contact</a>
+                    <a href="auth/login.php">Log in</a>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="footer-bottom">
+
+            <span>
+                © <?php echo date('Y'); ?> MarketLink
+            </span>
+
+            <span>
+                Local food. Local people. One place.
+            </span>
+
+        </div>
+
+    </div>
+
+</footer>
+
 
 </body>
 </html>
