@@ -302,8 +302,7 @@ if (
                             }
                         }
 
-                        header('Location: announcements.php');
-                        exit;
+                        redirect('announcements.php');
 
                     } else {
 
@@ -370,8 +369,7 @@ if (
 
                 $stmt->close();
 
-                header('Location: announcements.php');
-                exit;
+                redirect('announcements.php');
 
             } else {
 

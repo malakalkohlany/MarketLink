@@ -873,6 +873,26 @@
         0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
+.contact-alert {
+    padding: 16px 20px;
+    border-radius: var(--radius-md);
+    margin: 0 0 24px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    border: 1px solid transparent;
+}
+
+.contact-alert-success {
+    background: var(--sage-soft);
+    color: var(--sage-dark);
+    border-color: var(--sage-light);
+}
+
+.contact-alert-error {
+    background: var(--terracotta-soft);
+    color: var(--terracotta-dark);
+    border-color: var(--terracotta-light);
+}
 
 /* =========================================================
    RESPONSIVE
@@ -1020,3 +1040,4 @@
     }
 
 }
+

@@ -48,8 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    header('Location: markets.php');
-    exit;
+    redirect(' markets.php');
 }
 
 $stmt = $conn->prepare("

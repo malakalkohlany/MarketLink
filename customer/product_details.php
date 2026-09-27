@@ -17,8 +17,7 @@ if ($from === 'products') {
 $backText = 'Back';
 
 if ($productId <= 0) {
-    header('Location: ' . $backPage);
-    exit;
+    redirect($backPage);
 }
 
 $weekStart = date('Y-m-d', strtotime('monday this week'));

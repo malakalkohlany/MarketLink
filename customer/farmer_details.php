@@ -13,7 +13,7 @@ $farmerId = isset($_GET['id'])
     : 0;
 
 if ($farmerId <= 0) {
-    redirect('customer/farmers.php');
+redirect('customer/farmers.php');
 }
 
 /* =========================================================
