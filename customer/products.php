@@ -26,7 +26,6 @@ if (
         exit;
     }
 
-
     // ------------------------------------------------------
     // Check if product already exists in favorites
     // ------------------------------------------------------
@@ -217,8 +216,12 @@ if (
         ) {
             $cartMarketId = (int)$cartItem['market_id'];
 
-            if (isset($cartItem['market_name'])) {
-                $cartMarketName = $cartItem['market_name'];
+            if (
+                isset($cartItem['market_name'])
+                && $cartItem['market_name'] !== ''
+            ) {
+                $cartMarketName =
+                    $cartItem['market_name'];
             }
 
             break;
@@ -247,7 +250,9 @@ if ($cartMarketId === null) {
                 isset($cartItem['farmer_id']) &&
                 (int)$cartItem['farmer_id'] > 0
             ) {
-                $cartFarmerId = (int)$cartItem['farmer_id'];
+                $cartFarmerId =
+                    (int)$cartItem['farmer_id'];
+
                 break;
             }
         }
@@ -298,23 +303,131 @@ if ($cartMarketId === null) {
     }
 }
 
+
 // ==========================================================
-// Get Current Week
+// Determine Current Week
 // ==========================================================
 
 $today = new DateTime();
+
 $weekStart = clone $today;
 
 if ($weekStart->format('N') != 1) {
     $weekStart->modify('monday this week');
 }
 
-$weekStartDate = $weekStart->format('Y-m-d');
+$weekStartDate =
+    $weekStart->format('Y-m-d');
 
 
 // ==========================================================
-// Get Products + Current Weekly Stock
+// Lazy Generate Weekly Stock
 // ==========================================================
+//
+// Active weekly stock templates automatically create a row
+// for the current week if one does not already exist.
+//
+// Existing weekly rows are NEVER overwritten.
+// This means farmers can adjust the current week's quantity
+// without changing their recurring template.
+//
+
+$generateSql = "
+    INSERT INTO weekly_stock
+    (
+        farmer_id,
+        product_id,
+        week_start,
+        planned_quantity,
+        actual_quantity,
+        status,
+        is_active,
+        created_at,
+        updated_at
+    )
+
+    SELECT
+        wst.farmer_id,
+        wst.product_id,
+        ?,
+        wst.default_quantity,
+        wst.default_quantity,
+        CASE
+            WHEN wst.default_quantity > 0
+                THEN 'available'
+            ELSE 'sold_out'
+        END,
+        1,
+        NOW(),
+        NOW()
+
+    FROM weekly_stock_templates wst
+
+    INNER JOIN products p
+        ON p.id = wst.product_id
+       AND p.farmer_id = wst.farmer_id
+
+    INNER JOIN farmers f
+        ON f.id = wst.farmer_id
+
+    WHERE wst.is_active = 1
+      AND p.is_available = 1
+      AND p.moderation_status = ?
+      AND f.approval_status = ?
+
+      AND NOT EXISTS (
+          SELECT 1
+          FROM weekly_stock ws
+          WHERE ws.farmer_id = wst.farmer_id
+            AND ws.product_id = wst.product_id
+            AND ws.week_start = ?
+      )
+";
+
+$generateStmt = $conn->prepare($generateSql);
+
+if ($generateStmt) {
+
+    $generateStmt->bind_param(
+        "ssss",
+        $weekStartDate,
+        $moderation_status,
+        $farmer_status,
+        $weekStartDate
+    );
+
+    $generateStmt->execute();
+
+    $generateStmt->close();
+}
+
+
+// ==========================================================
+// Send Weekly Stock Reminders
+// ==========================================================
+
+if (function_exists('sendWeeklyStockReminders')) {
+    sendWeeklyStockReminders(
+        $conn,
+        $weekStartDate
+    );
+}
+
+
+// ==========================================================
+// Get Products
+// ==========================================================
+//
+// IMPORTANT:
+//
+// Do NOT join market_farmer here.
+//
+// A farmer can belong to multiple markets, so joining it
+// directly would create duplicate product rows.
+//
+// Products are loaded once.
+// Farmer markets are loaded separately below.
+//
 
 $sql = "
     SELECT
@@ -327,14 +440,13 @@ $sql = "
         p.unit,
         p.image,
 
-        -- Original product stock, kept as fallback
         p.stock_quantity AS product_stock_quantity,
 
-        -- Current week's stock
         ws.actual_quantity AS weekly_actual_quantity,
         ws.status AS weekly_status,
 
         f.stall_name AS farmer_name,
+
         c.name AS category_name
 
     FROM products p
@@ -347,8 +459,8 @@ $sql = "
 
     LEFT JOIN weekly_stock ws
         ON ws.product_id = p.id
-        AND ws.farmer_id = p.farmer_id
-        AND ws.week_start = ?
+       AND ws.farmer_id = p.farmer_id
+       AND ws.week_start = ?
 
     WHERE p.is_available = 1
       AND p.moderation_status = ?
@@ -389,24 +501,28 @@ $products = [];
 
 while ($row = $result->fetch_assoc()) {
 
-    /*
-     * If a weekly-stock row exists, use it.
-     *
-     * If there is no weekly row yet, fall back to the
-     * product's normal stock_quantity for now.
-     */
-    if ($row['weekly_actual_quantity'] !== null) {
+    // ------------------------------------------------------
+    // Determine effective weekly stock
+    // ------------------------------------------------------
+
+    if (
+        $row['weekly_actual_quantity'] !== null
+    ) {
 
         $row['stock_quantity'] =
-            (float) $row['weekly_actual_quantity'];
+            (float)$row['weekly_actual_quantity'];
 
         $row['stock_status'] =
-            $row['weekly_status'] ?? 'available';
+            $row['weekly_status']
+            ?? 'available';
 
     } else {
 
+        // No weekly stock row exists.
+        // Fall back to the product's normal stock.
+
         $row['stock_quantity'] =
-            (float) $row['product_stock_quantity'];
+            (float)$row['product_stock_quantity'];
 
         $row['stock_status'] =
             'available';
@@ -422,7 +538,8 @@ $stmt->close();
 // Get Markets For All Farmers
 // ==========================================================
 //
-// This creates:
+// Creates:
+//
 // $farmerMarkets[farmer_id] = [
 //     [
 //         'id' => 1,
@@ -436,8 +553,8 @@ $stmt->close();
 //     ]
 // ]
 //
-// Therefore each product still appears only once.
-// ==========================================================
+// Each product still appears only once.
+//
 
 $farmerMarkets = [];
 
@@ -465,18 +582,26 @@ $marketFarmerResult = mysqli_query(
 
 if ($marketFarmerResult) {
 
-    while ($row = mysqli_fetch_assoc($marketFarmerResult)) {
+    while ($row = mysqli_fetch_assoc(
+        $marketFarmerResult
+    )) {
 
-        $farmerId = (int)$row['farmer_id'];
+        $farmerId =
+            (int)$row['farmer_id'];
 
         if (!isset($farmerMarkets[$farmerId])) {
             $farmerMarkets[$farmerId] = [];
         }
 
         $farmerMarkets[$farmerId][] = [
-            'id' => (int)$row['market_id'],
-            'name' => $row['market_name'],
-            'operating_days' => $row['market_days'] ?? ''
+            'id' =>
+                (int)$row['market_id'],
+
+            'name' =>
+                $row['market_name'],
+
+            'operating_days' =>
+                $row['market_days'] ?? ''
         ];
     }
 }
@@ -498,7 +623,9 @@ $categoryResult = mysqli_query(
 
 if ($categoryResult) {
 
-    while ($row = mysqli_fetch_assoc($categoryResult)) {
+    while ($row = mysqli_fetch_assoc(
+        $categoryResult
+    )) {
         $categories[] = $row;
     }
 }
@@ -509,6 +636,7 @@ if ($categoryResult) {
 // ==========================================================
 
 $markets = [];
+
 $marketResult = mysqli_query(
     $conn,
     "SELECT id, name
@@ -518,10 +646,14 @@ $marketResult = mysqli_query(
 );
 
 if ($marketResult) {
-    while ($row = mysqli_fetch_assoc($marketResult)) {
+
+    while ($row = mysqli_fetch_assoc(
+        $marketResult
+    )) {
         $markets[] = $row;
     }
 }
+
 
 // ==========================================================
 // Cart Count
@@ -533,9 +665,9 @@ if (
     isset($_SESSION['cart']) &&
     is_array($_SESSION['cart'])
 ) {
-    $cartCount = count($_SESSION['cart']);
+    $cartCount =
+        count($_SESSION['cart']);
 }
-?>
 
 ?>
 <!DOCTYPE html>
@@ -553,7 +685,6 @@ if (
     <title>
         Products - MarketLink
     </title>
-
 
     <link
         rel="stylesheet"
@@ -574,7 +705,6 @@ if (
         rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
     >
-
 
     <style>
 
@@ -641,6 +771,7 @@ if (
                 minmax(220px, 1.5fr)
                 repeat(3, minmax(150px, 1fr))
                 minmax(170px, 1.1fr);
+
             gap: 14px;
             margin-bottom: 24px;
             padding: 18px;
@@ -679,6 +810,7 @@ if (
             font-family: inherit;
             font-size: 14px;
             outline: none;
+
             transition:
                 border-color 0.2s ease,
                 box-shadow 0.2s ease;
@@ -757,7 +889,7 @@ if (
 
 
         /* =====================================================
-           Empty Image Area
+           Product Image
         ===================================================== */
 
         .product-image-container {
@@ -787,19 +919,26 @@ if (
         .favorite-button {
             width: 36px;
             height: 36px;
+
             display: flex;
             align-items: center;
             justify-content: center;
+
             border: none;
             border-radius: 50%;
+
             background: #ffffff;
+
             cursor: pointer;
+
             font-size: 20px;
             padding: 0;
             margin: 0;
+
             box-shadow:
                 0 2px 6px
                 rgba(0, 0, 0, 0.10);
+
             transition: 0.2s ease;
         }
 
@@ -887,28 +1026,30 @@ if (
             margin-top: 18px;
         }
 
-        .add-to-cart-form {
-            width: 100%;
-            margin: 0;
-        }
-
         .add-to-cart-button {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
+
             width: 100%;
             box-sizing: border-box;
+
             padding: 11px 15px;
+
             border: none;
             border-radius: 7px;
+
             background: #72583E;
             color: #ffffff;
+
             font-family: inherit;
             font-size: 14px;
             font-weight: 600;
+
             text-decoration: none;
             cursor: pointer;
+
             transition: 0.2s ease;
         }
 
@@ -919,17 +1060,32 @@ if (
 
 
         /* =====================================================
-           Out Of Stock
+           Disabled / Blocked Button
         ===================================================== */
 
-        .add-to-cart-button.out-of-stock {
+        .add-to-cart-button.disabled-button {
             background: #eeeeee;
             color: #888888;
             cursor: not-allowed;
         }
 
-        .add-to-cart-button.out-of-stock:hover {
+        .add-to-cart-button.disabled-button:hover {
             background: #eeeeee;
+            transform: none;
+        }
+
+
+        /* =====================================================
+           Different Market
+        ===================================================== */
+
+        .different-market-button {
+            background: #eee9e4;
+            color: #806b57;
+        }
+
+        .different-market-button:hover {
+            background: #eee9e4;
             transform: none;
         }
 
@@ -942,13 +1098,19 @@ if (
             display: block;
             width: 100%;
             box-sizing: border-box;
+
             text-align: center;
             text-decoration: none;
+
             background: transparent;
             color: #72583E;
+
             border: 1px solid #d7cec4;
+
             padding: 10px 15px;
+
             border-radius: 7px;
+
             transition: 0.2s ease;
         }
 
@@ -970,86 +1132,76 @@ if (
             color: #666;
         }
 
+
         /* =====================================================
-   Floating Cart Button
-===================================================== */
+           Floating Cart
+        ===================================================== */
 
-.floating-cart {
-    position: fixed;
-    right: 28px;
-    bottom: 28px;
-    z-index: 1000;
+        .floating-cart {
+            position: fixed;
+            right: 28px;
+            bottom: 28px;
+            z-index: 1000;
 
-    display: flex;
-    align-items: center;
-    gap: 9px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
 
-    padding: 13px 18px;
+            padding: 13px 18px;
 
-    background: #72583E;
-    color: #ffffff;
+            background: #72583E;
+            color: #ffffff;
 
-    border-radius: 999px;
-    text-decoration: none;
+            border-radius: 999px;
+            text-decoration: none;
 
-    font-size: 14px;
-    font-weight: 600;
+            font-size: 14px;
+            font-weight: 600;
 
-    box-shadow:
-        0 8px 24px
-        rgba(62, 48, 38, 0.20);
+            box-shadow:
+                0 8px 24px
+                rgba(62, 48, 38, 0.20);
 
-    transition:
-        transform 0.2s ease,
-        background 0.2s ease,
-        box-shadow 0.2s ease;
-}
+            transition:
+                transform 0.2s ease,
+                background 0.2s ease,
+                box-shadow 0.2s ease;
+        }
 
-.floating-cart:hover {
-    background: #5f4833;
-    color: #ffffff;
+        .floating-cart:hover {
+            background: #5f4833;
+            color: #ffffff;
 
-    transform: translateY(-3px);
+            transform: translateY(-3px);
 
-    box-shadow:
-        0 12px 30px
-        rgba(62, 48, 38, 0.25);
-}
+            box-shadow:
+                0 12px 30px
+                rgba(62, 48, 38, 0.25);
+        }
 
-.floating-cart i {
-    font-size: 15px;
-}
+        .floating-cart i {
+            font-size: 15px;
+        }
 
-.floating-cart-count {
-    min-width: 22px;
-    height: 22px;
+        .floating-cart-count {
+            min-width: 22px;
+            height: 22px;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
 
-    padding: 0 6px;
+            padding: 0 6px;
+            box-sizing: border-box;
 
-    box-sizing: border-box;
+            background: #DFA62F;
+            color: #3E3026;
 
-    background: #DFA62F;
-    color: #3E3026;
+            border-radius: 999px;
 
-    border-radius: 999px;
-
-    font-size: 12px;
-    font-weight: 700;
-}
-
-@media (max-width: 700px) {
-
-    .floating-cart {
-        right: 16px;
-        bottom: 16px;
-
-        padding: 12px 16px;
-    }
-}
+            font-size: 12px;
+            font-weight: 700;
+        }
 
 
         /* =====================================================
@@ -1091,6 +1243,12 @@ if (
             .price-inputs {
                 grid-template-columns: 1fr 1fr;
             }
+
+            .floating-cart {
+                right: 16px;
+                bottom: 16px;
+                padding: 12px 16px;
+            }
         }
 
     </style>
@@ -1126,15 +1284,24 @@ if (
     </div>
 
 
-    <?php if (isset($_GET['added']) && $_GET['added'] === '1'): ?>
+    <?php if (
+        isset($_GET['added'])
+        && $_GET['added'] === '1'
+    ): ?>
 
-        <div class="shopping-note" style="margin-bottom: 20px;">
+        <div
+            class="shopping-note"
+            style="margin-bottom: 20px;"
+        >
+
             <i class="fa-solid fa-circle-check"></i>
 
             <span>
                 Product added to your cart.
-                You can continue shopping or open your cart when you're ready.
+                You can continue shopping or open your cart
+                when you're ready.
             </span>
+
         </div>
 
     <?php endif; ?>
@@ -1159,6 +1326,9 @@ if (
                 </strong>.
 
                 You can only order from one market at a time.
+
+                Products from other markets are temporarily
+                unavailable for this cart.
 
                 Complete or clear your current cart before
                 ordering from another market.
@@ -1291,7 +1461,7 @@ if (
                     id="minPrice"
                     placeholder="Min"
                     min="0"
-                    step="0.1"
+                    step="0.01"
                 >
 
                 <input
@@ -1299,7 +1469,7 @@ if (
                     id="maxPrice"
                     placeholder="Max"
                     min="0"
-                    step="0.1"
+                    step="0.01"
                 >
 
             </div>
@@ -1350,36 +1520,22 @@ if (
                 $unit =
                     $product['unit'] ?? '';
 
+                $stock =
+                    (float)($product['stock_quantity'] ?? 0);
+
+                $stockStatus =
+                    $product['stock_status']
+                    ?? 'available';
+
                 $farmerId =
                     (int)$product['farmer_id'];
 
                 $farmerName =
                     $product['farmer_name']
-                    ?? 'Unknown Market';
+                    ?? 'Unknown Farmer';
 
                 $categoryId =
                     (int)($product['category_id'] ?? 0);
-
-                // --------------------------------------------------
-                // Weekly Stock
-                // --------------------------------------------------
-
-                $stock =
-                    (float)($product['stock_quantity'] ?? 0);
-
-                $stockStatus =
-                    $product['stock_status'] ?? 'available';
-
-                $isSoldOut =
-                    $stockStatus === 'sold_out';
-
-                $isUnavailable =
-                    $stockStatus === 'unavailable';
-
-                $canAddToCart =
-                    !$isSoldOut &&
-                    !$isUnavailable &&
-                    $stock > 0;
 
 
                 // --------------------------------------------------
@@ -1391,6 +1547,56 @@ if (
 
 
                 // --------------------------------------------------
+                // Check whether this product can use the
+                // market already assigned to the cart.
+                //
+                // Empty cart:
+                //     true
+                //
+                // Cart = Market A
+                // Product = Market A:
+                //     true
+                //
+                // Cart = Market A
+                // Product = Market B only:
+                //     false
+                //
+                // Cart = Market A
+                // Product = Market A + Market B:
+                //     true
+                // --------------------------------------------------
+
+                $canAddForCartMarket = true;
+
+                if ($cartMarketId !== null) {
+
+                    $canAddForCartMarket = false;
+
+                    foreach (
+                        $productMarkets
+                        as $productMarket
+                    ) {
+
+                        $productMarketId =
+                            (int)(
+                                $productMarket['id']
+                                ?? 0
+                            );
+
+                        if (
+                            $productMarketId
+                            === $cartMarketId
+                        ) {
+
+                            $canAddForCartMarket = true;
+
+                            break;
+                        }
+                    }
+                }
+
+
+                // --------------------------------------------------
                 // Build filter data
                 // --------------------------------------------------
 
@@ -1398,7 +1604,10 @@ if (
 
                 $marketDays = [];
 
-                foreach ($productMarkets as $productMarket) {
+                foreach (
+                    $productMarkets
+                    as $productMarket
+                ) {
 
                     $marketIds[] =
                         (int)$productMarket['id'];
@@ -1426,7 +1635,9 @@ if (
                                     true
                                 )
                             ) {
-                                $marketDays[] = $day;
+
+                                $marketDays[] =
+                                    $day;
                             }
                         }
                     }
@@ -1444,6 +1655,21 @@ if (
                         true
                     );
 
+
+                // --------------------------------------------------
+                // Weekly Stock
+                // --------------------------------------------------
+
+                $isSoldOut =
+                    $stockStatus === 'sold_out';
+
+                $isUnavailable =
+                    $stockStatus === 'unavailable';
+
+                $canAddToCart =
+                    !$isSoldOut
+                    && !$isUnavailable
+                    && $stock > 0;
 
                 ?>
 
@@ -1484,18 +1710,15 @@ if (
                         <button
                             type="submit"
                             name="toggle_favorite"
-
                             class="favorite-button
                                 <?= $isFavorite
                                     ? 'filled'
                                     : 'empty'
                                 ?>"
-
                             title="<?= $isFavorite
                                 ? 'Remove from Favorites'
                                 : 'Add to Favorites'
                             ?>"
-
                             aria-label="<?= $isFavorite
                                 ? 'Remove from Favorites'
                                 : 'Add to Favorites'
@@ -1504,11 +1727,15 @@ if (
 
                             <?php if ($isFavorite): ?>
 
-                                <i class="fa-solid fa-heart"></i>
+                                <i
+                                    class="fa-solid fa-heart"
+                                ></i>
 
                             <?php else: ?>
 
-                                <i class="fa-regular fa-heart"></i>
+                                <i
+                                    class="fa-regular fa-heart"
+                                ></i>
 
                             <?php endif; ?>
 
@@ -1520,17 +1747,20 @@ if (
                     <!-- =================================================
                          Product Image
                     ================================================== -->
-                    <!-- =================================================
-                        Product Image
-                    ================================================== -->
 
                     <div class="product-image-container">
 
-                        <?php if (!empty($product['image'])): ?>
+                        <?php if (
+                            !empty($product['image'])
+                        ): ?>
 
                             <img
-                                src="../<?= e($product['image']) ?>"
-                                alt="<?= e($productName) ?>"
+                                src="../<?= e(
+                                    $product['image']
+                                ) ?>"
+                                alt="<?= e(
+                                    $productName
+                                ) ?>"
                                 style="
                                     width: 100%;
                                     height: 100%;
@@ -1557,7 +1787,7 @@ if (
                         <?php endif; ?>
 
                     </div>
-        
+
 
                     <!-- =================================================
                          Product Information
@@ -1573,11 +1803,13 @@ if (
                         </h2>
 
 
-                        <!-- Farmer / Market -->
+                        <!-- Farmer -->
 
                         <div class="product-farmer">
 
-                            <i class="fa-solid fa-store"></i>
+                            <i
+                                class="fa-solid fa-store"
+                            ></i>
 
                             <?= e($farmerName) ?>
 
@@ -1624,11 +1856,13 @@ if (
 
                             <?php if ($isUnavailable): ?>
 
-                                <strong>Currently unavailable</strong>
+                                Stock:
+                                Currently unavailable
 
                             <?php elseif ($isSoldOut): ?>
 
-                                <strong>Sold out for this week</strong>
+                                Stock:
+                                Sold out this week
 
                             <?php else: ?>
 
@@ -1636,7 +1870,9 @@ if (
                                 <?= e($stock) ?>
 
                                 <?php if ($unit !== ''): ?>
+
                                     <?= e($unit) ?>
+
                                 <?php endif; ?>
 
                             <?php endif; ?>
@@ -1651,40 +1887,93 @@ if (
                         <div class="product-actions">
 
 
-                            <?php if ($canAddToCart): ?>
+                            <?php if (
+                                $canAddToCart
+                                && $canAddForCartMarket
+                            ): ?>
+
 
                                 <!-- -----------------------------------------
                                      Add To Cart
-                                     Market selection happens on the next
-                                     page.
                                 ------------------------------------------ -->
 
-                                <a
-                                    href="add_to_cart.php?id=<?= $productId ?>"
-                                    class="add-to-cart-button"
-                                >
+                                <?php if (
+                                    $cartMarketId !== null
+                                ): ?>
 
-                                    <i class="fa-solid fa-cart-plus"></i>
+                                    <a
+                                        href="add_to_cart.php?id=<?= $productId ?>&market_id=<?= $cartMarketId ?>"
+                                        class="add-to-cart-button"
+                                    >
 
-                                    Add to Cart
+                                        <i
+                                            class="fa-solid fa-cart-plus"
+                                        ></i>
 
-                                </a>
+                                        Add to Cart
+
+                                    </a>
+
+                                <?php else: ?>
+
+                                    <a
+                                        href="add_to_cart.php?id=<?= $productId ?>"
+                                        class="add-to-cart-button"
+                                    >
+
+                                        <i
+                                            class="fa-solid fa-cart-plus"
+                                        ></i>
+
+                                        Add to Cart
+
+                                    </a>
+
+                                <?php endif; ?>
 
 
                             <?php else: ?>
 
+
+                                <!-- -----------------------------------------
+                                     Blocked
+                                ------------------------------------------ -->
+
                                 <button
                                     type="button"
-                                    class="add-to-cart-button out-of-stock"
+                                    class="add-to-cart-button
+                                        disabled-button
+                                        <?= !$canAddForCartMarket
+                                            ? 'different-market-button'
+                                            : ''
+                                        ?>"
                                     disabled
                                 >
-                                    <i class="fa-solid fa-box-open"></i>
 
-                                    <?php if ($isUnavailable): ?>
+                                    <i
+                                        class="fa-solid
+                                            <?= !$canAddForCartMarket
+                                                ? 'fa-store-slash'
+                                                : 'fa-box-open'
+                                            ?>"
+                                    ></i>
+
+
+                                    <?php if (
+                                        !$canAddForCartMarket
+                                    ): ?>
+
+                                        Different Market
+
+                                    <?php elseif (
+                                        $isUnavailable
+                                    ): ?>
 
                                         Currently Unavailable
 
-                                    <?php elseif ($isSoldOut): ?>
+                                    <?php elseif (
+                                        $isSoldOut
+                                    ): ?>
 
                                         Sold Out This Week
 
@@ -1695,6 +1984,7 @@ if (
                                     <?php endif; ?>
 
                                 </button>
+
 
                             <?php endif; ?>
 
@@ -1730,10 +2020,17 @@ if (
 
 </main>
 
+
 <?php if ($cartCount > 0): ?>
 
-    <a href="cart.php" class="floating-cart">
-        <i class="fa-solid fa-cart-shopping"></i>
+    <a
+        href="cart.php"
+        class="floating-cart"
+    >
+
+        <i
+            class="fa-solid fa-cart-shopping"
+        ></i>
 
         <span>
             Cart
@@ -1742,6 +2039,7 @@ if (
         <span class="floating-cart-count">
             <?= $cartCount ?>
         </span>
+
     </a>
 
 <?php endif; ?>
@@ -1755,25 +2053,39 @@ if (
 function applyProductFilters() {
 
     const productSearch =
-        document.getElementById('productSearch');
+        document.getElementById(
+            'productSearch'
+        );
 
     const productCategory =
-        document.getElementById('productCategory');
+        document.getElementById(
+            'productCategory'
+        );
 
     const productMarket =
-        document.getElementById('productMarket');
+        document.getElementById(
+            'productMarket'
+        );
 
     const productDay =
-        document.getElementById('productDay');
+        document.getElementById(
+            'productDay'
+        );
 
     const minPrice =
-        document.getElementById('minPrice');
+        document.getElementById(
+            'minPrice'
+        );
 
     const maxPrice =
-        document.getElementById('maxPrice');
+        document.getElementById(
+            'maxPrice'
+        );
 
     const productCards =
-        document.querySelectorAll('.product-card');
+        document.querySelectorAll(
+            '.product-card'
+        );
 
     const noMatchingProducts =
         document.getElementById(
@@ -1799,157 +2111,178 @@ function applyProductFilters() {
     const min =
         minPrice.value === ''
             ? null
-            : parseFloat(minPrice.value);
+            : parseFloat(
+                minPrice.value
+            );
 
     const max =
         maxPrice.value === ''
             ? null
-            : parseFloat(maxPrice.value);
+            : parseFloat(
+                maxPrice.value
+            );
 
 
     let visibleProducts = 0;
 
 
-    productCards.forEach(function(card) {
+    productCards.forEach(
+        function(card) {
 
-        const productName =
-            card.querySelector(
-                '.product-name'
-            )?.textContent
-                .trim()
-                .toLowerCase() || '';
-
-
-        const farmerName =
-            card.querySelector(
-                '.product-farmer'
-            )?.textContent
-                .trim()
-                .toLowerCase() || '';
+            const productName =
+                card.querySelector(
+                    '.product-name'
+                )?.textContent
+                    .trim()
+                    .toLowerCase()
+                || '';
 
 
-        const categoryId =
-            card.dataset.categoryId || '';
+            const farmerName =
+                card.querySelector(
+                    '.product-farmer'
+                )?.textContent
+                    .trim()
+                    .toLowerCase()
+                || '';
 
 
-        /*
-         * A product can now belong to multiple markets
-         * through its farmer.
-         *
-         * Example:
-         *
-         * data-market-ids="1,2"
-         *
-         * This means the same product is available through
-         * both markets.
-         */
-
-        const marketIds =
-            (card.dataset.marketIds || '')
-                .split(',')
-                .map(id => id.trim())
-                .filter(id => id !== '');
+            const categoryId =
+                card.dataset.categoryId
+                || '';
 
 
-        const marketDays =
-            (card.dataset.marketDays || '')
-                .split(',')
-                .map(day => day.trim())
-                .filter(day => day !== '');
+            const marketIds =
+                (
+                    card.dataset.marketIds
+                    || ''
+                )
+                    .split(',')
+                    .map(
+                        id => id.trim()
+                    )
+                    .filter(
+                        id => id !== ''
+                    );
 
 
-        const price =
-            parseFloat(
-                card.dataset.price || '0'
-            );
+            const marketDays =
+                (
+                    card.dataset.marketDays
+                    || ''
+                )
+                    .split(',')
+                    .map(
+                        day => day.trim()
+                    )
+                    .filter(
+                        day => day !== ''
+                    );
 
 
-        // --------------------------------------------------
-        // Search
-        // --------------------------------------------------
-
-        const matchesSearch =
-            searchTerm === ''
-            ||
-            productName.includes(searchTerm)
-            ||
-            farmerName.includes(searchTerm);
+            const price =
+                parseFloat(
+                    card.dataset.price
+                    || '0'
+                );
 
 
-        // --------------------------------------------------
-        // Category
-        // --------------------------------------------------
+            // --------------------------------------------------
+            // Search
+            // --------------------------------------------------
 
-        const matchesCategory =
-            selectedCategory === ''
-            ||
-            categoryId === selectedCategory;
-
-
-        // --------------------------------------------------
-        // Market
-        // --------------------------------------------------
-        //
-        // Product matches if ANY of its farmer's markets
-        // matches the selected market.
-        // --------------------------------------------------
-
-        const matchesMarket =
-            selectedMarket === ''
-            ||
-            marketIds.includes(selectedMarket);
+            const matchesSearch =
+                searchTerm === ''
+                ||
+                productName.includes(
+                    searchTerm
+                )
+                ||
+                farmerName.includes(
+                    searchTerm
+                );
 
 
-        // --------------------------------------------------
-        // Market Day
-        // --------------------------------------------------
+            // --------------------------------------------------
+            // Category
+            // --------------------------------------------------
 
-        const matchesDay =
-            selectedDay === ''
-            ||
-            marketDays.includes(selectedDay);
-
-
-        // --------------------------------------------------
-        // Price
-        // --------------------------------------------------
-
-        const matchesMinPrice =
-            min === null
-            ||
-            price >= min;
+            const matchesCategory =
+                selectedCategory === ''
+                ||
+                categoryId ===
+                    selectedCategory;
 
 
-        const matchesMaxPrice =
-            max === null
-            ||
-            price <= max;
+            // --------------------------------------------------
+            // Market
+            // --------------------------------------------------
+
+            const matchesMarket =
+                selectedMarket === ''
+                ||
+                marketIds.includes(
+                    selectedMarket
+                );
 
 
-        // --------------------------------------------------
-        // Final Match
-        // --------------------------------------------------
+            // --------------------------------------------------
+            // Market Day
+            // --------------------------------------------------
 
-        const matches =
-            matchesSearch &&
-            matchesCategory &&
-            matchesMarket &&
-            matchesDay &&
-            matchesMinPrice &&
-            matchesMaxPrice;
-
-
-        card.style.display =
-            matches
-                ? ''
-                : 'none';
+            const matchesDay =
+                selectedDay === ''
+                ||
+                marketDays.includes(
+                    selectedDay
+                );
 
 
-        if (matches) {
-            visibleProducts++;
+            // --------------------------------------------------
+            // Price
+            // --------------------------------------------------
+
+            const matchesMinPrice =
+                min === null
+                ||
+                price >= min;
+
+            const matchesMaxPrice =
+                max === null
+                ||
+                price <= max;
+
+
+            // --------------------------------------------------
+            // Final Match
+            // --------------------------------------------------
+
+            const matches =
+                matchesSearch
+                &&
+                matchesCategory
+                &&
+                matchesMarket
+                &&
+                matchesDay
+                &&
+                matchesMinPrice
+                &&
+                matchesMaxPrice;
+
+
+            card.style.display =
+                matches
+                    ? ''
+                    : 'none';
+
+
+            if (matches) {
+                visibleProducts++;
+            }
+
         }
-
-    });
+    );
 
 
     noMatchingProducts.style.display =
@@ -1970,14 +2303,12 @@ document
         applyProductFilters
     );
 
-
 document
     .getElementById('productCategory')
     .addEventListener(
         'change',
         applyProductFilters
     );
-
 
 document
     .getElementById('productMarket')
@@ -1986,7 +2317,6 @@ document
         applyProductFilters
     );
 
-
 document
     .getElementById('productDay')
     .addEventListener(
@@ -1994,14 +2324,12 @@ document
         applyProductFilters
     );
 
-
 document
     .getElementById('minPrice')
     .addEventListener(
         'input',
         applyProductFilters
     );
-
 
 document
     .getElementById('maxPrice')
