@@ -23,7 +23,7 @@
 
     box-sizing: border-box;
 
-    z-index: 100;
+    z-index: 1100;
 
     transition: left var(--transition-normal, 0.25s ease);
 }

@@ -260,6 +260,13 @@
 
 @media (max-width: 800px) {
     .sidebar {
-        width: 215px;
+        width: min(280px, 82vw);
+        transform: translateX(-100%);
+        z-index: 1000;
+        box-shadow: 12px 0 35px rgba(62, 48, 38, 0.18);
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
     }
 }
