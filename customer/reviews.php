@@ -1,24 +1,17 @@
 <?php
 
 require_once __DIR__ . '/../includes/include.php';
-
 requireRole(R_CUSTOMER);
 
 $customerId = (int) getUserId();
-
 $errors = [];
 $successMessage = '';
 
-/* =========================================================
-   Handle Review Submission
-========================================================= */
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
     $reviewType = $_POST['review_type'] ?? '';
-    $orderId    = isset($_POST['order_id']) ? (int) $_POST['order_id'] : 0;
-    $rating     = isset($_POST['rating']) ? (int) $_POST['rating'] : 0;
-    $comment    = trim($_POST['comment'] ?? '');
+    $orderId = isset($_POST['order_id']) ? (int) $_POST['order_id'] : 0;
+    $rating = isset($_POST['rating']) ? (int) $_POST['rating'] : 0;
+    $comment = trim($_POST['comment'] ?? '');
 
     if (!in_array($reviewType, ['product', 'farmer', 'market'], true)) {
         $errors[] = 'Invalid review type.';
@@ -33,28 +26,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
-
-        /*
-         * -----------------------------------------------------
-         * PRODUCT REVIEW
-         * -----------------------------------------------------
-         */
         if ($reviewType === 'product') {
-
-            $productId = isset($_POST['product_id'])
-                ? (int) $_POST['product_id']
-                : 0;
+            $productId = isset($_POST['product_id']) ? (int) $_POST['product_id'] : 0;
 
             if ($productId <= 0) {
-
                 $errors[] = 'Invalid product.';
-
             } else {
-
-                /*
-                 * Check that this order belongs to the customer
-                 * and contains this product.
-                 */
                 $stmt = $conn->prepare("
                     SELECT
                         o.id AS order_id,
@@ -62,8 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         o.market_id,
                         oi.product_id
                     FROM orders o
-                    INNER JOIN order_items oi
-                        ON oi.order_id = o.id
+                    INNER JOIN order_items oi ON oi.order_id = o.id
                     WHERE o.id = ?
                       AND o.customer_id = ?
                       AND oi.product_id = ?
@@ -76,26 +52,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $customerId,
                     $productId
                 );
-
                 $stmt->execute();
-
                 $result = $stmt->get_result();
-
                 $orderData = $result->fetch_assoc();
-
                 $stmt->close();
 
                 if (!$orderData) {
-
-                    $errors[] =
-                        'This product is not part of the selected order.';
-
+                    $errors[] = 'This product is not part of the selected order.';
                 } else {
-
-                    /*
-                     * Prevent duplicate product review
-                     * for the same order.
-                     */
                     $stmt = $conn->prepare("
                         SELECT id
                         FROM reviews
@@ -111,22 +75,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $orderId,
                         $productId
                     );
-
                     $stmt->execute();
-
                     $result = $stmt->get_result();
-
                     $existingReview = $result->fetch_assoc();
-
                     $stmt->close();
 
                     if ($existingReview) {
-
-                        $errors[] =
-                            'You have already reviewed this product for this order.';
-
+                        $errors[] = 'You have already reviewed this product for this order.';
                     } else {
-
                         $farmerId = !empty($orderData['farmer_id'])
                             ? (int) $orderData['farmer_id']
                             : null;
@@ -162,14 +118,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         );
 
                         if ($stmt->execute()) {
-
-                            $successMessage =
-                                'Your product review has been submitted and is waiting for approval.';
-
+                            $successMessage = 'Your product review has been submitted and is waiting for approval.';
                         } else {
-
-                            $errors[] =
-                                'Unable to submit your review right now.';
+                            $errors[] = 'Unable to submit your review right now.';
                         }
 
                         $stmt->close();
@@ -178,26 +129,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        /*
-         * -----------------------------------------------------
-         * FARMER REVIEW
-         * -----------------------------------------------------
-         */
         if ($reviewType === 'farmer') {
-
-            $farmerId = isset($_POST['farmer_id'])
-                ? (int) $_POST['farmer_id']
-                : 0;
+            $farmerId = isset($_POST['farmer_id']) ? (int) $_POST['farmer_id'] : 0;
 
             if ($farmerId <= 0) {
-
                 $errors[] = 'Invalid farmer.';
-
             } else {
-
-                /*
-                 * Check that this farmer belongs to the order.
-                 */
                 $stmt = $conn->prepare("
                     SELECT
                         id,
@@ -216,26 +153,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $customerId,
                     $farmerId
                 );
-
                 $stmt->execute();
-
                 $result = $stmt->get_result();
-
                 $orderData = $result->fetch_assoc();
-
                 $stmt->close();
 
                 if (!$orderData) {
-
-                    $errors[] =
-                        'This farmer is not associated with the selected order.';
-
+                    $errors[] = 'This farmer is not associated with the selected order.';
                 } else {
-
-                    /*
-                     * Prevent duplicate farmer review
-                     * for the same order.
-                     */
                     $stmt = $conn->prepare("
                         SELECT id
                         FROM reviews
@@ -252,22 +177,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $orderId,
                         $farmerId
                     );
-
                     $stmt->execute();
-
                     $result = $stmt->get_result();
-
                     $existingReview = $result->fetch_assoc();
-
                     $stmt->close();
 
                     if ($existingReview) {
-
-                        $errors[] =
-                            'You have already reviewed this farmer for this order.';
-
+                        $errors[] = 'You have already reviewed this farmer for this order.';
                     } else {
-
                         $marketId = !empty($orderData['market_id'])
                             ? (int) $orderData['market_id']
                             : null;
@@ -300,14 +217,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         );
 
                         if ($stmt->execute()) {
-
-                            $successMessage =
-                                'Your farmer review has been submitted and is waiting for approval.';
-
+                            $successMessage = 'Your farmer review has been submitted and is waiting for approval.';
                         } else {
-
-                            $errors[] =
-                                'Unable to submit your review right now.';
+                            $errors[] = 'Unable to submit your review right now.';
                         }
 
                         $stmt->close();
@@ -316,26 +228,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        /*
-         * -----------------------------------------------------
-         * MARKET REVIEW
-         * -----------------------------------------------------
-         */
         if ($reviewType === 'market') {
-
-            $marketId = isset($_POST['market_id'])
-                ? (int) $_POST['market_id']
-                : 0;
+            $marketId = isset($_POST['market_id']) ? (int) $_POST['market_id'] : 0;
 
             if ($marketId <= 0) {
-
                 $errors[] = 'Invalid market.';
-
             } else {
-
-                /*
-                 * Check that this market belongs to the order.
-                 */
                 $stmt = $conn->prepare("
                     SELECT
                         id,
@@ -354,26 +252,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $customerId,
                     $marketId
                 );
-
                 $stmt->execute();
-
                 $result = $stmt->get_result();
-
                 $orderData = $result->fetch_assoc();
-
                 $stmt->close();
 
                 if (!$orderData) {
-
-                    $errors[] =
-                        'This market is not associated with the selected order.';
-
+                    $errors[] = 'This market is not associated with the selected order.';
                 } else {
-
-                    /*
-                     * Prevent duplicate market review
-                     * for the same order.
-                     */
                     $stmt = $conn->prepare("
                         SELECT id
                         FROM reviews
@@ -391,22 +277,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $orderId,
                         $marketId
                     );
-
                     $stmt->execute();
-
                     $result = $stmt->get_result();
-
                     $existingReview = $result->fetch_assoc();
-
                     $stmt->close();
 
                     if ($existingReview) {
-
-                        $errors[] =
-                            'You have already reviewed this market for this order.';
-
+                        $errors[] = 'You have already reviewed this market for this order.';
                     } else {
-
                         $farmerId = null;
                         $productId = null;
 
@@ -435,14 +313,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         );
 
                         if ($stmt->execute()) {
-
-                            $successMessage =
-                                'Your market review has been submitted and is waiting for approval.';
-
+                            $successMessage = 'Your market review has been submitted and is waiting for approval.';
                         } else {
-
-                            $errors[] =
-                                'Unable to submit your review right now.';
+                            $errors[] = 'Unable to submit your review right now.';
                         }
 
                         $stmt->close();
@@ -452,11 +325,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-
-
-/* =========================================================
-   Get Products From Customer Orders
-========================================================= */
 
 $productOrders = [];
 
@@ -469,12 +337,9 @@ $stmt = $conn->prepare("
         p.farmer_id,
         f.stall_name AS farmer_name
     FROM orders o
-    INNER JOIN order_items oi
-        ON oi.order_id = o.id
-    INNER JOIN products p
-        ON p.id = oi.product_id
-    LEFT JOIN farmers f
-        ON f.id = p.farmer_id
+    INNER JOIN order_items oi ON oi.order_id = o.id
+    INNER JOIN products p ON p.id = oi.product_id
+    LEFT JOIN farmers f ON f.id = p.farmer_id
     LEFT JOIN reviews r
         ON r.customer_id = o.customer_id
        AND r.order_id = o.id
@@ -485,9 +350,7 @@ $stmt = $conn->prepare("
 ");
 
 $stmt->bind_param("i", $customerId);
-
 $stmt->execute();
-
 $result = $stmt->get_result();
 
 while ($row = $result->fetch_assoc()) {
@@ -495,11 +358,6 @@ while ($row = $result->fetch_assoc()) {
 }
 
 $stmt->close();
-
-
-/* =========================================================
-   Get Farmers From Customer Orders
-========================================================= */
 
 $farmerOrders = [];
 
@@ -510,8 +368,7 @@ $stmt = $conn->prepare("
         o.farmer_id,
         f.stall_name AS farmer_name
     FROM orders o
-    INNER JOIN farmers f
-        ON f.id = o.farmer_id
+    INNER JOIN farmers f ON f.id = o.farmer_id
     LEFT JOIN reviews r
         ON r.customer_id = o.customer_id
        AND r.order_id = o.id
@@ -524,9 +381,7 @@ $stmt = $conn->prepare("
 ");
 
 $stmt->bind_param("i", $customerId);
-
 $stmt->execute();
-
 $result = $stmt->get_result();
 
 while ($row = $result->fetch_assoc()) {
@@ -534,11 +389,6 @@ while ($row = $result->fetch_assoc()) {
 }
 
 $stmt->close();
-
-
-/* =========================================================
-   Get Markets From Customer Orders
-========================================================= */
 
 $marketOrders = [];
 
@@ -549,8 +399,7 @@ $stmt = $conn->prepare("
         o.market_id,
         m.name AS market_name
     FROM orders o
-    INNER JOIN markets m
-        ON m.id = o.market_id
+    INNER JOIN markets m ON m.id = o.market_id
     LEFT JOIN reviews r
         ON r.customer_id = o.customer_id
        AND r.order_id = o.id
@@ -564,9 +413,7 @@ $stmt = $conn->prepare("
 ");
 
 $stmt->bind_param("i", $customerId);
-
 $stmt->execute();
-
 $result = $stmt->get_result();
 
 while ($row = $result->fetch_assoc()) {
@@ -574,11 +421,6 @@ while ($row = $result->fetch_assoc()) {
 }
 
 $stmt->close();
-
-
-/* =========================================================
-   Get My Reviews
-========================================================= */
 
 $myReviews = [];
 
@@ -590,31 +432,19 @@ $stmt = $conn->prepare("
         r.comment,
         r.status,
         r.created_at,
-
         p.name AS product_name,
         f.stall_name AS farmer_name,
         m.name AS market_name
-
     FROM reviews r
-
-    LEFT JOIN products p
-        ON p.id = r.product_id
-
-    LEFT JOIN farmers f
-        ON f.id = r.farmer_id
-
-    LEFT JOIN markets m
-        ON m.id = r.market_id
-
+    LEFT JOIN products p ON p.id = r.product_id
+    LEFT JOIN farmers f ON f.id = r.farmer_id
+    LEFT JOIN markets m ON m.id = r.market_id
     WHERE r.customer_id = ?
-
     ORDER BY r.created_at DESC
 ");
 
 $stmt->bind_param("i", $customerId);
-
 $stmt->execute();
-
 $result = $stmt->get_result();
 
 while ($row = $result->fetch_assoc()) {
@@ -627,35 +457,14 @@ $stmt->close();
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reviews - MarketLink</title>
-
-    <link
-        rel="stylesheet"
-        href="../assets/css/base.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="../assets/css/navbar.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="../assets/css/sidebar.css"
-    >
-
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
     <style>
-
         * {
             box-sizing: border-box;
         }
@@ -719,8 +528,7 @@ $stmt->close();
             background: white;
             border-radius: 16px;
             padding: 25px;
-            box-shadow:
-                0 5px 20px rgba(0, 0, 0, 0.07);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
         }
 
         .review-card h2 {
@@ -821,8 +629,7 @@ $stmt->close();
             background: white;
             border-radius: 16px;
             padding: 30px;
-            box-shadow:
-                0 5px 20px rgba(0, 0, 0, 0.07);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
         }
 
         .my-reviews-header {
@@ -935,15 +742,12 @@ $stmt->close();
         }
 
         @media (max-width: 900px) {
-
             .review-grid {
                 grid-template-columns: 1fr;
             }
-
         }
 
         @media (max-width: 600px) {
-
             .reviews-container {
                 width: 94%;
                 margin-top: 25px;
@@ -967,186 +771,76 @@ $stmt->close();
                 align-items: flex-start;
                 gap: 12px;
             }
-
         }
-
     </style>
-
 </head>
-
 <body>
 
 <?php include __DIR__ . '/../includes/navbar.php'; ?>
-
 <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-
 <main class="main-content">
-
     <div class="reviews-container">
-
-
-        <!-- =================================================
-             PAGE HEADER
-        ================================================= -->
-
         <div class="page-header">
-
-            <h1>
-                Reviews
-            </h1>
-
-            <p>
-                Share your experience with products, farmers, and markets.
-            </p>
-
+            <h1>Reviews</h1>
+            <p>Share your experience with products, farmers, and markets.</p>
         </div>
 
-
-        <!-- =================================================
-             SUCCESS / ERROR
-        ================================================= -->
-
         <?php if (!empty($successMessage)): ?>
-
             <div class="message success-message">
-
                 <?= e($successMessage) ?>
-
             </div>
-
         <?php endif; ?>
-
 
         <?php if (!empty($errors)): ?>
-
             <div class="message error-message">
-
                 <?php foreach ($errors as $error): ?>
-
-                    <div>
-                        <?= e($error) ?>
-                    </div>
-
+                    <div><?= e($error) ?></div>
                 <?php endforeach; ?>
-
             </div>
-
         <?php endif; ?>
 
-
-        <!-- =================================================
-             REVIEW OPTIONS
-        ================================================= -->
-
         <div class="review-grid">
-
-
-            <!-- =================================================
-                 PRODUCT REVIEW
-            ================================================= -->
-
             <div class="review-card">
-
-                <h2>
-                    Product Review
-                </h2>
-
+                <h2>Product Review</h2>
                 <div class="review-card-description">
-
                     Review a product that was included in one of your orders.
-
                 </div>
 
-
                 <?php if (!empty($productOrders)): ?>
+                    <form method="POST" class="review-form">
+                        <input type="hidden" name="review_type" value="product">
 
-                    <form
-                        method="POST"
-                        class="review-form"
-                    >
-
-                        <input
-                            type="hidden"
-                            name="review_type"
-                            value="product"
-                        >
-
-
-                        <label>
-                            Product
-                        </label>
-
-                        <select
-                            name="product_id"
-                            required
-                        >
-
-                            <option value="">
-                                Select a product
-                            </option>
-
+                        <label>Product</label>
+                        <select name="product_id" required>
+                            <option value="">Select a product</option>
                             <?php foreach ($productOrders as $item): ?>
-
                                 <option
                                     value="<?= (int) $item['product_id'] ?>"
                                     data-order="<?= (int) $item['order_id'] ?>"
                                 >
-
-                                    <?= e($item['product_name']) ?>
-
-                                    -
+                                    <?= e($item['product_name']) ?> -
                                     Order #<?= (int) $item['order_id'] ?>
-
                                 </option>
-
                             <?php endforeach; ?>
-
                         </select>
 
-
-                        <label>
-                            Order
-                        </label>
-
-                        <select
-                            name="order_id"
-                            id="productOrderSelect"
-                            required
-                        >
-
-                            <option value="">
-                                Select an order
-                            </option>
-
+                        <label>Order</label>
+                        <select name="order_id" id="productOrderSelect" required>
+                            <option value="">Select an order</option>
                             <?php foreach ($productOrders as $item): ?>
-
                                 <option
                                     value="<?= (int) $item['order_id'] ?>"
                                     data-product="<?= (int) $item['product_id'] ?>"
                                 >
-
-                                    Order #<?= (int) $item['order_id'] ?>
-
-                                    -
-                                    <?= date(
-                                        'M d, Y',
-                                        strtotime($item['order_date'])
-                                    ) ?>
-
+                                    Order #<?= (int) $item['order_id'] ?> -
+                                    <?= date('M d, Y', strtotime($item['order_date'])) ?>
                                 </option>
-
                             <?php endforeach; ?>
-
                         </select>
 
-
-                        <label>
-                            Rating
-                        </label>
-
+                        <label>Rating</label>
                         <div class="rating-input">
-
                             <input
                                 type="radio"
                                 id="product-star5"
@@ -1154,11 +848,7 @@ $stmt->close();
                                 value="5"
                                 required
                             >
-
-                            <label for="product-star5">
-                                ★
-                            </label>
-
+                            <label for="product-star5">★</label>
 
                             <input
                                 type="radio"
@@ -1166,11 +856,7 @@ $stmt->close();
                                 name="rating"
                                 value="4"
                             >
-
-                            <label for="product-star4">
-                                ★
-                            </label>
-
+                            <label for="product-star4">★</label>
 
                             <input
                                 type="radio"
@@ -1178,11 +864,7 @@ $stmt->close();
                                 name="rating"
                                 value="3"
                             >
-
-                            <label for="product-star3">
-                                ★
-                            </label>
-
+                            <label for="product-star3">★</label>
 
                             <input
                                 type="radio"
@@ -1190,11 +872,7 @@ $stmt->close();
                                 name="rating"
                                 value="2"
                             >
-
-                            <label for="product-star2">
-                                ★
-                            </label>
-
+                            <label for="product-star2">★</label>
 
                             <input
                                 type="radio"
@@ -1202,148 +880,60 @@ $stmt->close();
                                 name="rating"
                                 value="1"
                             >
-
-                            <label for="product-star1">
-                                ★
-                            </label>
-
+                            <label for="product-star1">★</label>
                         </div>
 
-
-                        <label>
-                            Comment
-                        </label>
-
+                        <label>Comment</label>
                         <textarea
                             name="comment"
                             placeholder="Write your experience..."
                         ></textarea>
 
-
-                        <button
-                            type="submit"
-                            class="submit-review"
-                        >
+                        <button type="submit" class="submit-review">
                             Submit Product Review
                         </button>
-
                     </form>
-
                 <?php else: ?>
-
                     <div class="empty-review-option">
-
                         You do not have any products available for review yet.
-
                     </div>
-
                 <?php endif; ?>
-
             </div>
 
-
-            <!-- =================================================
-                 FARMER REVIEW
-            ================================================= -->
-
             <div class="review-card">
-
-                <h2>
-                    Farmer Review
-                </h2>
-
+                <h2>Farmer Review</h2>
                 <div class="review-card-description">
-
                     Review a farmer associated with one of your orders.
-
                 </div>
 
-
                 <?php if (!empty($farmerOrders)): ?>
+                    <form method="POST" class="review-form">
+                        <input type="hidden" name="review_type" value="farmer">
 
-                    <form
-                        method="POST"
-                        class="review-form"
-                    >
-
-                        <input
-                            type="hidden"
-                            name="review_type"
-                            value="farmer"
-                        >
-
-
-                        <label>
-                            Farmer
-                        </label>
-
-                        <select
-                            name="farmer_id"
-                            required
-                        >
-
-                            <option value="">
-                                Select a farmer
-                            </option>
-
+                        <label>Farmer</label>
+                        <select name="farmer_id" required>
+                            <option value="">Select a farmer</option>
                             <?php foreach ($farmerOrders as $item): ?>
-
-                                <option
-                                    value="<?= (int) $item['farmer_id'] ?>"
-                                >
-
-                                    <?= e($item['farmer_name']) ?>
-
-                                    -
+                                <option value="<?= (int) $item['farmer_id'] ?>">
+                                    <?= e($item['farmer_name']) ?> -
                                     Order #<?= (int) $item['order_id'] ?>
-
                                 </option>
-
                             <?php endforeach; ?>
-
                         </select>
 
-
-                        <label>
-                            Order
-                        </label>
-
-                        <select
-                            name="order_id"
-                            required
-                        >
-
-                            <option value="">
-                                Select an order
-                            </option>
-
+                        <label>Order</label>
+                        <select name="order_id" required>
+                            <option value="">Select an order</option>
                             <?php foreach ($farmerOrders as $item): ?>
-
-                                <option
-                                    value="<?= (int) $item['order_id'] ?>"
-                                >
-
-                                    Order #<?= (int) $item['order_id'] ?>
-
-                                    -
-                                    <?= date(
-                                        'M d, Y',
-                                        strtotime($item['order_date'])
-                                    ) ?>
-
+                                <option value="<?= (int) $item['order_id'] ?>">
+                                    Order #<?= (int) $item['order_id'] ?> -
+                                    <?= date('M d, Y', strtotime($item['order_date'])) ?>
                                 </option>
-
                             <?php endforeach; ?>
-
                         </select>
 
-
-                        <label>
-                            Rating
-                        </label>
-
+                        <label>Rating</label>
                         <div class="rating-input">
-
                             <input
                                 type="radio"
                                 id="farmer-star5"
@@ -1351,11 +941,7 @@ $stmt->close();
                                 value="5"
                                 required
                             >
-
-                            <label for="farmer-star5">
-                                ★
-                            </label>
-
+                            <label for="farmer-star5">★</label>
 
                             <input
                                 type="radio"
@@ -1363,11 +949,7 @@ $stmt->close();
                                 name="rating"
                                 value="4"
                             >
-
-                            <label for="farmer-star4">
-                                ★
-                            </label>
-
+                            <label for="farmer-star4">★</label>
 
                             <input
                                 type="radio"
@@ -1375,11 +957,7 @@ $stmt->close();
                                 name="rating"
                                 value="3"
                             >
-
-                            <label for="farmer-star3">
-                                ★
-                            </label>
-
+                            <label for="farmer-star3">★</label>
 
                             <input
                                 type="radio"
@@ -1387,11 +965,7 @@ $stmt->close();
                                 name="rating"
                                 value="2"
                             >
-
-                            <label for="farmer-star2">
-                                ★
-                            </label>
-
+                            <label for="farmer-star2">★</label>
 
                             <input
                                 type="radio"
@@ -1399,148 +973,60 @@ $stmt->close();
                                 name="rating"
                                 value="1"
                             >
-
-                            <label for="farmer-star1">
-                                ★
-                            </label>
-
+                            <label for="farmer-star1">★</label>
                         </div>
 
-
-                        <label>
-                            Comment
-                        </label>
-
+                        <label>Comment</label>
                         <textarea
                             name="comment"
                             placeholder="Write your experience..."
                         ></textarea>
 
-
-                        <button
-                            type="submit"
-                            class="submit-review"
-                        >
+                        <button type="submit" class="submit-review">
                             Submit Farmer Review
                         </button>
-
                     </form>
-
                 <?php else: ?>
-
                     <div class="empty-review-option">
-
                         You do not have any orders with farmers to review yet.
-
                     </div>
-
                 <?php endif; ?>
-
             </div>
 
-
-            <!-- =================================================
-                 MARKET REVIEW
-            ================================================= -->
-
             <div class="review-card">
-
-                <h2>
-                    Market Review
-                </h2>
-
+                <h2>Market Review</h2>
                 <div class="review-card-description">
-
                     Review a market associated with one of your orders.
-
                 </div>
 
-
                 <?php if (!empty($marketOrders)): ?>
+                    <form method="POST" class="review-form">
+                        <input type="hidden" name="review_type" value="market">
 
-                    <form
-                        method="POST"
-                        class="review-form"
-                    >
-
-                        <input
-                            type="hidden"
-                            name="review_type"
-                            value="market"
-                        >
-
-
-                        <label>
-                            Market
-                        </label>
-
-                        <select
-                            name="market_id"
-                            required
-                        >
-
-                            <option value="">
-                                Select a market
-                            </option>
-
+                        <label>Market</label>
+                        <select name="market_id" required>
+                            <option value="">Select a market</option>
                             <?php foreach ($marketOrders as $item): ?>
-
-                                <option
-                                    value="<?= (int) $item['market_id'] ?>"
-                                >
-
-                                    <?= e($item['market_name']) ?>
-
-                                    -
+                                <option value="<?= (int) $item['market_id'] ?>">
+                                    <?= e($item['market_name']) ?> -
                                     Order #<?= (int) $item['order_id'] ?>
-
                                 </option>
-
                             <?php endforeach; ?>
-
                         </select>
 
-
-                        <label>
-                            Order
-                        </label>
-
-                        <select
-                            name="order_id"
-                            required
-                        >
-
-                            <option value="">
-                                Select an order
-                            </option>
-
+                        <label>Order</label>
+                        <select name="order_id" required>
+                            <option value="">Select an order</option>
                             <?php foreach ($marketOrders as $item): ?>
-
-                                <option
-                                    value="<?= (int) $item['order_id'] ?>"
-                                >
-
-                                    Order #<?= (int) $item['order_id'] ?>
-
-                                    -
-                                    <?= date(
-                                        'M d, Y',
-                                        strtotime($item['order_date'])
-                                    ) ?>
-
+                                <option value="<?= (int) $item['order_id'] ?>">
+                                    Order #<?= (int) $item['order_id'] ?> -
+                                    <?= date('M d, Y', strtotime($item['order_date'])) ?>
                                 </option>
-
                             <?php endforeach; ?>
-
                         </select>
 
-
-                        <label>
-                            Rating
-                        </label>
-
+                        <label>Rating</label>
                         <div class="rating-input">
-
                             <input
                                 type="radio"
                                 id="market-star5"
@@ -1548,11 +1034,7 @@ $stmt->close();
                                 value="5"
                                 required
                             >
-
-                            <label for="market-star5">
-                                ★
-                            </label>
-
+                            <label for="market-star5">★</label>
 
                             <input
                                 type="radio"
@@ -1560,11 +1042,7 @@ $stmt->close();
                                 name="rating"
                                 value="4"
                             >
-
-                            <label for="market-star4">
-                                ★
-                            </label>
-
+                            <label for="market-star4">★</label>
 
                             <input
                                 type="radio"
@@ -1572,11 +1050,7 @@ $stmt->close();
                                 name="rating"
                                 value="3"
                             >
-
-                            <label for="market-star3">
-                                ★
-                            </label>
-
+                            <label for="market-star3">★</label>
 
                             <input
                                 type="radio"
@@ -1584,11 +1058,7 @@ $stmt->close();
                                 name="rating"
                                 value="2"
                             >
-
-                            <label for="market-star2">
-                                ★
-                            </label>
-
+                            <label for="market-star2">★</label>
 
                             <input
                                 type="radio"
@@ -1596,253 +1066,113 @@ $stmt->close();
                                 name="rating"
                                 value="1"
                             >
-
-                            <label for="market-star1">
-                                ★
-                            </label>
-
+                            <label for="market-star1">★</label>
                         </div>
 
-
-                        <label>
-                            Comment
-                        </label>
-
+                        <label>Comment</label>
                         <textarea
                             name="comment"
                             placeholder="Write your experience..."
                         ></textarea>
 
-
-                        <button
-                            type="submit"
-                            class="submit-review"
-                        >
+                        <button type="submit" class="submit-review">
                             Submit Market Review
                         </button>
-
                     </form>
-
                 <?php else: ?>
-
                     <div class="empty-review-option">
-
                         You do not have any orders with markets to review yet.
-
                     </div>
-
                 <?php endif; ?>
-
             </div>
-
-
         </div>
 
-
-        <!-- =================================================
-             MY REVIEWS
-        ================================================= -->
-
         <div class="my-reviews-section">
-
             <div class="my-reviews-header">
-
-                <h2>
-                    My Reviews
-                </h2>
-
+                <h2>My Reviews</h2>
                 <div class="review-count">
-
-                    <?= count($myReviews) ?>
-
-                    reviews
-
+                    <?= count($myReviews) ?> reviews
                 </div>
-
             </div>
 
-
             <?php if (!empty($myReviews)): ?>
-
-
                 <?php foreach ($myReviews as $review): ?>
-
                     <?php
-
                     if (!empty($review['product_name'])) {
-
-                        $reviewTitle =
-                            $review['product_name'];
-
-                        $reviewType =
-                            'Product Review';
-
+                        $reviewTitle = $review['product_name'];
+                        $reviewType = 'Product Review';
                     } elseif (!empty($review['farmer_name'])) {
-
-                        $reviewTitle =
-                            $review['farmer_name'];
-
-                        $reviewType =
-                            'Farmer Review';
-
+                        $reviewTitle = $review['farmer_name'];
+                        $reviewType = 'Farmer Review';
                     } elseif (!empty($review['market_name'])) {
-
-                        $reviewTitle =
-                            $review['market_name'];
-
-                        $reviewType =
-                            'Market Review';
-
+                        $reviewTitle = $review['market_name'];
+                        $reviewType = 'Market Review';
                     } else {
-
-                        $reviewTitle =
-                            'Review';
-
-                        $reviewType =
-                            'Review';
+                        $reviewTitle = 'Review';
+                        $reviewType = 'Review';
                     }
 
-                    $rating =
-                        (int) $review['rating'];
-
+                    $rating = (int) $review['rating'];
                     $stars = '';
 
                     for ($i = 1; $i <= 5; $i++) {
-
-                        $stars .=
-                            $i <= $rating
-                            ? '★'
-                            : '☆';
+                        $stars .= $i <= $rating ? '★' : '☆';
                     }
-
                     ?>
 
-
                     <div class="my-review-item">
-
-
                         <div class="review-item-top">
-
                             <div>
-
                                 <div class="review-item-title">
-
                                     <?= e($reviewTitle) ?>
-
                                 </div>
-
                                 <div class="review-item-type">
-
                                     <?= e($reviewType) ?>
-
                                 </div>
-
                             </div>
-
 
                             <div class="stars-display">
-
                                 <?= $stars ?>
-
                             </div>
-
                         </div>
-
 
                         <?php if (!empty($review['comment'])): ?>
-
                             <div class="review-comment">
-
-                                <?= nl2br(
-                                    e($review['comment'])
-                                ) ?>
-
+                                <?= nl2br(e($review['comment'])) ?>
                             </div>
-
                         <?php endif; ?>
 
-
                         <div class="review-date">
-
                             Order #<?= (int) $review['order_id'] ?>
-
                             &nbsp; • &nbsp;
-
-                            <?= date(
-                                'M d, Y',
-                                strtotime($review['created_at'])
-                            ) ?>
-
+                            <?= date('M d, Y', strtotime($review['created_at'])) ?>
                         </div>
-
 
                         <?php
-
-                        $statusClass =
-                            'status-pending';
+                        $statusClass = 'status-pending';
 
                         if ($review['status'] === 'approved') {
-
-                            $statusClass =
-                                'status-approved';
-
+                            $statusClass = 'status-approved';
                         } elseif ($review['status'] === 'rejected') {
-
-                            $statusClass =
-                                'status-rejected';
+                            $statusClass = 'status-rejected';
                         }
-
                         ?>
 
-
-                        <div
-                            class="status <?= $statusClass ?>"
-                        >
-
-                            <?= e(
-                                ucfirst(
-                                    $review['status']
-                                )
-                            ) ?>
-
+                        <div class="status <?= $statusClass ?>">
+                            <?= e(ucfirst($review['status'])) ?>
                         </div>
-
-
                     </div>
-
-
                 <?php endforeach; ?>
-
-
             <?php else: ?>
-
-
                 <div class="no-reviews">
-
-                    <h3>
-                        No reviews yet
-                    </h3>
-
-                    <p>
-                        Your submitted reviews will appear here.
-                    </p>
-
+                    <h3>No reviews yet</h3>
+                    <p>Your submitted reviews will appear here.</p>
                 </div>
-
-
             <?php endif; ?>
-
-
         </div>
-
-
     </div>
-
 </main>
 
-
 <script src="../assets/js/app.js"></script>
-
 </body>
-
 </html>
