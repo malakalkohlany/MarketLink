@@ -1,5 +1,4 @@
 <?php
-
 require_once '../includes/include.php';
 
 $search = trim($_GET['search'] ?? '');
@@ -658,7 +657,5 @@ unset($market);
         </div>
 
     </footer>
-
 </body>
-
 </html>

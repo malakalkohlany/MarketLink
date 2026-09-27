@@ -488,13 +488,10 @@ if ($result) {
                             <div class="about-market-number">
                                 <?= str_pad($index + 1, 2, '0', STR_PAD_LEFT) ?>
                             </div>
-
                             <div class="about-market-content">
-
                                 <h3>
                                     <?= e($market['name']) ?>
                                 </h3>
-
                                 <?php if (!empty($market['address'])): ?>
 
                                     <p class="about-market-address">
@@ -502,7 +499,6 @@ if ($result) {
                                     </p>
 
                                 <?php endif; ?>
-
                                 <?php if (!empty($market['operating_days'])): ?>
 
                                     <p class="about-market-days">
@@ -510,12 +506,10 @@ if ($result) {
                                     </p>
 
                                 <?php endif; ?>
-
                                 <?php if (
                                     !empty($market['opening_time']) &&
                                     !empty($market['closing_time'])
                                 ): ?>
-
                                     <span class="about-market-hours">
 
                                         <?= e(
@@ -525,7 +519,6 @@ if ($result) {
                                             )
                                         ) ?>
 
-                                        –
 
                                         <?= e(
                                             date(

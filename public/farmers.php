@@ -284,8 +284,6 @@ $hasMoreFarmers = count($farmers) > 3;
                 </p>
 
             </div>
-
-
             <?php if (empty($farmers)): ?>
 
                 <section class="farmers-empty">
@@ -334,8 +332,6 @@ $hasMoreFarmers = count($farmers) > 3;
                                 </div>
 
                             </header>
-
-
                             <div class="farmer-body">
 
                                 <h2>
@@ -356,8 +352,6 @@ $hasMoreFarmers = count($farmers) > 3;
                                     </p>
 
                                 <?php endif; ?>
-
-
                                 <?php if (
                                     !empty($farmer['address'])
                                 ): ?>
@@ -418,14 +412,9 @@ $hasMoreFarmers = count($farmers) > 3;
                         </article>
 
                     <?php endforeach; ?>
-
                 </div>
-
-
                 <?php if ($hasMoreFarmers): ?>
-
                     <section class="farmers-signin-cta">
-
                         <div class="farmers-cta-copy">
 
                             <span>
@@ -442,10 +431,7 @@ $hasMoreFarmers = count($farmers) > 3;
                                 farmers and discover more local
                                 products.
                             </p>
-
                         </div>
-
-
                         <div class="farmers-cta-actions">
 
                             <a
@@ -454,7 +440,6 @@ $hasMoreFarmers = count($farmers) > 3;
                             >
                                 Sign In
                             </a>
-
                             <a
                                 href="../auth/register.php"
                                 class="farmers-join-btn"
@@ -494,9 +479,6 @@ $hasMoreFarmers = count($farmers) > 3;
         </div>
 
     </div>
-
 </footer>
-
 </body>
-
 </html>
