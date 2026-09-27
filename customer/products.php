@@ -956,7 +956,7 @@ if (
             </span>
         </div>
     <?php endif; ?>
-
+    
     <div class="shopping-note">
         <i class="fa-solid fa-basket-shopping"></i>
         <span>
