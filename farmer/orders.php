@@ -24,6 +24,37 @@ if (!$farmer) {
 $farmer_id = $farmer['id'];
 
 $stmt->close();
+// Pagination
+$items_per_page = 10;
+
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+
+if ($page < 1) {
+    $page = 1;
+}
+
+$offset = ($page - 1) * $items_per_page;
+// Count total orders
+$count_stmt = $conn->prepare("
+    SELECT COUNT(*) AS total_orders
+    FROM orders
+    WHERE farmer_id = ?
+");
+
+$count_stmt->bind_param("i", $farmer_id);
+$count_stmt->execute();
+
+$count_result = $count_stmt->get_result();
+$total_orders = $count_result->fetch_assoc()['total_orders'];
+
+$count_stmt->close();
+
+$total_pages = ceil($total_orders / $items_per_page);
+
+if ($total_pages > 0 && $page > $total_pages) {
+    $page = $total_pages;
+    $offset = ($page - 1) * $items_per_page;
+}
 
 $order_stmt = $conn->prepare("
     SELECT
@@ -38,13 +69,13 @@ $order_stmt = $conn->prepare("
         ON orders.customer_id = users.id
     WHERE orders.farmer_id = ?
     ORDER BY orders.created_at DESC
+    LIMIT ? OFFSET ?
 ");
 
-$order_stmt->bind_param("i", $farmer_id);
+$order_stmt->bind_param("iii", $farmer_id, $items_per_page, $offset);
 $order_stmt->execute();
 
 $orders = $order_stmt->get_result();
-$total_orders = $orders->num_rows;
 ?>
 
 <!DOCTYPE html>
@@ -108,6 +139,28 @@ $total_orders = $orders->num_rows;
             </tbody>
 
         </table>
+        <?php if ($total_pages > 1): ?>
+
+    <div class="pagination">
+
+        <?php if ($page > 1): ?>
+            <a href="?page=<?= $page - 1 ?>">Previous</a>
+        <?php endif; ?>
+
+        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+            <a href="?page=<?= $i ?>"
+               <?= $i == $page ? 'class="active"' : '' ?>>
+                <?= $i ?>
+            </a>
+        <?php endfor; ?>
+
+        <?php if ($page < $total_pages): ?>
+            <a href="?page=<?= $page + 1 ?>">Next</a>
+        <?php endif; ?>
+
+    </div>
+
+    <?php endif; ?>
     </main>
 </body>
 </html>

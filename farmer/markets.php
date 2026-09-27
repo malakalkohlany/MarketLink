@@ -27,7 +27,37 @@ if (!$farmer) {
 $farmer_id = $farmer['id'];
 
 $stmt->close();
+// Pagination
+$items_per_page = 10;
 
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+
+if ($page < 1) {
+    $page = 1;
+}
+
+$offset = ($page - 1) * $items_per_page;
+// Count total markets
+$count_stmt = $conn->prepare("
+    SELECT COUNT(*) AS total_markets
+    FROM market_farmer
+    WHERE farmer_id = ?
+");
+
+$count_stmt->bind_param("i", $farmer_id);
+$count_stmt->execute();
+
+$count_result = $count_stmt->get_result();
+$total_markets = $count_result->fetch_assoc()['total_markets'];
+
+$count_stmt->close();
+
+$total_pages = ceil($total_markets / $items_per_page);
+
+if ($total_pages > 0 && $page > $total_pages) {
+    $page = $total_pages;
+    $offset = ($page - 1) * $items_per_page;
+}
 
 $market_stmt = $conn->prepare("
     SELECT
@@ -47,14 +77,13 @@ $market_stmt = $conn->prepare("
         ON market_farmer.market_id = markets.id
     WHERE market_farmer.farmer_id = ?
     ORDER BY markets.name ASC
+    LIMIT ? OFFSET ?
 ");
 
-$market_stmt->bind_param("i", $farmer_id);
+$market_stmt->bind_param("iii", $farmer_id, $items_per_page, $offset);
 $market_stmt->execute();
 
 $markets = $market_stmt->get_result();
-
-$total_markets = $markets->num_rows;
 
 ?>
 
@@ -103,6 +132,30 @@ $total_markets = $markets->num_rows;
                 <?php endwhile; ?>
             </tbody>
         </table>
+
+        <?php if ($total_pages > 1): ?>
+
+    <div class="pagination">
+
+        <?php if ($page > 1): ?>
+            <a href="?page=<?= $page - 1 ?>">Previous</a>
+        <?php endif; ?>
+
+        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+            <a href="?page=<?= $i ?>"
+               <?= $i == $page ? 'class="active"' : '' ?>>
+                <?= $i ?>
+            </a>
+        <?php endfor; ?>
+
+        <?php if ($page < $total_pages): ?>
+            <a href="?page=<?= $page + 1 ?>">Next</a>
+        <?php endif; ?>
+
+    </div>
+   <?php endif; ?>
+
+
     <?php endif; ?>
 
 </body>

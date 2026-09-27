@@ -4,15 +4,90 @@ require_once __DIR__ . '/../includes/include.php';
 
 requireRole(R_FARMER);
 
-// --------------------------------------------------
 // Get current user
-// --------------------------------------------------
-
 $userId = (int) $_SESSION['user_id'];
 
+// --------------------------------------------------
+// Pagination
+// --------------------------------------------------
+
+$notifications_per_page = 10;
+
+$notifications_page = isset($_GET['page'])
+    ? (int) $_GET['page']
+    : 1;
+
+if ($notifications_page < 1) {
+    $notifications_page = 1;
+}
+
+$notifications_offset =
+    ($notifications_page - 1) * $notifications_per_page;
 
 // --------------------------------------------------
-// Get all notifications for this farmer
+// Count total notifications
+// --------------------------------------------------
+
+$count_notifications_stmt = $conn->prepare("
+    SELECT COUNT(*) AS total_notifications
+    FROM notifications
+    WHERE user_id = ?
+");
+
+$count_notifications_stmt->bind_param("i", $userId);
+$count_notifications_stmt->execute();
+
+$count_notifications_result =
+    $count_notifications_stmt->get_result();
+
+$total_notifications =
+    (int) $count_notifications_result
+        ->fetch_assoc()['total_notifications'];
+
+$count_notifications_stmt->close();
+
+$total_notifications_pages =
+    (int) ceil(
+        $total_notifications / $notifications_per_page
+    );
+
+if (
+    $total_notifications_pages > 0 &&
+    $notifications_page > $total_notifications_pages
+) {
+    $notifications_page = $total_notifications_pages;
+
+    $notifications_offset =
+        ($notifications_page - 1) * $notifications_per_page;
+}
+
+// --------------------------------------------------
+// Count unread notifications
+// --------------------------------------------------
+
+$unreadCount = 0;
+
+$count_unread_stmt = $conn->prepare("
+    SELECT COUNT(*) AS unread_notifications
+    FROM notifications
+    WHERE user_id = ?
+      AND is_read = 0
+");
+
+$count_unread_stmt->bind_param("i", $userId);
+$count_unread_stmt->execute();
+
+$count_unread_result =
+    $count_unread_stmt->get_result();
+
+$unreadCount =
+    (int) $count_unread_result
+        ->fetch_assoc()['unread_notifications'];
+
+$count_unread_stmt->close();
+
+// --------------------------------------------------
+// Get notifications for current page
 // --------------------------------------------------
 
 $notifications = [];
@@ -28,11 +103,17 @@ $stmt = $conn->prepare("
     FROM notifications
     WHERE user_id = ?
     ORDER BY created_at DESC
+    LIMIT ? OFFSET ?
 ");
 
 if ($stmt) {
 
-    $stmt->bind_param('i', $userId);
+    $stmt->bind_param(
+        "iii",
+        $userId,
+        $notifications_per_page,
+        $notifications_offset
+    );
 
     if ($stmt->execute()) {
 
@@ -44,20 +125,6 @@ if ($stmt) {
     }
 
     $stmt->close();
-}
-
-
-// --------------------------------------------------
-// Count unread notifications
-// --------------------------------------------------
-
-$unreadCount = 0;
-
-foreach ($notifications as $notification) {
-
-    if ((int) $notification['is_read'] === 0) {
-        $unreadCount++;
-    }
 }
 
 ?>
@@ -109,13 +176,11 @@ foreach ($notifications as $notification) {
 
     <?php require_once __DIR__ . '/../includes/sidebar.php'; ?>
 
-
     <main class="main-content">
 
         <div class="notifications-page">
 
-
-            <!-- PAGE HEADER -->
+            <!-- Page Header -->
 
             <div class="notifications-page-header">
 
@@ -133,7 +198,6 @@ foreach ($notifications as $notification) {
 
                 </div>
 
-
                 <?php if ($unreadCount > 0): ?>
 
                     <button
@@ -149,7 +213,7 @@ foreach ($notifications as $notification) {
             </div>
 
 
-            <!-- SUMMARY -->
+            <!-- Summary -->
 
             <div class="notifications-summary">
 
@@ -160,10 +224,14 @@ foreach ($notifications as $notification) {
                 <div>
 
                     <strong>
-                        <?= count($notifications) ?>
-                        <?= count($notifications) === 1
+
+                        <?= $total_notifications ?>
+
+                        <?= $total_notifications === 1
                             ? 'notification'
-                            : 'notifications' ?>
+                            : 'notifications'
+                        ?>
+
                     </strong>
 
                     <span>
@@ -185,7 +253,7 @@ foreach ($notifications as $notification) {
             </div>
 
 
-            <!-- NOTIFICATIONS -->
+            <!-- Notifications -->
 
             <section class="notifications-section">
 
@@ -306,6 +374,7 @@ foreach ($notifications as $notification) {
 
 
                                     <p>
+
                                         <?= nl2br(
                                             htmlspecialchars(
                                                 $notification['message'],
@@ -313,6 +382,7 @@ foreach ($notifications as $notification) {
                                                 'UTF-8'
                                             )
                                         ) ?>
+
                                     </p>
 
 
@@ -360,6 +430,60 @@ foreach ($notifications as $notification) {
 
                     </div>
 
+
+                    <!-- Pagination -->
+
+                    <?php if ($total_notifications_pages > 1): ?>
+
+                        <div class="pagination">
+
+                            <?php if ($notifications_page > 1): ?>
+
+                                <a
+                                    href="?page=<?= $notifications_page - 1 ?>"
+                                >
+                                    Previous
+                                </a>
+
+                            <?php endif; ?>
+
+
+                            <?php for (
+                                $i = 1;
+                                $i <= $total_notifications_pages;
+                                $i++
+                            ): ?>
+
+                                <a
+                                    href="?page=<?= $i ?>"
+                                    <?= $i == $notifications_page
+                                        ? 'class="active"'
+                                        : ''
+                                    ?>
+                                >
+                                    <?= $i ?>
+                                </a>
+
+                            <?php endfor; ?>
+
+
+                            <?php if (
+                                $notifications_page <
+                                $total_notifications_pages
+                            ): ?>
+
+                                <a
+                                    href="?page=<?= $notifications_page + 1 ?>"
+                                >
+                                    Next
+                                </a>
+
+                            <?php endif; ?>
+
+                        </div>
+
+                    <?php endif; ?>
+
                 <?php endif; ?>
 
             </section>
@@ -373,20 +497,21 @@ foreach ($notifications as $notification) {
 
         function markPageNotificationRead(notificationId) {
 
-            fetch('/MarketLink/actions/mark_notifications_read.php', {
+            fetch(
+                '/MarketLink/actions/mark_notifications_read.php',
+                {
+                    method: 'POST',
 
-                method: 'POST',
+                    headers: {
+                        'Content-Type':
+                            'application/x-www-form-urlencoded'
+                    },
 
-                headers: {
-                    'Content-Type':
-                        'application/x-www-form-urlencoded'
-                },
-
-                body:
-                    'notification_id=' +
-                    encodeURIComponent(notificationId)
-
-            })
+                    body:
+                        'notification_id=' +
+                        encodeURIComponent(notificationId)
+                }
+            )
 
             .then(response => response.json())
 
@@ -396,15 +521,17 @@ foreach ($notifications as $notification) {
                     return;
                 }
 
-                const item = document.querySelector(
-                    '.notification-page-item[data-id="' +
-                    notificationId +
-                    '"]'
-                );
+                const item =
+                    document.querySelector(
+                        '.notification-page-item[data-id="' +
+                        notificationId +
+                        '"]'
+                    );
 
                 if (!item) {
                     return;
                 }
+
 
                 item.classList.remove('unread');
 
@@ -470,6 +597,7 @@ foreach ($notifications as $notification) {
                 if (!data.success) {
                     return;
                 }
+
 
                 document
                     .querySelectorAll(
