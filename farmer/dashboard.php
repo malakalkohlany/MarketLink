@@ -374,7 +374,7 @@ $stmt->close();
 
                 <h2>My Stall</h2>
 
-                <a href="profile.php">
+                <a href="edit_profile.php">
                     Edit →
                 </a>
 
