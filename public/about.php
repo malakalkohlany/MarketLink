@@ -159,10 +159,6 @@ if ($result) {
 
     <main class="about-page">
 
-    <!-- =====================================================
-         ABOUT HERO
-    ====================================================== -->
-
     <section class="about-hero">
 
         <div class="about-hero-decoration about-decoration-left"></div>
@@ -219,11 +215,6 @@ if ($result) {
 
     </section>
 
-
-    <!-- =====================================================
-         ABOUT PLATFORM
-    ====================================================== -->
-
     <section class="about-intro">
 
         <div class="container about-intro-grid">
@@ -261,11 +252,6 @@ if ($result) {
 
     </section>
 
-
-    <!-- =====================================================
-         WHAT MarketLink PROVIDES
-    ====================================================== -->
-
     <section class="about-features">
 
         <div class="container">
@@ -287,7 +273,6 @@ if ($result) {
                 </p>
 
             </div>
-
 
             <div class="about-feature-grid">
 
@@ -385,12 +370,6 @@ if ($result) {
         </div>
 
     </section>
-
-
-    <!-- =====================================================
-         STATS
-    ====================================================== -->
-
     <section class="about-stats">
 
         <div class="container">
@@ -459,11 +438,6 @@ if ($result) {
         </div>
 
     </section>
-
-
-    <!-- =====================================================
-         FEATURED MARKETS
-    ====================================================== -->
 
     <section class="about-markets">
 
@@ -578,11 +552,6 @@ if ($result) {
 
     </section>
 
-
-    <!-- =====================================================
-         PRODUCT CATEGORIES
-    ====================================================== -->
-
     <section class="about-categories">
 
         <div class="container">
@@ -655,11 +624,6 @@ if ($result) {
         </div>
 
     </section>
-
-
-    <!-- =====================================================
-         PURPOSE / CTA
-    ====================================================== -->
 
     <section class="about-purpose">
 

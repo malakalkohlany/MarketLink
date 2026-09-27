@@ -189,11 +189,6 @@ $hasMoreFarmers = count($farmers) > 3;
 
     </section>
 
-
-    <!-- =====================================================
-         SEARCH
-    ====================================================== -->
-
     <section class="farmers-filters">
 
         <div class="container">
@@ -262,11 +257,6 @@ $hasMoreFarmers = count($farmers) > 3;
         </div>
 
     </section>
-
-
-    <!-- =====================================================
-         RESULTS
-    ====================================================== -->
 
     <section class="farmers-results">
 

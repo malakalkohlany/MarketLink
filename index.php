@@ -17,10 +17,6 @@ require_once __DIR__ . '/config/constants.php';
 
 <body>
 
-<!-- =========================================================
-     NAVBAR
-========================================================= -->
-
 <header class="home-navbar">
     <div class="home-nav-inner">
 
@@ -53,10 +49,6 @@ require_once __DIR__ . '/config/constants.php';
 
 
 <main>
-
-<!-- =========================================================
-     HERO
-========================================================= -->
 
 <section class="hero">
 
@@ -169,11 +161,6 @@ require_once __DIR__ . '/config/constants.php';
 
 </section>
 
-
-<!-- =========================================================
-     VALUE SECTION
-========================================================= -->
-
 <section class="value-section">
 
     <div class="value-inner">
@@ -270,11 +257,6 @@ require_once __DIR__ . '/config/constants.php';
     </div>
 
 </section>
-
-
-<!-- =========================================================
-     EXPLORE
-========================================================= -->
 
 <section class="explore-section">
 
@@ -378,11 +360,6 @@ require_once __DIR__ . '/config/constants.php';
 
 </section>
 
-
-<!-- =========================================================
-     HOW IT WORKS
-========================================================= -->
-
 <section class="how-section">
 
     <div class="how-inner">
@@ -461,11 +438,6 @@ require_once __DIR__ . '/config/constants.php';
 
 </section>
 
-
-<!-- =========================================================
-     CTA
-========================================================= -->
-
 <section class="final-cta">
 
     <div class="final-cta-inner">
@@ -508,11 +480,6 @@ require_once __DIR__ . '/config/constants.php';
 </section>
 
 </main>
-
-
-<!-- =========================================================
-     FOOTER
-========================================================= -->
 
 <footer class="home-footer">
 
