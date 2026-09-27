@@ -12,8 +12,23 @@ $contactSuccess = '';
 $contactError = '';
 
 $email = '';
-$subject = 'Question';
+$subject = '';
 $message = '';
+$messageType = 'question';
+
+$allowedTypes = [
+    'question',
+    'problem',
+    'market_information',
+    'feedback'
+];
+
+
+/*
+|--------------------------------------------------------------------------
+| Handle Form Submission
+|--------------------------------------------------------------------------
+*/
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -25,175 +40,134 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
 
-        $contactError = 'Your session has expired. Please refresh the page and try again.';
+        $contactError =
+            'Invalid request. Please refresh the page and try again.';
 
     } else {
 
         /*
         |--------------------------------------------------------------------------
-        | Get Form Data
+        | Get Form Values
         |--------------------------------------------------------------------------
         */
 
         $email = trim($_POST['email'] ?? '');
+
         $subject = trim($_POST['subject'] ?? '');
+
         $message = trim($_POST['message'] ?? '');
+
+        $messageType = $_POST['message_type'] ?? 'question';
+
 
         /*
         |--------------------------------------------------------------------------
-        | Validate Form Data
+        | Validate Form
         |--------------------------------------------------------------------------
         */
 
         if ($email === '') {
 
-            $contactError = 'Please enter your email address.';
+            $contactError =
+                'Please enter your email address.';
 
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 
-            $contactError = 'Please enter a valid email address.';
+            $contactError =
+                'Please enter a valid email address.';
 
         } elseif ($subject === '') {
 
-            $contactError = 'Please enter a subject.';
+            $contactError =
+                'Please enter a subject.';
 
         } elseif (strlen($subject) > 255) {
 
-            $contactError = 'The subject is too long. Please keep it under 255 characters.';
+            $contactError =
+                'Subject is too long.';
 
         } elseif ($message === '') {
 
-            $contactError = 'Please enter a message.';
+            $contactError =
+                'Please enter a message.';
 
         } elseif (strlen($message) > 5000) {
 
-            $contactError = 'Your message is too long. Please keep it under 5000 characters.';
+            $contactError =
+                'Message is too long. Please keep it under 5000 characters.';
+
+        } elseif (!in_array($messageType, $allowedTypes, true)) {
+
+            $contactError =
+                'Invalid message type.';
 
         } else {
 
             /*
             |--------------------------------------------------------------------------
-            | Email Configuration
+            | Insert Message
             |--------------------------------------------------------------------------
             */
 
-            $to = 'potentiat@gmail.com';
+            $stmt = $conn->prepare("
+                INSERT INTO contact_messages (
+                    email,
+                    message_type,
+                    subject,
+                    message
+                )
+                VALUES (?, ?, ?, ?)
+            ");
 
-            /*
-            |--------------------------------------------------------------------------
-            | Clean Header Values
-            |--------------------------------------------------------------------------
-            |
-            | Prevent header injection by removing CR/LF characters.
-            |
-            */
+            if ($stmt) {
 
-            $safeEmail = str_replace(
-                ["\r", "\n"],
-                '',
-                $email
-            );
+                $stmt->bind_param(
+                    "ssss",
+                    $email,
+                    $messageType,
+                    $subject,
+                    $message
+                );
 
-            $safeSubject = str_replace(
-                ["\r", "\n"],
-                '',
-                $subject
-            );
+                if ($stmt->execute()) {
 
-            /*
-            |--------------------------------------------------------------------------
-            | Email Subject
-            |--------------------------------------------------------------------------
-            */
+                    $contactSuccess =
+                        'Your message has been submitted successfully. ' .
+                        'Our team will review it soon.';
 
-            $mailSubject = 'MarketLink Contact: ' . $safeSubject;
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Reset Form
+                    |--------------------------------------------------------------------------
+                    */
 
-            /*
-            |--------------------------------------------------------------------------
-            | Email Body
-            |--------------------------------------------------------------------------
-            */
+                    $email = '';
 
-            $mailBody =
-                "You have received a new message through the MarketLink contact form.\n\n" .
-                "----------------------------------------\n" .
-                "Sender Email: {$safeEmail}\n" .
-                "Subject: {$safeSubject}\n" .
-                "----------------------------------------\n\n" .
-                "Message:\n\n" .
-                $message .
-                "\n\n" .
-                "----------------------------------------\n" .
-                "This message was sent from the MarketLink website.\n";
+                    $subject = '';
 
-            /*
-            |--------------------------------------------------------------------------
-            | Email Headers
-            |--------------------------------------------------------------------------
-            |
-            | IMPORTANT:
-            | Use a fixed From address belonging to your website/domain.
-            | Do NOT use the visitor's email as the From address.
-            |
-            */
+                    $message = '';
 
-            $headers = [];
+                    $messageType = 'question';
 
-            $headers[] = 'MIME-Version: 1.0';
+                } else {
 
-            $headers[] = 'Content-Type: text/plain; charset=UTF-8';
+                    $contactError =
+                        'Something went wrong while submitting your message.';
+                }
 
-            $headers[] = 'From: MarketLink <noreply@marketlink.local>';
-
-            $headers[] = 'Reply-To: ' . $safeEmail;
-
-            $headers[] = 'X-Mailer: PHP/' . phpversion();
-
-            $headersString = implode("\r\n", $headers);
-
-            /*
-            |--------------------------------------------------------------------------
-            | Send Email
-            |--------------------------------------------------------------------------
-            */
-
-            $mailSent = mail(
-                $to,
-                $mailSubject,
-                $mailBody,
-                $headersString
-            );
-
-            if ($mailSent) {
-
-                $contactSuccess =
-                    'Your message has been sent successfully. ' .
-                    'We will get back to you as soon as possible.';
-
-                /*
-                |--------------------------------------------------------------------------
-                | Clear Form
-                |--------------------------------------------------------------------------
-                */
-
-                $email = '';
-                $subject = 'Question';
-
-                $message =
-                    "Hello MarketLink team,\n\n" .
-                    "I have a question about: ";
+                $stmt->close();
 
             } else {
 
                 $contactError =
-                    'We could not send your message right now. ' .
-                    'Please try again later.';
+                    'Unable to submit your message right now.';
             }
         }
     }
 }
 
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -207,6 +181,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     >
 
     <title>Contact Us - MarketLink</title>
+
 
     <link
         rel="stylesheet"
@@ -230,21 +205,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 </head>
 
+
 <body class="contact-page">
+
+
+    <!-- =====================================================
+         NAVBAR
+    ====================================================== -->
 
     <header class="home-navbar">
 
         <div class="home-nav-inner">
 
-            <a href="../index.php" class="home-brand">
+            <a
+                href="../index.php"
+                class="home-brand"
+            >
 
-                <span class="brand-mark">M</span>
+                <span class="brand-mark">
+                    M
+                </span>
 
                 <span class="brand-name">
                     MarketLink
                 </span>
 
             </a>
+
 
             <nav class="home-nav-links">
 
@@ -264,11 +251,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     Farmers
                 </a>
 
-                <a href="#" class="active">
+                <a
+                    href="#"
+                    class="active"
+                >
                     Contact
                 </a>
 
             </nav>
+
 
             <div class="home-nav-actions">
 
@@ -283,8 +274,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     href="../auth/register.php"
                     class="home-join"
                 >
+
                     Join MarketLink
-                    <span>↗</span>
+
+                    <span>
+                        ↗
+                    </span>
+
                 </a>
 
             </div>
@@ -295,6 +291,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
     <main>
+
 
         <!-- =================================================
              HERO
@@ -310,6 +307,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 class="contact-hero-decoration contact-decoration-right"
             ></div>
 
+
             <div class="container contact-hero-inner">
 
                 <div class="contact-hero-copy">
@@ -318,10 +316,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         GET IN TOUCH
                     </span>
 
+
                     <h1>
+
                         Let's
-                        <em>talk.</em>
+
+                        <em>
+                            talk.
+                        </em>
+
                     </h1>
+
 
                     <p>
                         Questions, feedback, market information,
@@ -329,19 +334,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         We'd love to hear from you.
                     </p>
 
+
                     <div class="contact-hero-note">
 
-                        <span>QUESTIONS</span>
-                        <span>FEEDBACK</span>
-                        <span>SUPPORT</span>
+                        <span>
+                            QUESTIONS
+                        </span>
+
+                        <span>
+                            FEEDBACK
+                        </span>
+
+                        <span>
+                            SUPPORT
+                        </span>
 
                     </div>
 
                 </div>
 
+
                 <div class="contact-hero-mark">
 
-                    <span>✦</span>
+                    <span>
+                        ✦
+                    </span>
 
                 </div>
 
@@ -367,16 +384,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div class="contact-form-card">
 
+
                         <div class="contact-section-heading">
 
                             <span class="contact-eyebrow">
                                 SEND A MESSAGE
                             </span>
 
+
                             <h2>
+
                                 How can we
-                                <em>help?</em>
+
+                                <em>
+                                    help?
+                                </em>
+
                             </h2>
+
 
                             <p>
                                 Choose a topic below and tell us
@@ -396,7 +421,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 class="contact-alert contact-alert-success"
                                 role="alert"
                             >
+
                                 <?= e($contactSuccess) ?>
+
                             </div>
 
                         <?php endif; ?>
@@ -412,7 +439,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 class="contact-alert contact-alert-error"
                                 role="alert"
                             >
+
                                 <?= e($contactError) ?>
+
                             </div>
 
                         <?php endif; ?>
@@ -424,10 +453,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         <div class="contact-types">
 
+
                             <button
                                 type="button"
-                                class="contact-type active"
-                                onclick="selectContactType('Question', this)"
+                                class="contact-type <?= $messageType === 'question' ? 'active' : '' ?>"
+                                onclick="selectContactType(
+                                    'question',
+                                    'Question',
+                                    this
+                                )"
                             >
 
                                 <span class="contact-type-number">
@@ -443,8 +477,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                             <button
                                 type="button"
-                                class="contact-type"
-                                onclick="selectContactType('Report a Problem', this)"
+                                class="contact-type <?= $messageType === 'problem' ? 'active' : '' ?>"
+                                onclick="selectContactType(
+                                    'problem',
+                                    'Report a Problem',
+                                    this
+                                )"
                             >
 
                                 <span class="contact-type-number">
@@ -460,8 +498,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                             <button
                                 type="button"
-                                class="contact-type"
-                                onclick="selectContactType('Market Information', this)"
+                                class="contact-type <?= $messageType === 'market_information' ? 'active' : '' ?>"
+                                onclick="selectContactType(
+                                    'market_information',
+                                    'Market Information',
+                                    this
+                                )"
                             >
 
                                 <span class="contact-type-number">
@@ -477,8 +519,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                             <button
                                 type="button"
-                                class="contact-type"
-                                onclick="selectContactType('Feedback', this)"
+                                class="contact-type <?= $messageType === 'feedback' ? 'active' : '' ?>"
+                                onclick="selectContactType(
+                                    'feedback',
+                                    'Feedback',
+                                    this
+                                )"
                             >
 
                                 <span class="contact-type-number">
@@ -507,10 +553,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <?= csrf_field() ?>
 
 
+                            <!-- Message Type -->
+
+                            <input
+                                type="hidden"
+                                name="message_type"
+                                id="message_type"
+                                value="<?= e($messageType) ?>"
+                            >
+
+
+                            <!-- EMAIL + SUBJECT -->
+
                             <div class="contact-form-row">
 
-
-                                <!-- EMAIL -->
 
                                 <div class="contact-field">
 
@@ -531,8 +587,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                                 </div>
 
-
-                                <!-- SUBJECT -->
 
                                 <div class="contact-field">
 
@@ -584,7 +638,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                                 Send Message
 
-                                <span>↗</span>
+                                <span>
+                                    ↗
+                                </span>
 
                             </button>
 
@@ -606,15 +662,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 01
                             </span>
 
+
                             <h3>
                                 Questions?
                             </h3>
+
 
                             <p>
                                 Need help understanding how
                                 MarketLink works? Send us a message
                                 and we'll point you in the right direction.
                             </p>
+
 
                             <span class="contact-card-label">
                                 GENERAL SUPPORT
@@ -629,15 +688,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 02
                             </span>
 
+
                             <h3>
                                 Found a problem?
                             </h3>
+
 
                             <p>
                                 Tell us what went wrong and give us
                                 as much detail as possible so we can
                                 investigate it.
                             </p>
+
 
                             <span class="contact-card-label">
                                 REPORT AN ISSUE
@@ -652,9 +714,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 03
                             </span>
 
+
                             <h3>
                                 Local markets.
                             </h3>
+
 
                             <p>
                                 Want to provide information about a
@@ -662,12 +726,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 We'd love to hear from you.
                             </p>
 
+
                             <span class="contact-card-label">
                                 MARKET INFORMATION
                             </span>
 
                         </div>
-
 
                     </aside>
 
@@ -686,6 +750,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="container">
 
+
                 <div class="contact-location-heading">
 
                     <div>
@@ -694,12 +759,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             FIND US
                         </span>
 
+
                         <h2>
+
                             Our
-                            <em>location.</em>
+
+                            <em>
+                                location.
+                            </em>
+
                         </h2>
 
                     </div>
+
 
                     <p>
                         MarketLink connects people with local
@@ -714,15 +786,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div id="map"></div>
 
+
                     <div class="contact-map-card">
 
                         <span class="contact-map-label">
                             MARKETLINK
                         </span>
 
+
                         <h3>
                             Boston, Massachusetts
                         </h3>
+
 
                         <p>
                             Connecting you with local markets.
@@ -745,15 +820,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="container contact-cta-inner">
 
+
                 <div>
 
                     <span class="contact-eyebrow">
                         MARKETLINK
                     </span>
 
+
                     <h2>
+
                         Local markets,
-                        <em>closer to you.</em>
+
+                        <em>
+                            closer to you.
+                        </em>
+
                     </h2>
 
                 </div>
@@ -766,7 +848,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     Join MarketLink
 
-                    <span>↗</span>
+                    <span>
+                        ↗
+                    </span>
 
                 </a>
 
@@ -820,7 +904,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ======================================================
         */
 
-        function selectContactType(type, button) {
+        function selectContactType(type, label, button) {
 
             const subject =
                 document.getElementById('subject');
@@ -828,6 +912,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const message =
                 document.getElementById('message');
 
+            const messageType =
+                document.getElementById('message_type');
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Remove Active State
+            |--------------------------------------------------------------------------
+            */
 
             document
                 .querySelectorAll('.contact-type')
@@ -838,13 +931,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 });
 
 
+            /*
+            |--------------------------------------------------------------------------
+            | Activate Selected Type
+            |--------------------------------------------------------------------------
+            */
+
             button.classList.add('active');
 
 
-            subject.value = type;
+            /*
+            |--------------------------------------------------------------------------
+            | Store Message Type
+            |--------------------------------------------------------------------------
+            */
+
+            messageType.value = type;
 
 
-            if (type === 'Question') {
+            /*
+            |--------------------------------------------------------------------------
+            | Update Subject + Message
+            |--------------------------------------------------------------------------
+            */
+
+            subject.value = label;
+
+
+            if (type === 'question') {
 
                 message.value =
                     'Hello MarketLink team,\n\n' +
@@ -852,7 +966,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             }
 
-            else if (type === 'Report a Problem') {
+            else if (type === 'problem') {
 
                 message.value =
                     'Hello MarketLink team,\n\n' +
@@ -860,7 +974,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             }
 
-            else if (type === 'Market Information') {
+            else if (type === 'market_information') {
 
                 message.value =
                     'Hello MarketLink team,\n\n' +
@@ -868,7 +982,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             }
 
-            else if (type === 'Feedback') {
+            else if (type === 'feedback') {
 
                 message.value =
                     'Hello MarketLink team,\n\n' +
@@ -928,4 +1042,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </script>
 
 </body>
+
 </html>

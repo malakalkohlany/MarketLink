@@ -10,6 +10,7 @@ if ($_SESSION['approval_status'] !== 'rejected') {
 
     if ($_SESSION['approval_status'] === 'approved') {
      redirect(BASE_URL . 'farmer/dashboard.php');
+    }
 
     if ($_SESSION['approval_status'] === 'pending') {
         redirect(BASE_URL . 'farmer/pending.php');
@@ -17,6 +18,7 @@ if ($_SESSION['approval_status'] !== 'rejected') {
 }
 
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
