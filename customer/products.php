@@ -10,6 +10,12 @@ if (
     $_SERVER['REQUEST_METHOD'] === 'POST'
     && isset($_POST['toggle_favorite'])
 ) {
+
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        header('Location: products.php');
+        exit;
+    }
+
     $productId = filter_input(
         INPUT_POST,
         'product_id',
@@ -1170,6 +1176,8 @@ if (
                         action="products.php"
                         class="favorite-form"
                     >
+                        <?= csrf_field() ?>
+
                         <input
                             type="hidden"
                             name="product_id"
