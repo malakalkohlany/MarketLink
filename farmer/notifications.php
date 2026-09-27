@@ -651,6 +651,10 @@ if ($stmt) {
 
 
                 updatePageUnreadCount();
+                
+                if (typeof updateNotificationBadge === 'function') {
+                    updateNotificationBadge();
+                }
 
             })
 

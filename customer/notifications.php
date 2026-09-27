@@ -365,6 +365,10 @@ foreach ($notifications as $notification) {
                 }
 
                 updatePageUnreadCount();
+
+                if (typeof updateNotificationBadge === 'function') {
+                    updateNotificationBadge();
+                }
             })
             .catch(error => {
                 console.error(
