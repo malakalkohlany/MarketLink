@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (!$stmt) {
 
-            $errors[] = 'Failed to prepare farmer lookup: ' . $conn->error;
+            $errors[] = 'Failed to prepare farmer lookup.';
 
         } else {
 
@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 if (!$updateStmt) {
 
-                    $errors[] = 'Failed to prepare approval update: ' . $conn->error;
+                    $errors[] = 'Failed to prepare approval update.';
 
                 } else {
 
@@ -147,7 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     } else {
 
-                        $errors[] = 'Failed to update farmer: ' . $updateStmt->error;
+                        $errors[] = 'Failed to update farmer.';
                     }
 
                     $updateStmt->close();
@@ -194,14 +194,14 @@ if ($stmt) {
 
     } else {
 
-        $errors[] = 'Failed to load farmers: ' . $stmt->error;
+        $errors[] = 'Failed to load farmers.';
     }
 
     $stmt->close();
 
 } else {
 
-    $errors[] = 'Failed to prepare farmer query: ' . $conn->error;
+    $errors[] = 'Failed to prepare farmer query.';
 }
 
 ?>
