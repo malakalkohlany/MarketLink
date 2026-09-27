@@ -38,7 +38,7 @@ if (
     if (!$checkStmt) {
         die(
             'Favorite check prepare failed: '
-            . mysqli_error($conn)
+            
         );
     }
 
@@ -51,8 +51,7 @@ if (
 
     if (!mysqli_stmt_execute($checkStmt)) {
         die(
-            'Favorite check execute failed: '
-            . mysqli_stmt_error($checkStmt)
+            'Favorite check execute failed.'
         );
     }
 
@@ -72,8 +71,7 @@ if (
 
         if (!$deleteStmt) {
             die(
-                'Favorite delete prepare failed: '
-                . mysqli_error($conn)
+                'Favorite delete prepare failed.'
             );
         }
 
@@ -86,8 +84,7 @@ if (
 
         if (!mysqli_stmt_execute($deleteStmt)) {
             die(
-                'Favorite delete failed: '
-                . mysqli_stmt_error($deleteStmt)
+                'Favorite delete failed.'
             );
         }
 
@@ -106,8 +103,7 @@ if (
 
         if (!$insertStmt) {
             die(
-                'Favorite insert prepare failed: '
-                . mysqli_error($conn)
+                'Favorite insert prepare failed.'
             );
         }
 
@@ -120,8 +116,7 @@ if (
 
         if (!mysqli_stmt_execute($insertStmt)) {
             die(
-                'Favorite insert failed: '
-                . mysqli_stmt_error($insertStmt)
+                'Favorite insert failed.'
             );
         }
 
@@ -142,8 +137,7 @@ $favoriteStmt = mysqli_prepare(
 
 if (!$favoriteStmt) {
     die(
-        'Favorite list prepare failed: '
-        . mysqli_error($conn)
+        'Favorite list prepare failed.'
     );
 }
 
@@ -155,8 +149,7 @@ mysqli_stmt_bind_param(
 
 if (!mysqli_stmt_execute($favoriteStmt)) {
     die(
-        'Favorite list execute failed: '
-        . mysqli_stmt_error($favoriteStmt)
+        'Favorite list execute failed.'
     );
 }
 
@@ -363,8 +356,8 @@ $stmt = $conn->prepare($sql);
 
 if (!$stmt) {
     die(
-        'Database Error: '
-        . $conn->error
+        'Database query failed.'
+        
     );
 }
 
@@ -380,8 +373,7 @@ $stmt->bind_param(
 
 if (!$stmt->execute()) {
     die(
-        'Product query failed: '
-        . $stmt->error
+        'Product query failed.'
     );
 }
 
