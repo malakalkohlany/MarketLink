@@ -36,7 +36,7 @@ if (
     if (!$checkStmt) {
         die(
             'Favorite check prepare failed: '
-            . mysqli_error($conn)
+            
         );
     }
 
@@ -50,7 +50,7 @@ if (
     if (!mysqli_stmt_execute($checkStmt)) {
         die(
             'Favorite check execute failed: '
-            . mysqli_stmt_error($checkStmt)
+            
         );
     }
 
@@ -71,7 +71,7 @@ if (
         if (!$deleteStmt) {
             die(
                 'Favorite delete prepare failed: '
-                . mysqli_error($conn)
+                
             );
         }
 
@@ -85,7 +85,7 @@ if (
         if (!mysqli_stmt_execute($deleteStmt)) {
             die(
                 'Favorite delete failed: '
-                . mysqli_stmt_error($deleteStmt)
+                
             );
         }
 
@@ -105,7 +105,7 @@ if (
         if (!$insertStmt) {
             die(
                 'Favorite insert prepare failed: '
-                . mysqli_error($conn)
+                
             );
         }
 
@@ -119,7 +119,7 @@ if (
         if (!mysqli_stmt_execute($insertStmt)) {
             die(
                 'Favorite insert failed: '
-                . mysqli_stmt_error($insertStmt)
+                
             );
         }
 
@@ -142,7 +142,7 @@ $favoriteStmt = mysqli_prepare(
 if (!$favoriteStmt) {
     die(
         'Favorite list prepare failed: '
-        . mysqli_error($conn)
+        
     );
 }
 
@@ -155,7 +155,7 @@ mysqli_stmt_bind_param(
 if (!mysqli_stmt_execute($favoriteStmt)) {
     die(
         'Favorite list execute failed: '
-        . mysqli_stmt_error($favoriteStmt)
+        
     );
 }
 
