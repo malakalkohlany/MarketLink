@@ -12,6 +12,11 @@ requireRole(R_ADMIN);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        header('Location: reviews.php');
+        exit;
+    }
+
     $reviewId = (int) ($_POST['review_id'] ?? 0);
     $action   = $_POST['action'] ?? '';
 
@@ -385,6 +390,7 @@ $stmt->close();
                                                 <!-- Approve -->
 
                                                 <form method="POST">
+                                                    <?= csrf_field() ?>
 
                                                     <input
                                                         type="hidden"
@@ -411,6 +417,7 @@ $stmt->close();
                                                 <!-- Remove -->
 
                                                 <form method="POST">
+                                                    <?= csrf_field() ?>
 
                                                     <input
                                                         type="hidden"
@@ -441,6 +448,7 @@ $stmt->close();
                                             <!-- Approved reviews can still be removed -->
 
                                             <form method="POST">
+                                                <?= csrf_field() ?>
 
                                                 <input
                                                     type="hidden"
