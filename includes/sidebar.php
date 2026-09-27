@@ -813,7 +813,7 @@ function hasSubmenu(array $pages): bool
      LUCIDE ICONS
 ========================================================== -->
 
-<script src="https://unpkg.com/lucide@latest"></script>
+<script src="../assets/js/lucide.js"></script>
 
 <script>
     lucide.createIcons();

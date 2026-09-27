@@ -34,11 +34,82 @@ if (!$productId) {
 
 
 // ==========================================================
+// Current Week
+// ==========================================================
+
+$today = new DateTime();
+$weekStart = clone $today;
+
+if ($weekStart->format('N') != 1) {
+    $weekStart->modify('monday this week');
+}
+
+$weekStartDate = $weekStart->format('Y-m-d');
+
+$moderationStatus = M_APPROVED;
+$farmerStatus = A_APPROVED;
+
+// ==========================================================
+// Ensure Weekly Stock Exists For This Week
+// ==========================================================
+
+$generateWeeklyStockStmt = $conn->prepare("
+    INSERT INTO weekly_stock (
+        farmer_id,
+        product_id,
+        week_start,
+        planned_quantity,
+        actual_quantity,
+        status
+    )
+    SELECT
+        wst.farmer_id,
+        wst.product_id,
+        ?,
+        wst.default_quantity,
+        wst.default_quantity,
+        CASE
+            WHEN wst.default_quantity > 0
+                THEN 'available'
+            ELSE 'sold_out'
+        END
+    FROM weekly_stock_templates wst
+    INNER JOIN products p
+        ON p.id = wst.product_id
+        AND p.farmer_id = wst.farmer_id
+    WHERE wst.is_active = 1
+      AND p.is_available = 1
+      AND p.moderation_status = ?
+      AND NOT EXISTS (
+          SELECT 1
+          FROM weekly_stock ws
+          WHERE ws.farmer_id = wst.farmer_id
+            AND ws.product_id = wst.product_id
+            AND ws.week_start = ?
+      )
+");
+
+if ($generateWeeklyStockStmt) {
+
+    $generateWeeklyStockStmt->bind_param(
+        "sss",
+        $weekStartDate,
+        $moderationStatus,
+        $weekStartDate
+    );
+
+    $generateWeeklyStockStmt->execute();
+    $generateWeeklyStockStmt->close();
+}
+
+
+// ==========================================================
 // Get Product
 // ==========================================================
 
 $productStmt = $conn->prepare(
-    "SELECT
+    "
+    SELECT
         p.id,
         p.farmer_id,
         p.name,
@@ -46,21 +117,31 @@ $productStmt = $conn->prepare(
         p.price,
         p.unit,
         p.image,
-        p.stock_quantity,
+
+        p.stock_quantity AS product_stock_quantity,
+
+        ws.actual_quantity AS weekly_actual_quantity,
+        ws.status AS weekly_status,
 
         f.stall_name AS farmer_name
 
-     FROM products p
+    FROM products p
 
-     INNER JOIN farmers f
+    INNER JOIN farmers f
         ON p.farmer_id = f.id
 
-     WHERE p.id = ?
-       AND p.is_available = 1
-       AND p.moderation_status = ?
-       AND f.approval_status = ?
+    LEFT JOIN weekly_stock ws
+        ON ws.product_id = p.id
+        AND ws.farmer_id = p.farmer_id
+        AND ws.week_start = ?
 
-     LIMIT 1"
+    WHERE p.id = ?
+      AND p.is_available = 1
+      AND p.moderation_status = ?
+      AND f.approval_status = ?
+
+    LIMIT 1
+    "
 );
 
 if (!$productStmt) {
@@ -70,11 +151,9 @@ if (!$productStmt) {
     );
 }
 
-$moderationStatus = M_APPROVED;
-$farmerStatus = A_APPROVED;
-
 $productStmt->bind_param(
-    "iss",
+    "siss",
+    $weekStartDate,
     $productId,
     $moderationStatus,
     $farmerStatus
@@ -87,11 +166,9 @@ if (!$productStmt->execute()) {
     );
 }
 
-$productResult =
-    $productStmt->get_result();
+$productResult = $productStmt->get_result();
 
-$product =
-    $productResult->fetch_assoc();
+$product = $productResult->fetch_assoc();
 
 $productStmt->close();
 
@@ -117,11 +194,19 @@ $price =
 $unit =
     $product['unit'] ?? '';
 
-$stock =
-    (float) $product['stock_quantity'];
-
 $farmerName =
     $product['farmer_name'] ?? 'Unknown Farmer';
+
+
+$productStock = (float)$product['product_stock_quantity'];
+
+if ($product['weekly_actual_quantity'] !== null) {
+    $stock = (float)$product['weekly_actual_quantity'];
+    $stockStatus = $product['weekly_status'] ?? 'available';
+} else {
+    $stock = $productStock;
+    $stockStatus = 'available';
+}
 
 
 // ==========================================================
@@ -286,8 +371,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errorMessage =
             'Quantity must use increments of 0.1.';
 
+    } elseif ($stockStatus === 'unavailable') {
+        $errorMessage =
+            'This product is currently unavailable for this week.';
+    } elseif ($stockStatus === 'sold_out') {
+        $errorMessage =
+            'This product is sold out for this week.';
+    } elseif ($stock <= 0) {
+        $errorMessage =
+            'This product is currently out of stock.';
     } elseif ($quantity > $stock) {
-
         $errorMessage =
             'The requested quantity is greater than the available stock.';
     }
@@ -397,7 +490,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     $errorMessage =
                         'The total quantity in your cart '
-                        . 'would exceed the available stock.';
+                        . 'would exceed this week\'s available stock.';
+
 
                 } else {
 
@@ -1155,13 +1249,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
                         <div class="stock-note">
+                            <?php if ($stockStatus === 'unavailable'): ?>
 
-                            Available:
+                                Currently unavailable this week.
 
-                            <?= e($stock) ?>
+                            <?php elseif ($stockStatus === 'sold_out'): ?>
 
-                            <?= e($unit) ?>
+                                Sold out for this week.
 
+                            <?php else: ?>
+
+                                Available this week:
+                                <?= e($stock) ?>
+                                <?= e($unit) ?>
+
+                            <?php endif; ?>
                         </div>
 
                     </div>
@@ -1187,13 +1289,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <button
                             type="submit"
                             class="submit-button"
-                            <?= $stock <= 0 ? 'disabled' : '' ?>
+                            <?= (
+                                $stock <= 0 ||
+                                $stockStatus !== 'available'
+                            ) ? 'disabled' : '' ?>
                         >
-
                             <i class="fa-solid fa-cart-plus"></i>
 
-                            Add to Cart
+                            <?php if ($stockStatus === 'unavailable'): ?>
 
+                                Currently Unavailable
+
+                            <?php elseif ($stockStatus === 'sold_out' || $stock <= 0): ?>
+
+                                Sold Out This Week
+
+                            <?php else: ?>
+
+                                Add to Cart
+
+                            <?php endif; ?>
                         </button>
 
 
