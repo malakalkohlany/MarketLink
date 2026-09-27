@@ -52,8 +52,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if (!$stmt) {
 
-                $errors[] =
-                    'Failed to prepare farmer lookup: ' . $conn->error;
+               $errors[] =
+                'Failed to prepare farmer lookup.';
 
             } else {
 
@@ -91,8 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if (!$updateStmt) {
 
                         $errors[] =
-                            'Failed to prepare approval update: '
-                            . $conn->error;
+                         'Failed to prepare approval update.';
 
                     } else {
 
