@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../includes/include.php';
 
 requireRole(R_ADMIN);
@@ -7,682 +8,504 @@ $errors = [];
 $adminNotifications = [];
 
 $filter_status = isset($_GET['status'])
-? trim($_GET['status'])
-: '';
+    ? trim($_GET['status'])
+    : '';
 
 $filter_type = isset($_GET['type'])
-? trim($_GET['type'])
-: '';
+    ? trim($_GET['type'])
+    : '';
 
 $allowed_statuses = [
-'',
-'read',
-'unread'
+    '',
+    'read',
+    'unread'
 ];
+
 $items_per_page = 10;
 
 $page = isset($_GET['page'])
-? (int) $_GET['page']
-: 1;
+    ? (int) $_GET['page']
+    : 1;
 
 if ($page < 1) {
-$page = 1;
+    $page = 1;
 }
+
 $where = [];
 $params = [];
 $types = '';
 
-$where[] = "1 = 1";
+$where[] = '1 = 1';
 
 if (
-$filter_status !== '' &&
-in_array($filter_status, $allowed_statuses, true)
-
+    $filter_status !== '' &&
+    in_array($filter_status, $allowed_statuses, true)
 ) {
+    if ($filter_status === 'read') {
+        $where[] = 'n.is_read = 1';
+    }
 
-if ($filter_status === 'read') {
-    $where[] = "n.is_read = 1";
-}
-
-if ($filter_status === 'unread') {
-    $where[] = "n.is_read = 0";
-}
-
+    if ($filter_status === 'unread') {
+        $where[] = 'n.is_read = 0';
+    }
 }
 
 if ($filter_type !== '') {
-
-$where[] = "n.type = ?";
-
-$params[] = $filter_type;
-$types .= 's';
-
+    $where[] = 'n.type = ?';
+    $params[] = $filter_type;
+    $types .= 's';
 }
 
-$where_sql = implode(
-' AND ',
-$where
-);
+$where_sql = implode(' AND ', $where);
+
 $count_sql = "
-SELECT COUNT(*) AS total
-FROM notifications n
-WHERE {$where_sql}
+    SELECT COUNT(*) AS total
+    FROM notifications n
+    WHERE {$where_sql}
 ";
 
 $count_stmt = $conn->prepare($count_sql);
 
 if ($count_stmt) {
+    if (!empty($params)) {
+        $count_stmt->bind_param(
+            $types,
+            ...$params
+        );
+    }
 
-if (!empty($params)) {
-    $count_stmt->bind_param(
-        $types,
-        ...$params
-    );
-}
+    if ($count_stmt->execute()) {
+        $count_result = $count_stmt->get_result();
+        $count_row = $count_result->fetch_assoc();
 
-if ($count_stmt->execute()) {
+        $total_notifications = (int) (
+            $count_row['total'] ?? 0
+        );
+    } else {
+        $total_notifications = 0;
+        $errors[] = 'Failed to count notifications.';
+    }
 
-    $count_result = $count_stmt->get_result();
-
-    $count_row = $count_result->fetch_assoc();
-
-    $total_notifications = (int) (
-        $count_row['total'] ?? 0
-    );
-
+    $count_stmt->close();
 } else {
-
     $total_notifications = 0;
-
-    $errors[] =
-        'Failed to count notifications.';
+    $errors[] = 'Failed to prepare notification count query.';
 }
 
-$count_stmt->close();
-
-} else {
-
-$total_notifications = 0;
-
-$errors[] =
-    'Failed to prepare notification count query.';
-
-}
 $total_pages = $total_notifications > 0
-? (int) ceil(
-$total_notifications / $items_per_page
-)
-: 0;
+    ? (int) ceil(
+        $total_notifications / $items_per_page
+    )
+    : 0;
 
 if (
-$total_pages > 0 &&
-$page > $total_pages
+    $total_pages > 0 &&
+    $page > $total_pages
 ) {
-
-$page = $total_pages;
-
+    $page = $total_pages;
 }
 
 $offset = ($page - 1) * $items_per_page;
+
 $sql = "
-SELECT
-n.id,
-n.user_id,
-n.title,
-n.message,
-n.type,
-n.is_read,
-n.created_at,
-
-    u.name AS user_name,
-    u.email AS user_email
-
-FROM notifications n
-
-LEFT JOIN users u
-    ON n.user_id = u.id
-
-WHERE {$where_sql}
-
-ORDER BY n.created_at DESC
-
-LIMIT ? OFFSET ?
-
+    SELECT
+        n.id,
+        n.user_id,
+        n.title,
+        n.message,
+        n.type,
+        n.is_read,
+        n.created_at,
+        u.name AS user_name,
+        u.email AS user_email
+    FROM notifications n
+    LEFT JOIN users u
+        ON n.user_id = u.id
+    WHERE {$where_sql}
+    ORDER BY n.created_at DESC
+    LIMIT ? OFFSET ?
 ";
 
 $stmt = $conn->prepare($sql);
 
 if ($stmt) {
+    $bind_params = $params;
+    $bind_types = $types . 'ii';
 
-$bind_params = $params;
+    $bind_params[] = $items_per_page;
+    $bind_params[] = $offset;
 
-$bind_types = $types . 'ii';
+    $stmt->bind_param(
+        $bind_types,
+        ...$bind_params
+    );
 
-$bind_params[] = $items_per_page;
-$bind_params[] = $offset;
+    if ($stmt->execute()) {
+        $result = $stmt->get_result();
 
-$stmt->bind_param(
-    $bind_types,
-    ...$bind_params
-);
+        $adminNotifications =
+            $result->fetch_all(MYSQLI_ASSOC);
+    } else {
+        $errors[] = 'Failed to load notifications.';
+    }
 
-if ($stmt->execute()) {
-
-    $result = $stmt->get_result();
-
-    $adminNotifications =
-        $result->fetch_all(MYSQLI_ASSOC);
-
+    $stmt->close();
 } else {
-
-    $errors[] =
-        'Failed to load notifications.';
+    $errors[] = 'Failed to prepare notifications query.';
 }
 
-$stmt->close();
-
-} else {
-
-$errors[] =
-    'Failed to prepare notifications query.';
-
-}
 $unread_stmt = $conn->prepare("
-SELECT COUNT(*) AS total
-FROM notifications
-WHERE is_read = 0
+    SELECT COUNT(*) AS total
+    FROM notifications
+    WHERE is_read = 0
 ");
 
 $unread_count = 0;
 
 if ($unread_stmt) {
+    if ($unread_stmt->execute()) {
+        $unread_result =
+            $unread_stmt->get_result();
 
-if ($unread_stmt->execute()) {
+        $unread_row =
+            $unread_result->fetch_assoc();
 
-    $unread_result =
-        $unread_stmt->get_result();
+        $unread_count =
+            (int) ($unread_row['total'] ?? 0);
+    }
 
-    $unread_row =
-        $unread_result->fetch_assoc();
-
-    $unread_count =
-        (int) ($unread_row['total'] ?? 0);
+    $unread_stmt->close();
 }
 
-$unread_stmt->close();
-
-}
 $type_stmt = $conn->prepare("
-SELECT DISTINCT type
-FROM notifications
-WHERE type IS NOT NULL
-AND type <> ''
-ORDER BY type ASC
+    SELECT DISTINCT type
+    FROM notifications
+    WHERE type IS NOT NULL
+    AND type <> ''
+    ORDER BY type ASC
 ");
 
 $notification_types = [];
 
 if ($type_stmt) {
+    if ($type_stmt->execute()) {
+        $type_result =
+            $type_stmt->get_result();
 
-if ($type_stmt->execute()) {
-
-    $type_result =
-        $type_stmt->get_result();
-
-    while ($type_row =
-        $type_result->fetch_assoc()
-    ) {
-
-        $notification_types[] =
-            $type_row['type'];
+        while (
+            $type_row =
+            $type_result->fetch_assoc()
+        ) {
+            $notification_types[] =
+                $type_row['type'];
+        }
     }
+
+    $type_stmt->close();
 }
 
-$type_stmt->close();
-
-}
-
+$query_string = http_build_query([
+    'status' => $filter_status,
+    'type' => $filter_type
+]);
 ?>
-<!DOCTYPE html> 
-<html lang="en"> 
-    <head>
-        <meta charset="UTF-8">
 
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+    <title>Notifications | MarketLink</title>
 
-<title>Notifications | MarketLink</title>
-
-<link
-    rel="stylesheet"
-    href="../assets/css/base.css"
->
-
-<link
-    rel="stylesheet"
-    href="../assets/css/navbar.css"
->
-
-<link
-    rel="stylesheet"
-    href="../assets/css/sidebar.css"
->
-
-<link
-    rel="stylesheet"
-    href="../assets/css/dashboard.css"
->
-
-<style>
-
-    .notification-summary {
-        display: grid;
-        grid-template-columns:
-            repeat(auto-fit, minmax(180px, 1fr));
-        gap: 15px;
-        margin-bottom: 25px;
-    }
-
-    .notification-summary-card {
-        background: #fff;
-        border: 1px solid #e5e5e5;
-        border-radius: 10px;
-        padding: 20px;
-    }
-
-    .notification-summary-card span {
-        display: block;
-        color: #777;
-        font-size: 14px;
-        margin-bottom: 8px;
-    }
-
-    .notification-summary-card strong {
-        display: block;
-        font-size: 28px;
-        color: #222;
-    }
-
-    .notification-filters {
-        display: flex;
-        align-items: end;
-        gap: 12px;
-        flex-wrap: wrap;
-        margin-bottom: 25px;
-        padding: 20px;
-        background: #fff;
-        border: 1px solid #e5e5e5;
-        border-radius: 10px;
-    }
-
-    .notification-filter-group {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-    }
-
-    .notification-filter-group label {
-        font-size: 13px;
-        font-weight: 600;
-        color: #555;
-    }
-
-    .notification-filter-group select {
-        min-width: 170px;
-        padding: 10px 12px;
-        border: 1px solid #ddd;
-        border-radius: 7px;
-        background: #fff;
-    }
-
-    .notification-filter-button {
-        padding: 10px 18px;
-        border: 0;
-        border-radius: 7px;
-        background: #27ae60;
-        color: #fff;
-        cursor: pointer;
-        font-weight: 600;
-    }
-
-    .notification-reset-button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 10px 18px;
-        border: 1px solid #ddd;
-        border-radius: 7px;
-        background: #fff;
-        color: #333;
-        text-decoration: none;
-        font-weight: 600;
-    }
-
-    .notification-message {
-        max-width: 350px;
-        line-height: 1.5;
-    }
-
-    .notification-user {
-        display: flex;
-        flex-direction: column;
-        gap: 3px;
-    }
-
-    .notification-user-name {
-        font-weight: 600;
-    }
-
-    .notification-user-email {
-        color: #777;
-        font-size: 12px;
-    }
-
-    .pagination {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 8px;
-        margin-top: 25px;
-        margin-bottom: 30px;
-        flex-wrap: wrap;
-    }
-
-    .pagination a {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 40px;
-        height: 40px;
-        padding: 0 12px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        background: #fff;
-        color: #333;
-        text-decoration: none;
-        font-size: 14px;
-        font-weight: 600;
-        transition: 0.2s;
-    }
-
-    .pagination a:hover {
-        background: #27ae60;
-        border-color: #27ae60;
-        color: #fff;
-    }
-
-    .pagination a.active {
-        background: #27ae60;
-        border-color: #27ae60;
-        color: #fff;
-    }
-
-    @media (max-width: 700px) {
-
-        .notification-filters {
-            align-items: stretch;
-        }
-
-        .notification-filter-group {
-            width: 100%;
-        }
-
-        .notification-filter-group select {
-            width: 100%;
-        }
-
-        .notification-filter-button,
-        .notification-reset-button {
-            width: 100%;
-        }
-
-        .pagination {
-            gap: 5px;
-        }
-
-        .pagination a {
-            min-width: 36px;
-            height: 36px;
-            padding: 0 9px;
-            font-size: 13px;
-        }
-    }
-
-</style>
-
-
+    <link
+        rel="stylesheet"
+        href="../assets/css/base.css"
+    >
+    <link
+        rel="stylesheet"
+        href="../assets/css/navbar.css"
+    >
+    <link
+        rel="stylesheet"
+        href="../assets/css/sidebar.css"
+    >
+    <link
+        rel="stylesheet"
+        href="../assets/css/admin.css"
+    >
+    
+    <link rel="stylesheet" href="../assets/css/admin_ann.css">
 </head>
- <body>
-     <?php 
-     include __DIR__ . '/../includes/navbar.php'; ?> <?php include __DIR__ . '/../includes/sidebar.php'; 
-     ?> 
-     <main class="main-content">
-<div class="page-header">
 
-    <div>
+<body>
 
-        <h1>
-            Notifications
-        </h1>
+<?php include __DIR__ . '/../includes/navbar.php'; ?>
+<?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-        <p>
-            View and monitor all system notifications.
-        </p>
+<main class="main-content admin-notifications-page">
 
-    </div>
+    <section class="admin-page-hero">
+        <div class="admin-page-hero-copy">
+            <span class="eyebrow">
+                ADMIN / NOTIFICATIONS
+            </span>
 
-</div>
-
-<?php if (!empty($errors)): ?>
-
-    <div class="alert alert-danger">
-
-        <?php foreach ($errors as $error): ?>
+            <h1>
+                System <em>notifications.</em>
+            </h1>
 
             <p>
-                <?= htmlspecialchars(
-                    $error,
-                    ENT_QUOTES,
-                    'UTF-8'
-                ) ?>
+                View and monitor notifications
+                delivered across MarketLink.
             </p>
+        </div>
 
-        <?php endforeach; ?>
+        <div class="admin-page-mark">
+            08
+        </div>
+    </section>
 
-    </div>
+    <?php if (!empty($errors)): ?>
+        <div class="admin-page-alert alert-danger">
+            <span class="admin-alert-mark">!</span>
 
-<?php endif; ?>
+            <div>
+                <?php foreach ($errors as $error): ?>
+                    <p>
+                        <?= htmlspecialchars(
+                            $error,
+                            ENT_QUOTES,
+                            'UTF-8'
+                        ) ?>
+                    </p>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    <?php endif; ?>
 
-<!-- SUMMARY -->
+    <section class="admin-notification-summary-section">
 
-<section class="notification-summary">
+        <div class="admin-section-heading">
+            <div>
+                <span class="admin-section-number">
+                    01 / OVERVIEW
+                </span>
 
-    <div class="notification-summary-card">
+                <h2>
+                    Notification <em>activity.</em>
+                </h2>
+            </div>
 
-        <span>
-            Total Notifications
-        </span>
+            <span class="admin-record-count">
+                <?= $total_notifications ?>
+                total
+            </span>
+        </div>
 
-        <strong>
-            <?= $total_notifications ?>
-        </strong>
+        <div class="admin-notification-summary">
 
-    </div>
+            <div class="admin-notification-summary-card">
+                <span class="admin-notification-summary-label">
+                    Total notifications
+                </span>
 
-    <div class="notification-summary-card">
+                <strong>
+                    <?= $total_notifications ?>
+                </strong>
 
-        <span>
-            Unread Notifications
-        </span>
+                <span class="admin-notification-summary-note">
+                    Across all users
+                </span>
+            </div>
 
-        <strong>
-            <?= $unread_count ?>
-        </strong>
+            <div class="admin-notification-summary-card admin-notification-summary-unread">
+                <span class="admin-notification-summary-label">
+                    Unread notifications
+                </span>
 
-    </div>
+                <strong>
+                    <?= $unread_count ?>
+                </strong>
 
-</section>
+                <span class="admin-notification-summary-note">
+                    Awaiting attention
+                </span>
+            </div>
 
-<!-- FILTERS -->
+        </div>
 
-<form
-    method="GET"
-    class="notification-filters"
->
+    </section>
 
-    <div class="notification-filter-group">
+    <section class="admin-notification-filter-section">
 
-        <label for="status">
-            Status
-        </label>
+        <div class="admin-section-heading">
+            <div>
+                <span class="admin-section-number">
+                    02 / FILTER
+                </span>
 
-        <select
-            name="status"
-            id="status"
+                <h2>
+                    Find specific <em>notifications.</em>
+                </h2>
+            </div>
+        </div>
+
+        <form
+            method="GET"
+            class="admin-notification-filter-card"
         >
 
-            <option value="">
-                All
-            </option>
+            <div class="admin-notification-filter-field">
+                <label for="status">
+                    Status
+                </label>
 
-            <option
-                value="read"
-                <?= $filter_status === 'read'
-                    ? 'selected'
-                    : '' ?>
-            >
-                Read
-            </option>
-
-            <option
-                value="unread"
-                <?= $filter_status === 'unread'
-                    ? 'selected'
-                    : '' ?>
-            >
-                Unread
-            </option>
-
-        </select>
-
-    </div>
-
-    <div class="notification-filter-group">
-
-        <label for="type">
-            Type
-        </label>
-
-        <select
-            name="type"
-            id="type"
-        >
-
-            <option value="">
-                All Types
-            </option>
-
-            <?php foreach (
-                $notification_types
-                as $notification_type
-            ): ?>
-
-                <option
-                    value="<?= htmlspecialchars(
-                        $notification_type,
-                        ENT_QUOTES,
-                        'UTF-8'
-                    ) ?>"
-                    <?= $filter_type === $notification_type
-                        ? 'selected'
-                        : '' ?>
+                <select
+                    name="status"
+                    id="status"
                 >
+                    <option value="">
+                        All statuses
+                    </option>
 
-                    <?= htmlspecialchars(
-                        ucfirst($notification_type),
-                        ENT_QUOTES,
-                        'UTF-8'
-                    ) ?>
+                    <option
+                        value="read"
+                        <?= $filter_status === 'read'
+                            ? 'selected'
+                            : '' ?>
+                    >
+                        Read
+                    </option>
 
-                </option>
+                    <option
+                        value="unread"
+                        <?= $filter_status === 'unread'
+                            ? 'selected'
+                            : '' ?>
+                    >
+                        Unread
+                    </option>
+                </select>
+            </div>
 
-            <?php endforeach; ?>
+            <div class="admin-notification-filter-field">
+                <label for="type">
+                    Type
+                </label>
 
-        </select>
+                <select
+                    name="type"
+                    id="type"
+                >
+                    <option value="">
+                        All types
+                    </option>
 
-    </div>
+                    <?php foreach (
+                        $notification_types
+                        as $notification_type
+                    ): ?>
 
-    <button
-        type="submit"
-        class="notification-filter-button"
-    >
-        Filter
-    </button>
+                        <option
+                            value="<?= htmlspecialchars(
+                                $notification_type,
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
+                            <?= $filter_type === $notification_type
+                                ? 'selected'
+                                : '' ?>
+                        >
+                            <?= htmlspecialchars(
+                                ucfirst($notification_type),
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>
+                        </option>
 
-    <a
-        href="notifications.php"
-        class="notification-reset-button"
-    >
-        Reset
-    </a>
+                    <?php endforeach; ?>
+                </select>
+            </div>
 
-</form>
+            <div class="admin-notification-filter-actions">
 
-<!-- NOTIFICATIONS TABLE -->
+                <button
+                    type="submit"
+                    class="admin-action-submit"
+                >
+                    Filter
+                </button>
 
-<section class="table-section">
+                <a
+                    href="notifications.php"
+                    class="admin-action-reset"
+                >
+                    Reset
+                </a>
 
-    <div class="section-header">
+            </div>
 
-        <h2>
-            System Notifications
-        </h2>
+        </form>
 
-    </div>
+    </section>
 
-    <div class="table-responsive">
+    <section class="admin-notifications-section">
 
-        <table class="data-table">
+        <div class="admin-section-heading">
+            <div>
+                <span class="admin-section-number">
+                    03 / DIRECTORY
+                </span>
 
-            <thead>
+                <h2>
+                    System <em>notifications.</em>
+                </h2>
+            </div>
 
-                <tr>
+            <span class="admin-record-count">
+                <?= $total_notifications ?>
+                <?= $total_notifications === 1
+                    ? 'notification'
+                    : 'notifications' ?>
+            </span>
+        </div>
 
-                    <th>
-                        ID
-                    </th>
+        <div class="admin-notifications-table">
 
-                    <th>
-                        User
-                    </th>
+            <table>
 
-                    <th>
-                        Title
-                    </th>
+                <thead>
+                    <tr>
+                        <th class="admin-notification-id">
+                            ID
+                        </th>
 
-                    <th>
-                        Message
-                    </th>
+                        <th class="admin-notification-user">
+                            User
+                        </th>
 
-                    <th>
-                        Type
-                    </th>
+                        <th class="admin-notification-content">
+                            Notification
+                        </th>
 
-                    <th>
-                        Status
-                    </th>
+                        <th class="admin-notification-type">
+                            Type
+                        </th>
 
-                    <th>
-                        Date
-                    </th>
+                        <th class="admin-notification-status">
+                            Status
+                        </th>
 
-                </tr>
+                        <th class="admin-notification-date">
+                            Date
+                        </th>
+                    </tr>
+                </thead>
 
-            </thead>
-
-            <tbody>
+                <tbody>
 
                 <?php if (!empty($adminNotifications)): ?>
 
@@ -692,46 +515,36 @@ $type_stmt->close();
                     ): ?>
 
                         <?php
+                        $is_read =
+                            (int) $notification['is_read'] === 1;
 
                         $notification_status =
-                            (int) $notification['is_read'] === 1
+                            $is_read
                                 ? 'Read'
                                 : 'Unread';
 
                         $status_class =
-                            (int) $notification['is_read'] === 1
-                                ? 'active'
-                                : 'pending';
-
+                            $is_read
+                                ? 'admin-status-active'
+                                : 'admin-status-pending';
                         ?>
 
                         <tr>
 
-                            <!-- ID -->
-
-                            <td>
-
+                            <td class="admin-notification-id-cell">
                                 #<?= (int) $notification['id'] ?>
-
                             </td>
 
-                            <!-- USER -->
-
                             <td>
+                                <div class="admin-notification-user-wrap">
 
-                                <div class="notification-user">
-
-                                    <span
-                                        class="notification-user-name"
-                                    >
-
+                                    <span class="admin-notification-user-name">
                                         <?= htmlspecialchars(
                                             $notification['user_name']
                                                 ?? 'Unknown User',
                                             ENT_QUOTES,
                                             'UTF-8'
                                         ) ?>
-
                                     </span>
 
                                     <?php if (
@@ -740,130 +553,119 @@ $type_stmt->close();
                                         )
                                     ): ?>
 
-                                        <span
-                                            class="notification-user-email"
-                                        >
-
+                                        <span class="admin-notification-user-email">
                                             <?= htmlspecialchars(
                                                 $notification['user_email'],
                                                 ENT_QUOTES,
                                                 'UTF-8'
                                             ) ?>
-
                                         </span>
 
                                     <?php endif; ?>
 
-                                    <span
-                                        class="notification-user-email"
-                                    >
-
+                                    <span class="admin-notification-user-id">
                                         ID:
                                         <?= (int) $notification['user_id'] ?>
-
                                     </span>
 
                                 </div>
-
                             </td>
 
-                            <!-- TITLE -->
-
                             <td>
+                                <div class="admin-notification-content-wrap">
 
-                                <?= htmlspecialchars(
-                                    $notification['title']
-                                        ?? 'N/A',
-                                    ENT_QUOTES,
-                                    'UTF-8'
-                                ) ?>
-
-                            </td>
-
-                            <!-- MESSAGE -->
-
-                            <td>
-
-                                <div
-                                    class="notification-message"
-                                >
-
-                                    <?= nl2br(
-                                        htmlspecialchars(
-                                            $notification['message']
+                                    <span class="admin-notification-title">
+                                        <?= htmlspecialchars(
+                                            $notification['title']
                                                 ?? 'N/A',
                                             ENT_QUOTES,
                                             'UTF-8'
-                                        )
-                                    ) ?>
+                                        ) ?>
+                                    </span>
+
+                                    <span class="admin-notification-message">
+                                        <?= nl2br(
+                                            htmlspecialchars(
+                                                $notification['message']
+                                                    ?? 'N/A',
+                                                ENT_QUOTES,
+                                                'UTF-8'
+                                            )
+                                        ) ?>
+                                    </span>
 
                                 </div>
-
                             </td>
 
-                            <!-- TYPE -->
-
                             <td>
-
                                 <?php if (
                                     !empty(
                                         $notification['type']
                                     )
                                 ): ?>
 
-                                    <?= htmlspecialchars(
-                                        ucfirst(
-                                            $notification['type']
-                                        ),
-                                        ENT_QUOTES,
-                                        'UTF-8'
-                                    ) ?>
+                                    <span class="admin-notification-type-label">
+                                        <?= htmlspecialchars(
+                                            ucfirst(
+                                                $notification['type']
+                                            ),
+                                            ENT_QUOTES,
+                                            'UTF-8'
+                                        ) ?>
+                                    </span>
 
                                 <?php else: ?>
 
-                                    N/A
+                                    <span class="admin-table-muted">
+                                        N/A
+                                    </span>
 
                                 <?php endif; ?>
-
                             </td>
 
-                            <!-- STATUS -->
-
                             <td>
-
                                 <span
-                                    class="status status-<?= $status_class ?>"
+                                    class="admin-status <?= $status_class ?>"
                                 >
-
+                                    <span class="admin-status-dot"></span>
                                     <?= $notification_status ?>
-
                                 </span>
-
                             </td>
 
-                            <!-- DATE -->
-
                             <td>
-
                                 <?php if (
                                     !empty(
                                         $notification['created_at']
                                     )
                                 ): ?>
 
-                                    <?= date(
-                                        'Y-m-d H:i',
-                                        strtotime(
-                                            $notification['created_at']
-                                        )
-                                    ) ?>
+                                    <div class="admin-notification-date-wrap">
+                                        <span class="admin-notification-date">
+                                            <?= date(
+                                                'Y-m-d',
+                                                strtotime(
+                                                    $notification['created_at']
+                                                )
+                                            ) ?>
+                                        </span>
+
+                                        <span class="admin-notification-time">
+                                            <?= date(
+                                                'H:i',
+                                                strtotime(
+                                                    $notification['created_at']
+                                                )
+                                            ) ?>
+                                        </span>
+                                    </div>
 
                                 <?php else: ?>
 
-                                    N/A
+                                    <span class="admin-table-muted">
+                                        N/A
+                                    </span>
 
                                 <?php endif; ?>
-
                             </td>
 
                         </tr>
@@ -873,72 +675,138 @@ $type_stmt->close();
                 <?php else: ?>
 
                     <tr>
+                        <td
+                            colspan="6"
+                            class="admin-table-empty"
+                        >
+                            <div class="admin-empty-state">
 
-                        <td colspan="7">
+                                <span class="admin-empty-mark">
+                                    ✦
+                                </span>
 
-                            No notifications found.
+                                <strong>
+                                    No notifications found.
+                                </strong>
 
+                                <span>
+                                    Try adjusting the filters
+                                    or check again later.
+                                </span>
+
+                            </div>
                         </td>
-
                     </tr>
 
                 <?php endif; ?>
 
-            </tbody>
+                </tbody>
 
-        </table>
-
-    </div>
-
-    <!-- PAGINATION -->
-
-    <?php if ($total_pages > 1): ?>
-
-        <div class="pagination">
-
-            <?php if ($page > 1): ?>
-
-                <a
-                    href="?page=<?= $page - 1 ?>&status=<?= urlencode($filter_status) ?>&type=<?= urlencode($filter_type) ?>"
-                >
-                    Previous
-                </a>
-
-            <?php endif; ?>
-
-            <?php for (
-                $i = 1;
-                $i <= $total_pages;
-                $i++
-            ): ?>
-
-                <a
-                    href="?page=<?= $i ?>&status=<?= urlencode($filter_status) ?>&type=<?= urlencode($filter_type) ?>"
-                    class="<?= $i === $page
-                        ? 'active'
-                        : '' ?>"
-                >
-                    <?= $i ?>
-                </a>
-
-            <?php endfor; ?>
-
-            <?php if ($page < $total_pages): ?>
-
-                <a
-                    href="?page=<?= $page + 1 ?>&status=<?= urlencode($filter_status) ?>&type=<?= urlencode($filter_type) ?>"
-                >
-                    Next
-                </a>
-
-            <?php endif; ?>
+            </table>
 
         </div>
 
-    <?php endif; ?>
+        <?php if ($total_pages > 1): ?>
 
-</section>
+            <div class="admin-pagination">
 
-</main> 
+                <div class="admin-pagination-info">
+                    Page <?= $page ?>
+                    of <?= $total_pages ?>
+                </div>
+
+                <div class="admin-pagination-controls">
+
+                    <?php if ($page > 1): ?>
+
+                        <a
+                            href="?page=<?= $page - 1 ?>&<?= $query_string ?>"
+                            class="admin-pagination-arrow"
+                        >
+                            Previous
+                        </a>
+
+                    <?php endif; ?>
+
+                    <?php
+                    $start_page = max(1, $page - 2);
+                    $end_page = min(
+                        $total_pages,
+                        $page + 2
+                    );
+                    ?>
+
+                    <?php if ($start_page > 1): ?>
+
+                        <a
+                            href="?page=1&<?= $query_string ?>"
+                            class="admin-pagination-number"
+                        >
+                            1
+                        </a>
+
+                        <?php if ($start_page > 2): ?>
+                            <span class="admin-pagination-dots">
+                                ...
+                            </span>
+                        <?php endif; ?>
+
+                    <?php endif; ?>
+
+                    <?php for (
+                        $i = $start_page;
+                        $i <= $end_page;
+                        $i++
+                    ): ?>
+
+                        <a
+                            href="?page=<?= $i ?>&<?= $query_string ?>"
+                            class="admin-pagination-number <?= $i === $page
+                                ? 'active'
+                                : '' ?>"
+                        >
+                            <?= $i ?>
+                        </a>
+
+                    <?php endfor; ?>
+
+                    <?php if ($end_page < $total_pages): ?>
+
+                        <?php if ($end_page < $total_pages - 1): ?>
+                            <span class="admin-pagination-dots">
+                                ...
+                            </span>
+                        <?php endif; ?>
+
+                        <a
+                            href="?page=<?= $total_pages ?>&<?= $query_string ?>"
+                            class="admin-pagination-number"
+                        >
+                            <?= $total_pages ?>
+                        </a>
+
+                    <?php endif; ?>
+
+                    <?php if ($page < $total_pages): ?>
+
+                        <a
+                            href="?page=<?= $page + 1 ?>&<?= $query_string ?>"
+                            class="admin-pagination-arrow"
+                        >
+                            Next
+                        </a>
+
+                    <?php endif; ?>
+
+                </div>
+
+            </div>
+
+        <?php endif; ?>
+
+    </section>
+
+</main>
+
 </body>
- </html>
+</html>
