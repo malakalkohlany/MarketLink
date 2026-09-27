@@ -9,179 +9,196 @@ $success = '';
 $categories = [];
 $edit_category = null;
 
+$perPage = 10;
 
+$currentPage = filter_input(
+    INPUT_GET,
+    'page',
+    FILTER_VALIDATE_INT,
+    [
+        'options' => [
+            'default' => 1,
+            'min_range' => 1
+        ]
+    ]
+);
 
+$search = trim($_GET['search'] ?? '');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+
         $errors[] = 'Invalid CSRF token.';
-    }
 
-    if (isset($_POST['add_category'])) {
-
-        $name = trim($_POST['name'] ?? '');
-        $description = trim($_POST['description'] ?? '');
-        $status = $_POST['status'] ?? 'active';
-
-        if ($name === '') {
-            $errors[] = 'Category name is required.';
-        }
-
-        if (!in_array($status, ['active', 'inactive'], true)) {
-            $errors[] = 'Invalid category status.';
-        }
-
-        if (empty($errors)) {
-
-            $stmt = $conn->prepare("
-                INSERT INTO categories
-                (name, description, status)
-                VALUES (?, ?, ?)
-            ");
-
-              if ($stmt) {
-
-                $stmt->bind_param(
-                    'sss',
-                    $name,
-                    $description,
-                    $status
-                );
-
-                try {
-
-                    $stmt->execute();
-                    $stmt->close();
-
-                    redirect('categories.php?success=added');
-
-                } catch (mysqli_sql_exception $e) {
-
-                    if ($e->getCode() === 1062) {
-                        $errors[] = 'A category with this name already exists.';
-                    } else {
-                        $errors[] = 'Failed to add category.';
-                    }
-
-                    $stmt->close();
-                }
-            }
-        }
-    }
-     if (isset($_POST['update_category'])) {
-
-        $id = filter_input(
-            INPUT_POST,
-            'id',
-            FILTER_VALIDATE_INT
-        );
-
-        $name = trim($_POST['name'] ?? '');
-        $description = trim($_POST['description'] ?? '');
-        $status = $_POST['status'] ?? 'active';
-
-        if (!$id) {
-            $errors[] = 'Invalid category.';
-        }
-
-        if ($name === '') {
-            $errors[] = 'Category name is required.';
-        }
-
-        if (!in_array($status, ['active', 'inactive'], true)) {
-            $errors[] = 'Invalid category status.';
-        }
-
-        if (empty($errors)) {
-
-            $stmt = $conn->prepare("
-                UPDATE categories
-                SET
-                    name = ?,
-                    description = ?,
-                    status = ?
-                WHERE id = ?
-            ");
-
-            if ($stmt) {
-
-                $stmt->bind_param(
-                    'sssi',
-                    $name,
-                    $description,
-                    $status,
-                    $id
-                );
-
-                try {
-
-                    $stmt->execute();
-                    $stmt->close();
-
-                   redirect('categories.php?success=updated');
-
-                } catch (mysqli_sql_exception $e) {
-
-                    if ($e->getCode() === 1062) {
-                        $errors[] = 'A category with this name already exists.';
-                    } else {
-                        $errors[] = 'Failed to update category.';
-                    }
-
-                    $stmt->close();
-                }
-            }
-        }
-    }
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_category'])) {
-
-    $id = filter_input(
-        INPUT_POST,
-        'delete_category',
-        FILTER_VALIDATE_INT
-    );
-
-    if (!$id) {
-        $errors[] = 'Invalid category.';
     } else {
 
-        $stmt = $conn->prepare("
-            SELECT COUNT(*) AS total
-            FROM products
-            WHERE category_id = ?
-        ");
+        if (isset($_POST['add_category'])) {
 
-        if ($stmt) {
+            $name = trim($_POST['name'] ?? '');
+            $description = trim($_POST['description'] ?? '');
+            $status = $_POST['status'] ?? 'active';
 
-            $stmt->bind_param('i', $id);
-            $stmt->execute();
+            if ($name === '') {
+                $errors[] = 'Category name is required.';
+            }
 
-            $result = $stmt->get_result();
-            $row = $result->fetch_assoc();
+            if (!in_array($status, ['active', 'inactive'], true)) {
+                $errors[] = 'Invalid category status.';
+            }
 
-            $stmt->close();
+            if (empty($errors)) {
 
-            if ((int)$row['total'] > 0) {
+                $stmt = $conn->prepare("
+                    INSERT INTO categories
+                    (name, description, status)
+                    VALUES (?, ?, ?)
+                ");
 
-                $errors[] = 'This category cannot be deleted because products are assigned to it.';
+                if ($stmt) {
+
+                    $stmt->bind_param(
+                        'sss',
+                        $name,
+                        $description,
+                        $status
+                    );
+
+                    try {
+
+                        $stmt->execute();
+                        $stmt->close();
+
+                        redirect('categories.php?success=added');
+
+                    } catch (mysqli_sql_exception $e) {
+
+                        if ($e->getCode() === 1062) {
+                            $errors[] = 'A category with this name already exists.';
+                        } else {
+                            $errors[] = 'Failed to add category.';
+                        }
+
+                        $stmt->close();
+                    }
+                }
+            }
+
+        } elseif (isset($_POST['update_category'])) {
+
+            $id = filter_input(
+                INPUT_POST,
+                'id',
+                FILTER_VALIDATE_INT
+            );
+
+            $name = trim($_POST['name'] ?? '');
+            $description = trim($_POST['description'] ?? '');
+            $status = $_POST['status'] ?? 'active';
+
+            if (!$id) {
+                $errors[] = 'Invalid category.';
+            }
+
+            if ($name === '') {
+                $errors[] = 'Category name is required.';
+            }
+
+            if (!in_array($status, ['active', 'inactive'], true)) {
+                $errors[] = 'Invalid category status.';
+            }
+
+            if (empty($errors)) {
+
+                $stmt = $conn->prepare("
+                    UPDATE categories
+                    SET
+                        name = ?,
+                        description = ?,
+                        status = ?
+                    WHERE id = ?
+                ");
+
+                if ($stmt) {
+
+                    $stmt->bind_param(
+                        'sssi',
+                        $name,
+                        $description,
+                        $status,
+                        $id
+                    );
+
+                    try {
+
+                        $stmt->execute();
+                        $stmt->close();
+
+                        redirect('categories.php?success=updated');
+
+                    } catch (mysqli_sql_exception $e) {
+
+                        if ($e->getCode() === 1062) {
+                            $errors[] = 'A category with this name already exists.';
+                        } else {
+                            $errors[] = 'Failed to update category.';
+                        }
+
+                        $stmt->close();
+                    }
+                }
+            }
+
+        } elseif (isset($_POST['delete_category'])) {
+
+            $id = filter_input(
+                INPUT_POST,
+                'delete_category',
+                FILTER_VALIDATE_INT
+            );
+
+            if (!$id) {
+
+                $errors[] = 'Invalid category.';
 
             } else {
 
                 $stmt = $conn->prepare("
-                    DELETE FROM categories
-                    WHERE id = ?
+                    SELECT COUNT(*) AS total
+                    FROM products
+                    WHERE category_id = ?
                 ");
 
                 if ($stmt) {
 
                     $stmt->bind_param('i', $id);
                     $stmt->execute();
+
+                    $result = $stmt->get_result();
+                    $row = $result->fetch_assoc();
+
                     $stmt->close();
 
-                    redirect('categories.php?success=deleted');
+                    if ((int) ($row['total'] ?? 0) > 0) {
+
+                        $errors[] = 'This category cannot be deleted because products are assigned to it.';
+
+                    } else {
+
+                        $stmt = $conn->prepare("
+                            DELETE FROM categories
+                            WHERE id = ?
+                        ");
+
+                        if ($stmt) {
+
+                            $stmt->bind_param('i', $id);
+                            $stmt->execute();
+                            $stmt->close();
+
+                            redirect('categories.php?success=deleted');
+                        }
+                    }
                 }
             }
         }
@@ -224,9 +241,81 @@ if (isset($_GET['edit'])) {
     }
 }
 
-$search = trim($_GET['search'] ?? '');
+if (isset($_GET['success'])) {
+
+    if ($_GET['success'] === 'added') {
+        $success = 'Produce category added successfully.';
+    }
+
+    if ($_GET['success'] === 'updated') {
+        $success = 'Produce category updated successfully.';
+    }
+
+    if ($_GET['success'] === 'deleted') {
+        $success = 'Produce category deleted successfully.';
+    }
+}
+
+$totalCategories = 0;
 
 if ($search !== '') {
+
+    $keyword = '%' . $search . '%';
+
+    $stmt = $conn->prepare("
+        SELECT COUNT(*) AS total
+        FROM categories
+        WHERE name LIKE ?
+           OR description LIKE ?
+    ");
+
+    if ($stmt) {
+
+        $stmt->bind_param(
+            'ss',
+            $keyword,
+            $keyword
+        );
+
+        if ($stmt->execute()) {
+
+            $result = $stmt->get_result();
+            $row = $result->fetch_assoc();
+
+            $totalCategories = (int) ($row['total'] ?? 0);
+        }
+
+        $stmt->close();
+    }
+
+} else {
+
+    $result = $conn->query("
+        SELECT COUNT(*) AS total
+        FROM categories
+    ");
+
+    if ($result) {
+
+        $row = $result->fetch_assoc();
+        $totalCategories = (int) ($row['total'] ?? 0);
+    }
+}
+
+$totalPages = max(
+    1,
+    (int) ceil($totalCategories / $perPage)
+);
+
+if ($currentPage > $totalPages) {
+    $currentPage = $totalPages;
+}
+
+$offset = ($currentPage - 1) * $perPage;
+
+if ($search !== '') {
+
+    $keyword = '%' . $search . '%';
 
     $stmt = $conn->prepare("
         SELECT
@@ -252,25 +341,31 @@ if ($search !== '') {
             c.created_at,
             c.updated_at
         ORDER BY c.name ASC
+        LIMIT ? OFFSET ?
     ");
 
-    $keyword = '%' . $search . '%';
+    if ($stmt) {
 
-    $stmt->bind_param(
-        'ss',
-        $keyword,
-        $keyword
-    );
-      $stmt->execute();
+        $stmt->bind_param(
+            'ssii',
+            $keyword,
+            $keyword,
+            $perPage,
+            $offset
+        );
 
-    $result = $stmt->get_result();
-    $categories = $result->fetch_all(MYSQLI_ASSOC);
+        if ($stmt->execute()) {
 
-    $stmt->close();
+            $result = $stmt->get_result();
+            $categories = $result->fetch_all(MYSQLI_ASSOC);
+        }
+
+        $stmt->close();
+    }
 
 } else {
 
-    $result = $conn->query("
+    $stmt = $conn->prepare("
         SELECT
             c.id,
             c.name,
@@ -292,27 +387,35 @@ if ($search !== '') {
             c.created_at,
             c.updated_at
         ORDER BY c.name ASC
+        LIMIT ? OFFSET ?
     ");
 
-    if ($result) {
-        $categories = $result->fetch_all(MYSQLI_ASSOC);
+    if ($stmt) {
+
+        $stmt->bind_param(
+            'ii',
+            $perPage,
+            $offset
+        );
+
+        if ($stmt->execute()) {
+
+            $result = $stmt->get_result();
+            $categories = $result->fetch_all(MYSQLI_ASSOC);
+        }
+
+        $stmt->close();
     }
 }
 
-if (isset($_GET['success'])) {
+$startItem = $totalCategories > 0
+    ? $offset + 1
+    : 0;
 
-    if ($_GET['success'] === 'added') {
-        $success = 'Produce category added successfully.';
-    }
-
-    if ($_GET['success'] === 'updated') {
-        $success = 'Produce category updated successfully.';
-    }
-
-    if ($_GET['success'] === 'deleted') {
-        $success = 'Produce category deleted successfully.';
-    }
-}
+$endItem = min(
+    $offset + $perPage,
+    $totalCategories
+);
 
 ?>
 
@@ -328,130 +431,148 @@ if (isset($_GET['success'])) {
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Produce Categories | MarketLink</title>
+    <title>Categories | MarketLink</title>
 
     <link
         rel="stylesheet"
-        href="../assets/css/style.css"
+        href="../assets/css/base.css"
     >
-    
+    <link
+        rel="stylesheet"
+        href="../assets/css/components.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/navbar.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/sidebar.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/admin.css"
+    >
 
 </head>
 
 <body>
-    <div class="admin-container">
 
-    <aside class="sidebar">
+<?php include __DIR__ . '/../includes/navbar.php'; ?>
 
-        <div class="logo">
-            MarketLink
+<?php include __DIR__ . '/../includes/sidebar.php'; ?>
+
+<main class="main-content admin-categories-page">
+
+    <section class="admin-page-hero">
+
+        <div>
+
+            <span class="eyebrow">
+                ADMIN / CATEGORIES
+            </span>
+
+            <h1>
+                Organize local <em>produce.</em>
+            </h1>
+
+            <p>
+                Create and manage the categories farmers use
+                to organize their products.
+            </p>
+
         </div>
 
-        <nav>
+        <div class="admin-page-mark">
+            <span>06</span>
+        </div>
 
-            <a href="dashboard.php">
-                Dashboard
-            </a>
+    </section>
 
-            <a href="markets.php">
-                Markets
-            </a>
 
-            <a href="add_market.php">
-                Add Market
-            </a>
+    <?php if (!empty($errors)): ?>
 
-            <a href="categories.php" class="active">
-                Produce Categories
-            </a>
+        <div class="admin-page-alert alert-danger">
 
-            <a href="farmers.php">
-                Farmers
-            </a>
-
-            <a href="products.php">
-                Produce
-            </a>
-
-            <a href="users.php">
-                Users
-            </a>
-
-            <a href="orders.php">
-                Orders
-            </a>
-
-            <a href="reviews.php">
-                Reviews
-            </a>
-
-            <a href="announcements.php">
-                Announcements
-            </a>
-
-            <a href="reports.php">
-                Reports
-            </a>
-
-            <a href="../logout.php">
-                Logout
-            </a>
-
-        </nav>
-
-    </aside>
-
-    <main class="main-content">
-
-        <div class="page-header">
+            <span class="admin-alert-mark">
+                !
+            </span>
 
             <div>
-
-                <h1>
-                    Produce Categories
-                </h1>
-
-                <p>
-                    Manage categories used to organize the Produce Guide.
-                </p>
-
-            </div>
-
-        </div>
-
-        <?php if (!empty($errors)): ?>
-
-            <div class="alert alert-danger">
 
                 <?php foreach ($errors as $error): ?>
 
                     <p>
-                        <?= htmlspecialchars($error) ?>
+                        <?= e($error) ?>
                     </p>
 
                 <?php endforeach; ?>
 
             </div>
 
-        <?php endif; ?>
+        </div>
 
-        <?php if ($success !== ''): ?>
+    <?php endif; ?>
 
-            <div class="alert alert-success">
-                <?= htmlspecialchars($success) ?>
+
+    <?php if ($success !== ''): ?>
+
+        <div class="admin-page-alert alert-success">
+
+            <span class="admin-alert-mark">
+                ✓
+            </span>
+
+            <div>
+
+                <p>
+                    <?= e($success) ?>
+                </p>
+
             </div>
 
-        <?php endif; ?>
+        </div>
 
-        <section class="form-section">
+    <?php endif; ?>
 
-            <div class="section-header">
+
+    <section class="admin-category-form-section">
+
+        <div class="admin-section-heading">
+
+            <div>
+
+                <span class="eyebrow">
+                    01 / <?= $edit_category ? 'Edit' : 'New' ?>
+                </span>
 
                 <h2>
-                    <?= $edit_category ? 'Edit Produce Category' : 'Add Produce Category' ?>
+                    <?= $edit_category
+                        ? 'Edit <em>category.</em>'
+                        : 'Add a <em>category.</em>'
+                    ?>
                 </h2>
 
             </div>
+
+            <?php if ($edit_category): ?>
+
+                <a
+                    href="categories.php"
+                    class="admin-category-cancel"
+                >
+                    Cancel
+                </a>
+
+            <?php endif; ?>
+
+        </div>
+
+
+        <div class="admin-category-form-card">
 
             <form
                 method="POST"
@@ -465,73 +586,92 @@ if (isset($_GET['success'])) {
                     <input
                         type="hidden"
                         name="id"
-                        value="<?= (int)$edit_category['id'] ?>"
+                        value="<?= (int) $edit_category['id'] ?>"
                     >
 
                 <?php endif; ?>
 
-                <div class="form-group">
 
-                    <label for="name">
-                        Category Name
-                    </label>
+                <div class="admin-category-form-grid">
 
-                    <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        maxlength="100"
-                        value="<?= htmlspecialchars($edit_category['name'] ?? '') ?>"
-                        placeholder="Fruits, Vegetables, Herbs, Dairy..."
-                        required
-                    >
-                       </div>
+                    <div class="admin-category-form-field">
 
-                <div class="form-group">
+                        <label for="name">
+                            Category name
+                        </label>
 
-                    <label for="description">
-                        Description
-                    </label>
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            maxlength="100"
+                            value="<?= e(
+                                $edit_category['name'] ?? ''
+                            ) ?>"
+                            placeholder="Fruits, Vegetables, Herbs..."
+                            required
+                        >
 
-                    <textarea
-                        id="description"
-                        name="description"
-                        rows="4"
-                        placeholder="Describe this produce category"
-                    ><?= htmlspecialchars($edit_category['description'] ?? '') ?></textarea>
+                    </div>
+
+
+                    <div class="admin-category-form-field">
+
+                        <label for="status">
+                            Status
+                        </label>
+
+                        <select
+                            id="status"
+                            name="status"
+                        >
+
+                            <option
+                                value="active"
+                                <?= (
+                                    ($edit_category['status'] ?? 'active')
+                                    === 'active'
+                                ) ? 'selected' : '' ?>
+                            >
+                                Active
+                            </option>
+
+                            <option
+                                value="inactive"
+                                <?= (
+                                    ($edit_category['status'] ?? '')
+                                    === 'inactive'
+                                ) ? 'selected' : '' ?>
+                            >
+                                Inactive
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="admin-category-form-field admin-category-description">
+
+                        <label for="description">
+                            Description
+                        </label>
+
+                        <textarea
+                            id="description"
+                            name="description"
+                            rows="4"
+                            placeholder="Describe this produce category"
+                        ><?= e(
+                            $edit_category['description'] ?? ''
+                        ) ?></textarea>
+
+                    </div>
 
                 </div>
 
-                <div class="form-group">
 
-                    <label for="status">
-                        Status
-                    </label>
-
-                    <select
-                        id="status"
-                        name="status"
-                    >
-
-                        <option
-                            value="active"
-                            <?= (($edit_category['status'] ?? 'active') === 'active') ? 'selected' : '' ?>
-                        >
-                            Active
-                        </option>
-
-                        <option
-                            value="inactive"
-                            <?= (($edit_category['status'] ?? '') === 'inactive') ? 'selected' : '' ?>
-                        >
-                            Inactive
-                        </option>
-
-                    </select>
-
-                </div>
-
-                <div class="form-actions">
+                <div class="admin-category-form-actions">
 
                     <?php if ($edit_category): ?>
 
@@ -540,15 +680,8 @@ if (isset($_GET['success'])) {
                             name="update_category"
                             class="btn btn-primary"
                         >
-                            Update Category
+                            Update category
                         </button>
-
-                        <a
-                            href="categories.php"
-                            class="btn btn-secondary"
-                        >
-                            Cancel
-                        </a>
 
                     <?php else: ?>
 
@@ -557,7 +690,7 @@ if (isset($_GET['success'])) {
                             name="add_category"
                             class="btn btn-primary"
                         >
-                            Add Category
+                            Add category
                         </button>
 
                     <?php endif; ?>
@@ -566,197 +699,427 @@ if (isset($_GET['success'])) {
 
             </form>
 
-        </section>
-          <section class="table-section">
+        </div>
 
-            <div class="section-header">
+    </section>
+
+
+    <section class="admin-management-section">
+
+        <div class="admin-section-heading">
+
+            <div>
+
+                <span class="eyebrow">
+                    02 / Directory
+                </span>
 
                 <h2>
-                    Produce Categories
+                    Produce <em>categories.</em>
                 </h2>
 
-                <form
-                    method="GET"
-                    action="categories.php"
-                    class="search-form"
+            </div>
+
+            <span class="admin-record-count">
+
+                <?= $totalCategories ?>
+
+                <?= $totalCategories === 1
+                    ? 'category'
+                    : 'categories'
+                ?>
+
+            </span>
+
+        </div>
+
+
+        <form
+            method="GET"
+            action="categories.php"
+            class="admin-category-search"
+        >
+
+            <div class="admin-category-search-input">
+
+                <span>⌕</span>
+
+                <input
+                    type="text"
+                    name="search"
+                    value="<?= e($search) ?>"
+                    placeholder="Search categories..."
                 >
 
-                    <input
-                        type="text"
-                        name="search"
-                        placeholder="Search produce categories..."
-                        value="<?= htmlspecialchars($search) ?>"
-                    >
+            </div>
 
-                    <button
-                        type="submit"
-                        class="btn btn-primary"
-                    >
-                        Search
-                    </button>
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+                Search
+            </button>
 
-                    <?php if ($search !== ''): ?>
+            <?php if ($search !== ''): ?>
+
+                <a
+                    href="categories.php"
+                    class="btn btn-soft"
+                >
+                    Clear
+                </a>
+
+            <?php endif; ?>
+
+        </form>
+
+
+        <div class="admin-categories-table">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Products</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                <?php if (!empty($categories)): ?>
+
+                    <?php foreach ($categories as $category): ?>
+
+                        <tr>
+
+                            <td class="admin-category-id">
+
+                                #<?= (int) $category['id'] ?>
+
+                            </td>
+
+
+                            <td>
+
+                                <div class="admin-category-name">
+
+                                    <div class="admin-category-mark">
+                                        <span>✦</span>
+                                    </div>
+
+                                    <strong>
+                                        <?= e(
+                                            $category['name']
+                                        ) ?>
+                                    </strong>
+
+                                </div>
+
+                            </td>
+
+
+                            <td class="admin-category-description">
+
+                                <?= !empty($category['description'])
+                                    ? e($category['description'])
+                                    : 'No description'
+                                ?>
+
+                            </td>
+
+
+                            <td class="admin-category-products">
+
+                                <?= (int) $category['product_count'] ?>
+
+                                <span>
+                                    <?= (int) $category['product_count'] === 1
+                                        ? 'product'
+                                        : 'products'
+                                    ?>
+                                </span>
+
+                            </td>
+
+
+                            <td>
+
+                                <span
+                                    class="admin-status admin-category-status-<?= e(
+                                        $category['status']
+                                    ) ?>"
+                                >
+                                    <?= ucfirst(
+                                        e($category['status'])
+                                    ) ?>
+                                </span>
+
+                            </td>
+
+
+                            <td class="admin-category-date">
+
+                                <?= !empty($category['created_at'])
+                                    ? date(
+                                        'M j, Y',
+                                        strtotime(
+                                            $category['created_at']
+                                        )
+                                    )
+                                    : 'N/A'
+                                ?>
+
+                            </td>
+
+
+                            <td>
+
+                                <div class="admin-category-actions">
+
+                                    <a
+                                        href="categories.php?edit=<?= (int) $category['id'] ?>&page=<?= $currentPage ?><?= $search !== '' ? '&search=' . urlencode($search) : '' ?>"
+                                        class="admin-action-view"
+                                    >
+                                        Edit
+                                    </a>
+
+
+                                    <?php if (
+                                        (int) $category['product_count'] === 0
+                                    ): ?>
+
+                                        <form
+                                            method="POST"
+                                            action="categories.php"
+                                            onsubmit="return confirm('Are you sure you want to delete this produce category?')"
+                                        >
+
+                                            <?= csrf_field() ?>
+
+                                            <input
+                                                type="hidden"
+                                                name="delete_category"
+                                                value="<?= (int) $category['id'] ?>"
+                                            >
+
+                                            <button
+                                                type="submit"
+                                                class="admin-action-reject"
+                                            >
+                                                Delete
+                                            </button>
+
+                                        </form>
+
+                                    <?php endif; ?>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    <?php endforeach; ?>
+
+                <?php else: ?>
+
+                    <tr>
+
+                        <td
+                            colspan="7"
+                            class="admin-table-empty"
+                        >
+
+                            <span>✦</span>
+
+                            <strong>
+                                No categories found.
+                            </strong>
+
+                            <p>
+                                <?= $search !== ''
+                                    ? 'Try a different search term.'
+                                    : 'Create your first produce category above.'
+                                ?>
+                            </p>
+
+                        </td>
+
+                    </tr>
+
+                <?php endif; ?>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <?php if ($totalPages > 1): ?>
+
+            <div class="admin-pagination">
+
+                <div class="admin-pagination-info">
+
+                    Showing
+                    <strong><?= $startItem ?></strong>
+                    –
+                    <strong><?= $endItem ?></strong>
+                    of
+                    <strong><?= $totalCategories ?></strong>
+
+                </div>
+
+
+                <div class="admin-pagination-controls">
+
+                    <?php
+
+                    $searchQuery = $search !== ''
+                        ? '&search=' . urlencode($search)
+                        : '';
+
+                    ?>
+
+
+                    <?php if ($currentPage > 1): ?>
 
                         <a
-                            href="categories.php"
-                            class="btn btn-secondary"
+                            href="?page=<?= $currentPage - 1 ?><?= $searchQuery ?>"
+                            class="admin-pagination-arrow"
                         >
-                            Clear
+                            Previous
+                        </a>
+
+                    <?php else: ?>
+
+                        <span class="admin-pagination-arrow disabled">
+                            Previous
+                        </span>
+
+                    <?php endif; ?>
+
+
+                    <?php
+
+                    $paginationStart = max(
+                        1,
+                        $currentPage - 2
+                    );
+
+                    $paginationEnd = min(
+                        $totalPages,
+                        $currentPage + 2
+                    );
+
+                    ?>
+
+
+                    <?php if ($paginationStart > 1): ?>
+
+                        <a
+                            href="?page=1<?= $searchQuery ?>"
+                            class="admin-pagination-number"
+                        >
+                            1
+                        </a>
+
+                        <?php if ($paginationStart > 2): ?>
+
+                            <span class="admin-pagination-dots">
+                                …
+                            </span>
+
+                        <?php endif; ?>
+
+                    <?php endif; ?>
+
+
+                    <?php for (
+                        $page = $paginationStart;
+                        $page <= $paginationEnd;
+                        $page++
+                    ): ?>
+
+                        <?php if ($page === $currentPage): ?>
+
+                            <span
+                                class="admin-pagination-number active"
+                            >
+                                <?= $page ?>
+                            </span>
+
+                        <?php else: ?>
+
+                            <a
+                                href="?page=<?= $page ?><?= $searchQuery ?>"
+                                class="admin-pagination-number"
+                            >
+                                <?= $page ?>
+                            </a>
+
+                        <?php endif; ?>
+
+                    <?php endfor; ?>
+
+
+                    <?php if ($paginationEnd < $totalPages): ?>
+
+                        <?php if ($paginationEnd < $totalPages - 1): ?>
+
+                            <span class="admin-pagination-dots">
+                                …
+                            </span>
+
+                        <?php endif; ?>
+
+                        <a
+                            href="?page=<?= $totalPages ?><?= $searchQuery ?>"
+                            class="admin-pagination-number"
+                        >
+                            <?= $totalPages ?>
                         </a>
 
                     <?php endif; ?>
 
-                </form>
+
+                    <?php if ($currentPage < $totalPages): ?>
+
+                        <a
+                            href="?page=<?= $currentPage + 1 ?><?= $searchQuery ?>"
+                            class="admin-pagination-arrow"
+                        >
+                            Next
+                        </a>
+
+                    <?php else: ?>
+
+                        <span class="admin-pagination-arrow disabled">
+                            Next
+                        </span>
+
+                    <?php endif; ?>
+
+                </div>
 
             </div>
 
-            <div class="table-responsive">
+        <?php endif; ?>
 
-                <table class="data-table">
+    </section>
 
-                    <thead>
-
-                        <tr>
-
-                            <th>
-                                ID
-                            </th>
-
-                            <th>
-                                Category
-                            </th>
-
-                            <th>
-                                Description
-                            </th>
-
-                            <th>
-                                Products
-                            </th>
-
-                            <th>
-                                Status
-                            </th>
-
-                            <th>
-                                Created
-                            </th>
-
-                            <th>
-                                Actions
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody>
-
-                        <?php if (!empty($categories)): ?>
-
-                            <?php foreach ($categories as $category): ?>
-
-                                <tr>
-
-                                    <td>
-                                        <?= (int)$category['id'] ?>
-                                    </td>
-
-                                    <td>
-                                        <?= htmlspecialchars($category['name']) ?>
-                                    </td>
-
-                                    <td>
-                                        <?= htmlspecialchars($category['description'] ?? '') ?>
-                                    </td>
-
-                                    <td>
-                                        <?= (int)$category['product_count'] ?>
-                                    </td>
-
-                                    <td>
-
-                                        <span
-                                            class="status status-<?= htmlspecialchars($category['status']) ?>"
-                                        >
-                                            <?= ucfirst(htmlspecialchars($category['status'])) ?>
-                                        </span>
-
-                                    </td>
-
-                                    <td>
-                                        <?= date(
-                                            'Y-m-d',
-                                            strtotime($category['created_at'])
-                                        ) ?>
-                                    </td>
-
-                                    <td>
-
-                                        <a
-                                            href="categories.php?edit=<?= (int)$category['id'] ?>"
-                                            class="btn btn-sm btn-primary"
-                                        >
-                                            Edit
-                                        </a>
-
-                                        <?php if ((int)$category['product_count'] === 0): ?>
-
-                                            <form
-                                                method="POST"
-                                                action="categories.php"
-                                                style="display: inline;"
-                                                onsubmit="return confirm('Are you sure you want to delete this produce category?')"
-                                            >
-
-                                                <?= csrf_field() ?>
-
-                                                <input
-                                                    type="hidden"
-                                                    name="delete_category"
-                                                    value="<?= (int)$category['id'] ?>"
-                                                >
-
-                                                <button
-                                                    type="submit"
-                                                    class="btn btn-sm btn-danger"
-                                                >
-                                                    Delete
-                                                </button>
-
-                                            </form>
-
-                                        <?php endif; ?>
-
-                                    </td>
-
-                                </tr>
-
-                            <?php endforeach; ?>
-
-                        <?php else: ?>
-
-                            <tr>
-
-                                <td colspan="7">
-                                    No produce categories found.
-                                </td>
-
-                            </tr>
-
-                               <?php endif; ?>
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </section>
-
-    </main>
-
-</div>
+</main>
 
 </body>
 
