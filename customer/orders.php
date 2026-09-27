@@ -520,8 +520,8 @@ unset($order);
                                     <div class="order-actions">
 
                                         <a
-                                            href="update_order.php?id=<?php echo (int) $order['id']; ?>"
-                                            class="modify-button"
+                                            href="<?= BASE_URL ?>customer/update_order.php?id=<?= (int) $order['id'] ?>"
+                                            class="btn btn-edit"
                                         >
                                             Modify Order
                                         </a>

@@ -36,20 +36,12 @@ function createNotification(
     return $success;
 }
 
-/**
- * Send the weekly stock reminder to farmers who have
- * at least one active weekly-stock template.
- *
- * A farmer receives at most one reminder per week.
- */
+
 function sendWeeklyStockReminders(
     mysqli $conn,
     string $weekStart
 ): void {
-    /*
-     * Find approved farmers who have at least one active
-     * weekly stock template.
-     */
+    
     $stmt = $conn->prepare("
         SELECT DISTINCT
             f.user_id
@@ -71,11 +63,6 @@ function sendWeeklyStockReminders(
 
     $result = $stmt->get_result();
 
-    /*
-     * Use the week start as the boundary.
-     * This prevents another reminder from being created
-     * later in the same week.
-     */
     $checkStmt = $conn->prepare("
         SELECT id
         FROM notifications
@@ -100,10 +87,6 @@ function sendWeeklyStockReminders(
 
         $userId = (int) $row['user_id'];
 
-        /*
-         * Check whether this farmer already received
-         * this week's reminder.
-         */
         $checkStmt->bind_param(
             'is',
             $userId,
@@ -133,20 +116,6 @@ function sendWeeklyStockReminders(
     $stmt->close();
 }
 
-
-/**
- * Notify customers when a farmer updates their
- * weekly stock.
- *
- * Customers are found through:
- * 1. Favorite farmer
- * 2. Favorite market where the farmer sells
- *
- * UNION prevents duplicate customers.
- *
- * A customer receives at most one notification for
- * this farmer during the current week.
- */
 function notifyWeeklyStockUpdated(
     mysqli $conn,
     int $farmerId,
@@ -188,15 +157,7 @@ function notifyWeeklyStockUpdated(
         $farmerName = 'A favorite farmer';
     }
 
-    /*
-     * Find customers who either:
-     *
-     * - favorite this farmer
-     * OR
-     * - favorite a market connected to this farmer
-     *
-     * UNION removes duplicates automatically.
-     */
+    
     $recipientStmt = $conn->prepare("
         SELECT user_id
         FROM fav_farmers
@@ -258,10 +219,6 @@ function notifyWeeklyStockUpdated(
 
         $userId = (int) $recipient['user_id'];
 
-        /*
-         * Don't send the same farmer's weekly update
-         * to the same customer more than once.
-         */
         $checkStmt->bind_param(
             'isss',
             $userId,

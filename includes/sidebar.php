@@ -5,12 +5,6 @@ require_once __DIR__ . '/include.php';
 $current_page = basename($_SERVER['PHP_SELF']);
 $role = $_SESSION['role'] ?? '';
 
-/*
-|--------------------------------------------------------------------------
-| Sidebar helpers
-|--------------------------------------------------------------------------
-*/
-
 function isPage(array $pages): bool
 {
     global $current_page;
@@ -37,10 +31,6 @@ function hasSubmenu(array $pages): bool
 ?>
 <aside class="sidebar">
 
-    <!-- =========================================================
-         BRAND
-    ========================================================== -->
-
     <div class="sidebar-brand">
         <div class="brand-mark">
             M
@@ -51,10 +41,6 @@ function hasSubmenu(array $pages): bool
         </div>
     </div>
 
-
-    <!-- =========================================================
-         ROLE
-    ========================================================== -->
 
     <div class="sidebar-role">
         <span class="role-dot"></span>
@@ -71,11 +57,6 @@ function hasSubmenu(array $pages): bool
         }
         ?>
     </div>
-
-
-    <!-- =========================================================
-         CUSTOMER SIDEBAR
-    ========================================================== -->
 
     <?php if ($role === 'customer'): ?>
 
@@ -272,10 +253,6 @@ function hasSubmenu(array $pages): bool
 
         </div>
 
-
-    <!-- =========================================================
-         FARMER SIDEBAR
-    ========================================================== -->
 
     <?php elseif ($role === 'farmer'): ?>
 
@@ -549,11 +526,6 @@ function hasSubmenu(array $pages): bool
 
         </div>
 
-
-    <!-- =========================================================
-         ADMIN SIDEBAR
-    ========================================================== -->
-
     <?php elseif ($role === 'admin'): ?>
 
         <!-- Overview -->
@@ -781,11 +753,6 @@ function hasSubmenu(array $pages): bool
 
     <?php endif; ?>
 
-
-    <!-- =========================================================
-         LOGOUT
-    ========================================================== -->
-
     <div class="sidebar-bottom">
 
         <ul class="sidebar-list">
@@ -807,11 +774,6 @@ function hasSubmenu(array $pages): bool
     </div>
 
 </aside>
-
-
-<!-- =========================================================
-     LUCIDE ICONS
-========================================================== -->
 
 <script src="../assets/js/lucide.js"></script>
 
