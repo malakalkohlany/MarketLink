@@ -1,0 +1,521 @@
+.admin-farmers-page {
+    background: var(--cream);
+    padding-bottom: 100px;
+}
+
+.admin-page-hero {
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+    padding: 35px 0 45px;
+    border-bottom: 1px solid var(--border);
+}
+
+.admin-page-hero .eyebrow {
+    display: block;
+    margin-bottom: 20px;
+}
+
+.admin-page-hero h1 {
+    max-width: 800px;
+    margin: 0;
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: clamp(3rem, 6vw, 5.7rem);
+    font-weight: 700;
+    line-height: .92;
+    letter-spacing: -.055em;
+}
+
+.admin-page-hero h1 em {
+    display: block;
+    color: var(--sage-dark);
+    font-family: var(--font-serif);
+    font-weight: 400;
+    letter-spacing: -.045em;
+}
+
+.admin-page-hero p {
+    max-width: 570px;
+    margin: 25px 0 0;
+    color: var(--text-soft);
+    font-size: .95rem;
+    line-height: 1.7;
+}
+
+.admin-page-mark {
+    flex: 0 0 150px;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: var(--marigold-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(-7deg);
+}
+
+.admin-page-mark::before {
+    content: "";
+    position: absolute;
+    width: 105px;
+    height: 105px;
+    border-radius: 50%;
+    border: 1px solid rgba(62, 48, 38, .12);
+}
+
+.admin-page-mark span {
+    color: var(--terracotta-dark);
+    font-family: var(--font-main);
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+}
+
+.admin-page-alert {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 30px;
+    padding: 16px 20px;
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+}
+
+.admin-page-alert p {
+    margin: 0;
+    font-size: .84rem;
+    line-height: 1.5;
+}
+
+.admin-page-alert.alert-success {
+    background: var(--sage-soft);
+    border-color: var(--sage-light);
+    color: var(--sage-dark);
+}
+
+.admin-page-alert.alert-danger {
+    background: var(--terracotta-soft);
+    border-color: #E7CBC6;
+    color: var(--terracotta-dark);
+}
+
+.admin-page-alert.alert-danger div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.admin-alert-mark {
+    flex: 0 0 30px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: currentColor;
+    color: var(--cream-light);
+    font-family: var(--font-main);
+    font-size: .75rem;
+    font-weight: 700;
+}
+
+.admin-management-section {
+    padding-top: 70px;
+}
+
+.admin-section-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 30px;
+    margin-bottom: 28px;
+}
+
+.admin-section-heading .eyebrow {
+    display: block;
+    margin-bottom: 12px;
+}
+
+.admin-section-heading h2 {
+    margin: 0;
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: clamp(2rem, 3.5vw, 3.2rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -.045em;
+}
+
+.admin-section-heading h2 em {
+    color: var(--sage-dark);
+    font-family: var(--font-serif);
+    font-weight: 400;
+}
+
+.admin-record-count {
+    padding: 8px 13px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--surface);
+    color: var(--text-muted);
+    font-family: var(--font-main);
+    font-size: .66rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+}
+
+.admin-farmers-table {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.admin-farmers-table table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.admin-farmers-table th:nth-child(1),
+.admin-farmers-table td:nth-child(1) {
+    width: 5%;
+}
+
+.admin-farmers-table th:nth-child(2),
+.admin-farmers-table td:nth-child(2) {
+    width: 18%;
+}
+
+.admin-farmers-table th:nth-child(3),
+.admin-farmers-table td:nth-child(3) {
+    width: 12%;
+}
+
+.admin-farmers-table th:nth-child(4),
+.admin-farmers-table td:nth-child(4) {
+    width: 17%;
+}
+
+.admin-farmers-table th:nth-child(5),
+.admin-farmers-table td:nth-child(5) {
+    width: 15%;
+}
+
+.admin-farmers-table th:nth-child(6),
+.admin-farmers-table td:nth-child(6) {
+    width: 10%;
+}
+
+.admin-farmers-table th:nth-child(7),
+.admin-farmers-table td:nth-child(7) {
+    width: 10%;
+}
+
+.admin-farmers-table th:nth-child(8),
+.admin-farmers-table td:nth-child(8) {
+    width: 13%;
+}
+
+.admin-farmers-table thead {
+    background: var(--surface-alt);
+}
+
+.admin-farmers-table th {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: var(--font-main);
+    font-size: .63rem;
+    font-weight: 700;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    white-space: nowrap;
+}
+
+.admin-farmers-table td {
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-soft);
+    font-size: .82rem;
+    vertical-align: middle;
+}
+
+.admin-farmers-table th {
+    white-space: normal;
+}
+
+.admin-farmers-table td {
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.admin-farmers-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.admin-farmers-table tbody tr {
+    transition: background var(--transition-fast);
+}
+
+.admin-farmers-table tbody tr:hover {
+    background: var(--cream-light);
+}
+
+.admin-table-email {
+    word-break: break-word;
+}
+
+.admin-table-address {
+    max-width: none;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.4;
+}
+
+.admin-farmer-actions {
+    flex-wrap: wrap;
+}
+
+.admin-table-id {
+    width: 55px;
+    color: var(--text-muted) !important;
+    font-family: var(--font-main);
+    font-size: .72rem !important;
+    font-weight: 700;
+}
+
+.admin-farmer-name {
+    min-width: 210px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.admin-farmer-avatar {
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--sage-light);
+    color: var(--sage-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-main);
+    font-size: .9rem;
+    font-weight: 700;
+}
+
+.admin-farmer-name > div:last-child {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.admin-farmer-name strong {
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: .86rem;
+    font-weight: 700;
+}
+
+.admin-farmer-name span {
+    color: var(--text-muted);
+    font-size: .7rem;
+}
+
+.admin-table-contact {
+    color: var(--text-soft) !important;
+}
+
+.admin-table-email {
+    color: var(--text-muted) !important;
+    font-size: .76rem !important;
+}
+
+.admin-table-address {
+    max-width: 210px;
+    color: var(--text-muted) !important;
+    font-size: .76rem !important;
+    white-space: normal;
+    line-height: 1.4;
+}
+
+.admin-table-date {
+    color: var(--text-muted) !important;
+    font-size: .74rem !important;
+    white-space: nowrap;
+}
+
+.admin-status {
+    display: inline-flex;
+    align-items: center;
+    min-height: 29px;
+    padding: 5px 11px;
+    border-radius: var(--radius-pill);
+    font-family: var(--font-main);
+    font-size: .62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    white-space: nowrap;
+}
+
+.admin-status-pending {
+    background: var(--marigold-soft);
+    color: var(--marigold-dark);
+    border: 1px solid var(--marigold-light);
+}
+
+.admin-status-approved {
+    background: var(--sage-light);
+    color: var(--sage-dark);
+    border: 1px solid var(--sage-light);
+}
+
+.admin-status-rejected {
+    background: var(--terracotta-soft);
+    color: var(--terracotta-dark);
+    border: 1px solid var(--terracotta-soft);
+}
+
+.admin-farmer-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: nowrap;
+}
+
+.admin-farmer-actions form {
+    margin: 0;
+}
+
+.admin-action-view,
+.admin-action-approve,
+.admin-action-reject {
+    min-height: 31px;
+    padding: 6px 11px;
+    border-radius: var(--radius-pill);
+    font-family: var(--font-main);
+    font-size: .61rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+        background var(--transition-fast),
+        color var(--transition-fast),
+        border-color var(--transition-fast);
+}
+
+.admin-action-view {
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-soft);
+}
+
+.admin-action-view:hover {
+    background: var(--surface-alt);
+    color: var(--text);
+}
+
+.admin-action-approve {
+    border: 1px solid var(--sage);
+    background: var(--sage);
+    color: var(--text-on-sage);
+}
+
+.admin-action-approve:hover {
+    border-color: var(--sage-dark);
+    background: var(--sage-dark);
+}
+
+.admin-action-reject {
+    border: 1px solid var(--terracotta);
+    background: transparent;
+    color: var(--terracotta-dark);
+}
+
+.admin-action-reject:hover {
+    background: var(--terracotta);
+    color: var(--text-on-terracotta);
+}
+
+.admin-table-empty {
+    height: 180px;
+    text-align: center;
+    vertical-align: middle !important;
+}
+
+.admin-table-empty span {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--marigold-dark);
+    font-size: 1.3rem;
+}
+
+.admin-table-empty strong {
+    display: block;
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: .95rem;
+}
+
+.admin-table-empty p {
+    margin: 6px 0 0;
+    color: var(--text-muted);
+    font-size: .78rem;
+}
+
+@media (max-width: 900px) {
+    .admin-page-hero {
+        min-height: auto;
+        padding: 55px 0 45px;
+    }
+
+    .admin-page-mark {
+        display: none;
+    }
+
+    .admin-section-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .admin-management-section {
+        padding-top: 55px;
+    }
+
+    .admin-farmers-table {
+        border-radius: var(--radius-md);
+    }
+}
+
+@media (max-width: 600px) {
+    .admin-page-hero h1 {
+        font-size: 3rem;
+    }
+
+    .admin-section-heading h2 {
+        font-size: 2.2rem;
+    }
+
+    .admin-farmers-table th,
+    .admin-farmers-table td {
+        padding: 16px 17px;
+    }
+
+    .admin-page-alert {
+        align-items: flex-start;
+    }
+}
