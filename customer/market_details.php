@@ -30,8 +30,8 @@ if (
 
     if (!$checkStmt) {
         die(
-            'Favorite check prepare failed: ' .
-            mysqli_error($conn)
+            'Favorite check prepare failed.'
+
         );
     }
 
@@ -44,8 +44,8 @@ if (
 
     if (!mysqli_stmt_execute($checkStmt)) {
         die(
-            'Favorite check execute failed: ' .
-            mysqli_stmt_error($checkStmt)
+            'Favorite check execute failed.'
+            
         );
     }
 
@@ -65,8 +65,8 @@ if (
 
         if (!$deleteStmt) {
             die(
-                'Favorite delete prepare failed: ' .
-                mysqli_error($conn)
+                'Favorite delete prepare failed.'
+                
             );
         }
 
@@ -79,8 +79,8 @@ if (
 
         if (!mysqli_stmt_execute($deleteStmt)) {
             die(
-                'Favorite delete failed: ' .
-                mysqli_stmt_error($deleteStmt)
+                'Favorite delete failed.'
+                
             );
         }
 
@@ -102,8 +102,8 @@ if (
 
         if (!$insertStmt) {
             die(
-                'Favorite insert prepare failed: ' .
-                mysqli_error($conn)
+                'Favorite insert prepare failed.'
+                
             );
         }
 
@@ -116,8 +116,8 @@ if (
 
         if (!mysqli_stmt_execute($insertStmt)) {
             die(
-                'Favorite insert failed: ' .
-                mysqli_stmt_error($insertStmt)
+                'Favorite insert failed.'
+                
             );
         }
 
@@ -150,8 +150,8 @@ $stmt = mysqli_prepare(
 
 if (!$stmt) {
     die(
-        'Market query prepare failed: ' .
-        mysqli_error($conn)
+        'Market query prepare failed.'
+        
     );
 }
 
@@ -163,8 +163,8 @@ mysqli_stmt_bind_param(
 
 if (!mysqli_stmt_execute($stmt)) {
     die(
-        'Market query execute failed: ' .
-        mysqli_stmt_error($stmt)
+        'Market query execute failed.'
+        
     );
 }
 
@@ -196,8 +196,8 @@ $farmersStmt = mysqli_prepare(
 
 if (!$farmersStmt) {
     die(
-        'Farmers query prepare failed: ' .
-        mysqli_error($conn)
+        'Farmers query prepare failed.'
+        
     );
 }
 
@@ -209,8 +209,8 @@ mysqli_stmt_bind_param(
 
 if (!mysqli_stmt_execute($farmersStmt)) {
     die(
-        'Farmers query execute failed: ' .
-        mysqli_stmt_error($farmersStmt)
+        'Farmers query execute failed.'
+        
     );
 }
 
@@ -236,8 +236,8 @@ $favoriteStmt = mysqli_prepare(
 
 if (!$favoriteStmt) {
     die(
-        'Favorite status prepare failed: ' .
-        mysqli_error($conn)
+        'Favorite status prepare failed.'
+        
     );
 }
 
@@ -250,8 +250,8 @@ mysqli_stmt_bind_param(
 
 if (!mysqli_stmt_execute($favoriteStmt)) {
     die(
-        'Favorite status execute failed: ' .
-        mysqli_stmt_error($favoriteStmt)
+        'Favorite status execute failed.'
+        
     );
 }
 
