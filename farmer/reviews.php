@@ -60,7 +60,12 @@ if ($total_reviews_pages > 0 && $reviews_page > $total_reviews_pages) {
     $reviews_offset = ($reviews_page - 1) * $reviews_per_page;
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        header('Location: reviews.php');
+        exit;
+    }
 
     $review_id = (int) $_POST['review_id'];
     $farmer_response = trim($_POST['farmer_response']);
@@ -162,6 +167,7 @@ $reviews = $review_stmt->get_result();
 
                 <h3>Respond to Customer</h3>  
                 <form method="POST">
+                    <?= csrf_field() ?>
                     <input type="hidden" name="review_id" value="<?= e($review['id']) ?>">
                     <textarea name="farmer_response" rows="4" required></textarea>
                     <br><br>
