@@ -17,12 +17,6 @@ if (!$id) {
     die('Invalid farmer ID.');
 }
 
-/*
-|--------------------------------------------------------------------------
-| Get Farmer
-|--------------------------------------------------------------------------
-*/
-
 $stmt = $conn->prepare("
     SELECT
         f.id,
@@ -56,18 +50,11 @@ if (!$stmt->execute()) {
 
 $result = $stmt->get_result();
 $farmer = $result->fetch_assoc();
-
 $stmt->close();
 
 if (!$farmer) {
     die('Farmer not found.');
 }
-
-/*
-|--------------------------------------------------------------------------
-| Get Farmer Products
-|--------------------------------------------------------------------------
-*/
 
 $stmt = $conn->prepare("
     SELECT
@@ -96,461 +83,321 @@ if (!$stmt->execute()) {
 
 $result = $stmt->get_result();
 $products = $result->fetch_all(MYSQLI_ASSOC);
-
 $stmt->close();
+
+$farmerStatus = strtolower($farmer['approval_status'] ?? '');
 
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
+    <title>Farmer Details | MarketLink</title>
 
-    <title>
-        Farmer Details | MarketLink
-    </title>
     <link rel="stylesheet" href="../assets/css/base.css">
     <link rel="stylesheet" href="../assets/css/navbar.css">
     <link rel="stylesheet" href="../assets/css/sidebar.css">
-
+    <link rel="stylesheet" href="../assets/css/admin.css">
 </head>
 
 <body>
 
-    <?php include __DIR__ . '/../includes/navbar.php'; ?>
-    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
+<?php include __DIR__ . '/../includes/navbar.php'; ?>
+<?php include __DIR__ . '/../includes/sidebar.php'; ?>
+
+<main class="main-content admin-farmer-details">
+
+    <section class="admin-details-hero">
+
+        <div class="admin-details-hero-copy">
+
+            <span class="eyebrow">ADMIN / FARMER DETAILS</span>
+
+            <h1>
+                Local
+                <em>farmer.</em>
+            </h1>
+
+            <p>
+                Review registration information, location details,
+                and products associated with this farmer.
+            </p>
+
+        </div>
+
+        <div class="admin-details-hero-mark">
+            <span>✦</span>
+        </div>
+
+    </section>
 
 
-    <main class="main-content">
+    <section class="admin-details-section">
 
-        <div class="page-header">
+        <div class="admin-details-section-heading">
 
             <div>
+                <span class="eyebrow">01 / Profile</span>
 
-                <h1>
-                    Farmer Details
-                </h1>
+                <h2>
+                    <?= htmlspecialchars($farmer['stall_name']) ?>
+                </h2>
+            </div>
 
-                <p>
-                    View farmer information and products.
-                </p>
+            <a href="farmers.php" class="btn btn-outline">
+                ← Back to farmers
+            </a>
+
+        </div>
+
+
+        <div class="admin-farmer-profile">
+
+            <div class="admin-farmer-profile-top">
+
+                <div class="admin-farmer-profile-avatar">
+                    <?= strtoupper(substr($farmer['stall_name'], 0, 1)) ?>
+                </div>
+
+                <div class="admin-farmer-profile-title">
+
+                    <span class="admin-detail-label">
+                        Stall
+                    </span>
+
+                    <h3>
+                        <?= htmlspecialchars($farmer['stall_name']) ?>
+                    </h3>
+
+                    <span class="admin-detail-id">
+                        Farmer #<?= (int) $farmer['id'] ?>
+                    </span>
+
+                </div>
+
+                <span class="admin-status admin-status-<?= htmlspecialchars($farmerStatus) ?>">
+                    <?= ucfirst(htmlspecialchars($farmerStatus ?: 'N/A')) ?>
+                </span>
+
+            </div>
+
+
+            <div class="admin-details-grid">
+
+                <div class="admin-detail-item">
+                    <span class="admin-detail-label">Contact Person</span>
+                    <strong>
+                        <?= htmlspecialchars(
+                            $farmer['contact_person'] ?? 'Not provided'
+                        ) ?>
+                    </strong>
+                </div>
+
+                <div class="admin-detail-item">
+                    <span class="admin-detail-label">Email</span>
+                    <strong>
+                        <?= htmlspecialchars(
+                            $farmer['email'] ?? 'Not provided'
+                        ) ?>
+                    </strong>
+                </div>
+
+                <div class="admin-detail-item admin-detail-wide">
+                    <span class="admin-detail-label">Address</span>
+                    <strong>
+                        <?= htmlspecialchars(
+                            $farmer['address'] ?? 'Not provided'
+                        ) ?>
+                    </strong>
+                </div>
+
+                <div class="admin-detail-item">
+                    <span class="admin-detail-label">Joined</span>
+                    <strong>
+                        <?= !empty($farmer['created_at'])
+                            ? date(
+                                'M j, Y',
+                                strtotime($farmer['created_at'])
+                            )
+                            : 'N/A'
+                        ?>
+                    </strong>
+                </div>
+
+                <div class="admin-detail-item">
+                    <span class="admin-detail-label">Last Updated</span>
+                    <strong>
+                        <?= !empty($farmer['updated_at'])
+                            ? date(
+                                'M j, Y',
+                                strtotime($farmer['updated_at'])
+                            )
+                            : 'N/A'
+                        ?>
+                    </strong>
+                </div>
+
+                <div class="admin-detail-item admin-detail-wide">
+                    <span class="admin-detail-label">Description</span>
+
+                    <p>
+                        <?= !empty($farmer['description'])
+                            ? nl2br(
+                                htmlspecialchars($farmer['description'])
+                            )
+                            : 'No description provided.'
+                        ?>
+                    </p>
+                </div>
+
+                <div class="admin-detail-item admin-detail-wide">
+                    <span class="admin-detail-label">Location</span>
+
+                    <?php if (
+                        $farmer['latitude'] !== null &&
+                        $farmer['longitude'] !== null
+                    ): ?>
+
+                        <strong>
+                            <?= htmlspecialchars($farmer['latitude']) ?>,
+                            <?= htmlspecialchars($farmer['longitude']) ?>
+                        </strong>
+
+                    <?php else: ?>
+
+                        <strong>Not provided</strong>
+
+                    <?php endif; ?>
+
+                </div>
 
             </div>
 
         </div>
 
+    </section>
 
-        <!-- Farmer Information -->
 
-        <section class="form-section">
+    <section class="admin-details-section admin-products-section">
 
-            <div class="section-header">
+        <div class="admin-details-section-heading">
+
+            <div>
+                <span class="eyebrow">02 / Inventory</span>
 
                 <h2>
-                    <?= htmlspecialchars($farmer['stall_name']) ?>
+                    Farmer <em>products.</em>
                 </h2>
-
-                <a
-                    href="farmers.php"
-                    class="btn btn-secondary"
-                >
-                    Back
-                </a>
-
             </div>
 
+            <span class="admin-record-count">
+                <?= count($products) ?>
+                <?= count($products) === 1 ? 'product' : 'products' ?>
+            </span>
 
-            <div class="details-grid">
-
-
-                <!-- Farmer ID -->
-
-                <div class="form-group">
-
-                    <label>
-                        Farmer ID
-                    </label>
-
-                    <p>
-                        <?= (int) $farmer['id'] ?>
-                    </p>
-
-                </div>
+        </div>
 
 
-                <!-- Stall Name -->
+        <div class="admin-products-table">
 
-                <div class="form-group">
+            <table>
 
-                    <label>
-                        Stall Name
-                    </label>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Status</th>
+                        <th>Added</th>
+                    </tr>
+                </thead>
 
-                    <p>
-                        <?= htmlspecialchars(
-                            $farmer['stall_name']
-                        ) ?>
-                    </p>
+                <tbody>
 
-                </div>
+                <?php if (!empty($products)): ?>
 
-
-                <!-- Contact Person -->
-
-                <div class="form-group">
-
-                    <label>
-                        Contact Person
-                    </label>
-
-                    <p>
-                        <?= htmlspecialchars(
-                            $farmer['contact_person'] ?? 'Not provided'
-                        ) ?>
-                    </p>
-
-                </div>
-
-
-                <!-- Email -->
-
-                <div class="form-group">
-
-                    <label>
-                        Email
-                    </label>
-
-                    <p>
-                        <?= htmlspecialchars(
-                            $farmer['email'] ?? 'Not provided'
-                        ) ?>
-                    </p>
-
-                </div>
-
-
-                <!-- Address -->
-
-                <div class="form-group">
-
-                    <label>
-                        Address
-                    </label>
-
-                    <p>
-                        <?= htmlspecialchars(
-                            $farmer['address'] ?? 'Not provided'
-                        ) ?>
-                    </p>
-
-                </div>
-
-
-                <!-- Approval Status -->
-
-                <div class="form-group">
-
-                    <label>
-                        Status
-                    </label>
-
-                    <p>
+                    <?php foreach ($products as $product): ?>
 
                         <?php
-                        $status = strtolower(
-                            $farmer['approval_status'] ?? ''
+                        $productStatus = strtolower(
+                            $product['moderation_status'] ?? ''
                         );
                         ?>
 
-                        <span
-                            class="status status-<?= htmlspecialchars($status) ?>"
-                        >
-                            <?= ucfirst(
-                                htmlspecialchars(
-                                    $status ?: 'N/A'
-                                )
-                            ) ?>
-                        </span>
-
-                    </p>
-
-                </div>
-
-
-                <!-- Joined -->
-
-                <div class="form-group">
-
-                    <label>
-                        Joined
-                    </label>
-
-                    <p>
-
-                        <?= !empty($farmer['created_at'])
-                            ? date(
-                                'Y-m-d H:i',
-                                strtotime($farmer['created_at'])
-                            )
-                            : 'N/A'
-                        ?>
-
-                    </p>
-
-                </div>
-
-
-                <!-- Last Updated -->
-
-                <div class="form-group">
-
-                    <label>
-                        Last Updated
-                    </label>
-
-                    <p>
-
-                        <?= !empty($farmer['updated_at'])
-                            ? date(
-                                'Y-m-d H:i',
-                                strtotime($farmer['updated_at'])
-                            )
-                            : 'N/A'
-                        ?>
-
-                    </p>
-
-                </div>
-
-
-                <!-- Description -->
-
-                <div class="form-group">
-
-                    <label>
-                        Description
-                    </label>
-
-                    <p>
-                        <?= !empty($farmer['description'])
-                            ? nl2br(
-                                htmlspecialchars(
-                                    $farmer['description']
-                                )
-                            )
-                            : 'Not provided'
-                        ?>
-                    </p>
-
-                </div>
-
-
-                <!-- Location -->
-
-                <div class="form-group">
-
-                    <label>
-                        Location
-                    </label>
-
-                    <p>
-
-                        <?php if (
-                            $farmer['latitude'] !== null &&
-                            $farmer['longitude'] !== null
-                        ): ?>
-
-                            <?= htmlspecialchars(
-                                $farmer['latitude']
-                            ) ?>,
-                            <?= htmlspecialchars(
-                                $farmer['longitude']
-                            ) ?>
-
-                        <?php else: ?>
-
-                            Not provided
-
-                        <?php endif; ?>
-
-                    </p>
-
-                </div>
-
-
-            </div>
-
-        </section>
-
-
-        <!-- Farmer Products -->
-
-        <section class="table-section">
-
-            <div class="section-header">
-
-                <h2>
-                    Farmer Products
-                </h2>
-
-            </div>
-
-
-            <div class="table-responsive">
-
-                <table class="data-table">
-
-                    <thead>
-
                         <tr>
 
-                            <th>
-                                Product ID
-                            </th>
+                            <td class="admin-product-id">
+                                #<?= (int) $product['id'] ?>
+                            </td>
 
-                            <th>
-                                Product
-                            </th>
+                            <td class="admin-product-name">
+                                <?= htmlspecialchars($product['name']) ?>
+                            </td>
 
-                            <th>
-                                Category
-                            </th>
+                            <td class="admin-product-category">
+                                <?= htmlspecialchars(
+                                    $product['category_name'] ?? 'N/A'
+                                ) ?>
+                            </td>
 
-                            <th>
-                                Price
-                            </th>
+                            <td class="admin-product-price">
+                                <?= number_format(
+                                    (float) $product['price'],
+                                    2
+                                ) ?>
+                            </td>
 
-                            <th>
-                                Status
-                            </th>
+                            <td>
+                                <span class="admin-status admin-status-<?= htmlspecialchars($productStatus) ?>">
+                                    <?= ucfirst(
+                                        htmlspecialchars(
+                                            $productStatus ?: 'N/A'
+                                        )
+                                    ) ?>
+                                </span>
+                            </td>
 
-                            <th>
-                                Date
-                            </th>
+                            <td class="admin-product-date">
+                                <?= !empty($product['created_at'])
+                                    ? date(
+                                        'M j, Y',
+                                        strtotime($product['created_at'])
+                                    )
+                                    : 'N/A'
+                                ?>
+                            </td>
 
                         </tr>
 
-                    </thead>
+                    <?php endforeach; ?>
 
+                <?php else: ?>
 
-                    <tbody>
+                    <tr>
+                        <td colspan="6" class="admin-products-empty">
+                            <span>✦</span>
+                            <strong>No products yet.</strong>
+                            <p>This farmer has not added any products.</p>
+                        </td>
+                    </tr>
 
-                        <?php if (!empty($products)): ?>
+                <?php endif; ?>
 
-                            <?php foreach (
-                                $products as $product
-                            ): ?>
+                </tbody>
 
-                                <?php
-                                $productStatus = strtolower(
-                                    $product['status'] ?? ''
-                                );
-                                ?>
+            </table>
 
-                                <tr>
+        </div>
 
-                                    <td>
-                                        #<?= (int) $product['id'] ?>
-                                    </td>
+    </section>
 
-
-                                    <td>
-                                        <?= htmlspecialchars(
-                                            $product['name']
-                                        ) ?>
-                                    </td>
-
-
-                                    <td>
-
-                                        <?= htmlspecialchars(
-                                            $product['category_name']
-                                            ?? 'N/A'
-                                        ) ?>
-
-                                    </td>
-
-
-                                    <td>
-
-                                        <?= number_format(
-                                            (float) $product['price'],
-                                            2
-                                        ) ?>
-
-                                    </td>
-
-
-                                    <td>
-
-                                        <span
-                                            class="status status-<?= htmlspecialchars(
-                                                $productStatus
-                                            ) ?>"
-                                        >
-
-                                            <?= ucfirst(
-                                                htmlspecialchars(
-                                                    $productStatus ?: 'N/A'
-                                                )
-                                            ) ?>
-
-                                        </span>
-
-                                    </td>
-
-
-                                    <td>
-
-                                        <?= !empty(
-                                            $product['created_at']
-                                        )
-                                            ? date(
-                                                'Y-m-d',
-                                                strtotime(
-                                                    $product['created_at']
-                                                )
-                                            )
-                                            : 'N/A'
-                                        ?>
-
-                                    </td>
-
-                                </tr>
-
-                            <?php endforeach; ?>
-
-
-                        <?php else: ?>
-
-                            <tr>
-
-                                <td colspan="6">
-                                    No products found for this farmer.
-                                </td>
-
-                            </tr>
-
-                        <?php endif; ?>
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </section>
-
-
-    </main>
+</main>
 
 </body>
-
 </html>
