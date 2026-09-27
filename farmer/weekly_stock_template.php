@@ -11,34 +11,14 @@ if (!$farmer_id) {
     redirect('auth/logout.php');
 }
 
-/*
-|--------------------------------------------------------------------------
-| Messages
-|--------------------------------------------------------------------------
-*/
-
 $errors = [];
 
 $success = $_SESSION['weekly_stock_success'] ?? null;
 unset($_SESSION['weekly_stock_success']);
 
-
-/*
-|--------------------------------------------------------------------------
-| Handle POST
-|--------------------------------------------------------------------------
-*/
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $action = $_POST['action'] ?? '';
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Add product to weekly template
-    |--------------------------------------------------------------------------
-    */
 
     if ($action === 'add') {
 
@@ -74,12 +54,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Verify product belongs to this farmer
-        |--------------------------------------------------------------------------
-        */
-
         if (empty($errors)) {
 
             $stmt = $conn->prepare("
@@ -108,12 +82,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->close();
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Check whether already in template
-        |--------------------------------------------------------------------------
-        */
 
         if (empty($errors)) {
 
@@ -193,12 +161,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Update ONE template quantity
-    |--------------------------------------------------------------------------
-    */
-
     elseif ($action === 'update') {
 
         $template_id =
@@ -235,12 +197,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Update
-        |--------------------------------------------------------------------------
-        */
 
         if (empty($errors)) {
 
@@ -280,11 +236,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | SAVE ALL TEMPLATE QUANTITIES
-    |--------------------------------------------------------------------------
-    */
 
     elseif ($action === 'update_all') {
 
@@ -299,11 +250,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         } else {
 
-            /*
-            |--------------------------------------------------------------------------
-            | Validate everything BEFORE updating anything
-            |--------------------------------------------------------------------------
-            */
 
             $validated_rows = [];
 
@@ -347,13 +293,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'quantity' => $quantity
                 ];
             }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Save all
-            |--------------------------------------------------------------------------
-            */
 
             if (empty($errors)) {
 
@@ -417,12 +356,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Toggle active status
-    |--------------------------------------------------------------------------
-    */
-
     elseif ($action === 'toggle') {
 
         $template_id =
@@ -474,13 +407,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| Get farmer's products that are not already in the template
-|--------------------------------------------------------------------------
-*/
-
 $available_products = [];
 
 $stmt = $conn->prepare("
@@ -516,13 +442,6 @@ while ($row = $result->fetch_assoc()) {
 }
 
 $stmt->close();
-
-
-/*
-|--------------------------------------------------------------------------
-| Get current weekly template
-|--------------------------------------------------------------------------
-*/
 
 $templates = [];
 
@@ -600,12 +519,6 @@ $stmt->close();
 
     <style>
 
-        /*
-        |--------------------------------------------------------------------------
-        | Page-specific additions
-        |--------------------------------------------------------------------------
-        */
-
         .template-actions {
             display: flex;
             justify-content: flex-end;
@@ -669,11 +582,6 @@ $stmt->close();
 
 
 <main class="main-content">
-
-    <!-- =====================================================
-         HEADER
-    ====================================================== -->
-
     <section class="dashboard-section">
 
         <div class="section-heading">
@@ -690,8 +598,6 @@ $stmt->close();
                 </p>
 
             </div>
-
-
             <a
                 href="weekly_stock.php"
                 class="button"
@@ -700,8 +606,6 @@ $stmt->close();
             </a>
 
         </div>
-
-
         <!-- SUCCESS -->
 
         <?php if (!empty($success)): ?>
@@ -714,19 +618,13 @@ $stmt->close();
 
         <?php endif; ?>
 
-
         <!-- ERRORS -->
-
         <?php if (!empty($errors)): ?>
-
             <div class="error-message">
-
                 <?php foreach ($errors as $error): ?>
-
                     <p>
                         <?= e($error) ?>
                     </p>
-
                 <?php endforeach; ?>
 
             </div>
@@ -734,11 +632,6 @@ $stmt->close();
         <?php endif; ?>
 
     </section>
-
-
-    <!-- =====================================================
-         ADD PRODUCT
-    ====================================================== -->
 
     <?php if (!empty($available_products)): ?>
 
@@ -844,12 +737,6 @@ $stmt->close();
         </section>
 
     <?php endif; ?>
-
-
-    <!-- =====================================================
-         CURRENT TEMPLATE
-    ====================================================== -->
-
     <section class="dashboard-section">
 
         <div class="section-heading">
@@ -872,7 +759,6 @@ $stmt->close();
 
 
         <?php if (empty($templates)): ?>
-
             <div class="empty-state">
 
                 <h3>
@@ -885,14 +771,7 @@ $stmt->close();
                 </p>
 
             </div>
-
-
         <?php else: ?>
-
-
-            <!-- =================================================
-                 SAVE ALL BUTTON
-            ================================================== -->
 
             <div class="template-actions">
 
@@ -905,15 +784,6 @@ $stmt->close();
                 </button>
 
             </div>
-
-
-            <!-- =================================================
-                 SAVE ALL FORM
-
-                 The visible quantity inputs belong to this form.
-
-                 Individual forms are NOT placed inside it.
-            ================================================== -->
 
             <form
                 method="POST"
@@ -1039,16 +909,6 @@ $stmt->close();
 
                                 <td class="template-actions-cell">
 
-                                    <!--
-                                        Individual Save
-
-                                        This button is NOT a submit button
-                                        for the Save All form.
-
-                                        JavaScript copies this row's quantity
-                                        into the separate hidden form below.
-                                    -->
-
                                     <button
                                         type="button"
                                         class="small-button"
@@ -1056,11 +916,6 @@ $stmt->close();
                                     >
                                         Save
                                     </button>
-
-
-                                    <!--
-                                        Toggle remains an independent action.
-                                    -->
 
                                     <button
                                         type="submit"
@@ -1089,22 +944,12 @@ $stmt->close();
 
             </form>
 
-
-            <!-- =================================================
-                 INDIVIDUAL QUANTITY UPDATE FORMS
-
-                 These are deliberately OUTSIDE the Save All form.
-            ================================================== -->
-
             <?php foreach ($templates as $template): ?>
 
                 <?php
                     $template_id =
                         (int) $template['id'];
                 ?>
-
-
-                <!-- Individual quantity update -->
 
                 <form
                     method="POST"
@@ -1131,9 +976,6 @@ $stmt->close();
                     >
 
                 </form>
-
-
-                <!-- Individual activate/deactivate -->
 
                 <form
                     method="POST"
@@ -1165,19 +1007,6 @@ $stmt->close();
 
 
 <script>
-
-/*
-|--------------------------------------------------------------------------
-| Save one template quantity
-|--------------------------------------------------------------------------
-|
-| The visible quantity input belongs to the Save All form.
-|
-| For the individual Save button, we copy that value into the
-| separate hidden form belonging to this specific template.
-|
-*/
-
 function saveSingleTemplate(id) {
 
     const quantityInput =
@@ -1198,18 +1027,10 @@ function saveSingleTemplate(id) {
         return;
     }
 
-
-    /*
-     * Copy the current value.
-     */
-
     singleQuantity.value =
         quantityInput.value;
 
 
-    /*
-     * Submit only this template.
-     */
 
     singleForm.submit();
 }

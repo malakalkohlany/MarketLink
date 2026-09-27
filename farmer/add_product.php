@@ -149,11 +149,6 @@ if (!$stmt->execute()) {
 
 $stmt->close();
 
-
-// ==================================================
-// Notify interested customers about new stock
-// ==================================================
-
 $farmerInfoStmt = $conn->prepare("
     SELECT
         f.stall_name,
@@ -178,11 +173,6 @@ if ($farmerInfoStmt) {
     if ($farmerInfo) {
 
         $stallName = $farmerInfo['stall_name'];
-
-        // ------------------------------------------
-        // Customers who favorited this farmer
-        // OR any market this farmer belongs to
-        // ------------------------------------------
 
         $customerStmt = $conn->prepare("
             SELECT DISTINCT customer_id

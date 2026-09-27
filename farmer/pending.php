@@ -5,11 +5,6 @@ require_once __DIR__ . '/../includes/include.php';
 requireLogin();
 requireRole(R_FARMER);
 
-
-// ==================================================
-// GET CURRENT FARMER APPROVAL STATUS
-// ==================================================
-
 $userId = $_SESSION['user_id'] ?? 0;
 
 $stmt = $conn->prepare(
@@ -28,11 +23,6 @@ $result = $stmt->get_result();
 
 $farmer = $result->fetch_assoc();
 
-
-// ==================================================
-// FARMER RECORD NOT FOUND
-// ==================================================
-
 if (!$farmer) {
 
     session_unset();
@@ -47,17 +37,8 @@ if (!$farmer) {
     exit;
 }
 
-
-// ==================================================
-// GET APPROVAL STATUS
-// ==================================================
-
 $approvalStatus = $farmer['approval_status'];
 
-
-// ==================================================
-// REDIRECT BASED ON STATUS
-// ==================================================
 
 if ($approvalStatus === 'approved') {
 
@@ -87,15 +68,6 @@ if ($approvalStatus === 'rejected') {
 
     exit;
 }
-
-
-// ==================================================
-// PENDING
-// ==================================================
-
-// If the status is pending, simply continue
-// and display the page.
-
 
 ?>
 

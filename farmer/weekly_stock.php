@@ -11,9 +11,6 @@ if (!$farmer_id) {
     redirect('auth/logout.php');
 }
 
-/* =========================================================
-   CURRENT WEEK
-   ========================================================= */
 
 $today = new DateTime();
 
@@ -25,9 +22,6 @@ if ($week_start->format('N') != 1) {
 
 $week_start_date = $week_start->format('Y-m-d');
 
-/* =========================================================
-   MESSAGES
-   ========================================================= */
 
 $errors = [];
 
@@ -35,17 +29,9 @@ $success = $_SESSION['weekly_stock_success'] ?? '';
 
 unset($_SESSION['weekly_stock_success']);
 
-/* =========================================================
-   HANDLE POST
-   ========================================================= */
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $action = $_POST['action'] ?? '';
-
-    /* =====================================================
-       SAVE ONE STOCK ROW
-       ===================================================== */
 
     if ($action === 'update') {
 
@@ -61,17 +47,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'unavailable'
         ];
 
-        /* -------------------------------------------------
-           Validate ID
-           ------------------------------------------------- */
 
         if ($weekly_stock_id <= 0) {
             $errors[] = 'Invalid weekly stock item.';
         }
 
-        /* -------------------------------------------------
-           Validate quantity
-           ------------------------------------------------- */
 
         if (
             $actual_quantity === '' ||
@@ -89,17 +69,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        /* -------------------------------------------------
-           Validate status
-           ------------------------------------------------- */
 
         if (!in_array($status, $allowed_statuses, true)) {
             $errors[] = 'Invalid stock status.';
         }
-
-        /* -------------------------------------------------
-           Find existing row
-           ------------------------------------------------- */
 
         $old_stock = null;
 
@@ -152,10 +125,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        /* -------------------------------------------------
-           Update row
-           ------------------------------------------------- */
-
         if (empty($errors) && $old_stock) {
 
             $old_quantity =
@@ -203,10 +172,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $update_stmt->close();
             }
 
-            /* ---------------------------------------------
-               Notify customers after successful update
-               --------------------------------------------- */
-
             if (empty($errors)) {
 
                 if ($stock_changed) {
@@ -226,10 +191,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    /* =====================================================
-       SAVE ALL STOCK ROWS
-       ===================================================== */
-
     elseif ($action === 'update_all') {
 
         $quantities =
@@ -237,10 +198,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $statuses =
             $_POST['status'] ?? [];
-
-        /* -------------------------------------------------
-           Validate arrays
-           ------------------------------------------------- */
 
         if (
             !is_array($quantities) ||
@@ -250,10 +207,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] =
                 'Invalid weekly stock data.';
         }
-
-        /* -------------------------------------------------
-           Validate every submitted row
-           ------------------------------------------------- */
 
         if (empty($errors)) {
 
@@ -319,10 +272,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        /* -------------------------------------------------
-           Make sure both arrays contain matching rows
-           ------------------------------------------------- */
-
         if (empty($errors)) {
 
             foreach ($statuses as $stock_id => $status) {
@@ -341,10 +290,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
         }
-
-        /* -------------------------------------------------
-           Get current database values
-           ------------------------------------------------- */
 
         $old_stock = [];
 
@@ -405,10 +350,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        /* -------------------------------------------------
-           Check submitted rows actually belong to farmer
-           ------------------------------------------------- */
-
         $stock_changed = false;
 
         if (empty($errors)) {
@@ -442,18 +383,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     $stock_changed = true;
 
-                    /*
-                     * We only need to know whether
-                     * something changed.
-                     */
                     break;
                 }
             }
         }
-
-        /* -------------------------------------------------
-           Update everything
-           ------------------------------------------------- */
 
         if (empty($errors)) {
 
@@ -518,10 +451,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $transaction_started = false;
 
-                /* -----------------------------------------
-                   Notify customers ONCE
-                   ----------------------------------------- */
-
                 if ($stock_changed) {
 
                     notifyWeeklyStockUpdated(
@@ -538,19 +467,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             } catch (Throwable $e) {
 
-                /*
-                 * Only rollback if the transaction
-                 * is actually still active.
-                 */
                 if ($transaction_started) {
                     $conn->rollback();
                 }
 
-                /*
-                 * Close the statement only if it
-                 * still exists and has not already
-                 * been closed.
-                 */
                 if ($update_stmt !== null) {
 
                     $update_stmt->close();
@@ -565,9 +485,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-/* =========================================================
-   LAZY GENERATE CURRENT WEEK FROM ACTIVE TEMPLATES
-   ========================================================= */
 
 $generate_stmt = $conn->prepare("
     INSERT INTO weekly_stock (
@@ -613,18 +530,11 @@ if ($generate_stmt) {
     $generate_stmt->close();
 }
 
-/* =========================================================
-   SEND WEEKLY FARMER REMINDER
-   ========================================================= */
 
 sendWeeklyStockReminders(
     $conn,
     $week_start_date
 );
-
-/* =========================================================
-   GET CURRENT WEEKLY STOCK
-   ========================================================= */
 
 $weekly_stock = [];
 
@@ -913,10 +823,6 @@ if ($stock_stmt) {
 
     <main class="main-content">
 
-        <!-- =================================================
-             PAGE HEADER
-             ================================================= -->
-
         <div class="page-header">
 
             <h1>Weekly Stock</h1>
@@ -927,10 +833,6 @@ if ($stock_stmt) {
             </p>
 
         </div>
-
-        <!-- =================================================
-             ALERTS
-             ================================================= -->
 
         <?php if (!empty($success)): ?>
 
@@ -959,11 +861,6 @@ if ($stock_stmt) {
 
         <?php endif; ?>
 
-
-        <!-- =================================================
-             WEEK INFO
-             ================================================= -->
-
         <div class="week-info">
 
             <strong>Current week:</strong>
@@ -981,11 +878,6 @@ if ($stock_stmt) {
             ) ?>
 
         </div>
-
-
-        <!-- =================================================
-             ACTIONS
-             ================================================= -->
 
         <div class="stock-actions">
 
@@ -1018,11 +910,6 @@ if ($stock_stmt) {
             <?php endif; ?>
 
         </div>
-
-
-        <!-- =================================================
-             SAVE ALL FORM
-             ================================================= -->
 
         <form
             method="POST"
@@ -1234,11 +1121,6 @@ if ($stock_stmt) {
 
         </form>
 
-
-        <!-- =================================================
-             INDIVIDUAL UPDATE FORMS
-             ================================================= -->
-
         <?php foreach ($weekly_stock as $stock): ?>
 
             <?php
@@ -1289,10 +1171,6 @@ if ($stock_stmt) {
 
 <script>
 
-/* =========================================================
-   SAVE ONE ROW
-   ========================================================= */
-
 function saveSingleStock(id) {
 
     const quantityInput =
@@ -1333,21 +1211,12 @@ function saveSingleStock(id) {
     }
 
 
-    /*
-     * Copy the visible values into
-     * the individual hidden form.
-     */
-
     singleQuantity.value =
         quantityInput.value;
 
     singleStatus.value =
         statusInput.value;
 
-
-    /*
-     * Submit only this product.
-     */
 
     singleForm.submit();
 }
