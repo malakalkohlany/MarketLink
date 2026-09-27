@@ -144,7 +144,7 @@ $stmt->bind_param(
 );
 
 if (!$stmt->execute()) {
-    die("Insert failed: " . $conn->error);
+    die("Insert failed.");
 }
 
 $stmt->close();

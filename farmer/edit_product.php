@@ -166,7 +166,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     );
 
     if (!$stmt->execute()) {
-        die("Update failed: " . $stmt->error);
+        die("Update failed.");
     }
 
     $stmt->close();

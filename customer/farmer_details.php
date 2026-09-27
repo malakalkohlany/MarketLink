@@ -38,7 +38,7 @@ $farmerStmt = $conn->prepare("
 ");
 
 if (!$farmerStmt) {
-    die('Farmer query failed: ' . $conn->error);
+    die('Farmer query failed.');
 }
 
 $farmerStmt->bind_param("i", $farmerId);
@@ -283,7 +283,7 @@ $productStmt = $conn->prepare("
 ");
 
 if (!$productStmt) {
-    die('Products query failed: ' . $conn->error);
+    die('Products query failed.');
 }
 
 $productStmt->bind_param(
