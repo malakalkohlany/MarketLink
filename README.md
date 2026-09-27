@@ -49,19 +49,20 @@ MarketLink/
 ├── customer/
 │   ├── add_to_cart.php
 │   ├── cart.php
-│   ├── checkout.php
+│   ├── cancel_order.php
+│   ├── confirm_order.php
 │   ├── dashboard.php
 │   ├── farmers.php
 │   ├── farmer_details.php
 │   ├── favorites.php
 │   ├── markets.php
-│   ├── market_details.php
 │   ├── notifications.php
 │   ├── orders.php
 │   ├── products.php
 │   ├── product_details.php
 │   ├── profile.php
 │   ├── remove_from_cart.php
+│   ├── update_order.php
 │   ├── update_cart.php
 │   └── reviews.php
 │

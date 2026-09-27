@@ -143,7 +143,7 @@ $hasMoreFarmers = count($farmers) > 3;
                     Login
                 </a>
 
-                <a href="auth/register.php" class="home-join">
+                <a href="../auth/register.php" class="home-join">
                 Join MarketLink
                 <span>↗</span>
             </a>

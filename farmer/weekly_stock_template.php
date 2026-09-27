@@ -824,8 +824,8 @@ $stmt->close();
                         type="number"
                         name="default_quantity"
                         id="default_quantity"
-                        min="0.01"
-                        step="0.01"
+                        min="0.1"
+                        step="0.1"
                         required
                     >
 
@@ -1005,8 +1005,8 @@ $stmt->close();
                                         value="<?= e(
                                             $template['default_quantity']
                                         ) ?>"
-                                        min="0.01"
-                                        step="0.01"
+                                        min="0.1"
+                                        step="0.1"
                                         required
                                         class="template-quantity-input"
                                     >
