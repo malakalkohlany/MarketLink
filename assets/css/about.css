@@ -698,6 +698,8 @@
     padding: 100px 0;
 
     background: var(--sage);
+    
+    color: rgba(37, 25, 15, 0.72);
 }
 
 .about-purpose-inner {
@@ -710,6 +712,8 @@
 }
 
 .about-purpose-copy h2 {
+    
+    color: rgba(46, 23, 4, 0.9);
     max-width: 700px;
 
     margin-top: 5px;
@@ -725,7 +729,7 @@
     margin-top: 22px;
 
     font-size: 0.9rem;
-    color: rgba(68, 50, 35, 0.72);
+    color: rgba(37, 25, 15, 0.72);
 }
 
 .about-purpose-action {
