@@ -52,8 +52,7 @@ if ($userId <= 0) {
         if (!$checkStmt) {
 
             $errors[] =
-                'Failed to prepare user lookup: ' .
-                $conn->error;
+             'Failed to prepare user lookup.';
 
         } else {
 
@@ -73,8 +72,7 @@ if ($userId <= 0) {
                 $user = null;
 
                 $errors[] =
-                    'Failed to find user: ' .
-                    $checkStmt->error;
+                 'Failed to find user.';
             }
 
             $checkStmt->close();
@@ -103,10 +101,9 @@ if ($userId <= 0) {
                     if (!$updateStmt) {
 
                         $errors[] =
-                            'Failed to prepare user update: ' .
-                            $conn->error;
+                            'Failed to prepare user update.';
 
-                    } else {
+                    }else {
 
                         $updateStmt->bind_param(
                             "si",
@@ -252,8 +249,7 @@ if ($countStmt->execute()) {
 } else {
 
     $errors[] =
-        'Failed to count users: ' .
-        $countStmt->error;
+    'Failed to count users.';
 }
 
 $countStmt->close();
@@ -261,10 +257,10 @@ $countStmt->close();
 } else {
 
 $errors[] =
-    'Failed to prepare user count query: ' .
-    $conn->error;
+    'Failed to prepare user count query.';
 
 }
+
 $total_pages = $total_users > 0
 ? (int) ceil(
 $total_users / $items_per_page
@@ -344,8 +340,7 @@ if ($stmt->execute()) {
 } else {
 
     $errors[] =
-        'Failed to load users: ' .
-        $stmt->error;
+    'Failed to load users.';
 }
 
 $stmt->close();
@@ -353,8 +348,7 @@ $stmt->close();
 } else {
 
 $errors[] =
-    'Failed to prepare user query: ' .
-    $conn->error;
+    'Failed to prepare user query.';
 
 }
 

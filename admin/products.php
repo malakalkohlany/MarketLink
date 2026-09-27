@@ -165,14 +165,14 @@ if ($stmt) {
 
     } else {
 
-        $errors[] = 'Failed to load products: ' . $stmt->error;
+        $errors[] = 'Failed to load products.';
     }
 
     $stmt->close();
 
 } else {
 
-    $errors[] = 'Failed to prepare product query: ' . $conn->error;
+    $errors[] = 'Failed to prepare product query.';
 }
 
 $startItem = $totalProducts > 0

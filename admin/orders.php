@@ -40,7 +40,7 @@ if ($count_stmt) {
         $total_orders = 0;
 
         $errors[] =
-            'Failed to count orders: ' . $count_stmt->error;
+    'Failed to count orders.';
     }
 
     $count_stmt->close();
@@ -50,7 +50,7 @@ if ($count_stmt) {
     $total_orders = 0;
 
     $errors[] =
-        'Failed to prepare count query: ' . $conn->error;
+    'Failed to prepare count query.';
 }
 $total_pages = $total_orders > 0
     ? (int) ceil(
@@ -115,7 +115,7 @@ if ($stmt) {
     } else {
 
         $errors[] =
-            'Failed to load orders: ' . $stmt->error;
+         'Failed to load orders.';
     }
 
     $stmt->close();
@@ -123,7 +123,7 @@ if ($stmt) {
 } else {
 
     $errors[] =
-        'Failed to prepare order query: ' . $conn->error;
+    'Failed to prepare order query.';
 }
 
 ?>
