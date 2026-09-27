@@ -8,6 +8,12 @@ if (
     $_SERVER['REQUEST_METHOD'] === 'POST'
     && isset($_POST['toggle_favorite'])
 ) {
+
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        header('Location: markets.php');
+        exit;
+    }
+
     $marketId = filter_input(
         INPUT_POST,
         'market_id',
@@ -671,6 +677,9 @@ if ($result) {
                                 action="markets.php"
                                 class="market-favorite-form"
                             >
+
+                            <?= csrf_field() ?>
+                            
                                 <input
                                     type="hidden"
                                     name="market_id"
