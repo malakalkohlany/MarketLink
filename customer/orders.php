@@ -517,27 +517,38 @@ unset($order);
 
                                 <?php if ($status === 'pending'): ?>
 
-                                    <form
-                                        method="POST"
-                                        action="cancel_order.php"
-                                        class="cancel-form"
-                                        onsubmit="return confirm(
-                                            'Are you sure you want to cancel Order #<?php echo (int) $order['id']; ?>?'
-                                        );"
-                                    >
-                                        <input
-                                            type="hidden"
-                                            name="order_id"
-                                            value="<?php echo (int) $order['id']; ?>"
-                                        >
+                                    <div class="order-actions">
 
-                                        <button
-                                            type="submit"
-                                            class="cancel-button"
+                                        <a
+                                            href="update_order.php?id=<?php echo (int) $order['id']; ?>"
+                                            class="modify-button"
                                         >
-                                            Cancel Order
-                                        </button>
-                                    </form>
+                                            Modify Order
+                                        </a>
+
+                                        <form
+                                            method="POST"
+                                            action="cancel_order.php"
+                                            class="cancel-form"
+                                            onsubmit="return confirm(
+                                                'Are you sure you want to cancel this order?'
+                                            );"
+                                        >
+                                            <input
+                                                type="hidden"
+                                                name="order_id"
+                                                value="<?php echo (int) $order['id']; ?>"
+                                            >
+
+                                            <button
+                                                type="submit"
+                                                class="cancel-button"
+                                            >
+                                                Cancel Order
+                                            </button>
+                                        </form>
+
+                                    </div>
 
                                 <?php endif; ?>
 
