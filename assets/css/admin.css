@@ -3617,3 +3617,360 @@
         flex: 0 0 auto;
     }
 }
+
+.admin-add-market-page {
+    background: var(--cream);
+}
+
+.admin-market-form {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 24px 90px;
+}
+
+.admin-form-section {
+    margin-bottom: 70px;
+}
+
+.admin-form-section-heading {
+    margin-bottom: 24px;
+}
+
+.admin-form-section-heading .admin-section-number {
+    display: block;
+    margin-bottom: 9px;
+    color: var(--terracotta-dark);
+    font-family: var(--font-main);
+    font-size: .64rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+}
+
+.admin-form-section-heading h2 {
+    margin: 0;
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: clamp(1.8rem, 3vw, 2.7rem);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -.04em;
+}
+
+.admin-form-section-heading h2 em {
+    color: var(--sage-dark);
+    font-family: var(--font-serif);
+    font-weight: 400;
+}
+
+.admin-form-section-heading p {
+    max-width: 620px;
+    margin: 10px 0 0;
+    color: var(--text-muted);
+    font-size: .84rem;
+    line-height: 1.65;
+}
+
+.admin-market-form-card {
+    padding: 32px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
+}
+
+.admin-market-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 25px 24px;
+}
+
+.admin-market-field {
+    min-width: 0;
+}
+
+.admin-market-field-full {
+    grid-column: 1 / -1;
+}
+
+.admin-market-field label {
+    display: block;
+    margin-bottom: 9px;
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+}
+
+.admin-market-field input:not([type="checkbox"]):not([type="radio"]),
+.admin-market-field textarea,
+.admin-market-field select {
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 15px;
+    background: var(--cream-light);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: .86rem;
+    outline: none;
+    transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast),
+        background var(--transition-fast);
+}
+
+.admin-market-field textarea {
+    min-height: 125px;
+    resize: vertical;
+    line-height: 1.6;
+}
+
+.admin-market-field select {
+    cursor: pointer;
+}
+
+.admin-market-field input:not([type="checkbox"]):not([type="radio"])::placeholder,
+.admin-market-field textarea::placeholder {
+    color: var(--text-muted);
+    opacity: .72;
+}
+
+.admin-market-field input:not([type="checkbox"]):not([type="radio"]):focus,
+.admin-market-field textarea:focus,
+.admin-market-field select:focus {
+    background: var(--white);
+    border-color: var(--sage);
+    box-shadow: 0 0 0 3px rgba(111, 124, 89, .12);
+}
+
+.admin-market-field-help {
+    display: block;
+    margin-top: 7px;
+    color: var(--text-muted);
+    font-size: .7rem;
+}
+
+.admin-market-days {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.admin-market-day {
+    position: relative;
+    cursor: pointer;
+}
+
+.admin-market-day input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.admin-market-day span {
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 5px;
+    background: var(--cream-light);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-soft);
+    font-family: var(--font-main);
+    font-size: .68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    transition:
+        background var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+.admin-market-day:hover span {
+    border-color: var(--sage);
+    transform: var(--lift-small);
+}
+
+.admin-market-day input:checked + span {
+    background: var(--sage);
+    border-color: var(--sage);
+    color: var(--text-on-sage);
+}
+
+.admin-market-day input:focus-visible + span {
+    box-shadow: 0 0 0 3px rgba(111, 124, 89, .18);
+}
+
+.admin-market-status-options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+}
+
+.admin-market-status-option {
+    position: relative;
+    display: block;
+    cursor: pointer;
+}
+
+.admin-market-status-option input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.admin-market-status-content {
+    display: block;
+    min-height: 110px;
+    padding: 21px;
+    background: var(--cream-light);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    transition:
+        border-color var(--transition-fast),
+        background var(--transition-fast),
+        box-shadow var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+.admin-market-status-option:hover .admin-market-status-content {
+    transform: var(--lift-small);
+    border-color: var(--sage);
+}
+
+.admin-market-status-option input:checked + .admin-market-status-content {
+    background: var(--sage-soft);
+    border-color: var(--sage);
+    box-shadow: 0 0 0 2px rgba(111, 124, 89, .08);
+}
+
+.admin-market-status-option input:focus-visible + .admin-market-status-content {
+    box-shadow: 0 0 0 3px rgba(111, 124, 89, .16);
+}
+
+.admin-market-status-title {
+    display: block;
+    margin-bottom: 7px;
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: .88rem;
+    font-weight: 700;
+}
+
+.admin-market-status-description {
+    display: block;
+    color: var(--text-muted);
+    font-size: .75rem;
+    line-height: 1.55;
+}
+
+.admin-market-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    padding-top: 5px;
+}
+
+.admin-action-cancel,
+.admin-action-submit {
+    min-height: 45px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 11px 21px;
+    border-radius: var(--radius-pill);
+    font-family: var(--font-main);
+    font-size: .68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+        background var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast),
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+.admin-action-cancel {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+}
+
+.admin-action-cancel:hover {
+    background: var(--surface-alt);
+    color: var(--text);
+    transform: var(--lift-small);
+}
+
+.admin-action-submit {
+    border: 1px solid var(--terracotta);
+    background: var(--terracotta);
+    color: var(--text-on-terracotta);
+}
+
+.admin-action-submit:hover {
+    background: var(--terracotta-dark);
+    border-color: var(--terracotta-dark);
+    transform: var(--lift-small);
+    box-shadow: var(--shadow-soft);
+}
+
+@media (max-width: 800px) {
+    .admin-market-form {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+
+    .admin-market-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-market-field-full {
+        grid-column: auto;
+    }
+
+    .admin-market-days {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .admin-market-status-options {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 500px) {
+    .admin-market-form-card {
+        padding: 21px;
+        border-radius: var(--radius-md);
+    }
+
+    .admin-form-section {
+        margin-bottom: 52px;
+    }
+
+    .admin-market-days {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .admin-market-form-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .admin-action-cancel,
+    .admin-action-submit {
+        width: 100%;
+    }
+}
