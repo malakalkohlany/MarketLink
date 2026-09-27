@@ -591,7 +591,8 @@ function hasSubmenu(array $pages): bool
                         href="<?= BASE_URL ?>admin/customers.php"
                         class="<?= isActive([
                             'customers.php',
-                            'customer_details.php'
+                            'customer_details.php',
+                            'users.php'
                         ]) ?>"
                     >
                         <span class="nav-icon">
@@ -600,6 +601,30 @@ function hasSubmenu(array $pages): bool
 
                         <span>Customers</span>
                     </a>
+
+                    <?php if (isPage([
+                        'customers.php',
+                            'customer_details.php',
+                            'users.php'
+                    ])): ?>
+
+                        <div class="sidebar-submenu">
+
+                            <a
+                                href="<?= BASE_URL ?>admin/users.php"
+                                class="sidebar-sublink <?= isSubActive('users.php') ?>"
+                            >
+                                <span class="nav-subicon">
+                                    <i data-lucide="pencil"></i>
+                                </span>
+
+                                <span>Manages Users</span>
+                            </a>
+
+
+                        </div>
+
+                    <?php endif; ?>
                 </li>
 
 
@@ -668,6 +693,17 @@ function hasSubmenu(array $pages): bool
                                 </span>
 
                                 <span>Add Market</span>
+                            </a>
+
+                            <a
+                                href="<?= BASE_URL ?>admin/add_market.php"
+                                class="sidebar-sublink <?= isSubActive('edit_market.php') ?>"
+                            >
+                                <span class="nav-subicon">
+                                    <i data-lucide="edit"></i>
+                                </span>
+
+                                <span>Edit Market</span>
                             </a>
 
                         </div>

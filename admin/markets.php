@@ -8,13 +8,9 @@ $errors = [];
 $markets = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
     if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
-
         $errors[] = 'Invalid CSRF token.';
-
     } else {
-
         $marketId = filter_input(
             INPUT_POST,
             'market_id',
@@ -27,7 +23,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $marketId &&
             in_array($newStatus, ['active', 'inactive'], true)
         ) {
-
             $stmt = $conn->prepare("
                 UPDATE markets
                 SET status = ?
@@ -35,20 +30,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ");
 
             if ($stmt) {
-
                 $stmt->bind_param(
                     'si',
                     $newStatus,
                     $marketId
                 );
-
                 $stmt->execute();
                 $stmt->close();
             }
         }
     }
 
-    redirect(' markets.php');
+    redirect('markets.php');
 }
 
 $stmt = $conn->prepare("
@@ -65,16 +58,11 @@ $stmt = $conn->prepare("
 ");
 
 if ($stmt) {
-
     $stmt->execute();
-
     $result = $stmt->get_result();
     $markets = $result->fetch_all(MYSQLI_ASSOC);
-
     $stmt->close();
-
 } else {
-
     $errors[] = 'Failed to load markets.';
 }
 
@@ -82,22 +70,17 @@ if ($stmt) {
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
-
     <title>Markets | MarketLink</title>
-
     <link rel="stylesheet" href="../assets/css/base.css">
     <link rel="stylesheet" href="../assets/css/navbar.css">
     <link rel="stylesheet" href="../assets/css/sidebar.css">
-
+    <link rel="stylesheet" href="../assets/css/admin.css">
 </head>
 
 <body>
@@ -107,105 +90,72 @@ if ($stmt) {
     <?php include __DIR__ . '/../includes/navbar.php'; ?>
     <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
+    <main class="main-content admin-markets-page">
 
-    
-    <main class="main-content">
-
-        <div class="page-header">
-
-            <div>
+        <section class="admin-page-hero">
+            <div class="admin-page-hero-copy">
+                <span class="eyebrow">ADMIN / MARKETS</span>
 
                 <h1>
-                    Markets
+                    Manage local <em>markets.</em>
                 </h1>
 
                 <p>
-                    Manage all markets.
+                    Create, update, and manage the markets available
+                    throughout MarketLink.
                 </p>
-
             </div>
 
-            <div>
-
-                <a
-                    href="add_market.php"
-                    class="btn btn-primary"
-                >
-                    Add Market
-                </a>
-
-            </div>
-
-        </div>
+            <div class="admin-page-mark">07</div>
+        </section>
 
         <?php if (!empty($errors)): ?>
+            <div class="admin-page-alert alert-danger">
+                <span class="admin-alert-mark">!</span>
 
-            <div class="alert alert-danger">
-
-                <?php foreach ($errors as $error): ?>
-
-                    <p>
-                        <?= htmlspecialchars($error) ?>
-                    </p>
-
-                <?php endforeach; ?>
-
+                <div>
+                    <?php foreach ($errors as $error): ?>
+                        <p><?= htmlspecialchars($error) ?></p>
+                    <?php endforeach; ?>
+                </div>
             </div>
-
         <?php endif; ?>
 
-        <section class="table-section">
+        <section class="admin-management-section">
 
-            <div class="section-header">
+            <div class="admin-section-heading">
+                <div>
+                    <span class="admin-section-number">01 / DIRECTORY</span>
 
-                <h2>
-                    Markets
-                </h2>
+                    <h2>
+                        Market <em>directory.</em>
+                    </h2>
 
+                    <p>
+                        View operating hours, locations, and market status.
+                    </p>
+                </div>
+
+                <div class="admin-record-count">
+                    <?= count($markets) ?>
+                    <span>markets</span>
+                </div>
             </div>
 
-            <div class="table-responsive">
+            <div class="admin-markets-table">
 
-                <table class="data-table">
+                <table>
 
                     <thead>
-
                         <tr>
-
-                            <th>
-                                ID
-                            </th>
-
-                            <th>
-                                Name
-                            </th>
-
-                            <th>
-                                Address
-                            </th>
-
-                            <th>
-                                Opening
-                            </th>
-
-                            <th>
-                                Closing
-                            </th>
-
-                            <th>
-                                Status
-                            </th>
-
-                            <th>
-                                Created
-                            </th>
-
-                            <th>
-                                Action
-                            </th>
-
+                            <th class="admin-market-id">ID</th>
+                            <th class="admin-market-name">Market</th>
+                            <th class="admin-market-address">Address</th>
+                            <th class="admin-market-hours">Hours</th>
+                            <th class="admin-market-status">Status</th>
+                            <th class="admin-market-created">Created</th>
+                            <th class="admin-market-actions">Action</th>
                         </tr>
-
                     </thead>
 
                     <tbody>
@@ -214,106 +164,148 @@ if ($stmt) {
 
                             <?php foreach ($markets as $market): ?>
 
+                                <?php
+                                $status = $market['status'] ?? '';
+                                $isActive = $status === 'active';
+                                ?>
+
                                 <tr>
 
-                                    <td>
-                                        <?= (int)$market['id'] ?>
+                                    <td class="admin-market-id">
+                                        <span class="admin-table-id">
+                                            #<?= (int) $market['id'] ?>
+                                        </span>
                                     </td>
 
-                                    <td>
-                                        <?= htmlspecialchars(
-                                            $market['name']
-                                        ) ?>
+                                    <td class="admin-market-name">
+                                        <div class="admin-market-name-wrap">
+                                            <span class="admin-market-icon">✦</span>
+
+                                            <div>
+                                                <strong>
+                                                    <?= htmlspecialchars($market['name']) ?>
+                                                </strong>
+
+                                                <span>
+                                                    Local marketplace
+                                                </span>
+                                            </div>
+                                        </div>
                                     </td>
 
-                                    <td>
+                                    <td class="admin-market-address">
                                         <?= htmlspecialchars(
                                             $market['address'] ?? 'N/A'
                                         ) ?>
                                     </td>
 
-                                    <td>
-                                        <?= htmlspecialchars(
-                                            $market['opening_time'] ?? 'N/A'
-                                        ) ?>
+                                    <td class="admin-market-hours">
+                                        <?php if (
+                                            !empty($market['opening_time']) ||
+                                            !empty($market['closing_time'])
+                                        ): ?>
+
+                                            <span class="admin-hours-main">
+                                                <?= htmlspecialchars(
+                                                    $market['opening_time'] ?? 'N/A'
+                                                ) ?>
+                                                —
+                                                <?= htmlspecialchars(
+                                                    $market['closing_time'] ?? 'N/A'
+                                                ) ?>
+                                            </span>
+
+                                        <?php else: ?>
+
+                                            <span class="admin-table-muted">
+                                                Hours unavailable
+                                            </span>
+
+                                        <?php endif; ?>
                                     </td>
 
-                                    <td>
-                                        <?= htmlspecialchars(
-                                            $market['closing_time'] ?? 'N/A'
-                                        ) ?>
-                                    </td>
-
-                                    <td>
+                                    <td class="admin-market-status">
 
                                         <span
-                                            class="status status-<?= htmlspecialchars(
-                                                $market['status'] ?? ''
-                                            ) ?>"
+                                            class="admin-status <?= $isActive
+                                                ? 'admin-status-active'
+                                                : 'admin-status-inactive' ?>"
                                         >
+                                            <span class="admin-status-dot"></span>
+
                                             <?= ucfirst(
                                                 htmlspecialchars(
-                                                    $market['status'] ?? 'N/A'
+                                                    $status ?: 'N/A'
                                                 )
                                             ) ?>
                                         </span>
 
                                     </td>
 
-                                    <td>
-                                        <?= !empty($market['created_at'])
-                                            ? date(
-                                                'Y-m-d',
-                                                strtotime(
-                                                    $market['created_at']
-                                                )
-                                            )
-                                            : 'N/A'
-                                        ?>
+                                    <td class="admin-market-created">
+
+                                        <?php if (!empty($market['created_at'])): ?>
+
+                                            <span class="admin-table-date">
+                                                <?= date(
+                                                    'M d, Y',
+                                                    strtotime($market['created_at'])
+                                                ) ?>
+                                            </span>
+
+                                        <?php else: ?>
+
+                                            <span class="admin-table-muted">
+                                                N/A
+                                            </span>
+
+                                        <?php endif; ?>
+
                                     </td>
 
-                                    <td>
+                                    <td class="admin-market-actions">
 
-                                        <a
-                                            href="edit_market.php?id=<?= (int)$market['id'] ?>"
-                                            class="btn btn-sm btn-secondary"
-                                        >
-                                            Edit
-                                        </a>
+                                        <div class="admin-market-action-group">
 
-                                        <form
-                                            method="POST"
-                                            style="display: inline;"
-                                        >
-
-                                        <?= csrf_field() ?>
-
-                                            <input
-                                                type="hidden"
-                                                name="market_id"
-                                                value="<?= (int)$market['id'] ?>"
+                                            <a
+                                                href="edit_market.php?id=<?= (int) $market['id'] ?>"
+                                                class="admin-action-view"
                                             >
+                                                Edit
+                                            </a>
 
-                                            <input
-                                                type="hidden"
-                                                name="status"
-                                                value="<?= ($market['status'] ?? '') === 'active'
-                                                    ? 'inactive'
-                                                    : 'active'
-                                                ?>"
-                                            >
+                                            <form method="POST">
 
-                                            <button
-                                                type="submit"
-                                                class="btn btn-sm btn-secondary"
-                                            >
-                                                <?= ($market['status'] ?? '') === 'active'
-                                                    ? 'Deactivate'
-                                                    : 'Activate'
-                                                ?>
-                                            </button>
+                                                <?= csrf_field() ?>
 
-                                        </form>
+                                                <input
+                                                    type="hidden"
+                                                    name="market_id"
+                                                    value="<?= (int) $market['id'] ?>"
+                                                >
+
+                                                <input
+                                                    type="hidden"
+                                                    name="status"
+                                                    value="<?= $isActive
+                                                        ? 'inactive'
+                                                        : 'active' ?>"
+                                                >
+
+                                                <button
+                                                    type="submit"
+                                                    class="<?= $isActive
+                                                        ? 'admin-action-reject'
+                                                        : 'admin-action-approve' ?>"
+                                                >
+                                                    <?= $isActive
+                                                        ? 'Deactivate'
+                                                        : 'Activate' ?>
+                                                </button>
+
+                                            </form>
+
+                                        </div>
 
                                     </td>
 
@@ -324,11 +316,27 @@ if ($stmt) {
                         <?php else: ?>
 
                             <tr>
+                                <td colspan="7">
 
-                                <td colspan="8">
-                                    No markets found.
+                                    <div class="admin-table-empty">
+                                        <span class="admin-empty-mark">✦</span>
+
+                                        <strong>No markets found.</strong>
+
+                                        <p>
+                                            There are currently no markets
+                                            available in the directory.
+                                        </p>
+
+                                        <a
+                                            href="add_market.php"
+                                            class="admin-action-view"
+                                        >
+                                            Add a market
+                                        </a>
+                                    </div>
+
                                 </td>
-
                             </tr>
 
                         <?php endif; ?>
@@ -346,6 +354,4 @@ if ($stmt) {
 </div>
 
 </body>
-
-
 </html>

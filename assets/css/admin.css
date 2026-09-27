@@ -2718,3 +2718,1259 @@
         justify-content: flex-start;
     }
 }
+
+.admin-categories-page {
+    background: var(--cream);
+    padding-bottom: 100px;
+}
+
+.admin-category-form-section {
+    margin-bottom: var(--space-section-small);
+}
+
+.admin-category-form-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 30px;
+}
+
+.admin-category-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 240px;
+    gap: 22px;
+}
+
+.admin-category-form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.admin-category-form-field label {
+    color: var(--text-muted);
+    font-family: var(--font-main);
+    font-size: .66rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .09em;
+}
+
+.admin-category-form-field input,
+.admin-category-form-field select,
+.admin-category-form-field textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--cream-light);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: .84rem;
+    outline: none;
+    transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+.admin-category-form-field input,
+.admin-category-form-field select {
+    height: 46px;
+    padding: 0 14px;
+}
+
+.admin-category-form-field textarea {
+    min-height: 105px;
+    padding: 12px 14px;
+    resize: vertical;
+    line-height: 1.5;
+}
+
+.admin-category-form-field input:focus,
+.admin-category-form-field select:focus,
+.admin-category-form-field textarea:focus {
+    border-color: var(--sage);
+    box-shadow: 0 0 0 3px rgba(111, 124, 89, .12);
+}
+
+.admin-category-form-field input::placeholder,
+.admin-category-form-field textarea::placeholder {
+    color: var(--text-muted);
+}
+
+.admin-category-description {
+    grid-column: 1 / -1;
+}
+
+.admin-category-form-actions {
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.admin-category-cancel {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 0 15px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    color: var(--text-soft);
+    font-family: var(--font-main);
+    font-size: .62rem;
+    font-weight: 700;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    transition:
+        background var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast);
+}
+
+.admin-category-cancel:hover {
+    border-color: var(--sage);
+    background: var(--sage-light);
+    color: var(--sage-dark);
+}
+
+.admin-category-search {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 18px;
+}
+
+.admin-category-search-input {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+}
+
+.admin-category-search-input span {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 1rem;
+    pointer-events: none;
+}
+
+.admin-category-search-input input {
+    width: 100%;
+    height: 44px;
+    padding: 0 14px 0 38px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--surface);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: .8rem;
+    outline: none;
+}
+
+.admin-category-search-input input:focus {
+    border-color: var(--sage);
+    box-shadow: 0 0 0 3px rgba(111, 124, 89, .1);
+}
+
+.admin-categories-table {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.admin-categories-table table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.admin-categories-table thead {
+    background: var(--surface-alt);
+}
+
+.admin-categories-table th {
+    padding: 15px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: var(--font-main);
+    font-size: .59rem;
+    font-weight: 700;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: .09em;
+    white-space: normal;
+}
+
+.admin-categories-table td {
+    padding: 18px 14px;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-soft);
+    font-size: .76rem;
+    vertical-align: middle;
+    overflow-wrap: anywhere;
+}
+
+.admin-categories-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.admin-categories-table tbody tr {
+    transition: background var(--transition-fast);
+}
+
+.admin-categories-table tbody tr:hover {
+    background: var(--cream-light);
+}
+
+.admin-categories-table th:nth-child(1),
+.admin-categories-table td:nth-child(1) {
+    width: 7%;
+}
+
+.admin-categories-table th:nth-child(2),
+.admin-categories-table td:nth-child(2) {
+    width: 19%;
+}
+
+.admin-categories-table th:nth-child(3),
+.admin-categories-table td:nth-child(3) {
+    width: 27%;
+}
+
+.admin-categories-table th:nth-child(4),
+.admin-categories-table td:nth-child(4) {
+    width: 11%;
+}
+
+.admin-categories-table th:nth-child(5),
+.admin-categories-table td:nth-child(5) {
+    width: 11%;
+}
+
+.admin-categories-table th:nth-child(6),
+.admin-categories-table td:nth-child(6) {
+    width: 11%;
+}
+
+.admin-categories-table th:nth-child(7),
+.admin-categories-table td:nth-child(7) {
+    width: 14%;
+}
+
+.admin-category-id {
+    color: var(--text-muted) !important;
+    font-family: var(--font-main);
+    font-size: .68rem !important;
+    font-weight: 700;
+}
+
+.admin-category-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.admin-category-mark {
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--sage-light);
+    color: var(--sage-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-serif);
+    font-size: 1rem;
+}
+
+.admin-category-name strong {
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: .78rem;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.admin-categories-table .admin-category-description {
+    color: var(--text-muted);
+    font-size: .72rem;
+    line-height: 1.45;
+}
+
+.admin-category-products {
+    color: var(--text) !important;
+    font-family: var(--font-main);
+    font-weight: 700;
+}
+
+.admin-category-products span {
+    display: block;
+    margin-top: 3px;
+    color: var(--text-muted);
+    font-family: var(--font-body);
+    font-size: .62rem;
+    font-weight: 400;
+}
+
+.admin-category-date {
+    color: var(--text-muted) !important;
+    font-size: .68rem !important;
+    white-space: nowrap;
+}
+
+.admin-categories-table .admin-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 27px;
+    padding: 4px 9px;
+    border-radius: var(--radius-pill);
+    font-family: var(--font-main);
+    font-size: .55rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .045em;
+    white-space: nowrap;
+}
+
+.admin-category-status-active {
+    background: var(--sage-light);
+    border: 1px solid rgba(111, 124, 89, .25);
+    color: var(--sage-dark);
+}
+
+.admin-category-status-inactive {
+    background: var(--terracotta-soft);
+    border: 1px solid rgba(135, 72, 61, .2);
+    color: var(--terracotta-dark);
+}
+
+.admin-category-actions {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.admin-category-actions form {
+    margin: 0;
+}
+
+.admin-categories-table .admin-action-view,
+.admin-categories-table .admin-action-reject {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 29px;
+    padding: 5px 9px;
+    border-radius: var(--radius-pill);
+    font-family: var(--font-main);
+    font-size: .54rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .035em;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+        background var(--transition-fast),
+        color var(--transition-fast),
+        border-color var(--transition-fast);
+}
+
+.admin-categories-table .admin-action-view {
+    border: 1px solid var(--sage);
+    background: var(--sage);
+    color: var(--text-on-sage);
+}
+
+.admin-categories-table .admin-action-view:hover {
+    border-color: var(--sage-dark);
+    background: var(--sage-dark);
+}
+
+.admin-categories-table .admin-action-reject {
+    border: 1px solid var(--terracotta);
+    background: transparent;
+    color: var(--terracotta-dark);
+}
+
+.admin-categories-table .admin-action-reject:hover {
+    background: var(--terracotta);
+    color: var(--text-on-terracotta);
+}
+
+.admin-categories-table .admin-table-empty {
+    padding: 70px 30px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.admin-categories-table .admin-table-empty span {
+    display: block;
+    margin-bottom: 12px;
+    color: var(--marigold-dark);
+    font-size: 1.3rem;
+}
+
+.admin-categories-table .admin-table-empty strong {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: .9rem;
+}
+
+.admin-categories-table .admin-table-empty p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: .76rem;
+}
+
+@media (max-width: 950px) {
+    .admin-category-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-category-description {
+        grid-column: auto;
+    }
+
+    .admin-categories-table th,
+    .admin-categories-table td {
+        padding: 13px 8px;
+    }
+
+    .admin-category-mark {
+        display: none;
+    }
+
+    .admin-category-name {
+        gap: 0;
+    }
+}
+
+@media (max-width: 700px) {
+    .admin-category-search {
+        flex-wrap: wrap;
+    }
+
+    .admin-category-search-input {
+        flex-basis: 100%;
+    }
+
+    .admin-category-form-card {
+        padding: 22px;
+    }
+
+    .admin-categories-table th,
+    .admin-categories-table td {
+        padding: 11px 6px;
+    }
+
+    .admin-categories-table th {
+        font-size: .5rem;
+    }
+
+    .admin-categories-table td {
+        font-size: .68rem;
+    }
+
+    .admin-categories-table .admin-status {
+        min-height: 23px;
+        padding: 3px 6px;
+        font-size: .48rem;
+    }
+
+    .admin-categories-table .admin-action-view,
+    .admin-categories-table .admin-action-reject {
+        min-height: 26px;
+        padding: 4px 6px;
+        font-size: .48rem;
+    }
+
+    .admin-category-form-actions {
+        flex-wrap: wrap;
+    }
+}
+
+.admin-markets-page {
+    background: var(--cream);
+}
+
+.admin-markets-table {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.admin-markets-table table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.admin-markets-table th {
+    padding: 15px 20px;
+    background: var(--surface-alt);
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: var(--font-main);
+    font-size: .64rem;
+    font-weight: 700;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    white-space: normal;
+}
+
+.admin-markets-table td {
+    padding: 19px 20px;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-soft);
+    font-size: .84rem;
+    vertical-align: middle;
+    overflow-wrap: anywhere;
+}
+
+.admin-markets-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.admin-markets-table tbody tr {
+    transition: background var(--transition-fast);
+}
+
+.admin-markets-table tbody tr:hover {
+    background: var(--cream-light);
+}
+
+.admin-market-id {
+    width: 7%;
+}
+
+.admin-market-name {
+    width: 21%;
+}
+
+.admin-market-address {
+    width: 20%;
+}
+
+.admin-market-hours {
+    width: 15%;
+}
+
+.admin-market-status {
+    width: 12%;
+}
+
+.admin-market-created {
+    width: 11%;
+}
+
+.admin-market-actions {
+    width: 14%;
+}
+
+.admin-table-id {
+    color: var(--text-muted);
+    font-family: var(--font-main);
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+}
+
+.admin-market-name-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.admin-market-icon {
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--sage-soft);
+    border: 1px solid var(--sage-light);
+    border-radius: 50%;
+    color: var(--sage-dark);
+    font-size: .9rem;
+}
+
+.admin-market-name-wrap > div {
+    min-width: 0;
+}
+
+.admin-market-name-wrap strong {
+    display: block;
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: .88rem;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.admin-market-name-wrap span:last-child {
+    display: block;
+    margin-top: 4px;
+    color: var(--text-muted);
+    font-size: .7rem;
+}
+
+.admin-market-address {
+    color: var(--text-soft);
+    line-height: 1.45;
+}
+
+.admin-hours-main {
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: .76rem;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.admin-table-muted {
+    color: var(--text-muted);
+    font-size: .75rem;
+}
+
+.admin-table-date {
+    color: var(--text-muted);
+    font-size: .75rem;
+    white-space: nowrap;
+}
+
+.admin-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 29px;
+    padding: 5px 10px;
+    border-radius: var(--radius-pill);
+    font-family: var(--font-main);
+    font-size: .62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    white-space: nowrap;
+}
+
+.admin-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.admin-status-active {
+    background: var(--sage-soft);
+    border: 1px solid var(--sage-light);
+    color: var(--sage-dark);
+}
+
+.admin-status-inactive {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+}
+
+.admin-market-action-group {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 7px;
+    flex-wrap: wrap;
+}
+
+.admin-market-action-group form {
+    margin: 0;
+}
+
+.admin-market-action-group button {
+    font: inherit;
+}
+
+.admin-table-empty {
+    min-height: 260px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    text-align: center;
+}
+
+.admin-empty-mark {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+    background: var(--sage-soft);
+    border: 1px solid var(--sage-light);
+    border-radius: 50%;
+    color: var(--sage-dark);
+    font-size: 1.1rem;
+}
+
+.admin-table-empty strong {
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: .95rem;
+}
+
+.admin-table-empty p {
+    max-width: 360px;
+    margin: 7px 0 18px;
+    color: var(--text-muted);
+    font-size: .8rem;
+    line-height: 1.6;
+}
+
+@media (max-width: 1100px) {
+    .admin-market-id {
+        width: 8%;
+    }
+
+    .admin-market-name {
+        width: 22%;
+    }
+
+    .admin-market-address {
+        width: 19%;
+    }
+
+    .admin-market-hours {
+        width: 14%;
+    }
+
+    .admin-market-status {
+        width: 12%;
+    }
+
+    .admin-market-created {
+        width: 11%;
+    }
+
+    .admin-market-actions {
+        width: 14%;
+    }
+
+    .admin-markets-table th,
+    .admin-markets-table td {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    .admin-market-name-wrap {
+        gap: 8px;
+    }
+
+    .admin-market-icon {
+        width: 30px;
+        height: 30px;
+        flex-basis: 30px;
+    }
+}
+
+@media (max-width: 850px) {
+    .admin-markets-table table {
+        table-layout: auto;
+    }
+
+    .admin-markets-table th,
+    .admin-markets-table td {
+        padding: 14px 11px;
+    }
+
+    .admin-market-icon {
+        display: none;
+    }
+
+    .admin-market-name-wrap strong {
+        font-size: .8rem;
+    }
+
+    .admin-market-name-wrap span:last-child {
+        font-size: .64rem;
+    }
+
+    .admin-market-action-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-market-action-group .admin-action-view,
+    .admin-market-action-group button {
+        text-align: center;
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 700px) {
+    .admin-page-hero {
+        padding-bottom: 35px;
+    }
+
+    .admin-section-heading {
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .admin-record-count {
+        flex-shrink: 0;
+    }
+
+    .admin-markets-table {
+        border-radius: var(--radius-md);
+    }
+
+    .admin-markets-table table,
+    .admin-markets-table thead,
+    .admin-markets-table tbody,
+    .admin-markets-table th,
+    .admin-markets-table td,
+    .admin-markets-table tr {
+        display: block;
+    }
+
+    .admin-markets-table thead {
+        display: none;
+    }
+
+    .admin-markets-table tbody tr {
+        padding: 18px;
+        border-bottom: 1px solid var(--border-light);
+    }
+
+    .admin-markets-table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .admin-markets-table td {
+        width: 100%;
+        padding: 6px 0;
+        border: none;
+    }
+
+    .admin-markets-table td::before {
+        display: block;
+        margin-bottom: 3px;
+        color: var(--text-muted);
+        font-family: var(--font-main);
+        font-size: .58rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+    }
+
+    .admin-markets-table td.admin-market-id::before {
+        content: "ID";
+    }
+
+    .admin-markets-table td.admin-market-name::before {
+        content: "Market";
+    }
+
+    .admin-markets-table td.admin-market-address::before {
+        content: "Address";
+    }
+
+    .admin-markets-table td.admin-market-hours::before {
+        content: "Hours";
+    }
+
+    .admin-markets-table td.admin-market-status::before {
+        content: "Status";
+    }
+
+    .admin-markets-table td.admin-market-created::before {
+        content: "Created";
+    }
+
+    .admin-markets-table td.admin-market-actions::before {
+        content: "Action";
+    }
+
+    .admin-market-action-group {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .admin-market-action-group .admin-action-view,
+    .admin-market-action-group button {
+        flex: 0 0 auto;
+    }
+}
+
+.admin-add-market-page {
+    background: var(--cream);
+}
+
+.admin-market-form {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 24px 90px;
+}
+
+.admin-form-section {
+    margin-bottom: 70px;
+}
+
+.admin-form-section-heading {
+    margin-bottom: 24px;
+}
+
+.admin-form-section-heading .admin-section-number {
+    display: block;
+    margin-bottom: 9px;
+    color: var(--terracotta-dark);
+    font-family: var(--font-main);
+    font-size: .64rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+}
+
+.admin-form-section-heading h2 {
+    margin: 0;
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: clamp(1.8rem, 3vw, 2.7rem);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -.04em;
+}
+
+.admin-form-section-heading h2 em {
+    color: var(--sage-dark);
+    font-family: var(--font-serif);
+    font-weight: 400;
+}
+
+.admin-form-section-heading p {
+    max-width: 620px;
+    margin: 10px 0 0;
+    color: var(--text-muted);
+    font-size: .84rem;
+    line-height: 1.65;
+}
+
+.admin-market-form-card {
+    padding: 32px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
+}
+
+.admin-market-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 25px 24px;
+}
+
+.admin-market-field {
+    min-width: 0;
+}
+
+.admin-market-field-full {
+    grid-column: 1 / -1;
+}
+
+.admin-market-field label {
+    display: block;
+    margin-bottom: 9px;
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+}
+
+.admin-market-field input:not([type="checkbox"]):not([type="radio"]),
+.admin-market-field textarea,
+.admin-market-field select {
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 15px;
+    background: var(--cream-light);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: .86rem;
+    outline: none;
+    transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast),
+        background var(--transition-fast);
+}
+
+.admin-market-field textarea {
+    min-height: 125px;
+    resize: vertical;
+    line-height: 1.6;
+}
+
+.admin-market-field select {
+    cursor: pointer;
+}
+
+.admin-market-field input:not([type="checkbox"]):not([type="radio"])::placeholder,
+.admin-market-field textarea::placeholder {
+    color: var(--text-muted);
+    opacity: .72;
+}
+
+.admin-market-field input:not([type="checkbox"]):not([type="radio"]):focus,
+.admin-market-field textarea:focus,
+.admin-market-field select:focus {
+    background: var(--white);
+    border-color: var(--sage);
+    box-shadow: 0 0 0 3px rgba(111, 124, 89, .12);
+}
+
+.admin-market-field-help {
+    display: block;
+    margin-top: 7px;
+    color: var(--text-muted);
+    font-size: .7rem;
+}
+
+.admin-market-days {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.admin-market-day {
+    position: relative;
+    cursor: pointer;
+}
+
+.admin-market-day input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.admin-market-day span {
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 5px;
+    background: var(--cream-light);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-soft);
+    font-family: var(--font-main);
+    font-size: .68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    transition:
+        background var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+.admin-market-day:hover span {
+    border-color: var(--sage);
+    transform: var(--lift-small);
+}
+
+.admin-market-day input:checked + span {
+    background: var(--sage);
+    border-color: var(--sage);
+    color: var(--text-on-sage);
+}
+
+.admin-market-day input:focus-visible + span {
+    box-shadow: 0 0 0 3px rgba(111, 124, 89, .18);
+}
+
+.admin-market-status-options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+}
+
+.admin-market-status-option {
+    position: relative;
+    display: block;
+    cursor: pointer;
+}
+
+.admin-market-status-option input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.admin-market-status-content {
+    display: block;
+    min-height: 110px;
+    padding: 21px;
+    background: var(--cream-light);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    transition:
+        border-color var(--transition-fast),
+        background var(--transition-fast),
+        box-shadow var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+.admin-market-status-option:hover .admin-market-status-content {
+    transform: var(--lift-small);
+    border-color: var(--sage);
+}
+
+.admin-market-status-option input:checked + .admin-market-status-content {
+    background: var(--sage-soft);
+    border-color: var(--sage);
+    box-shadow: 0 0 0 2px rgba(111, 124, 89, .08);
+}
+
+.admin-market-status-option input:focus-visible + .admin-market-status-content {
+    box-shadow: 0 0 0 3px rgba(111, 124, 89, .16);
+}
+
+.admin-market-status-title {
+    display: block;
+    margin-bottom: 7px;
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: .88rem;
+    font-weight: 700;
+}
+
+.admin-market-status-description {
+    display: block;
+    color: var(--text-muted);
+    font-size: .75rem;
+    line-height: 1.55;
+}
+
+.admin-market-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    padding-top: 5px;
+}
+
+.admin-action-cancel,
+.admin-action-submit {
+    min-height: 45px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 11px 21px;
+    border-radius: var(--radius-pill);
+    font-family: var(--font-main);
+    font-size: .68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+        background var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast),
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+.admin-action-cancel {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+}
+
+.admin-action-cancel:hover {
+    background: var(--surface-alt);
+    color: var(--text);
+    transform: var(--lift-small);
+}
+
+.admin-action-submit {
+    border: 1px solid var(--terracotta);
+    background: var(--terracotta);
+    color: var(--text-on-terracotta);
+}
+
+.admin-action-submit:hover {
+    background: var(--terracotta-dark);
+    border-color: var(--terracotta-dark);
+    transform: var(--lift-small);
+    box-shadow: var(--shadow-soft);
+}
+
+@media (max-width: 800px) {
+    .admin-market-form {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+
+    .admin-market-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-market-field-full {
+        grid-column: auto;
+    }
+
+    .admin-market-days {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .admin-market-status-options {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 500px) {
+    .admin-market-form-card {
+        padding: 21px;
+        border-radius: var(--radius-md);
+    }
+
+    .admin-form-section {
+        margin-bottom: 52px;
+    }
+
+    .admin-market-days {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .admin-market-form-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .admin-action-cancel,
+    .admin-action-submit {
+        width: 100%;
+    }
+}
