@@ -10,15 +10,10 @@ $errors = [];
 $success = '';
 $announcements = [];
 
-
-/*
- * Add announcement
- */
 if (
     $_SERVER['REQUEST_METHOD'] === 'POST' &&
     isset($_POST['add_announcement'])
 ) {
-
     if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
         $errors[] = 'Invalid CSRF token.';
     }
@@ -41,7 +36,6 @@ if (
     }
 
     if ($expires_at !== '') {
-
         $date = DateTime::createFromFormat(
             'Y-m-d\TH:i',
             $expires_at
@@ -56,7 +50,6 @@ if (
     }
 
     if (empty($errors)) {
-
         $expires_value = $expires_at !== ''
             ? str_replace('T', ' ', $expires_at) . ':00'
             : null;
@@ -64,10 +57,6 @@ if (
         $conn->begin_transaction();
 
         try {
-
-            /*
-             * Insert announcement
-             */
             $stmt = $conn->prepare("
                 INSERT INTO announcements
                 (
@@ -100,13 +89,7 @@ if (
 
             $stmt->close();
 
-
-            /*
-             * If the announcement is published immediately,
-             * create notifications for customers and farmers.
-             */
             if ($status === 'published') {
-
                 $notification_stmt = $conn->prepare("
                     INSERT INTO notifications
                     (
@@ -147,30 +130,21 @@ if (
                 $notification_stmt->close();
             }
 
-
             $conn->commit();
 
             $success = 'Announcement added successfully.';
             $_POST = [];
-
         } catch (Exception $e) {
-
             $conn->rollback();
-
             $errors[] = $e->getMessage();
         }
     }
 }
 
-
-/*
- * Update announcement status
- */
 if (
     $_SERVER['REQUEST_METHOD'] === 'POST' &&
     isset($_POST['update_status'])
 ) {
-
     if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
         $errors[] = 'Invalid CSRF token.';
     }
@@ -196,12 +170,6 @@ if (
     }
 
     if (empty($errors)) {
-
-        /*
-         * Get the current announcement first.
-         * We need the old status to know whether
-         * this is a new publication.
-         */
         $stmt = $conn->prepare("
             SELECT
                 status,
@@ -214,7 +182,6 @@ if (
         ");
 
         if ($stmt) {
-
             $stmt->bind_param(
                 'ii',
                 $announcement_id,
@@ -229,24 +196,25 @@ if (
             $stmt->close();
 
             if (!$announcement) {
-
                 $errors[] = 'Announcement not found.';
-
             } else {
-
                 $old_status = $announcement['status'];
 
-                /*
-                 * Update status
-                 */
-                $stmt = $conn->prepare("
-                    UPDATE announcements
-                    SET status = ?
-                    WHERE id = ?
-                    AND admin_id = ?
-                ");
+                $conn->begin_transaction();
 
-                if ($stmt) {
+                try {
+                    $stmt = $conn->prepare("
+                        UPDATE announcements
+                        SET status = ?
+                        WHERE id = ?
+                        AND admin_id = ?
+                    ");
+
+                    if (!$stmt) {
+                        throw new Exception(
+                            'Failed to prepare announcement update.'
+                        );
+                    }
 
                     $stmt->bind_param(
                         'sii',
@@ -255,86 +223,78 @@ if (
                         $admin_id
                     );
 
-                    if ($stmt->execute()) {
-
+                    if (!$stmt->execute()) {
                         $stmt->close();
 
-                        /*
-                         * Create notifications only when
-                         * the announcement becomes published.
-                         *
-                         * This prevents duplicate notifications
-                         * when the status is already published.
-                         */
-                        if (
-                            $new_status === 'published' &&
-                            $old_status !== 'published'
-                        ) {
-
-                            $notification_stmt = $conn->prepare("
-                                INSERT INTO notifications
-                                (
-                                    user_id,
-                                    type,
-                                    title,
-                                    message
-                                )
-                                SELECT
-                                    id,
-                                    'announcement',
-                                    ?,
-                                    ?
-                                FROM users
-                                WHERE role IN ('customer', 'farmer')
-                            ");
-
-                            if ($notification_stmt) {
-
-                                $notification_stmt->bind_param(
-                                    'ss',
-                                    $announcement['title'],
-                                    $announcement['message']
-                                );
-
-                                $notification_stmt->execute();
-
-                                $notification_stmt->close();
-                            }
-                        }
-
-                        redirect('announcements.php');
-
-                    } else {
-
-                        $errors[] =
-                            'Failed to update announcement.';
-
-                        $stmt->close();
+                        throw new Exception(
+                            'Failed to update announcement.'
+                        );
                     }
 
-                } else {
+                    $stmt->close();
 
-                    $errors[] =
-                        'Failed to prepare announcement update.';
+                    if (
+                        $new_status === 'published' &&
+                        $old_status !== 'published'
+                    ) {
+                        $notification_stmt = $conn->prepare("
+                            INSERT INTO notifications
+                            (
+                                user_id,
+                                type,
+                                title,
+                                message
+                            )
+                            SELECT
+                                id,
+                                'announcement',
+                                ?,
+                                ?
+                            FROM users
+                            WHERE role IN ('customer', 'farmer')
+                        ");
+
+                        if (!$notification_stmt) {
+                            throw new Exception(
+                                'Failed to prepare announcement notifications.'
+                            );
+                        }
+
+                        $notification_stmt->bind_param(
+                            'ss',
+                            $announcement['title'],
+                            $announcement['message']
+                        );
+
+                        if (!$notification_stmt->execute()) {
+                            $notification_stmt->close();
+
+                            throw new Exception(
+                                'Failed to create announcement notifications.'
+                            );
+                        }
+
+                        $notification_stmt->close();
+                    }
+
+                    $conn->commit();
+
+                    redirect('announcements.php');
+                } catch (Exception $e) {
+                    $conn->rollback();
+                    $errors[] = $e->getMessage();
                 }
             }
-
         } else {
-
             $errors[] = 'Failed to load announcement.';
         }
     }
 }
 
-
-/*
- * Delete announcement
- */
 if (
     $_SERVER['REQUEST_METHOD'] === 'POST' &&
     isset($_POST['delete_announcement'])
 ) {
-
     if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
         $errors[] = 'Invalid CSRF token.';
     }
@@ -350,7 +310,6 @@ if (
     }
 
     if (empty($errors)) {
-
         $stmt = $conn->prepare("
             DELETE FROM announcements
             WHERE id = ?
@@ -358,7 +317,6 @@ if (
         ");
 
         if ($stmt) {
-
             $stmt->bind_param(
                 'ii',
                 $announcement_id,
@@ -366,31 +324,19 @@ if (
             );
 
             if ($stmt->execute()) {
-
                 $stmt->close();
 
                 redirect('announcements.php');
-
             } else {
-
-                $errors[] =
-                    'Failed to delete announcement.';
-
+                $errors[] = 'Failed to delete announcement.';
                 $stmt->close();
             }
-
         } else {
-
-            $errors[] =
-                'Failed to prepare announcement deletion.';
+            $errors[] = 'Failed to prepare announcement deletion.';
         }
     }
 }
 
-
-/*
- * Load announcements
- */
 $result = $conn->query("
     SELECT
         a.id,
@@ -414,475 +360,497 @@ if ($result) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Announcements | MarketLink</title>
 
     <link rel="stylesheet" href="../assets/css/base.css">
     <link rel="stylesheet" href="../assets/css/navbar.css">
     <link rel="stylesheet" href="../assets/css/sidebar.css">
-
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/admin_ann.css">
 </head>
 
 <body>
 
+<?php include __DIR__ . '/../includes/navbar.php'; ?>
+<?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-    <?php include __DIR__ . '/../includes/navbar.php'; ?>
+<main class="main-content admin-announcements-page">
 
-    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
+    <section class="admin-page-hero">
+        <div class="admin-page-hero-copy">
+            <span class="eyebrow">ADMIN / ANNOUNCEMENTS</span>
 
-        <main class="main-content">
+            <h1>
+                Keep users <em>informed.</em>
+            </h1>
 
-                <div class="page-header">
+            <p>
+                Share important updates and news with customers and farmers across MarketLink.
+            </p>
+        </div>
 
-                    <div>
+        <div class="admin-page-mark">
+            08
+        </div>
+    </section>
 
-                        <h1>
-                            Announcements
-                        </h1>
+    <?php if (!empty($errors)): ?>
+        <div class="admin-page-alert alert-danger">
+            <span class="admin-alert-mark">!</span>
 
-                        <p>
-                            Manage announcements for users.
-                        </p>
+            <div>
+                <?php foreach ($errors as $error): ?>
+                    <p><?= htmlspecialchars($error) ?></p>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    <?php endif; ?>
 
+    <?php if ($success !== ''): ?>
+        <div class="admin-page-alert alert-success">
+            <span class="admin-alert-mark">✓</span>
+
+            <div>
+                <?= htmlspecialchars($success) ?>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <section class="admin-announcement-compose-section">
+
+        <div class="admin-section-heading">
+            <div>
+                <span class="admin-section-number">01 / COMPOSE</span>
+
+                <h2>
+                    New <em>announcement.</em>
+                </h2>
+
+                <p>
+                    Create an update for the MarketLink community.
+                </p>
+            </div>
+        </div>
+
+        <div class="admin-announcement-form-card">
+
+            <form
+                method="POST"
+                action="announcements.php"
+                class="admin-announcement-form"
+            >
+
+                <?= csrf_field() ?>
+
+                <div class="admin-announcement-form-grid">
+
+                    <div class="admin-announcement-field admin-announcement-field-full">
+                        <label for="title">
+                            Announcement title
+                        </label>
+
+                        <input
+                            type="text"
+                            id="title"
+                            name="title"
+                            maxlength="150"
+                            value="<?= htmlspecialchars(
+                                $_POST['title'] ?? ''
+                            ) ?>"
+                            placeholder="Enter a clear announcement title"
+                            required
+                        >
+                    </div>
+
+                    <div class="admin-announcement-field admin-announcement-field-full">
+                        <label for="message">
+                            Message
+                        </label>
+
+                        <textarea
+                            id="message"
+                            name="message"
+                            rows="6"
+                            placeholder="Write the announcement message..."
+                            required
+                        ><?= htmlspecialchars(
+                            $_POST['message'] ?? ''
+                        ) ?></textarea>
+                    </div>
+
+                    <div class="admin-announcement-field">
+                        <label for="status">
+                            Status
+                        </label>
+
+                        <select
+                            id="status"
+                            name="status"
+                        >
+                            <option
+                                value="draft"
+                                <?= ($_POST['status'] ?? 'draft') === 'draft'
+                                    ? 'selected'
+                                    : '' ?>
+                            >
+                                Draft
+                            </option>
+
+                            <option
+                                value="published"
+                                <?= ($_POST['status'] ?? '') === 'published'
+                                    ? 'selected'
+                                    : '' ?>
+                            >
+                                Published
+                            </option>
+
+                            <option
+                                value="archived"
+                                <?= ($_POST['status'] ?? '') === 'archived'
+                                    ? 'selected'
+                                    : '' ?>
+                            >
+                                Archived
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="admin-announcement-field">
+                        <label for="expires_at">
+                            Expiration date
+                        </label>
+
+                        <input
+                            type="datetime-local"
+                            id="expires_at"
+                            name="expires_at"
+                            value="<?= htmlspecialchars(
+                                $_POST['expires_at'] ?? ''
+                            ) ?>"
+                        >
                     </div>
 
                 </div>
 
-                <?php if (!empty($errors)): ?>
-
-                    <div class="alert alert-danger">
-
-                        <?php foreach ($errors as $error): ?>
-
-                            <p>
-                                <?= htmlspecialchars($error) ?>
-                            </p>
-
-                        <?php endforeach; ?>
-
-                    </div>
-
-                <?php endif; ?>
-
-                <?php if ($success !== ''): ?>
-
-                    <div class="alert alert-success">
-
-                        <?= htmlspecialchars($success) ?>
-
-                    </div>
-
-                <?php endif; ?>
-
-                <section class="form-section">
-
-                    <div class="section-header">
-
-                        <h2>
-                            Add Announcement
-                        </h2>
-
-                    </div>
-
-                    <form
-                        method="POST"
-                        action="announcements.php"
+                <div class="admin-announcement-form-actions">
+                    <button
+                        type="submit"
+                        name="add_announcement"
+                        class="admin-action-submit"
                     >
-
-                    <?= csrf_field() ?>
-
-                        <div class="form-group">
-
-                            <label for="title">
-                                Title
-                            </label>
-
-                            <input
-                                type="text"
-                                id="title"
-                                name="title"
-                                maxlength="150"
-                                value="<?= htmlspecialchars(
-                                    $_POST['title'] ?? ''
-                                ) ?>"
-                                required
-                            >
-                        </div>
-
-                        <div class="form-group">
-
-                            <label for="message">
-                                Message
-                            </label>
-
-                            <textarea
-                                id="message"
-                                name="message"
-                                rows="5"
-                                required
-                            ><?= htmlspecialchars(
-                                $_POST['message'] ?? ''
-                            ) ?></textarea>
-
-                        </div>
-
-                        <div class="form-row">
-
-                            <div class="form-group">
-
-                                <label for="status">
-                                    Status
-                                </label>
-
-                                <select
-                                    id="status"
-                                    name="status"
-                                >
-
-                                    <option
-                                        value="draft"
-                                        <?= ($_POST['status'] ?? 'draft') === 'draft'
-                                            ? 'selected'
-                                            : '' ?>
-                                    >
-                                        Draft
-                                    </option>
-
-                                    <option
-                                        value="published"
-                                        <?= ($_POST['status'] ?? '') === 'published'
-                                            ? 'selected'
-                                            : '' ?>
-                                    >
-                                        Published
-                                    </option>
-
-                                    <option
-                                        value="archived"
-                                        <?= ($_POST['status'] ?? '') === 'archived'
-                                            ? 'selected'
-                                            : '' ?>
-                                    >
-                                        Archived
-                                    </option>
-
-                                </select>
-
-                            </div>
-
-                            <div class="form-group">
-
-                                <label for="expires_at">
-                                    Expiration Date
-                                </label>
-
-                                <input
-                                    type="datetime-local"
-                                    id="expires_at"
-                                    name="expires_at"
-                                    value="<?= htmlspecialchars(
-                                        $_POST['expires_at'] ?? ''
-                                    ) ?>"
-                                >
-
-                            </div>
-
-                        </div>
-
-                        <div class="form-actions">
-
-                            <button
-                                type="submit"
-                                name="add_announcement"
-                                class="btn btn-primary"
-                            >
-                                Add Announcement
-                            </button>
-
-                        </div>
-
-                    </form>
-
-                </section>
-
-                <section class="table-section">
-
-                    <div class="section-header">
-
-                        <h2>
-                            All Announcements
-                        </h2>
-
-                    </div>
-
-                        <div class="table-responsive">
-
-                        <table class="data-table">
-
-                            <thead>
-
-                                <tr>
-
-                                    <th>ID</th>
-                                    <th>Title</th>
-                                    <th>Message</th>
-                                    <th>Status</th>
-                                    <th>Created By</th>
-                                    <th>Created At</th>
-                                    <th>Expires At</th>
-                                    <th>Actions</th>
-
-                                </tr>
-
-                            </thead>
-
-                            <tbody>
-
-                                <?php if (!empty($announcements)): ?>
-
-                                    <?php foreach ($announcements as $announcement): ?>
-
-                                        <tr>
-
-                                            <td>
-                                                <?= (int) $announcement['id'] ?>
-                                            </td>
-
-                                            <td>
-                                                <?= htmlspecialchars(
-                                                    $announcement['title']
-                                                ) ?>
-                                            </td>
-
-                                            <td>
-                                                <?= htmlspecialchars(
-                                                    $announcement['message']
-                                                ) ?>
-                                            </td>
-
-                                            <td>
-
-                                                <span
-                                                    class="status status-<?= htmlspecialchars(
-                                                        $announcement['status']
-                                                    ) ?>"
-                                                >
-                                                    <?= ucfirst(
-                                                        $announcement['status']
-                                                    ) ?>
-                                                </span>
-
-                                            </td>
-
-                                            <td>
-                                                <?= htmlspecialchars(
-                                                    $announcement['admin_name']
-                                                ) ?>
-                                            </td>
-
-                                            <td>
-                                                <?= date(
-                                                    'Y-m-d H:i',
-                                                    strtotime(
-                                                        $announcement['created_at']
-                                                    )
-                                                ) ?>
-                                            </td>
-
-                                            <td>
-
-                                                <?php if (
-                                                    !empty($announcement['expires_at'])
-                                                ): ?>
-
-                                                    <?= date(
-                                                        'Y-m-d H:i',
-                                                        strtotime(
-                                                            $announcement['expires_at']
-                                                        )
-                                                    ) ?>
-
-                                                <?php else: ?>
-
-                                                    No expiration
-
-                                                <?php endif; ?>
-
-                                            </td>
-
-                                            <td>
-
-                                                <div class="action-buttons">
-
-                                                    <?php if (
-                                                        $announcement['status'] !== 'published'
-                                                    ): ?>
-
-                                                        <form
-                                                            method="POST"
-                                                            action="announcements.php"
-                                                        >
-
-                                                            <?= csrf_field() ?>
-
-                                                            <input
-                                                                type="hidden"
-                                                                name="id"
-                                                                value="<?= (int) $announcement['id'] ?>"
-                                                            >
-
-                                                            <input
-                                                                type="hidden"
-                                                                name="status"
-                                                                value="published"
-                                                            >
-
-                                                            <button
-                                                                type="submit"
-                                                                name="update_status"
-                                                                class="btn btn-primary"
-                                                            >
-                                                                Publish
-                                                            </button>
-
-                                                        </form>
-
-                                                    <?php endif; ?>
-
-                                                    <?php if (
-                                                        $announcement['status'] !== 'archived'
-                                                    ): ?>
-
-                                                        <form
-                                                            method="POST"
-                                                            action="announcements.php"
-                                                        >
-
-                                                            <?= csrf_field() ?>
-
-                                                            <input
-                                                                type="hidden"
-                                                                name="id"
-                                                                value="<?= (int) $announcement['id'] ?>"
-                                                            >
-
-                                                            <input
-                                                                type="hidden"
-                                                                name="status"
-                                                                value="archived"
-                                                            >
-
-                                                            <button
-                                                                type="submit"
-                                                                name="update_status"
-                                                                class="btn btn-secondary"
-                                                            >
-                                                                Archive
-                                                            </button>
-
-                                                        </form>
-
-                                                    <?php endif; ?>
-
-                                                    <?php if (
-                                                        $announcement['status'] !== 'draft'
-                                                    ): ?>
-
-                                                        <form
-                                                            method="POST"
-                                                            action="announcements.php"
-                                                        >
-                                                            <?= csrf_field() ?>
-
-                                                            <input
-                                                                type="hidden"
-                                                                name="id"
-                                                                value="<?= (int) $announcement['id'] ?>"
-                                                            >
-
-                                                            <input
-                                                                type="hidden"
-                                                                name="status"
-                                                                value="draft"
-                                                            >
-
-                                                            <button
-                                                                type="submit"
-                                                                name="update_status"
-                                                                class="btn btn-secondary"
-                                                            >
-                                                                Draft
-                                                            </button>
-
-                                                        </form>
-
-                                                    <?php endif; ?>
-
-                                                    <form
-                                                        method="POST"
-                                                        action="announcements.php"
-                                                        onsubmit="return confirm('Are you sure you want to delete this announcement?');"
-                                                    >
-
-                                                        <?= csrf_field() ?>
-
-                                                        <input
-                                                            type="hidden"
-                                                            name="id"
-                                                            value="<?= (int) $announcement['id'] ?>"
-                                                        >
-
-                                                        <button
-                                                            type="submit"
-                                                            name="delete_announcement"
-                                                            class="btn btn-danger"
-                                                        >
-                                                            Delete
-                                                        </button>
-
-                                                    </form>
-
-                                                </div>
-
-                                            </td>
-
-                                        </tr>
-
-                                    <?php endforeach; ?>
-
-                                <?php else: ?>
-
-                                    <tr>
-
-                                        <td colspan="8">
-                                            No announcements found.
-                                        </td>
-
-                                    </tr>
-
-                                <?php endif; ?>
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-                </section>
-
-            </main>
+                        Publish announcement
+                    </button>
+                </div>
+
+            </form>
 
         </div>
 
-</body>
+    </section>
 
+    <section class="admin-announcements-section">
+
+        <div class="admin-section-heading">
+            <div>
+                <span class="admin-section-number">02 / DIRECTORY</span>
+
+                <h2>
+                    Announcement <em>archive.</em>
+                </h2>
+
+                <p>
+                    Review, publish, archive, or remove existing announcements.
+                </p>
+            </div>
+
+            <span class="admin-record-count">
+                <?= count($announcements) ?>
+                <?= count($announcements) === 1 ? 'announcement' : 'announcements' ?>
+            </span>
+        </div>
+
+        <div class="admin-announcements-table">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Announcement</th>
+                        <th>Status</th>
+                        <th>Created By</th>
+                        <th>Created</th>
+                        <th>Expires</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <?php if (!empty($announcements)): ?>
+
+                        <?php foreach ($announcements as $announcement): ?>
+
+                            <tr>
+
+                                <td class="admin-announcement-id">
+                                    <?= (int) $announcement['id'] ?>
+                                </td>
+
+                                <td>
+                                    <div class="admin-announcement-content">
+
+                                        <span class="admin-announcement-title">
+                                            <?= htmlspecialchars(
+                                                $announcement['title']
+                                            ) ?>
+                                        </span>
+
+                                        <span class="admin-announcement-message">
+                                            <?= htmlspecialchars(
+                                                $announcement['message']
+                                            ) ?>
+                                        </span>
+
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <span
+                                        class="admin-status admin-announcement-status admin-status-<?= htmlspecialchars(
+                                            $announcement['status']
+                                        ) ?>"
+                                    >
+                                        <span class="admin-status-dot"></span>
+
+                                        <?= ucfirst(
+                                            $announcement['status']
+                                        ) ?>
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="admin-announcement-admin">
+                                        <?= htmlspecialchars(
+                                            $announcement['admin_name']
+                                        ) ?>
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="admin-table-date">
+                                        <?= date(
+                                            'Y-m-d',
+                                            strtotime(
+                                                $announcement['created_at']
+                                            )
+                                        ) ?>
+                                    </span>
+
+                                    <span class="admin-table-time">
+                                        <?= date(
+                                            'H:i',
+                                            strtotime(
+                                                $announcement['created_at']
+                                            )
+                                        ) ?>
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <?php if (!empty($announcement['expires_at'])): ?>
+
+                                        <span class="admin-table-date">
+                                            <?= date(
+                                                'Y-m-d',
+                                                strtotime(
+                                                    $announcement['expires_at']
+                                                )
+                                            ) ?>
+                                        </span>
+
+                                        <span class="admin-table-time">
+                                            <?= date(
+                                                'H:i',
+                                                strtotime(
+                                                    $announcement['expires_at']
+                                                )
+                                            ) ?>
+                                        </span>
+
+                                    <?php else: ?>
+
+                                        <span class="admin-table-muted">
+                                            No expiration
+                                        </span>
+
+                                    <?php endif; ?>
+                                </td>
+
+                                <td>
+
+                                    <div class="admin-announcement-actions">
+
+                                        <?php if (
+                                            $announcement['status'] !== 'published'
+                                        ): ?>
+
+                                            <form
+                                                method="POST"
+                                                action="announcements.php"
+                                            >
+                                                <?= csrf_field() ?>
+
+                                                <input
+                                                    type="hidden"
+                                                    name="id"
+                                                    value="<?= (int) $announcement['id'] ?>"
+                                                >
+
+                                                <input
+                                                    type="hidden"
+                                                    name="status"
+                                                    value="published"
+                                                >
+
+                                                <button
+                                                    type="submit"
+                                                    name="update_status"
+                                                    class="admin-action-approve"
+                                                >
+                                                    Publish
+                                                </button>
+                                            </form>
+
+                                        <?php endif; ?>
+
+                                        <?php if (
+                                            $announcement['status'] !== 'archived'
+                                        ): ?>
+
+                                            <form
+                                                method="POST"
+                                                action="announcements.php"
+                                            >
+                                                <?= csrf_field() ?>
+
+                                                <input
+                                                    type="hidden"
+                                                    name="id"
+                                                    value="<?= (int) $announcement['id'] ?>"
+                                                >
+
+                                                <input
+                                                    type="hidden"
+                                                    name="status"
+                                                    value="archived"
+                                                >
+
+                                                <button
+                                                    type="submit"
+                                                    name="update_status"
+                                                    class="admin-action-view"
+                                                >
+                                                    Archive
+                                                </button>
+                                            </form>
+
+                                        <?php endif; ?>
+
+                                        <?php if (
+                                            $announcement['status'] !== 'draft'
+                                        ): ?>
+
+                                            <form
+                                                method="POST"
+                                                action="announcements.php"
+                                            >
+                                                <?= csrf_field() ?>
+
+                                                <input
+                                                    type="hidden"
+                                                    name="id"
+                                                    value="<?= (int) $announcement['id'] ?>"
+                                                >
+
+                                                <input
+                                                    type="hidden"
+                                                    name="status"
+                                                    value="draft"
+                                                >
+
+                                                <button
+                                                    type="submit"
+                                                    name="update_status"
+                                                    class="admin-action-view"
+                                                >
+                                                    Draft
+                                                </button>
+                                            </form>
+
+                                        <?php endif; ?>
+
+                                        <form
+                                            method="POST"
+                                            action="announcements.php"
+                                            onsubmit="return confirm('Are you sure you want to delete this announcement?');"
+                                        >
+                                            <?= csrf_field() ?>
+
+                                            <input
+                                                type="hidden"
+                                                name="id"
+                                                value="<?= (int) $announcement['id'] ?>"
+                                            >
+
+                                            <button
+                                                type="submit"
+                                                name="delete_announcement"
+                                                class="admin-action-reject"
+                                            >
+                                                Delete
+                                            </button>
+                                        </form>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        <?php endforeach; ?>
+
+                    <?php else: ?>
+
+                        <tr>
+                            <td colspan="7">
+                                <div class="admin-table-empty">
+                                    <span class="admin-table-empty-mark">✦</span>
+
+                                    <strong>No announcements yet.</strong>
+
+                                    <span>
+                                        Create your first announcement above.
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+
+                    <?php endif; ?>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</main>
+
+</body>
 </html>
