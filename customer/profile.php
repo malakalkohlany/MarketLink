@@ -21,6 +21,10 @@ if (
     $_SERVER['REQUEST_METHOD'] === 'POST'
     && isset($_POST['update_profile'])
 ) {
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+    header('Location: profile.php?section=edit');
+    exit;
+    }
     $section = 'edit';
     $name = trim($_POST['name'] ?? '');
     $phone = trim($_POST['phone'] ?? '');
@@ -59,6 +63,10 @@ if (
     $_SERVER['REQUEST_METHOD'] === 'POST'
     && isset($_POST['change_password'])
 ) {
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        header('Location: profile.php?section=password');
+        exit;
+    }
     $section = 'password';
     $currentPassword = $_POST['current_password'] ?? '';
     $newPassword = $_POST['new_password'] ?? '';
@@ -419,6 +427,7 @@ if (!$user) {
                     </h1>
 
                     <form method="POST" autocomplete="off">
+                        <?= csrf_field() ?>
                         <div class="form-group">
                             <label>Name</label>
                             <input
@@ -489,6 +498,9 @@ if (!$user) {
                         autocomplete="off"
                         novalidate
                     >
+
+                    <?= csrf_field() ?>
+                    
                         <div class="form-group">
                             <label>
                                 Current Password
