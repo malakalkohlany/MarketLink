@@ -4,7 +4,6 @@ require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/session.php';
 
 $current_page = basename($_SERVER['PHP_SELF']);
-
 $role = $_SESSION['role'] ?? '';
 
 ?>
@@ -23,11 +22,13 @@ $role = $_SESSION['role'] ?? '';
 
     </div>
 
+
     <div class="sidebar-role">
 
         <span class="role-dot"></span>
 
         <?php
+
         if ($role === 'customer') {
             echo 'Customer';
         } elseif ($role === 'farmer') {
@@ -37,11 +38,17 @@ $role = $_SESSION['role'] ?? '';
         } else {
             echo 'Account';
         }
+
         ?>
 
     </div>
 
+
     <?php if ($role === 'customer'): ?>
+
+        <!-- =========================
+             CUSTOMER
+        ========================== -->
 
         <div class="sidebar-section">
 
@@ -50,7 +57,7 @@ $role = $_SESSION['role'] ?? '';
             </div>
 
             <ul class="sidebar-list">
-           
+
                 <li>
                     <a
                         href="<?= BASE_URL ?>customer/dashboard.php"
@@ -147,12 +154,26 @@ $role = $_SESSION['role'] ?? '';
                     </a>
                 </li>
 
+                <li>
+                    <a
+                        href="<?= BASE_URL ?>customer/favorites.php"
+                        class="<?= $current_page === 'favorites.php' ? 'active' : '' ?>"
+                    >
+                        <span class="nav-icon">♡</span>
+                        Favorites
+                    </a>
+                </li>
+
             </ul>
 
         </div>
 
 
     <?php elseif ($role === 'farmer'): ?>
+
+        <!-- =========================
+             FARMER
+        ========================== -->
 
         <div class="sidebar-section">
 
@@ -264,6 +285,10 @@ $role = $_SESSION['role'] ?? '';
 
 
     <?php elseif ($role === 'admin'): ?>
+
+        <!-- =========================
+             ADMIN
+        ========================== -->
 
         <div class="sidebar-section">
 
@@ -382,12 +407,16 @@ $role = $_SESSION['role'] ?? '';
 
             <li>
                 <a href="<?= BASE_URL ?>auth/logout.php">
+
                     <span class="nav-icon">↪</span>
+
                     Log out
+
                 </a>
             </li>
 
         </ul>
 
     </div>
+
 </aside>
