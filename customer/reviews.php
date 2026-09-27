@@ -16,6 +16,11 @@ $successMessage = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        header('Location: reviews.php');
+        exit;
+    }
+
     $reviewType = $_POST['review_type'] ?? '';
 
     $orderId = isset($_POST['order_id'])
@@ -951,6 +956,8 @@ $stmt->close();
                         id="productReviewForm"
                     >
 
+                    <?= csrf_field() ?>
+
                         <input
                             type="hidden"
                             name="review_type"
@@ -1155,6 +1162,8 @@ $stmt->close();
                         class="review-form"
                         id="farmerReviewForm"
                     >
+
+                        <?= csrf_field() ?>
 
                         <input
                             type="hidden"
