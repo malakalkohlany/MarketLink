@@ -225,6 +225,9 @@ require_once __DIR__ . '/../includes/session.php';
 
     </nav>
 
-    
+    <script>
+    const csrfToken = <?= json_encode(csrf_token()) ?>;
+    </script>
+
     <script src="../assets/js/navbar.js"></script>
     <script src="../assets/js/app.js"></script>

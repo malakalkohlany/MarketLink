@@ -532,6 +532,9 @@ unset($order);
                                             'Are you sure you want to cancel this order?'
                                         );"
                                     >
+
+                                    <?= csrf_field() ?>
+                                    
                                         <input
                                             type="hidden"
                                             name="order_id"
