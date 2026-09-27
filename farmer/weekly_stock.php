@@ -31,6 +31,11 @@ unset($_SESSION['weekly_stock_success']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        header('Location: weekly_stock.php');
+        exit;
+    }
+
     $action = $_POST['action'] ?? '';
 
     if ($action === 'update') {
@@ -916,6 +921,8 @@ if ($stock_stmt) {
             id="save-all-form"
         >
 
+             <?= csrf_field() ?>
+
             <input
                 type="hidden"
                 name="action"
@@ -1135,6 +1142,8 @@ if ($stock_stmt) {
                 id="single-update-<?= $stock_id ?>"
                 style="display: none;"
             >
+
+                 <?= csrf_field() ?>
 
                 <input
                     type="hidden"
