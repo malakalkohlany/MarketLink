@@ -517,38 +517,43 @@ unset($order);
 
                                 <?php if ($status === 'pending'): ?>
 
-                                    <div class="order-actions">
+                                    <a
+                                        href="<?= BASE_URL ?>customer/update_order.php?id=<?= (int) $order['id'] ?>"
+                                        class="btn btn-edit"
+                                    >
+                                        Modify Order
+                                    </a>
 
-                                        <a
-                                            href="<?= BASE_URL ?>customer/update_order.php?id=<?= (int) $order['id'] ?>"
-                                            class="btn btn-edit"
+                                    <form
+                                        method="POST"
+                                        action="cancel_order.php"
+                                        class="cancel-form"
+                                        onsubmit="return confirm(
+                                            'Are you sure you want to cancel this order?'
+                                        );"
+                                    >
+                                        <input
+                                            type="hidden"
+                                            name="order_id"
+                                            value="<?= (int) $order['id'] ?>"
                                         >
-                                            Modify Order
-                                        </a>
 
-                                        <form
-                                            method="POST"
-                                            action="cancel_order.php"
-                                            class="cancel-form"
-                                            onsubmit="return confirm(
-                                                'Are you sure you want to cancel this order?'
-                                            );"
+                                        <button
+                                            type="submit"
+                                            class="cancel-button"
                                         >
-                                            <input
-                                                type="hidden"
-                                                name="order_id"
-                                                value="<?php echo (int) $order['id']; ?>"
-                                            >
+                                            Cancel Order
+                                        </button>
+                                    </form>
 
-                                            <button
-                                                type="submit"
-                                                class="cancel-button"
-                                            >
-                                                Cancel Order
-                                            </button>
-                                        </form>
+                                <?php elseif ($status === 'completed'): ?>
 
-                                    </div>
+                                    <a
+                                        href="<?= BASE_URL ?>customer/reorder.php?id=<?= (int) $order['id'] ?>"
+                                        class="btn btn-reorder"
+                                    >
+                                        Reorder
+                                    </a>
 
                                 <?php endif; ?>
 

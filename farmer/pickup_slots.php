@@ -91,7 +91,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $success_message = "Pickup slot added successfully.";
 
 }
-// Pickup Slots Pagination
    $slots_per_page = 10;
 
    $slots_page = isset($_GET['slots_page']) ? (int)$_GET['slots_page'] : 1;
@@ -101,10 +100,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $slots_offset = ($slots_page - 1) * $slots_per_page;
-
-    
-
-// Count total pickup slots
 $count_slots_stmt = $conn->prepare("
     SELECT COUNT(*) AS total_slots
     FROM pickup_slots
@@ -125,7 +120,7 @@ if ($total_slots_pages > 0 && $slots_page > $total_slots_pages) {
     $slots_page = $total_slots_pages;
     $slots_offset = ($slots_page - 1) * $slots_per_page;
 }    
-// Orders Pagination
+
 $orders_per_page = 10;
 
 $orders_page = isset($_GET['orders_page']) ? (int)$_GET['orders_page'] : 1;
@@ -136,7 +131,7 @@ if ($orders_page < 1) {
 
 $orders_offset = ($orders_page - 1) * $orders_per_page;
 
-// Count total orders
+
 $count_orders_stmt = $conn->prepare("
     SELECT COUNT(*) AS total_orders
     FROM orders

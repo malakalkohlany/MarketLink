@@ -7,12 +7,6 @@ requireApprovedFarmer();
 
 $user_id = getUserId();
 
-/*
-|--------------------------------------------------------------------------
-| Get Farmer
-|--------------------------------------------------------------------------
-*/
-
 $stmt = $conn->prepare("
     SELECT id
     FROM farmers
@@ -35,12 +29,6 @@ if (!$farmer) {
 $farmer_id = (int)$farmer['id'];
 
 
-/*
-|--------------------------------------------------------------------------
-| Update Order Status
-|--------------------------------------------------------------------------
-*/
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $order_id = isset($_POST['order_id'])
@@ -51,9 +39,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ? trim($_POST['status'])
         : '';
 
-    /*
-     * Valid statuses that a farmer can choose.
-     */
     $allowed_statuses = [
         'accepted',
         'preparing',
@@ -72,10 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     } else {
 
-        /*
-         * Get the order and make sure it belongs
-         * to the currently logged-in farmer.
-         */
         $order_stmt = $conn->prepare("
             SELECT
                 id,
@@ -110,10 +91,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $old_status = $order['status'];
             $customer_id = (int)$order['customer_id'];
 
-
-            /*
-             * Define valid status transitions.
-             */
             $valid_transitions = [
 
                 'pending' => [
@@ -140,10 +117,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'cancelled' => []
             ];
 
-
-            /*
-             * Check whether this transition is allowed.
-             */
             if (
                 !isset($valid_transitions[$old_status]) ||
                 !in_array(
@@ -158,20 +131,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             } else {
 
-                /*
-                 * Start transaction.
-                 *
-                 * Updating the order, adding history,
-                 * and creating the notification should
-                 * happen as one operation.
-                 */
                 $conn->begin_transaction();
 
                 try {
 
-                    /*
-                     * 1. Update current order status.
-                     */
                     $update_stmt = $conn->prepare("
                         UPDATE orders
                         SET
@@ -202,10 +165,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     $update_stmt->close();
 
-
-                    /*
-                     * 2. Add entry to order status history.
-                     */
                     $history_stmt = $conn->prepare("
                         INSERT INTO order_status_history (
                             order_id,
@@ -230,10 +189,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     $history_stmt->close();
 
-
-                    /*
-                     * 3. Create customer notification.
-                     */
                     switch ($new_status) {
 
                         case 'accepted':
@@ -300,12 +255,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 "The status of your order #{$order_id} has been updated.";
                     }
 
-
-                    /*
-                     * Notification failure should roll back
-                     * the status change so the database does
-                     * not become inconsistent.
-                     */
                     if (!createNotification(
                         $conn,
                         $customer_id,
@@ -319,10 +268,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         );
                     }
 
-
-                    /*
-                     * Everything succeeded.
-                     */
                     $conn->commit();
 
                     $_SESSION['success'] =
@@ -330,9 +275,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 } catch (Throwable $e) {
 
-                    /*
-                     * Something failed, so undo everything.
-                     */
                     $conn->rollback();
 
                     $_SESSION['error'] =
@@ -342,9 +284,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    /*
-     * Redirect after POST.
-     */
+    
     $redirect_page = isset($_GET['page'])
         ? (int)$_GET['page']
         : 1;
@@ -355,13 +295,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     exit;
 }
-
-
-/*
-|--------------------------------------------------------------------------
-| Pagination
-|--------------------------------------------------------------------------
-*/
 
 $items_per_page = 10;
 
@@ -374,13 +307,6 @@ if ($page < 1) {
 }
 
 $offset = ($page - 1) * $items_per_page;
-
-
-/*
-|--------------------------------------------------------------------------
-| Count Total Orders
-|--------------------------------------------------------------------------
-*/
 
 $count_stmt = $conn->prepare("
     SELECT COUNT(*) AS total_orders
@@ -412,13 +338,6 @@ if ($total_pages > 0 && $page > $total_pages) {
 
     $offset = ($page - 1) * $items_per_page;
 }
-
-
-/*
-|--------------------------------------------------------------------------
-| Get Orders
-|--------------------------------------------------------------------------
-*/
 
 $order_stmt = $conn->prepare("
     SELECT

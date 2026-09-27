@@ -68,6 +68,5 @@ if ($_SESSION['approval_status'] !== 'rejected') {
 
         </div>
     </main>
-
 </body>
 </html>

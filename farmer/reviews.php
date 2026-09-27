@@ -39,7 +39,6 @@ if ($reviews_page < 1) {
 
 $reviews_offset = ($reviews_page - 1) * $reviews_per_page;
 
-// Count total reviews
 $count_reviews_stmt = $conn->prepare("
     SELECT COUNT(*) AS total_reviews
     FROM reviews

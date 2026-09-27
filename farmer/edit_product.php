@@ -13,7 +13,7 @@ if (!$user_id) {
     die("You must be logged in.");
 }
 
-// Get farmer
+
 $stmt = $conn->prepare("
     SELECT id
     FROM farmers
@@ -35,7 +35,6 @@ if (!$farmer) {
 
 $farmer_id = (int) $farmer['id'];
 
-// Get product
 $product_stmt = $conn->prepare("
     SELECT
         id,
@@ -64,7 +63,6 @@ if (!$product) {
     die("Product not found.");
 }
 
-// Update product
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
@@ -89,10 +87,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die("Please fill all required fields correctly.");
     }
 
-    // Keep current image
     $image_db_path = $product['image'];
 
-    // Upload new image if selected
     if (
         isset($_FILES['image']) &&
         $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE
@@ -141,7 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Update database
+    
     $stmt = $conn->prepare("
         UPDATE products
         SET
@@ -179,7 +175,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-// Get active categories
 $category_stmt = $conn->prepare("
     SELECT
         id,
@@ -373,13 +368,9 @@ $categories = $category_stmt->get_result();
     </form>
 
 </main>
-
 </body>
-
 </html>
 
 <?php
-
 $category_stmt->close();
-
 ?>
