@@ -1,287 +1,341 @@
-function applyProductFilters() {
+const PRODUCTS_PER_PAGE = 8;
 
-    const productSearch =
-        document.getElementById(
-            'productSearch'
+let currentProductPage = 1;
+let filteredProductCards = [];
+
+function applyProductFilters(resetPage = true) {
+    const productSearch = document.getElementById('productSearch');
+    const productCategory = document.getElementById('productCategory');
+    const productMarket = document.getElementById('productMarket');
+    const productDay = document.getElementById('productDay');
+    const minPrice = document.getElementById('minPrice');
+    const maxPrice = document.getElementById('maxPrice');
+    const productCards = document.querySelectorAll('.customer-product-card');
+    const noMatchingProducts = document.getElementById('noMatchingProducts');
+    const pagination = document.getElementById('productPagination');
+
+    const searchTerm = productSearch.value
+        .trim()
+        .toLowerCase();
+
+    const selectedCategory = productCategory.value;
+    const selectedMarket = productMarket.value;
+    const selectedDay = productDay.value;
+
+    const min = minPrice.value === ''
+        ? null
+        : parseFloat(minPrice.value);
+
+    const max = maxPrice.value === ''
+        ? null
+        : parseFloat(maxPrice.value);
+
+    if (resetPage) {
+        currentProductPage = 1;
+    }
+
+    filteredProductCards = [];
+
+    productCards.forEach(function(card) {
+        const productName = (
+            card.dataset.productName
+            || ''
+        ).trim().toLowerCase();
+
+        const farmerName = (
+            card.dataset.farmerName
+            || ''
+        ).trim().toLowerCase();
+
+        const categoryId =
+            card.dataset.categoryId || '';
+
+        const marketIds = (
+            card.dataset.marketIds || ''
+        )
+            .split(',')
+            .map(id => id.trim())
+            .filter(id => id !== '');
+
+        const marketDays = (
+            card.dataset.marketDays || ''
+        )
+            .split(',')
+            .map(day => day.trim())
+            .filter(day => day !== '');
+
+        const price = parseFloat(
+            card.dataset.price || '0'
         );
 
-    const productCategory =
-        document.getElementById(
-            'productCategory'
-        );
+        const matchesSearch =
+            searchTerm === ''
+            || productName.includes(searchTerm)
+            || farmerName.includes(searchTerm);
 
-    const productMarket =
-        document.getElementById(
-            'productMarket'
-        );
+        const matchesCategory =
+            selectedCategory === ''
+            || categoryId === selectedCategory;
 
-    const productDay =
-        document.getElementById(
-            'productDay'
-        );
+        const matchesMarket =
+            selectedMarket === ''
+            || marketIds.includes(selectedMarket);
 
-    const minPrice =
-        document.getElementById(
-            'minPrice'
-        );
+        const matchesDay =
+            selectedDay === ''
+            || marketDays.includes(selectedDay);
 
-    const maxPrice =
-        document.getElementById(
-            'maxPrice'
-        );
+        const matchesMinPrice =
+            min === null
+            || price >= min;
 
-    const productCards =
-        document.querySelectorAll(
-            '.product-card'
-        );
+        const matchesMaxPrice =
+            max === null
+            || price <= max;
 
-    const noMatchingProducts =
-        document.getElementById(
-            'noMatchingProducts'
-        );
+        const matches =
+            matchesSearch
+            && matchesCategory
+            && matchesMarket
+            && matchesDay
+            && matchesMinPrice
+            && matchesMaxPrice;
 
+        if (matches) {
+            filteredProductCards.push(card);
+        }
+    });
 
-    const searchTerm =
-        productSearch.value
-            .trim()
-            .toLowerCase();
+    const totalPages = Math.ceil(
+        filteredProductCards.length /
+        PRODUCTS_PER_PAGE
+    );
 
-    const selectedCategory =
-        productCategory.value;
+    if (
+        totalPages > 0
+        && currentProductPage > totalPages
+    ) {
+        currentProductPage = totalPages;
+    }
 
-    const selectedMarket =
-        productMarket.value;
+    productCards.forEach(function(card) {
+        card.style.display = 'none';
+    });
 
-    const selectedDay =
-        productDay.value;
+    if (filteredProductCards.length === 0) {
+        noMatchingProducts.style.display = 'block';
 
+        if (pagination) {
+            pagination.style.display = 'none';
+        }
 
-    const min =
-        minPrice.value === ''
-            ? null
-            : parseFloat(
-                minPrice.value
-            );
+        return;
+    }
 
-    const max =
-        maxPrice.value === ''
-            ? null
-            : parseFloat(
-                maxPrice.value
-            );
+    noMatchingProducts.style.display = 'none';
 
+    displayCurrentProductPage();
+    renderProductPagination(totalPages);
+}
 
-    let visibleProducts = 0;
+function displayCurrentProductPage() {
+    const startIndex =
+        (currentProductPage - 1) *
+        PRODUCTS_PER_PAGE;
 
+    const endIndex =
+        startIndex +
+        PRODUCTS_PER_PAGE;
 
-    productCards.forEach(
-        function(card) {
+    filteredProductCards.forEach(function(card) {
+        card.style.display = 'none';
+    });
 
-            const productName =
-                card.querySelector(
-                    '.product-name'
-                )?.textContent
-                    .trim()
-                    .toLowerCase()
-                || '';
+    filteredProductCards
+        .slice(startIndex, endIndex)
+        .forEach(function(card) {
+            card.style.display = '';
+        });
+}
 
+function renderProductPagination(totalPages) {
+    const pagination =
+        document.getElementById('productPagination');
 
-            const farmerName =
-                card.querySelector(
-                    '.product-farmer'
-                )?.textContent
-                    .trim()
-                    .toLowerCase()
-                || '';
+    if (!pagination) {
+        return;
+    }
 
+    pagination.innerHTML = '';
 
-            const categoryId =
-                card.dataset.categoryId
-                || '';
+    if (totalPages <= 1) {
+        pagination.style.display = 'none';
+        return;
+    }
 
+    pagination.style.display = 'flex';
 
-            const marketIds =
-                (
-                    card.dataset.marketIds
-                    || ''
-                )
-                    .split(',')
-                    .map(
-                        id => id.trim()
-                    )
-                    .filter(
-                        id => id !== ''
-                    );
+    const previousButton =
+        document.createElement('button');
 
+    previousButton.type = 'button';
+    previousButton.className =
+        'product-pagination-button product-pagination-arrow';
+    previousButton.textContent = 'Previous';
+    previousButton.disabled =
+        currentProductPage === 1;
 
-            const marketDays =
-                (
-                    card.dataset.marketDays
-                    || ''
-                )
-                    .split(',')
-                    .map(
-                        day => day.trim()
-                    )
-                    .filter(
-                        day => day !== ''
-                    );
+    previousButton.addEventListener(
+        'click',
+        function() {
+            if (currentProductPage > 1) {
+                currentProductPage--;
 
-
-            const price =
-                parseFloat(
-                    card.dataset.price
-                    || '0'
-                );
-
-
-            // --------------------------------------------------
-            // Search
-            // --------------------------------------------------
-
-            const matchesSearch =
-                searchTerm === ''
-                ||
-                productName.includes(
-                    searchTerm
-                )
-                ||
-                farmerName.includes(
-                    searchTerm
-                );
-
-
-            // --------------------------------------------------
-            // Category
-            // --------------------------------------------------
-
-            const matchesCategory =
-                selectedCategory === ''
-                ||
-                categoryId ===
-                    selectedCategory;
-
-
-            // --------------------------------------------------
-            // Market
-            // --------------------------------------------------
-
-            const matchesMarket =
-                selectedMarket === ''
-                ||
-                marketIds.includes(
-                    selectedMarket
-                );
-
-
-            // --------------------------------------------------
-            // Market Day
-            // --------------------------------------------------
-
-            const matchesDay =
-                selectedDay === ''
-                ||
-                marketDays.includes(
-                    selectedDay
-                );
-
-
-            // --------------------------------------------------
-            // Price
-            // --------------------------------------------------
-
-            const matchesMinPrice =
-                min === null
-                ||
-                price >= min;
-
-            const matchesMaxPrice =
-                max === null
-                ||
-                price <= max;
-
-
-            // --------------------------------------------------
-            // Final Match
-            // --------------------------------------------------
-
-            const matches =
-                matchesSearch
-                &&
-                matchesCategory
-                &&
-                matchesMarket
-                &&
-                matchesDay
-                &&
-                matchesMinPrice
-                &&
-                matchesMaxPrice;
-
-
-            card.style.display =
-                matches
-                    ? ''
-                    : 'none';
-
-
-            if (matches) {
-                visibleProducts++;
+                displayCurrentProductPage();
+                renderProductPagination(totalPages);
+                scrollToProducts();
             }
-
         }
     );
 
+    pagination.appendChild(previousButton);
 
-    noMatchingProducts.style.display =
-        visibleProducts === 0
-            ? 'block'
-            : 'none';
+    for (
+        let page = 1;
+        page <= totalPages;
+        page++
+    ) {
+        const pageButton =
+            document.createElement('button');
+
+        pageButton.type = 'button';
+        pageButton.className =
+            'product-pagination-button product-pagination-number';
+
+        pageButton.textContent = page;
+
+        if (page === currentProductPage) {
+            pageButton.classList.add('active');
+        }
+
+        pageButton.addEventListener(
+            'click',
+            function() {
+                currentProductPage = page;
+
+                displayCurrentProductPage();
+                renderProductPagination(totalPages);
+                scrollToProducts();
+            }
+        );
+
+        pagination.appendChild(pageButton);
+    }
+
+    const nextButton =
+        document.createElement('button');
+
+    nextButton.type = 'button';
+    nextButton.className =
+        'product-pagination-button product-pagination-arrow';
+    nextButton.textContent = 'Next';
+    nextButton.disabled =
+        currentProductPage === totalPages;
+
+    nextButton.addEventListener(
+        'click',
+        function() {
+            if (currentProductPage < totalPages) {
+                currentProductPage++;
+
+                displayCurrentProductPage();
+                renderProductPagination(totalPages);
+                scrollToProducts();
+            }
+        }
+    );
+
+    pagination.appendChild(nextButton);
 }
 
+function scrollToProducts() {
+    const productGrid =
+        document.getElementById('productGrid');
 
-// ==========================================================
-// Filter Events
-// ==========================================================
+    if (!productGrid) {
+        return;
+    }
+
+    const navbarHeight = 90;
+
+    const position =
+        productGrid.getBoundingClientRect().top
+        + window.scrollY
+        - navbarHeight;
+
+    window.scrollTo({
+        top: position,
+        behavior: 'smooth'
+    });
+}
 
 document
     .getElementById('productSearch')
     .addEventListener(
         'input',
-        applyProductFilters
+        function() {
+            applyProductFilters(true);
+        }
     );
 
 document
     .getElementById('productCategory')
     .addEventListener(
         'change',
-        applyProductFilters
+        function() {
+            applyProductFilters(true);
+        }
     );
 
 document
     .getElementById('productMarket')
     .addEventListener(
         'change',
-        applyProductFilters
+        function() {
+            applyProductFilters(true);
+        }
     );
 
 document
     .getElementById('productDay')
     .addEventListener(
         'change',
-        applyProductFilters
+        function() {
+            applyProductFilters(true);
+        }
     );
 
 document
     .getElementById('minPrice')
     .addEventListener(
         'input',
-        applyProductFilters
+        function() {
+            applyProductFilters(true);
+        }
     );
 
 document
     .getElementById('maxPrice')
     .addEventListener(
         'input',
-        applyProductFilters
+        function() {
+            applyProductFilters(true);
+        }
     );
+
+document.addEventListener(
+    'DOMContentLoaded',
+    function() {
+        applyProductFilters(false);
+    }
+);
