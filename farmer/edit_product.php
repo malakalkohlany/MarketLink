@@ -286,7 +286,7 @@ $categories = $category_stmt->get_result();
             type="number"
             id="price"
             name="price"
-            step="0.01"
+            step="0.1"
             min="0"
             value="<?= htmlspecialchars($product['price']) ?>"
             required
@@ -316,7 +316,7 @@ $categories = $category_stmt->get_result();
             type="number"
             id="stock_quantity"
             name="stock_quantity"
-            step="0.01"
+            step="0.1"
             min="0"
             value="<?= htmlspecialchars($product['stock_quantity']) ?>"
             required

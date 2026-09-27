@@ -1253,7 +1253,7 @@ if (
                     id="minPrice"
                     placeholder="Min"
                     min="0"
-                    step="0.01"
+                    step="0.1"
                 >
 
                 <input
@@ -1261,7 +1261,7 @@ if (
                     id="maxPrice"
                     placeholder="Max"
                     min="0"
-                    step="0.01"
+                    step="0.1"
                 >
 
             </div>

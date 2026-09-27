@@ -276,7 +276,7 @@ $categories = $category_stmt->get_result();
             <br><br>
 
             <label for="stock_quantity">Stock Quantity</label>
-            <input type="number" id="stock_quantity" name="stock_quantity" step="0.01" min="0" required>
+            <input type="number" id="stock_quantity" name="stock_quantity" step="0.1" min="0" required>
             <br><br>        
 
             <label for="image">Product image</label>
@@ -288,7 +288,7 @@ $categories = $category_stmt->get_result();
             <br><br>
 
             <label for="price">Price</label>
-            <input type="number" id="price" name="price" step="0.01" min="0" required>
+            <input type="number" id="price" name="price" step="0.1" min="0" required>
             <br><br>
 
             <button type="submit" name="add_product">Add Product</button>
