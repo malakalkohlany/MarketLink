@@ -11,13 +11,12 @@ if (!$farmer_id) {
     redirect('auth/logout.php');
 }
 
-/*
-|--------------------------------------------------------------------------
-| Get Current Week
-|--------------------------------------------------------------------------
-| Monday is used as the beginning of the stocking week.
-*/
+/* =========================================================
+   CURRENT WEEK
+   ========================================================= */
+
 $today = new DateTime();
+
 $week_start = clone $today;
 
 if ($week_start->format('N') != 1) {
@@ -26,40 +25,59 @@ if ($week_start->format('N') != 1) {
 
 $week_start_date = $week_start->format('Y-m-d');
 
+/* =========================================================
+   MESSAGES
+   ========================================================= */
+
 $errors = [];
-$success = $_SESSION['weekly_stock_success'] ?? null;
+
+$success = $_SESSION['weekly_stock_success'] ?? '';
 unset($_SESSION['weekly_stock_success']);
 
+/* =========================================================
+   HANDLE POST
+   ========================================================= */
 
-/*
-|--------------------------------------------------------------------------
-| Handle Stock Updates
-|--------------------------------------------------------------------------
-*/
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $action = $_POST['action'] ?? '';
 
-    /*
-    |--------------------------------------------------------------------------
-    | Update Actual Weekly Stock
-    |--------------------------------------------------------------------------
-    */
+    /* =====================================================
+       SAVE ONE STOCK ROW
+       ===================================================== */
+
     if ($action === 'update') {
 
         $weekly_stock_id = (int) ($_POST['weekly_stock_id'] ?? 0);
         $actual_quantity = $_POST['actual_quantity'] ?? '';
         $status = $_POST['status'] ?? '';
 
+        /* ---------------------------------------------
+           Validate ID
+        --------------------------------------------- */
+
         if ($weekly_stock_id <= 0) {
             $errors[] = 'Invalid weekly stock item.';
         }
 
+        /* ---------------------------------------------
+           Validate quantity
+        --------------------------------------------- */
+
         if ($actual_quantity === '' || !is_numeric($actual_quantity)) {
-            $errors[] = 'Please enter a valid quantity.';
-        } elseif ((float) $actual_quantity < 0) {
-            $errors[] = 'Quantity cannot be negative.';
+            $errors[] = 'Quantity must be a valid number.';
+        } else {
+
+            $actual_quantity = (float) $actual_quantity;
+
+            if ($actual_quantity < 0) {
+                $errors[] = 'Quantity cannot be negative.';
+            }
         }
+
+        /* ---------------------------------------------
+           Validate status
+        --------------------------------------------- */
 
         $allowed_statuses = [
             'available',
@@ -71,13 +89,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = 'Invalid stock status.';
         }
 
+        /* ---------------------------------------------
+           Verify stock belongs to this farmer/current week
+        --------------------------------------------- */
+
         if (empty($errors)) {
 
-            /*
-            |--------------------------------------------------------------------------
-            | Make sure this stock row belongs to this farmer
-            |--------------------------------------------------------------------------
-            */
             $check_stmt = $conn->prepare("
                 SELECT id
                 FROM weekly_stock
@@ -98,67 +115,216 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $check_result = $check_stmt->get_result();
 
-            if (!$check_result->fetch_assoc()) {
-
+            if ($check_result->num_rows === 0) {
                 $errors[] = 'Weekly stock item not found.';
-
-            } else {
-
-                $update_stmt = $conn->prepare("
-                    UPDATE weekly_stock
-                    SET
-                        actual_quantity = ?,
-                        status = ?
-                    WHERE id = ?
-                      AND farmer_id = ?
-                      AND week_start = ?
-                ");
-
-                $quantity = (float) $actual_quantity;
-
-                $update_stmt->bind_param(
-                    "dsiis",
-                    $quantity,
-                    $status,
-                    $weekly_stock_id,
-                    $farmer_id,
-                    $week_start_date
-                );
-
-                if ($update_stmt->execute()) {
-
-                    $_SESSION['weekly_stock_success'] =
-                        'Weekly stock updated successfully.';
-
-                    redirect('farmer/weekly_stock.php');
-
-                } else {
-
-                    $errors[] = 'Failed to update weekly stock.';
-                }
-
-                $update_stmt->close();
             }
 
             $check_stmt->close();
         }
+
+        /* ---------------------------------------------
+           Update
+        --------------------------------------------- */
+
+        if (empty($errors)) {
+
+            $update_stmt = $conn->prepare("
+                UPDATE weekly_stock
+                SET
+                    actual_quantity = ?,
+                    status = ?
+                WHERE id = ?
+                  AND farmer_id = ?
+                  AND week_start = ?
+            ");
+
+            $update_stmt->bind_param(
+                "dsiis",
+                $actual_quantity,
+                $status,
+                $weekly_stock_id,
+                $farmer_id,
+                $week_start_date
+            );
+
+            if ($update_stmt->execute()) {
+
+                $_SESSION['weekly_stock_success'] =
+                    'Weekly stock updated successfully.';
+
+                $update_stmt->close();
+
+                redirect('farmer/weekly_stock.php');
+
+            } else {
+
+                $errors[] = 'Failed to update weekly stock.';
+            }
+
+            $update_stmt->close();
+        }
+    }
+
+    /* =====================================================
+       SAVE ALL STOCK ROWS
+       ===================================================== */
+
+    elseif ($action === 'update_all') {
+
+        $quantities = $_POST['actual_quantity'] ?? [];
+        $statuses = $_POST['status'] ?? [];
+
+        if (!is_array($quantities) || !is_array($statuses)) {
+
+            $errors[] = 'Invalid weekly stock data.';
+
+        } else {
+
+            /*
+             * First validate everything BEFORE updating anything.
+             * This prevents half of the rows from being saved
+             * if one row contains invalid data.
+             */
+
+            $validated_rows = [];
+
+            foreach ($quantities as $stock_id => $quantity) {
+
+                $stock_id = (int) $stock_id;
+
+                if ($stock_id <= 0) {
+                    $errors[] = 'Invalid weekly stock item.';
+                    break;
+                }
+
+                if ($quantity === '' || !is_numeric($quantity)) {
+                    $errors[] =
+                        'Quantity for one of the products is invalid.';
+                    break;
+                }
+
+                $quantity = (float) $quantity;
+
+                if ($quantity < 0) {
+                    $errors[] =
+                        'Quantity cannot be negative.';
+                    break;
+                }
+
+                $status = $statuses[$stock_id] ?? '';
+
+                if (!in_array(
+                    $status,
+                    ['available', 'sold_out', 'unavailable'],
+                    true
+                )) {
+                    $errors[] =
+                        'One of the stock statuses is invalid.';
+                    break;
+                }
+
+                $validated_rows[] = [
+                    'id' => $stock_id,
+                    'quantity' => $quantity,
+                    'status' => $status
+                ];
+            }
+
+            /* -----------------------------------------
+               Make sure both arrays represent rows
+            ----------------------------------------- */
+
+            if (empty($errors)) {
+
+                foreach ($statuses as $stock_id => $status) {
+
+                    if (!array_key_exists($stock_id, $quantities)) {
+
+                        $errors[] =
+                            'Invalid weekly stock data.';
+                        break;
+                    }
+                }
+            }
+
+            /* -----------------------------------------
+               Save everything
+            ----------------------------------------- */
+
+            if (empty($errors)) {
+
+                $conn->begin_transaction();
+
+                try {
+
+                    $update_stmt = $conn->prepare("
+                        UPDATE weekly_stock
+                        SET
+                            actual_quantity = ?,
+                            status = ?
+                        WHERE id = ?
+                          AND farmer_id = ?
+                          AND week_start = ?
+                    ");
+
+                    foreach ($validated_rows as $row) {
+
+                        $update_stmt->bind_param(
+                            "dsiis",
+                            $row['quantity'],
+                            $row['status'],
+                            $row['id'],
+                            $farmer_id,
+                            $week_start_date
+                        );
+
+                        if (!$update_stmt->execute()) {
+                            throw new Exception(
+                                'Failed to update weekly stock.'
+                            );
+                        }
+
+                        /*
+                         * If the ID did not actually belong to this
+                         * farmer/current week, affected_rows will be 0.
+                         */
+                        if ($update_stmt->affected_rows < 0) {
+                            throw new Exception(
+                                'Failed to update weekly stock.'
+                            );
+                        }
+                    }
+
+                    $update_stmt->close();
+
+                    $conn->commit();
+
+                    $_SESSION['weekly_stock_success'] =
+                        'All weekly stock changes saved successfully.';
+
+                    redirect('farmer/weekly_stock.php');
+
+                } catch (Throwable $e) {
+
+                    $conn->rollback();
+
+                    if (isset($update_stmt)) {
+                        $update_stmt->close();
+                    }
+
+                    $errors[] =
+                        'Failed to save weekly stock changes.';
+                }
+            }
+        }
     }
 }
 
+/* =========================================================
+   LAZY GENERATE CURRENT WEEK FROM ACTIVE TEMPLATES
+   ========================================================= */
 
-/*
-|--------------------------------------------------------------------------
-| Create Current Week From Active Templates
-|--------------------------------------------------------------------------
-|
-| We use lazy generation:
-| if the farmer opens this page and the current week's rows don't exist,
-| active templates are copied into weekly_stock.
-|
-| The template is NOT modified when the weekly stock is later edited.
-|
-*/
-$insert_stmt = $conn->prepare("
+$generate_stmt = $conn->prepare("
     INSERT INTO weekly_stock (
         farmer_id,
         product_id,
@@ -180,28 +346,28 @@ $insert_stmt = $conn->prepare("
       AND NOT EXISTS (
           SELECT 1
           FROM weekly_stock ws
-          WHERE ws.farmer_id = weekly_stock_templates.farmer_id
-            AND ws.product_id = weekly_stock_templates.product_id
+          WHERE ws.farmer_id =
+                weekly_stock_templates.farmer_id
+            AND ws.product_id =
+                weekly_stock_templates.product_id
             AND ws.week_start = ?
       )
 ");
 
-$insert_stmt->bind_param(
+$generate_stmt->bind_param(
     "sis",
     $week_start_date,
     $farmer_id,
     $week_start_date
 );
 
-$insert_stmt->execute();
-$insert_stmt->close();
+$generate_stmt->execute();
+$generate_stmt->close();
 
+/* =========================================================
+   GET CURRENT WEEKLY STOCK
+   ========================================================= */
 
-/*
-|--------------------------------------------------------------------------
-| Get Current Week's Stock
-|--------------------------------------------------------------------------
-*/
 $stock_stmt = $conn->prepare("
     SELECT
         ws.id,
@@ -210,15 +376,20 @@ $stock_stmt = $conn->prepare("
         ws.planned_quantity,
         ws.actual_quantity,
         ws.status,
+
         p.name AS product_name,
         p.unit,
         p.price,
         p.image
+
     FROM weekly_stock ws
+
     INNER JOIN products p
-        ON ws.product_id = p.id
+        ON p.id = ws.product_id
+
     WHERE ws.farmer_id = ?
       AND ws.week_start = ?
+
     ORDER BY p.name ASC
 ");
 
@@ -241,6 +412,7 @@ while ($row = $stock_result->fetch_assoc()) {
 $stock_stmt->close();
 
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -253,7 +425,7 @@ $stock_stmt->close();
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Weekly Stock</title>
+    <title>Weekly Stock | MarketLink</title>
 
     <link
         rel="stylesheet"
@@ -270,32 +442,83 @@ $stock_stmt->close();
         href="../assets/css/sidebar.css"
     >
 
+    <link
+        rel="stylesheet"
+        href="../assets/css/weekly-stock.css"
+    >
+
     <style>
 
-        .weekly-stock-container {
-            max-width: 1200px;
-            margin: 0 auto;
+        .page-content {
+            padding: 30px;
         }
 
-        .weekly-stock-header {
+        .page-header {
+            margin-bottom: 25px;
+        }
+
+        .page-header h1 {
+            margin-bottom: 8px;
+        }
+
+        .page-header p {
+            margin: 0;
+            color: #72583E;
+        }
+
+        .week-info {
+            background: #FFF9F3;
+            border: 1px solid #DBC4A5;
+            border-radius: 12px;
+            padding: 15px 18px;
+            margin-bottom: 20px;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #E8F3E8;
+            color: #355C3A;
+            border: 1px solid #B8D5BA;
+        }
+
+        .alert-error {
+            background: #F8E7E4;
+            color: #7A3028;
+            border: 1px solid #E2B8B1;
+        }
+
+        .stock-actions {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 20px;
-            margin-bottom: 25px;
+            gap: 15px;
+            margin-bottom: 18px;
             flex-wrap: wrap;
         }
 
-        .weekly-stock-header h1 {
-            margin-bottom: 5px;
+        .stock-actions-left {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
-        .week-label {
-            color: #666;
+        .stock-actions-right {
+            display: flex;
+            gap: 10px;
+            align-items: center;
         }
 
         .stock-table-wrapper {
             overflow-x: auto;
+            background: #FFF9F3;
+            border-radius: 12px;
+            border: 1px solid #DBC4A5;
         }
 
         .stock-table {
@@ -305,92 +528,108 @@ $stock_stmt->close();
 
         .stock-table th,
         .stock-table td {
-            padding: 12px;
+            padding: 14px;
             text-align: left;
+            border-bottom: 1px solid #E4D5C3;
             vertical-align: middle;
         }
 
-        .stock-table input,
+        .stock-table th {
+            background: #DBC4A5;
+            color: #443223;
+            font-weight: 600;
+        }
+
+        .stock-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: #443223;
+        }
+
+        .product-unit {
+            font-size: 13px;
+            color: #7C7960;
+        }
+
+        .stock-table input[type="number"],
         .stock-table select {
-            padding: 8px;
-            width: 100%;
-            box-sizing: border-box;
+            padding: 9px 10px;
+            border: 1px solid #C9B69D;
+            border-radius: 7px;
+            background: #FFFFFF;
+            color: #443223;
+            font: inherit;
         }
 
-        .stock-product {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        .stock-table input[type="number"] {
+            width: 110px;
         }
 
-        .stock-product img {
-            width: 55px;
-            height: 55px;
-            object-fit: cover;
-            border-radius: 6px;
+        .stock-table select {
+            width: 150px;
         }
 
-        .stock-product-name {
+        .stock-table input:focus,
+        .stock-table select:focus {
+            outline: none;
+            border-color: #A08670;
+        }
+
+        .btn-save {
+            border: none;
+            border-radius: 7px;
+            padding: 9px 15px;
+            cursor: pointer;
+            background: #72583E;
+            color: #FFFFFF;
+            font: inherit;
+        }
+
+        .btn-save:hover {
+            background: #443223;
+        }
+
+        .btn-save-all {
+            border: none;
+            border-radius: 8px;
+            padding: 11px 18px;
+            cursor: pointer;
+            background: #443223;
+            color: #FFFFFF;
+            font: inherit;
             font-weight: 600;
         }
 
-        .stock-unit {
-            color: #777;
-            font-size: 0.9rem;
+        .btn-save-all:hover {
+            background: #72583E;
         }
 
-        .planned-quantity {
-            color: #666;
+        .btn-secondary {
+            display: inline-block;
+            padding: 10px 15px;
+            border-radius: 8px;
+            background: #DBC4A5;
+            color: #443223;
+            text-decoration: none;
         }
 
-        .status-available {
-            color: #3f6b45;
-            font-weight: 600;
+        .btn-secondary:hover {
+            background: #C9B69D;
         }
 
-        .status-sold-out {
-            color: #8a5a35;
-            font-weight: 600;
-        }
-
-        .status-unavailable {
-            color: #8a4444;
-            font-weight: 600;
-        }
-
-        .stock-update-form {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .stock-update-form input {
-            max-width: 110px;
-        }
-
-        .stock-update-form select {
-            max-width: 150px;
-        }
-
-        .empty-stock {
-            padding: 30px;
+        .empty-state {
+            padding: 40px;
             text-align: center;
+            color: #72583E;
         }
 
-        .alert {
-            padding: 12px 15px;
-            margin-bottom: 20px;
-            border-radius: 6px;
-        }
-
-        .alert-success {
-            background: #e8f3e8;
-            color: #365c39;
-        }
-
-        .alert-error {
-            background: #f7e7e7;
-            color: #7b3939;
+        .status-hint {
+            margin-top: 5px;
+            font-size: 12px;
+            color: #7C7960;
         }
 
     </style>
@@ -399,232 +638,112 @@ $stock_stmt->close();
 
 <body>
 
-    <?php include __DIR__ . '/../includes/navbar.php'; ?>
+<?php include __DIR__ . '/../includes/navbar.php'; ?>
+<?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
+<div class="page-layout">
 
+    
 
     <main class="main-content">
 
-        <div class="weekly-stock-container">
+        <!-- ============================================
+             PAGE HEADER
+        ============================================= -->
 
-            <div class="weekly-stock-header">
+        <div class="page-header">
 
-                <div>
+            <h1>Weekly Stock</h1>
 
-                    <h1>This Week's Stock</h1>
+            <p>
+                Manage the quantity and availability of your products
+                for the current week.
+            </p>
 
-                    <div class="week-label">
-                        Week starting
-                        <?= e(date('F j, Y', strtotime($week_start_date))) ?>
+        </div>
+
+
+        <!-- ============================================
+             ALERTS
+        ============================================= -->
+
+        <?php if (!empty($success)): ?>
+
+            <div class="alert alert-success">
+                <?= htmlspecialchars($success) ?>
+            </div>
+
+        <?php endif; ?>
+
+
+        <?php if (!empty($errors)): ?>
+
+            <div class="alert alert-error">
+
+                <?php foreach ($errors as $error): ?>
+
+                    <div>
+                        <?= htmlspecialchars($error) ?>
                     </div>
 
-                </div>
-
-                <div>
-
-                    <a href="weekly_stock_template.php">
-                        Manage Weekly Template
-                    </a>
-
-                </div>
+                <?php endforeach; ?>
 
             </div>
 
+        <?php endif; ?>
 
-            <?php if ($success): ?>
 
-                <div class="alert alert-success">
-                    <?= e($success) ?>
-                </div>
+        <!-- ============================================
+             WEEK INFO
+        ============================================= -->
 
-            <?php endif; ?>
+        <div class="week-info">
 
+            <strong>Current week:</strong>
 
-            <?php if (!empty($errors)): ?>
+            <?= htmlspecialchars(
+                $week_start->format('F j, Y')
+            ) ?>
 
-                <div class="alert alert-error">
+            &ndash;
 
-                    <?php foreach ($errors as $error): ?>
+            <?= htmlspecialchars(
+                (clone $week_start)
+                    ->modify('+6 days')
+                    ->format('F j, Y')
+            ) ?>
 
-                        <div>
-                            <?= e($error) ?>
-                        </div>
+        </div>
 
-                    <?php endforeach; ?>
 
-                </div>
+        <!-- ============================================
+             ACTIONS
+        ============================================= -->
 
-            <?php endif; ?>
+        <div class="stock-actions">
 
+            <div class="stock-actions-left">
 
-            <?php if (empty($weekly_stock)): ?>
+                <a
+                    href="weekly_stock_template.php"
+                    class="btn-secondary"
+                >
+                    Manage Weekly Stock Template
+                </a>
 
-                <div class="empty-stock">
+            </div>
 
-                    <h2>No Weekly Stock</h2>
+            <?php if (!empty($weekly_stock)): ?>
 
-                    <p>
-                        You don't have any active weekly stock templates yet.
-                    </p>
+                <div class="stock-actions-right">
 
-                    <a href="weekly_stock_template.php">
-                        Set Up Weekly Stock
-                    </a>
-
-                </div>
-
-            <?php else: ?>
-
-                <div class="stock-table-wrapper">
-
-                    <table class="stock-table">
-
-                        <thead>
-
-                            <tr>
-
-                                <th>Product</th>
-
-                                <th>Normal Quantity</th>
-
-                                <th>Actual Quantity</th>
-
-                                <th>Status</th>
-
-                                <th>Update</th>
-
-                            </tr>
-
-                        </thead>
-
-                        <tbody>
-
-                            <?php foreach ($weekly_stock as $stock): ?>
-
-                                <tr>
-
-                                    <td>
-
-                                        <div class="stock-product">
-
-                                            <?php if (!empty($stock['image'])): ?>
-
-                                                <img
-                                                    src="<?= e($stock['image']) ?>"
-                                                    alt="<?= e($stock['product_name']) ?>"
-                                                >
-
-                                            <?php endif; ?>
-
-                                            <div>
-
-                                                <div class="stock-product-name">
-                                                    <?= e($stock['product_name']) ?>
-                                                </div>
-
-                                                <div class="stock-unit">
-                                                    per <?= e($stock['unit']) ?>
-                                                </div>
-
-                                            </div>
-
-                                        </div>
-
-                                    </td>
-
-
-                                    <td>
-
-                                        <span class="planned-quantity">
-
-                                            <?= e($stock['planned_quantity']) ?>
-
-                                            <?= e($stock['unit']) ?>
-
-                                        </span>
-
-                                    </td>
-
-
-                                    <td>
-
-                                        <form
-                                            method="POST"
-                                            class="stock-update-form"
-                                        >
-
-                                            <input
-                                                type="hidden"
-                                                name="action"
-                                                value="update"
-                                            >
-
-                                            <input
-                                                type="hidden"
-                                                name="weekly_stock_id"
-                                                value="<?= (int) $stock['id'] ?>"
-                                            >
-
-                                            <input
-                                                type="number"
-                                                name="actual_quantity"
-                                                value="<?= e($stock['actual_quantity']) ?>"
-                                                min="0"
-                                                step="0.1"
-                                                required
-                                            >
-
-                                    </td>
-
-
-                                    <td>
-
-                                        <select name="status">
-
-                                            <option
-                                                value="available"
-                                                <?= $stock['status'] === 'available' ? 'selected' : '' ?>
-                                            >
-                                                Available
-                                            </option>
-
-                                            <option
-                                                value="sold_out"
-                                                <?= $stock['status'] === 'sold_out' ? 'selected' : '' ?>
-                                            >
-                                                Sold Out
-                                            </option>
-
-                                            <option
-                                                value="unavailable"
-                                                <?= $stock['status'] === 'unavailable' ? 'selected' : '' ?>
-                                            >
-                                                Temporarily Unavailable
-                                            </option>
-
-                                        </select>
-
-                                    </td>
-
-
-                                    <td>
-
-                                            <button type="submit">
-                                                Save
-                                            </button>
-
-                                        </form>
-
-                                    </td>
-
-                                </tr>
-
-                            <?php endforeach; ?>
-
-                        </tbody>
-
-                    </table>
+                    <button
+                        type="submit"
+                        form="save-all-form"
+                        class="btn-save-all"
+                    >
+                        Save All Changes
+                    </button>
 
                 </div>
 
@@ -632,7 +751,330 @@ $stock_stmt->close();
 
         </div>
 
+
+        <!-- ============================================
+             SAVE ALL FORM
+             
+             IMPORTANT:
+             This is the ONLY large form around the table.
+
+             Individual Save forms are placed AFTER this
+             form, so they are NOT nested.
+        ============================================= -->
+
+        <form
+            method="POST"
+            id="save-all-form"
+        >
+
+            <input
+                type="hidden"
+                name="action"
+                value="update_all"
+            >
+
+
+            <div class="stock-table-wrapper">
+
+                <?php if (empty($weekly_stock)): ?>
+
+                    <div class="empty-state">
+
+                        <h3>No weekly stock yet</h3>
+
+                        <p>
+                            Add active products to your weekly stock
+                            template to generate your weekly stock.
+                        </p>
+
+                    </div>
+
+                <?php else: ?>
+
+                    <table class="stock-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Product
+                                </th>
+
+                                <th>
+                                    Planned Quantity
+                                </th>
+
+                                <th>
+                                    Actual Quantity
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Individual Save
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                        <?php foreach ($weekly_stock as $stock): ?>
+
+                            <?php
+                                $stock_id = (int) $stock['id'];
+                            ?>
+
+                            <tr>
+
+                                <!-- Product -->
+
+                                <td>
+
+                                    <div class="product-name">
+                                        <?= htmlspecialchars(
+                                            $stock['product_name']
+                                        ) ?>
+                                    </div>
+
+                                    <?php if (!empty($stock['unit'])): ?>
+
+                                        <div class="product-unit">
+                                            Unit:
+                                            <?= htmlspecialchars(
+                                                $stock['unit']
+                                            ) ?>
+                                        </div>
+
+                                    <?php endif; ?>
+
+                                </td>
+
+
+                                <!-- Planned Quantity -->
+
+                                <td>
+
+                                    <?= htmlspecialchars(
+                                        number_format(
+                                            (float) $stock['planned_quantity'],
+                                            2
+                                        )
+                                    ) ?>
+
+                                </td>
+
+
+                                <!-- Actual Quantity -->
+
+                                <td>
+
+                                    <input
+                                        type="number"
+                                        id="quantity-<?= $stock_id ?>"
+                                        name="actual_quantity[<?= $stock_id ?>]"
+                                        value="<?= htmlspecialchars(
+                                            $stock['actual_quantity']
+                                        ) ?>"
+                                        min="0"
+                                        step="0.1"
+                                    >
+
+                                </td>
+
+
+                                <!-- Status -->
+
+                                <td>
+
+                                    <select
+                                        id="status-<?= $stock_id ?>"
+                                        name="status[<?= $stock_id ?>]"
+                                    >
+
+                                        <option
+                                            value="available"
+                                            <?= $stock['status'] === 'available'
+                                                ? 'selected'
+                                                : '' ?>
+                                        >
+                                            Available
+                                        </option>
+
+                                        <option
+                                            value="sold_out"
+                                            <?= $stock['status'] === 'sold_out'
+                                                ? 'selected'
+                                                : '' ?>
+                                        >
+                                            Sold Out
+                                        </option>
+
+                                        <option
+                                            value="unavailable"
+                                            <?= $stock['status'] === 'unavailable'
+                                                ? 'selected'
+                                                : '' ?>
+                                        >
+                                            Unavailable
+                                        </option>
+
+                                    </select>
+
+                                </td>
+
+
+                                <!-- Individual Save -->
+
+                                <td>
+
+                                    <button
+                                        type="button"
+                                        class="btn-save"
+                                        onclick="saveSingleStock(<?= $stock_id ?>)"
+                                    >
+                                        Save
+                                    </button>
+
+                                </td>
+
+                            </tr>
+
+                        <?php endforeach; ?>
+
+                        </tbody>
+
+                    </table>
+
+                <?php endif; ?>
+
+            </div>
+
+        </form>
+
+
+        <!-- ============================================
+             INDIVIDUAL UPDATE FORMS
+             
+             These are OUTSIDE the Save All form.
+
+             The Save button above copies the current
+             visible quantity/status into these hidden
+             forms and submits only that row.
+        ============================================= -->
+
+        <?php foreach ($weekly_stock as $stock): ?>
+
+            <?php
+                $stock_id = (int) $stock['id'];
+            ?>
+
+            <form
+                method="POST"
+                id="single-update-<?= $stock_id ?>"
+                style="display: none;"
+            >
+
+                <input
+                    type="hidden"
+                    name="action"
+                    value="update"
+                >
+
+                <input
+                    type="hidden"
+                    name="weekly_stock_id"
+                    value="<?= $stock_id ?>"
+                >
+
+                <input
+                    type="hidden"
+                    name="actual_quantity"
+                    id="single-quantity-<?= $stock_id ?>"
+                >
+
+                <input
+                    type="hidden"
+                    name="status"
+                    id="single-status-<?= $stock_id ?>"
+                >
+
+            </form>
+
+        <?php endforeach; ?>
+
+
     </main>
+
+</div>
+
+
+<script>
+
+/*
+ * ========================================================
+ * SAVE ONE ROW
+ * ========================================================
+ *
+ * The visible quantity and status controls belong to the
+ * Save All form.
+ *
+ * The individual Save button copies their current values
+ * into a separate hidden form and submits only that row.
+ */
+
+function saveSingleStock(id) {
+
+    const quantityInput =
+        document.getElementById('quantity-' + id);
+
+    const statusInput =
+        document.getElementById('status-' + id);
+
+    const singleQuantity =
+        document.getElementById('single-quantity-' + id);
+
+    const singleStatus =
+        document.getElementById('single-status-' + id);
+
+    const singleForm =
+        document.getElementById('single-update-' + id);
+
+
+    if (
+        !quantityInput ||
+        !statusInput ||
+        !singleQuantity ||
+        !singleStatus ||
+        !singleForm
+    ) {
+        return;
+    }
+
+
+    /*
+     * Copy current values into the individual form.
+     */
+
+    singleQuantity.value =
+        quantityInput.value;
+
+    singleStatus.value =
+        statusInput.value;
+
+
+    /*
+     * Submit only this product.
+     */
+
+    singleForm.submit();
+}
+
+</script>
 
 </body>
 
