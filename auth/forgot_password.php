@@ -2,12 +2,18 @@
 
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../includes/csrf.php';
 
 $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+
+        $error = 'Invalid CSRF token.';
+
+    } else {
     $email = trim($_POST['email'] ?? '');
     $new_password = $_POST['new_password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
@@ -95,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $update_stmt->close();
         }
     }
-}
+}}
 ?>
 
 <!DOCTYPE html>
@@ -165,10 +171,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php endif; ?>
 
                 <form
-                    action="forget_password.php"
+                    action="forgot_password.php"
                     method="POST"
                     class="auth-form"
                 >
+
+                    <?= csrf_field() ?>
 
                     <div class="form-field">
 

@@ -9,35 +9,42 @@ $markets = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $marketId = filter_input(
-        INPUT_POST,
-        'market_id',
-        FILTER_VALIDATE_INT
-    );
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
 
-    $newStatus = $_POST['status'] ?? '';
+        $errors[] = 'Invalid CSRF token.';
 
-    if (
-        $marketId &&
-        in_array($newStatus, ['active', 'inactive'], true)
-    ) {
+    } else {
 
-        $stmt = $conn->prepare("
-            UPDATE markets
-            SET status = ?
-            WHERE id = ?
-        ");
+        $marketId = filter_input(
+            INPUT_POST,
+            'market_id',
+            FILTER_VALIDATE_INT
+        );
 
-        if ($stmt) {
+        $newStatus = $_POST['status'] ?? '';
 
-            $stmt->bind_param(
-                'si',
-                $newStatus,
-                $marketId
-            );
+        if (
+            $marketId &&
+            in_array($newStatus, ['active', 'inactive'], true)
+        ) {
 
-            $stmt->execute();
-            $stmt->close();
+            $stmt = $conn->prepare("
+                UPDATE markets
+                SET status = ?
+                WHERE id = ?
+            ");
+
+            if ($stmt) {
+
+                $stmt->bind_param(
+                    'si',
+                    $newStatus,
+                    $marketId
+                );
+
+                $stmt->execute();
+                $stmt->close();
+            }
         }
     }
 
@@ -279,6 +286,8 @@ if ($stmt) {
                                             method="POST"
                                             style="display: inline;"
                                         >
+
+                                        <?= csrf_field() ?>
 
                                             <input
                                                 type="hidden"

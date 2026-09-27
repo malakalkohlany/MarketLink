@@ -44,6 +44,8 @@ require_once 'login_process.php';
                     method="POST"
                     class="auth-form">
 
+                    <?= csrf_field() ?>
+
                     <div class="form-field">
                         <label for="email">Email Address</label>
 

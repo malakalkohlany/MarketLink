@@ -117,6 +117,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             die("Only JPG, PNG, and WebP images are allowed.");
         }
 
+        $max_file_size = 5 * 1024 * 1024; // 5 MB
+
+        if ($_FILES['image']['size'] > $max_file_size) {
+            die("Image size must not exceed 5 MB.");
+        }
+
         $image_extension = $allowed_types[$mime_type];
 
         $new_image_name = uniqid('product_', true) . '.' . $image_extension;

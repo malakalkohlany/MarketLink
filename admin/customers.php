@@ -9,36 +9,41 @@ $customers = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $customerId = filter_input(
-        INPUT_POST,
-        'customer_id',
-        FILTER_VALIDATE_INT
-    );
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        $errors[] = 'Invalid CSRF token.';
+    } else {
 
-    $newStatus = $_POST['status'] ?? '';
+        $customerId = filter_input(
+            INPUT_POST,
+            'customer_id',
+            FILTER_VALIDATE_INT
+        );
 
-    if (
-        $customerId &&
-        in_array($newStatus, ['active', 'inactive'], true)
-    ) {
+        $newStatus = $_POST['status'] ?? '';
 
-        $stmt = $conn->prepare("
-            UPDATE users
-            SET status = ?
-            WHERE id = ?
-              AND role = 'customer'
-        ");
+        if (
+            $customerId &&
+            in_array($newStatus, ['active', 'inactive'], true)
+        ) {
 
-        if ($stmt) {
+            $stmt = $conn->prepare("
+                UPDATE users
+                SET status = ?
+                WHERE id = ?
+                  AND role = 'customer'
+            ");
 
-            $stmt->bind_param(
-                'si',
-                $newStatus,
-                $customerId
-            );
+            if ($stmt) {
 
-            $stmt->execute();
-            $stmt->close();
+                $stmt->bind_param(
+                    'si',
+                    $newStatus,
+                    $customerId
+                );
+
+                $stmt->execute();
+                $stmt->close();
+            }
         }
     }
 
@@ -263,6 +268,8 @@ if ($stmt) {
                                                 method="POST"
                                                 style="display: inline;"
                                             >
+
+                                            <?= csrf_field() ?>
 
                                                 <input
                                                     type="hidden"

@@ -14,11 +14,15 @@ $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $farmerId = isset($_POST['farmer_id'])
-        ? (int) $_POST['farmer_id']
-        : 0;
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        $errors[] = 'Invalid CSRF token.';
+    } else {
 
-    $action = $_POST['action'] ?? '';
+        $farmerId = isset($_POST['farmer_id'])
+            ? (int) $_POST['farmer_id']
+            : 0;
+
+        $action = $_POST['action'] ?? '';
 
     if ($farmerId <= 0) {
         $errors[] = 'Invalid farmer.';
@@ -151,7 +155,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     }
-}
+}}
 
 
 // ==================================================
@@ -498,6 +502,8 @@ if ($stmt) {
                                                 onsubmit="return confirm('Approve this farmer?');"
                                             >
 
+                                            <?= csrf_field() ?>
+
                                                 <input
                                                     type="hidden"
                                                     name="farmer_id"
@@ -525,6 +531,8 @@ if ($stmt) {
                                                 method="POST"
                                                 onsubmit="return confirm('Reject this farmer?');"
                                             >
+
+                                             <?= csrf_field() ?>
 
                                                 <input
                                                     type="hidden"

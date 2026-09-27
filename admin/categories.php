@@ -14,6 +14,10 @@ $edit_category = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        $errors[] = 'Invalid CSRF token.';
+    }
+
     if (isset($_POST['add_category'])) {
 
         $name = trim($_POST['name'] ?? '');
@@ -134,15 +138,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-if (isset($_GET['delete'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_category'])) {
 
     $id = filter_input(
-        INPUT_GET,
-        'delete',
+        INPUT_POST,
+        'delete_category',
         FILTER_VALIDATE_INT
     );
 
-    if ($id) {
+    if (!$id) {
+        $errors[] = 'Invalid category.';
+    } else {
 
         $stmt = $conn->prepare("
             SELECT COUNT(*) AS total
@@ -455,6 +461,8 @@ if (isset($_GET['success'])) {
                 action="categories.php"
             >
 
+                <?= csrf_field() ?>
+
                 <?php if ($edit_category): ?>
 
                     <input
@@ -697,13 +705,29 @@ if (isset($_GET['success'])) {
 
                                         <?php if ((int)$category['product_count'] === 0): ?>
 
-                                            <a
-                                                href="categories.php?delete=<?= (int)$category['id'] ?>"
-                                                class="btn btn-sm btn-danger"
-                                                onclick="return confirm('Are you sure you want to delete this produce category?')"
+                                            <form
+                                                method="POST"
+                                                action="categories.php"
+                                                style="display: inline;"
+                                                onsubmit="return confirm('Are you sure you want to delete this produce category?')"
                                             >
-                                                Delete
-                                            </a>
+
+                                                <?= csrf_field() ?>
+
+                                                <input
+                                                    type="hidden"
+                                                    name="delete_category"
+                                                    value="<?= (int)$category['id'] ?>"
+                                                >
+
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-sm btn-danger"
+                                                >
+                                                    Delete
+                                                </button>
+
+                                            </form>
 
                                         <?php endif; ?>
 

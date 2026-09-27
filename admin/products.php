@@ -8,60 +8,67 @@ $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $product_id = (int) ($_POST['product_id'] ?? 0);
-    $action = $_POST['action'] ?? '';
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
 
-    if ($product_id <= 0) {
-        $errors[] = 'Invalid product.';
+        $errors[] = 'Invalid CSRF token.';
+
     } else {
 
-        if ($action === 'approve') {
+        $product_id = (int) ($_POST['product_id'] ?? 0);
+        $action = $_POST['action'] ?? '';
 
-            $stmt = $conn->prepare("
-                UPDATE products
-                SET moderation_status = 'approved'
-                WHERE id = ?
-            ");
+        if ($product_id <= 0) {
+            $errors[] = 'Invalid product.';
+        } else {
 
-            $stmt->bind_param("i", $product_id);
-            $stmt->execute();
-            $stmt->close();
+            if ($action === 'approve') {
 
-        } elseif ($action === 'reject') {
+                $stmt = $conn->prepare("
+                    UPDATE products
+                    SET moderation_status = 'approved'
+                    WHERE id = ?
+                ");
 
-            $stmt = $conn->prepare("
-                UPDATE products
-                SET moderation_status = 'rejected'
-                WHERE id = ?
-            ");
+                $stmt->bind_param("i", $product_id);
+                $stmt->execute();
+                $stmt->close();
 
-            $stmt->bind_param("i", $product_id);
-            $stmt->execute();
-            $stmt->close();
+            } elseif ($action === 'reject') {
 
-        } elseif ($action === 'remove') {
+                $stmt = $conn->prepare("
+                    UPDATE products
+                    SET moderation_status = 'rejected'
+                    WHERE id = ?
+                ");
 
-            $stmt = $conn->prepare("
-                UPDATE products
-                SET is_available = 0
-                WHERE id = ?
-            ");
+                $stmt->bind_param("i", $product_id);
+                $stmt->execute();
+                $stmt->close();
 
-            $stmt->bind_param("i", $product_id);
-            $stmt->execute();
-            $stmt->close();
+            } elseif ($action === 'remove') {
 
-        } elseif ($action === 'restore') {
+                $stmt = $conn->prepare("
+                    UPDATE products
+                    SET is_available = 0
+                    WHERE id = ?
+                ");
 
-            $stmt = $conn->prepare("
-                UPDATE products
-                SET is_available = 1
-                WHERE id = ?
-            ");
+                $stmt->bind_param("i", $product_id);
+                $stmt->execute();
+                $stmt->close();
 
-            $stmt->bind_param("i", $product_id);
-            $stmt->execute();
-            $stmt->close();
+            } elseif ($action === 'restore') {
+
+                $stmt = $conn->prepare("
+                    UPDATE products
+                    SET is_available = 1
+                    WHERE id = ?
+                ");
+
+                $stmt->bind_param("i", $product_id);
+                $stmt->execute();
+                $stmt->close();
+            }
         }
     }
 }
@@ -400,6 +407,8 @@ if ($stmt) {
 
                                                 <form method="POST" style="display:inline;">
 
+                                                <?= csrf_field() ?>
+
                                                     <input
                                                         type="hidden"
                                                         name="product_id"
@@ -418,6 +427,8 @@ if ($stmt) {
 
 
                                                 <form method="POST" style="display:inline;">
+
+                                                <?= csrf_field() ?>
 
                                                     <input
                                                         type="hidden"
@@ -445,6 +456,8 @@ if ($stmt) {
 
                                                 <form method="POST" style="display:inline;">
 
+                                                <?= csrf_field() ?>
+
                                                     <input
                                                         type="hidden"
                                                         name="product_id"
@@ -467,6 +480,8 @@ if ($stmt) {
                                             <?php if ((int) $product['is_available'] === 0): ?>
 
                                                 <form method="POST" style="display:inline;">
+
+                                                <?= csrf_field() ?>
 
                                                     <input
                                                         type="hidden"
