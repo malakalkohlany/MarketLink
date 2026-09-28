@@ -848,7 +848,6 @@
         padding: 1.25rem;
     }
 }
-
 .customer-cart-floating-actions {
     position: fixed;
     right: 26px;
@@ -858,6 +857,8 @@
     flex-direction: column;
     align-items: flex-end;
     gap: 3px;
+    margin: 0;
+    padding: 0;
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
@@ -879,13 +880,15 @@
     display: inline-flex;
     min-height: 48px;
     align-items: center;
-    gap: 10px;
+    gap: 3px;
+    margin: 0;
     padding: 7px 9px 7px 16px;
     border-radius: var(--radius-pill);
     font-family: var(--font-main);
     font-size: 0.67rem;
     font-weight: 700;
     letter-spacing: 0.06em;
+    line-height: 1;
     text-decoration: none;
     text-transform: uppercase;
     box-shadow: var(--shadow-card);
@@ -918,14 +921,15 @@
 
 .customer-cart-floating-actions .continue-shopping i,
 .customer-cart-floating-actions .checkout-button i {
+    margin: 0;
     font-size: 0.72rem;
+    line-height: 1;
 }
 
 @media (max-width: 600px) {
     .customer-cart-floating-actions {
         right: 16px;
         bottom: 16px;
-        gap: 6px;
     }
 
     .customer-cart-floating-actions .continue-shopping,
