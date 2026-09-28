@@ -939,3 +939,486 @@
         font-size: 0.62rem;
     }
 }
+
+.customer-orders-page {
+    overflow-x: hidden;
+}
+
+.customer-orders-section {
+    padding-bottom: var(--space-section-small);
+}
+
+.customer-orders-section > .customer-section-heading {
+    margin-bottom: 2rem;
+}
+
+.customer-orders-list {
+    display: grid;
+    gap: 1.25rem;
+}
+
+.customer-order-card {
+    min-width: 0;
+    padding: 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    transition:
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+.customer-order-card:hover {
+    transform: translateY(var(--lift-small));
+    box-shadow: var(--shadow-hover);
+}
+
+.customer-order-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.customer-order-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-width: 0;
+}
+
+.customer-order-label {
+    color: var(--text);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+}
+
+.customer-order-date {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+}
+
+.customer-order-status {
+    flex: 0 0 auto;
+    padding: 0.4rem 0.7rem;
+    border-radius: var(--radius-pill);
+    font-size: 0.63rem;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+
+.customer-order-status.status-pending {
+    background: var(--marigold-soft);
+    color: var(--marigold-dark);
+}
+
+.customer-order-status.status-approved,
+.customer-order-status.status-processing {
+    background: var(--sage-soft);
+    color: var(--sage-dark);
+}
+
+.customer-order-status.status-completed {
+    background: var(--sage-dark);
+    color: var(--text-on-sage);
+}
+
+.customer-order-status.status-cancelled,
+.customer-order-status.status-rejected {
+    background: var(--terracotta-soft);
+    color: var(--terracotta-dark);
+}
+
+.customer-order-items-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 1.25rem 0 0.75rem;
+    color: var(--text-muted);
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.customer-order-items {
+    display: grid;
+}
+
+.customer-order-item {
+    display: grid;
+    grid-template-columns: 58px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1rem;
+    min-width: 0;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.customer-order-item:last-child {
+    border-bottom: 0;
+}
+
+.customer-order-item-image {
+    width: 58px;
+    height: 58px;
+    display: block;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+}
+
+.customer-order-item-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--sage-soft);
+    color: var(--sage-dark);
+    font-size: 1.1rem;
+}
+
+.customer-order-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-width: 0;
+}
+
+.customer-order-item-name {
+    color: var(--text);
+    font-size: 0.9rem;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+}
+
+.customer-order-item-meta {
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    line-height: 1.5;
+}
+
+.customer-order-item-price {
+    color: var(--text);
+    font-size: 0.88rem;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.customer-order-no-items {
+    padding: 1rem 0;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.customer-order-notes {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    padding: 0.9rem 1rem;
+    background: var(--surface-alt);
+    border-radius: var(--radius-sm);
+    color: var(--text-soft);
+    font-size: 0.78rem;
+    line-height: 1.5;
+}
+
+.customer-order-notes-label {
+    flex: 0 0 auto;
+    color: var(--text);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.63rem;
+}
+
+.customer-order-footer {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+}
+
+.customer-order-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.customer-order-cancel-form {
+    margin: 0;
+}
+
+.customer-order-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 0.6rem 0.85rem;
+    border-radius: var(--radius-pill);
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    transition:
+        background var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+.customer-order-edit,
+.customer-order-reorder {
+    background: var(--sage-dark);
+    border: 1px solid var(--sage-dark);
+    color: var(--text-on-sage);
+}
+
+.customer-order-edit:hover,
+.customer-order-reorder:hover {
+    background: var(--sage);
+    border-color: var(--sage);
+    transform: translateY(-2px);
+}
+
+.customer-order-edit i,
+.customer-order-reorder i {
+    margin-left: 0.45rem;
+}
+
+.customer-order-cancel {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+    cursor: pointer;
+}
+
+.customer-order-cancel:hover {
+    background: var(--terracotta-soft);
+    border-color: var(--terracotta);
+    color: var(--terracotta-dark);
+    transform: translateY(-2px);
+}
+
+.customer-order-total {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+    flex: 0 0 auto;
+}
+
+.customer-order-total span {
+    color: var(--text-muted);
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.customer-order-total strong {
+    color: var(--text);
+    font-size: 1.15rem;
+    font-weight: 800;
+}
+
+.customer-orders-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 280px;
+    padding: 3rem 2rem;
+    text-align: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+}
+
+.customer-orders-empty-mark {
+    width: 58px;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    background: var(--sage-soft);
+    border-radius: 50%;
+    color: var(--sage-dark);
+    font-size: 1.25rem;
+}
+
+.customer-orders-empty strong {
+    color: var(--text);
+    font-size: 1.15rem;
+    font-weight: 800;
+}
+
+.customer-orders-empty > span:not(.customer-orders-empty-mark) {
+    max-width: 430px;
+    margin-top: 0.5rem;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    line-height: 1.6;
+}
+
+.customer-orders-browse {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 1.25rem;
+    padding: 0.7rem 1rem;
+    background: var(--sage-dark);
+    border: 1px solid var(--sage-dark);
+    border-radius: var(--radius-pill);
+    color: var(--text-on-sage);
+    font-size: 0.68rem;
+    font-weight: 800;
+    text-decoration: none;
+    transition:
+        background var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+.customer-orders-browse:hover {
+    background: var(--sage);
+    transform: translateY(-2px);
+}
+
+.customer-orders-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+}
+
+.customer-orders-pagination-button,
+.customer-orders-pagination-page {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 38px;
+    min-height: 38px;
+    padding: 0 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--surface);
+    color: var(--text-soft);
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-decoration: none;
+    transition:
+        background var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+.customer-orders-pagination-button:hover,
+.customer-orders-pagination-page:hover {
+    background: var(--surface-alt);
+    border-color: var(--sage);
+    color: var(--text);
+    transform: translateY(-2px);
+}
+
+.customer-orders-pagination-button i {
+    font-size: 0.62rem;
+}
+
+.customer-orders-pagination-button:first-child i {
+    margin-right: 0.4rem;
+}
+
+.customer-orders-pagination-button:last-child i {
+    margin-left: 0.4rem;
+}
+
+.customer-orders-pagination-button.is-disabled {
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+.customer-orders-pagination-page.is-active {
+    background: var(--sage-dark);
+    border-color: var(--sage-dark);
+    color: var(--text-on-sage);
+}
+
+.customer-orders-pagination-pages {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.customer-orders-pagination-info {
+    margin-top: 0.75rem;
+    color: var(--text-muted);
+    font-size: 0.65rem;
+    text-align: center;
+}
+
+@media (max-width: 700px) {
+    .customer-order-header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .customer-order-footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .customer-order-total {
+        align-items: flex-start;
+    }
+
+    .customer-orders-pagination {
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 520px) {
+    .customer-order-card {
+        padding: 1.15rem;
+    }
+
+    .customer-order-item {
+        grid-template-columns: 48px minmax(0, 1fr) auto;
+        gap: 0.7rem;
+    }
+
+    .customer-order-item-image {
+        width: 48px;
+        height: 48px;
+    }
+
+    .customer-order-item-price {
+        font-size: 0.8rem;
+    }
+
+    .customer-order-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .customer-order-action {
+        width: 100%;
+    }
+
+    .customer-order-pagination-button {
+        min-width: 34px;
+    }
+}
