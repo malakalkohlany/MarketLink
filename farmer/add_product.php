@@ -237,66 +237,205 @@ $categories = $category_stmt->get_result();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Product</title>
+    <title>Add Product | MarketLink</title>
     <link rel="stylesheet" href="../assets/css/base.css">
     <link rel="stylesheet" href="../assets/css/navbar.css">
     <link rel="stylesheet" href="../assets/css/sidebar.css">
+    <link rel="stylesheet" href="../assets/css/customer.css">
+    <link rel="stylesheet" href="../assets/css/farmer.css">
 </head>
 <body>
 
-    <?php include __DIR__ . '/../includes/navbar.php'; ?>
-    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
-    
-    <main class="main-content">
-        <h1>Add New Product</h1>
+<?php include __DIR__ . '/../includes/navbar.php'; ?>
+<?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-        <?php if (isset($success_message)): ?>
+<main class="main-content farmer-add-product-page">
 
-        <p><?= htmlspecialchars($success_message) ?></p>
+    <section class="customer-page-hero">
+        <div class="customer-page-hero-copy">
+            <span class="eyebrow">FARMER / PRODUCTS</span>
 
-        <?php endif; ?>
+            <h1>Add fresh <em>produce.</em></h1>
 
-        <form action="" method="POST" enctype="multipart/form-data">
-            <?= csrf_field() ?>
-            <label for="name">Product Name</label>
-            <input type="text" id="name" name="name" required>
-            <br><br>
+            <p>
+                Add a new product to your MarketLink inventory and make it
+                available for customers to discover.
+            </p>
+        </div>
 
-            <select id="category_id" name="category_id" required>
-            <option value="">Select Category</option>
+        <div class="customer-page-hero-mark">02</div>
+    </section>
 
-            <?php while ($category = $categories->fetch_assoc()): ?>
-            <option value="<?= $category['id'] ?>">
-                <?= htmlspecialchars($category['name']) ?>
-            </option>
-            <?php endwhile; ?>
-            </select>
-            <br><br>
+    <?php if (isset($success_message)): ?>
 
-            <label for="unit">Unit</label>
-            <input type="text" id="unit" name="unit" placeholder="kg, piece, box" required>
-            <br><br>
+        <div class="customer-products-notice customer-products-success">
+            <span class="customer-products-notice-icon">
+                <i class="fa-solid fa-check"></i>
+            </span>
 
-            <label for="stock_quantity">Stock Quantity</label>
-            <input type="number" id="stock_quantity" name="stock_quantity" step="0.1" min="0" required>
-            <br><br>        
+            <div>
+                <strong>Product added successfully.</strong>
 
-            <label for="image">Product image</label>
-           <input type="file" id="image" name="image" accept="image/*" required>
-            <br><br>
+                <span>
+                    <?= htmlspecialchars($success_message) ?>
+                </span>
+            </div>
+        </div>
 
-            <label for="description">Description</label>
-            <textarea id="description" name="description"></textarea>
-            <br><br>
+    <?php endif; ?>
 
-            <label for="price">Price</label>
-            <input type="number" id="price" name="price" step="0.1" min="0" required>
-            <br><br>
+    <section class="farmer-add-product-section">
 
-            <button type="submit" name="add_product">Add Product</button>
-        </form>
-    </main>
+        <div class="customer-section-heading">
+            <div>
+                <span class="customer-section-number">01 / PRODUCT DETAILS</span>
 
-    <script src="../assets/js/app.js"></script>
+                <h2>Create a new <em>listing.</em></h2>
+            </div>
+        </div>
+
+        <div class="farmer-product-form-card">
+
+            <form
+                class="farmer-product-form"
+                action=""
+                method="POST"
+                enctype="multipart/form-data"
+            >
+
+                <?= csrf_field() ?>
+
+                <div class="farmer-form-grid">
+
+                    <div class="farmer-form-field farmer-form-field-full">
+                        <label for="name">Product Name</label>
+
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            required
+                        >
+                    </div>
+
+                    <div class="farmer-form-field">
+                        <label for="category_id">Category</label>
+
+                        <select
+                            id="category_id"
+                            name="category_id"
+                            required
+                        >
+                            <option value="">Select Category</option>
+
+                            <?php while ($category = $categories->fetch_assoc()): ?>
+
+                                <option value="<?= $category['id'] ?>">
+                                    <?= htmlspecialchars($category['name']) ?>
+                                </option>
+
+                            <?php endwhile; ?>
+
+                        </select>
+                    </div>
+
+                    <div class="farmer-form-field">
+                        <label for="unit">Unit</label>
+
+                        <input
+                            type="text"
+                            id="unit"
+                            name="unit"
+                            placeholder="kg, piece, box"
+                            required
+                        >
+                    </div>
+
+                    <div class="farmer-form-field">
+                        <label for="stock_quantity">Stock Quantity</label>
+
+                        <input
+                            type="number"
+                            id="stock_quantity"
+                            name="stock_quantity"
+                            step="0.1"
+                            min="0"
+                            required
+                        >
+                    </div>
+
+                    <div class="farmer-form-field">
+                        <label for="price">Price</label>
+
+                        <input
+                            type="number"
+                            id="price"
+                            name="price"
+                            step="0.1"
+                            min="0"
+                            required
+                        >
+                    </div>
+
+                    <div class="farmer-form-field farmer-form-field-full">
+                        <label for="image">Product Image</label>
+
+                        <div class="farmer-file-input">
+                            <input
+                                type="file"
+                                id="image"
+                                name="image"
+                                accept="image/*"
+                                required
+                            >
+
+                            <span class="farmer-file-input-note">
+                                Add a clear image of your product.
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="farmer-form-field farmer-form-field-full">
+                        <label for="description">Description</label>
+
+                        <textarea
+                            id="description"
+                            name="description"
+                            rows="5"
+                        ></textarea>
+                    </div>
+
+                </div>
+
+                <div class="farmer-form-actions">
+
+                    <a
+                        href="products.php"
+                        class="farmer-form-cancel"
+                    >
+                        Cancel
+                    </a>
+
+                    <button
+                        type="submit"
+                        name="add_product"
+                        class="farmer-form-submit"
+                    >
+                        <i class="fa-solid fa-plus"></i>
+                        Add Product
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </section>
+
+</main>
+
+<script src="../assets/js/app.js"></script>
+
 </body>
 </html>
