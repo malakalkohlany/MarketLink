@@ -485,6 +485,31 @@ $orders = $order_stmt->get_result();
                         <?php while ($order = $orders->fetch_assoc()): ?>
 
                             <tr>
+                                <?php
+                                    $current_status = $order['status'];
+
+                                    $next_statuses = [
+                                        'pending' => [
+                                            'accepted' => 'Accept Order',
+                                            'cancelled' => 'Cancel Order'
+                                        ],
+                                        'accepted' => [
+                                            'preparing' => 'Start Preparing',
+                                            'cancelled' => 'Cancel Order'
+                                        ],
+                                        'preparing' => [
+                                            'ready' => 'Mark Ready',
+                                            'cancelled' => 'Cancel Order'
+                                        ],
+                                        'ready' => [
+                                            'completed' => 'Mark Completed'
+                                        ],
+                                        'completed' => [],
+                                        'cancelled' => []
+                                    ];
+
+                                    $available_statuses = $next_statuses[$current_status] ?? [];
+                                ?>
 
                                 <td>
                                     <span class="farmer-inventory-product">
@@ -519,89 +544,43 @@ $orders = $order_stmt->get_result();
                                 </td>
 
                                 <td>
-
                                     <div class="farmer-order-actions">
-
                                         <a
-                                            href="order_details.php?id=<?= (int) $order['id'] ?>"
+                                            href="order_details.php?id=<?= (int)$order['id'] ?>"
                                             class="farmer-order-details"
                                         >
+                                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
                                             View Details
                                         </a>
 
-                                        <?php
-
-                                        $current_status = $order['status'];
-
-                                        $next_statuses = [
-                                            'pending' => [
-                                                'accepted' => 'Accept Order',
-                                                'cancelled' => 'Cancel Order'
-                                            ],
-                                            'accepted' => [
-                                                'preparing' => 'Start Preparing',
-                                                'cancelled' => 'Cancel Order'
-                                            ],
-                                            'preparing' => [
-                                                'ready' => 'Mark Ready',
-                                                'cancelled' => 'Cancel Order'
-                                            ],
-                                            'ready' => [
-                                                'completed' => 'Mark Completed'
-                                            ],
-                                            'completed' => [],
-                                            'cancelled' => []
-                                        ];
-
-                                        ?>
-
-                                        <?php if (!empty($next_statuses[$current_status])): ?>
-
-                                            <form
-                                                method="POST"
-                                                class="farmer-order-status-form"
-                                            >
-
+                                        <?php if (!empty($available_statuses)): ?>
+                                            <form method="POST" class="farmer-order-status-form">
                                                 <?= csrf_field() ?>
 
                                                 <input
                                                     type="hidden"
                                                     name="order_id"
-                                                    value="<?= (int) $order['id'] ?>"
+                                                    value="<?= (int)$order['id'] ?>"
                                                 >
 
-                                                <select
-                                                    name="status"
-                                                    required
-                                                >
-                                                    <option value="">
-                                                        Change Status
-                                                    </option>
+                                                <select name="status" required>
+                                                    <option value="">Change Status</option>
 
-                                                    <?php foreach (
-                                                        $next_statuses[$current_status]
-                                                        as $status_value => $status_label
-                                                    ): ?>
-
-                                                        <option value="<?= e($status_value) ?>">
-                                                            <?= e($status_label) ?>
+                                                    <?php foreach ($available_statuses as $status_value => $status_label): ?>
+                                                        <option value="<?= htmlspecialchars($status_value) ?>">
+                                                            <?= htmlspecialchars($status_label) ?>
                                                         </option>
-
                                                     <?php endforeach; ?>
-
                                                 </select>
 
                                                 <button type="submit">
                                                     Update
                                                 </button>
-
                                             </form>
-
                                         <?php endif; ?>
-
                                     </div>
-
                                 </td>
+
 
                             </tr>
 

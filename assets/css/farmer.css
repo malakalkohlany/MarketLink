@@ -632,30 +632,47 @@
 
 .farmer-order-actions {
     display: flex;
-    min-width: 190px;
-    align-items: flex-start;
-    flex-direction: column;
+    min-width: 330px;
+    align-items: center;
     gap: 8px;
 }
 
 .farmer-order-details {
-    color: var(--terracotta-dark);
+    display: inline-flex;
+    min-height: 34px;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--text-soft);
     font-family: var(--font-main);
-    font-size: 0.6rem;
+    font-size: 0.57rem;
     font-weight: 700;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
     text-decoration: none;
     text-transform: uppercase;
-    transition: color var(--transition-fast);
+    white-space: nowrap;
+    transition:
+        transform var(--transition-fast),
+        background var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast);
 }
 
 .farmer-order-details:hover {
-    color: var(--terracotta);
+    border-color: var(--sage);
+    background: var(--sage-soft);
+    color: var(--sage-dark);
+    transform: var(--lift-small);
 }
 
 .farmer-order-status-form {
     display: flex;
-    width: 100%;
+    min-width: 0;
+    flex: 1;
     align-items: center;
     gap: 6px;
 }
@@ -692,6 +709,7 @@
     letter-spacing: 0.04em;
     text-transform: uppercase;
     cursor: pointer;
+    white-space: nowrap;
     transition:
         transform var(--transition-fast),
         background var(--transition-fast);
@@ -704,6 +722,6 @@
 
 @media (max-width: 800px) {
     .farmer-order-actions {
-        min-width: 170px;
+        min-width: 300px;
     }
 }
