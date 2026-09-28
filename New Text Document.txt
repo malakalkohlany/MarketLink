@@ -154,11 +154,15 @@ The system supports three main roles:
 ---------
 # 7. Database Design
 
-The MarketLink database uses a relational database structure to store and organize the system's data.
+The MarketLink database uses a relational database structure to store and organize the information required by the system.
 
-The database contains tables for users, farmers, products, categories, orders, reviews, markets, favorites, notifications, and other system operations.
+The database contains 19 related tables covering user accounts, farmer profiles, products, categories, markets, favorites, orders, pickup scheduling, weekly stock management, reviews, notifications, announcements, and reports.
 
-Primary keys and foreign keys are used to connect related tables and maintain data consistency.
+Primary keys are used to uniquely identify records, while foreign keys establish relationships between related tables and help maintain referential integrity.
+
+The database also uses relationships such as one-to-many and many-to-many relationships. For example, a farmer can manage multiple products, while farmers and markets have a many-to-many relationship through the market_farmer table. Customers can also maintain separate favorites for products, farmers, and markets.
+
+Order information is separated between the orders and order_items tables, while order_status_history records changes made to an order's status. Weekly stock planning is handled through weekly_stock and reusable weekly_stock_templates tables.
 
 ---------
 
