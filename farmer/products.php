@@ -175,7 +175,7 @@ $record_label = $total_products === 1 ? 'product' : 'products';
                             <?php if (!empty($product['image'])): ?>
 
                                 <img
-                                    src="../<?= e($product['image']) ?>"
+                                    src="/MarketLink/<?= e($product['image']) ?>"
                                     alt="<?= e($product['name']) ?>"
                                 >
 
@@ -264,6 +264,32 @@ $record_label = $total_products === 1 ? 'product' : 'products';
                                     <i data-lucide="pen"></i>
                                     Edit Product
                                 </a>
+
+
+                                <form
+                                    method="POST"
+                                    action="delete_product.php"
+                                    onsubmit="return confirm('Delete this product?');"
+                                >
+
+                                    <?= csrf_field() ?>
+
+                                    <input
+                                        type="hidden"
+                                        name="product_id"
+                                        value="<?= (int)$product['id'] ?>"
+                                    >
+
+
+                                    <button
+                                        type="submit"
+                                        class="farmer-product-delete"
+                                    >
+                                        <i class="fa-solid fa-trash"></i>
+                                        Delete Product
+                                    </button>
+
+                                </form>
 
                             </div>
 

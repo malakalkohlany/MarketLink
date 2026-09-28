@@ -116,9 +116,9 @@ $image_extension = $allowed_types[$image_info['mime']];
 
 $new_image_name = uniqid('product_', true) . '.' . $image_extension;
 
-$image_path = __DIR__ . '/../assets/images/products/' . $new_image_name;
+$image_path = __DIR__ . '/../uploads/products/' . $new_image_name;
 
-    $image_db_path = 'assets/images/products/' . $new_image_name;
+    $image_db_path = 'uploads/products/' . $new_image_name;
 
     if (!move_uploaded_file($image_tmp, $image_path)) {
         die("Failed to save product image.");

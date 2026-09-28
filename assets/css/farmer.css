@@ -1366,3 +1366,32 @@
         height: 250px;
     }
 }
+
+.farmer-product-delete {
+    display: inline-flex;
+    width: 100%;
+    min-height: 39px;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border: 1px solid var(--terracotta);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--terracotta-dark);
+    font-family: var(--font-main);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition:
+        transform var(--transition-fast),
+        background var(--transition-fast),
+        color var(--transition-fast);
+}
+
+.farmer-product-delete:hover {
+    background: var(--terracotta);
+    color: var(--text-on-terracotta);
+    transform: var(--lift-small);
+}

@@ -87,55 +87,75 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die("Please fill all required fields correctly.");
     }
 
-    $image_db_path = $product['image'];
+$image_db_path = $product['image'];
+$old_image_path = $product['image'];
 
-    if (
-        isset($_FILES['image']) &&
-        $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE
-    ) {
+if (
+    isset($_FILES['image']) &&
+    $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE
+) {
 
-        if ($_FILES['image']['error'] !== UPLOAD_ERR_OK) {
-            die("Failed to upload image.");
-        }
-
-        $image_tmp = $_FILES['image']['tmp_name'];
-
-        $image_info = getimagesize($image_tmp);
-
-        if ($image_info === false) {
-            die("The uploaded file is not a valid image.");
-        }
-
-        $allowed_types = [
-            'image/jpeg' => 'jpg',
-            'image/png' => 'png',
-            'image/webp' => 'webp'
-        ];
-
-        $mime_type = $image_info['mime'];
-
-        if (!isset($allowed_types[$mime_type])) {
-            die("Only JPG, PNG, and WebP images are allowed.");
-        }
-
-        $max_file_size = 5 * 1024 * 1024; // 5 MB
-
-        if ($_FILES['image']['size'] > $max_file_size) {
-            die("Image size must not exceed 5 MB.");
-        }
-
-        $image_extension = $allowed_types[$mime_type];
-
-        $new_image_name = uniqid('product_', true) . '.' . $image_extension;
-
-        $image_path = __DIR__ . '/../uploads/products/' . $new_image_name;
-
-        $image_db_path = 'uploads/products/' . $new_image_name;
-
-        if (!move_uploaded_file($image_tmp, $image_path)) {
-            die("Failed to save the uploaded image.");
-        }
+    if ($_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+        die("Failed to upload image.");
     }
+
+    $image_tmp = $_FILES['image']['tmp_name'];
+
+    $image_info = getimagesize($image_tmp);
+
+    if ($image_info === false) {
+        die("The uploaded file is not a valid image.");
+    }
+
+
+    $allowed_types = [
+        'image/jpeg' => 'jpg',
+        'image/png' => 'png',
+        'image/webp' => 'webp'
+    ];
+
+
+    $mime_type = $image_info['mime'];
+
+
+    if (!isset($allowed_types[$mime_type])) {
+        die("Only JPG, PNG, and WebP images are allowed.");
+    }
+
+
+    if ($_FILES['image']['size'] > 5 * 1024 * 1024) {
+        die("Image size must not exceed 5 MB.");
+    }
+
+
+    $extension = $allowed_types[$mime_type];
+
+
+    $new_image_name = uniqid('product_', true) . '.' . $extension;
+
+
+    $image_path = __DIR__ . '/../uploads/products/' . $new_image_name;
+
+    $image_db_path = 'uploads/products/' . $new_image_name;
+
+
+    if (!move_uploaded_file($image_tmp, $image_path)) {
+        die("Failed to save image.");
+    }
+
+
+    // delete ONLY the old image
+    if (!empty($old_image_path)) {
+
+        $old_file = __DIR__ . '/../' . $old_image_path;
+
+        if (file_exists($old_file)) {
+            unlink($old_file);
+        }
+
+    }
+
+}
 
     
     $stmt = $conn->prepare("
@@ -385,7 +405,7 @@ $categories = $category_stmt->get_result();
                                 </span>
 
                                 <img
-                                    src="../<?= htmlspecialchars($product['image']) ?>"
+                                    src="/MarketLink/<?= htmlspecialchars($product['image']) ?>"
                                     alt="Current product image"
                                 >
 
