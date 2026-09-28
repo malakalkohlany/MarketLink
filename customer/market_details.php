@@ -587,9 +587,9 @@ mysqli_stmt_close($favoriteStmt);
                         ?>"
                     >
                         <?php if ($isFavorite): ?>
-                            <i class="fa-solid fa-heart"></i>
+                            <i data-lucide="heart"></i>
                         <?php else: ?>
-                            <i class="fa-regular fa-heart"></i>
+                            <i data-lucide="heart"></i>
                         <?php endif; ?>
                     </button>
                 </form>
@@ -661,7 +661,7 @@ mysqli_stmt_close($favoriteStmt);
 
             <?php if (empty($farmers)): ?>
                 <div class="market-empty-state">
-                    <i class="fa-solid fa-store"></i>
+                    <i data-lucide=" store"></i>
                     <p>
                         No approved farmers are currently
                         registered at this market.
@@ -675,7 +675,7 @@ mysqli_stmt_close($favoriteStmt);
                             class="market-farmer-card"
                         >
                             <div class="market-farmer-icon">
-                                <i class="fa-solid fa-wheat-awn"></i>
+                                <i data-lucide=" fa-wheat-awn"></i>
                             </div>
 
                             <div class="market-farmer-info">
@@ -697,7 +697,7 @@ mysqli_stmt_close($favoriteStmt);
                                 <?php if (!empty($farmer['address'])): ?>
                                     <p>
                                         <i
-                                            class="fa-solid
+                                            data-lucide="
                                             fa-location-dot"
                                         ></i>
                                         <?= e($farmer['address']) ?>
@@ -707,7 +707,7 @@ mysqli_stmt_close($favoriteStmt);
 
                             <div class="market-farmer-arrow">
                                 <i
-                                    class="fa-solid
+                                    data-lucide="
                                     fa-chevron-right"
                                 ></i>
                             </div>
@@ -729,6 +729,11 @@ mysqli_stmt_close($favoriteStmt);
 <script
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
 ></script>
+
+<script src="../assets/js/lucide.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 
 <script>
     const latitude =

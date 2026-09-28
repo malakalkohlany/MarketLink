@@ -281,6 +281,20 @@ function hasSubmenu(array $pages): bool
                     </a>
                 </li>
 
+                <!-- Analytics -->
+                <li>
+                    <a
+                        href="<?= BASE_URL ?>farmer/analytics.php"
+                        class="<?= isActive(['analytics.php']) ?>"
+                    >
+                        <span class="nav-icon">
+                            <i data-lucide="chart-no-axes-combined"></i>
+                        </span>
+
+                        <span>Analytics</span>
+                    </a>
+                </li>
+
             </ul>
 
         </div>
@@ -395,19 +409,6 @@ function hasSubmenu(array $pages): bool
 
             <ul class="sidebar-list">
 
-                <!-- My Stall -->
-                <li>
-                    <a
-                        href="<?= BASE_URL ?>farmer/stall.php"
-                        class="<?= isActive(['stall.php']) ?>"
-                    >
-                        <span class="nav-icon">
-                            <i data-lucide="store"></i>
-                        </span>
-
-                        <span>My Stall</span>
-                    </a>
-                </li>
 
 
                 <!-- Markets -->
@@ -441,20 +442,6 @@ function hasSubmenu(array $pages): bool
                     </a>
                 </li>
 
-
-                <!-- Analytics -->
-                <li>
-                    <a
-                        href="<?= BASE_URL ?>farmer/analytics.php"
-                        class="<?= isActive(['analytics.php']) ?>"
-                    >
-                        <span class="nav-icon">
-                            <i data-lucide="chart-no-axes-combined"></i>
-                        </span>
-
-                        <span>Analytics</span>
-                    </a>
-                </li>
 
             </ul>
 

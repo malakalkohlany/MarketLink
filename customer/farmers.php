@@ -252,7 +252,7 @@ $farmerCount = count($farmers);
         <div class="customer-shopping-note">
 
             <span class="customer-shopping-note-icon">
-                <i class="fa-solid fa-location-dot"></i>
+                <i data-lucide="MapPin"></i>
             </span>
 
             <div>
@@ -302,7 +302,7 @@ $farmerCount = count($farmers);
 
                 <div class="customer-farmer-input-wrap">
 
-                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <i data-lucide=" fa-magnifying-glass"></i>
 
                     <input
                         type="text"
@@ -322,7 +322,7 @@ $farmerCount = count($farmers);
                     id="findNearbyFarmers"
                     class="customer-farmer-location-button"
                 >
-                    <i class="fa-solid fa-location-crosshairs"></i>
+                    <i data-lucide=" fa-location-crosshairs"></i>
                     Find Farmers Near Me
                 </button>
 
@@ -332,7 +332,7 @@ $farmerCount = count($farmers);
                     class="customer-farmer-show-all"
                     style="display: none;"
                 >
-                    <i class="fa-solid fa-rotate-left"></i>
+                    <i data-lucide=" fa-rotate-left"></i>
                     Show All Farmers
                 </button>
 
@@ -385,7 +385,7 @@ $farmerCount = count($farmers);
                 id="farmerNoMatch"
             >
                 <span class="customer-farmers-no-match-icon">
-                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <i data-lucide=" fa-magnifying-glass"></i>
                 </span>
 
                 <strong>
@@ -472,7 +472,7 @@ $farmerCount = count($farmers);
 
                                 <div class="customer-farmer-meta">
 
-                                    <i class="fa-solid fa-user"></i>
+                                    <i data-lucide=" fa-user"></i>
 
                                     <span>
                                         <?= e($farmer['contact_person']) ?>
@@ -486,7 +486,7 @@ $farmerCount = count($farmers);
 
                                 <div class="customer-farmer-meta">
 
-                                    <i class="fa-solid fa-location-dot"></i>
+                                    <i data-lucide="MapPin"></i>
 
                                     <span>
                                         <?= e($farmer['address']) ?>
@@ -517,7 +517,7 @@ $farmerCount = count($farmers);
                                     class="customer-farmer-details"
                                 >
                                     View Farmer
-                                    <i class="fa-solid fa-arrow-right"></i>
+                                    <i data-lucide=" arrow-right"></i>
                                 </a>
 
                             </div>
@@ -540,7 +540,7 @@ $farmerCount = count($farmers);
             <div class="customer-farmers-empty">
 
                 <span class="customer-farmers-empty-mark">
-                    <i class="fa-solid fa-seedling"></i>
+                    <i data-lucide=" sprout"></i>
                 </span>
 
                 <strong>
@@ -559,6 +559,11 @@ $farmerCount = count($farmers);
     </section>
 
 </main>
+
+<script src="../assets/js/lucide.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 
 <script
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
@@ -651,7 +656,7 @@ $farmerCount = count($farmers);
         previousButton.className =
             'farmer-pagination-button farmer-pagination-arrow';
         previousButton.innerHTML =
-            '<i class="fa-solid fa-arrow-left"></i> Previous';
+            '<i data-lucide=" arrow-left"></i> Previous';
         previousButton.disabled =
             currentPage === 1;
 
@@ -707,7 +712,7 @@ $farmerCount = count($farmers);
         nextButton.className =
             'farmer-pagination-button farmer-pagination-arrow';
         nextButton.innerHTML =
-            'Next <i class="fa-solid fa-arrow-right"></i>';
+            'Next <i data-lucide=" arrow-right"></i>';
         nextButton.disabled =
             currentPage === totalPages;
 

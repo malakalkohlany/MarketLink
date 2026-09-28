@@ -123,7 +123,7 @@ foreach ($cart as $item) {
 
                 <span class="customer-farmers-empty-mark">
 
-                    <i class="fa-solid fa-basket-shopping"></i>
+                    <i data-lucide=" fa-basket-shopping"></i>
 
                 </span>
 
@@ -142,7 +142,7 @@ foreach ($cart as $item) {
                 >
                     Browse Products
 
-                    <i class="fa-solid fa-arrow-right"></i>
+                    <i data-lucide=" arrow-right"></i>
                 </a>
 
             </div>
@@ -245,7 +245,7 @@ foreach ($cart as $item) {
                                 onclick="removeItem(<?= $productId ?>)"
                                 aria-label="Remove <?= e($item['name']) ?>"
                             >
-                                <i class="fa-solid fa-xmark"></i>
+                                <i data-lucide=" fa-xmark"></i>
                             </button>
 
                         </article>
@@ -266,7 +266,7 @@ foreach ($cart as $item) {
             href="products.php"
             class="continue-shopping"
         >
-            <i class="fa-solid fa-arrow-left"></i>
+            <i data-lucide=" arrow-left"></i>
             Continue Shopping
         </a>
 
@@ -275,7 +275,7 @@ foreach ($cart as $item) {
             class="checkout-button"
         >
             Confirm Order
-            <i class="fa-solid fa-arrow-right"></i>
+            <i data-lucide=" arrow-right"></i>
         </a>
     </div>
 
@@ -308,6 +308,10 @@ foreach ($cart as $item) {
 </main>
 
 <script src="../assets/js/cart.js"></script>
+<script src="../assets/js/lucide.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 
 </body>
 

@@ -1293,7 +1293,7 @@ redirect('customer/orders.php');
     <?php if (!empty($error)): ?>
         <div class="customer-confirm-order-error">
             <span class="customer-confirm-order-error-icon">
-                <i class="fa-solid fa-circle-exclamation"></i>
+                <i data-lucide="circle-alert"></i>
             </span>
 
             <span>
@@ -1305,7 +1305,7 @@ redirect('customer/orders.php');
     <?php if ($cartMarketId !== null): ?>
         <div class="customer-confirm-order-market-note">
             <span class="customer-confirm-order-market-icon">
-                <i class="fa-solid fa-location-dot"></i>
+                <i data-lucide="MapPin"></i>
             </span>
 
             <div>
@@ -1362,7 +1362,7 @@ redirect('customer/orders.php');
                         <?php else: ?>
 
                             <div class="customer-confirm-order-item-image customer-confirm-order-item-placeholder">
-                                <i class="fa-solid fa-leaf"></i>
+                                <i data-lucide=" fa-leaf"></i>
                             </div>
 
                         <?php endif; ?>
@@ -1635,7 +1635,7 @@ redirect('customer/orders.php');
                                 class="customer-confirm-order-submit"
                             >
                                 Confirm Order
-                                <i class="fa-solid fa-arrow-right"></i>
+                                <i data-lucide=" arrow-right"></i>
                             </button>
 
                         <?php endif; ?>
@@ -1644,7 +1644,7 @@ redirect('customer/orders.php');
                             href="cart.php"
                             class="customer-confirm-order-back"
                         >
-                            <i class="fa-solid fa-arrow-left"></i>
+                            <i data-lucide=" arrow-left"></i>
                             Back to Cart
                         </a>
 
@@ -1659,6 +1659,10 @@ redirect('customer/orders.php');
     </section>
 
 </main>
+<script src="../assets/js/lucide.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 
 <script>
     const pickupDate =

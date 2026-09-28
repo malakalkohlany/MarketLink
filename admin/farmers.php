@@ -4,176 +4,195 @@ require_once __DIR__ . '/../includes/include.php';
 
 requireRole(R_ADMIN);
 
+$success = $_SESSION['farmer_success'] ?? '';
+$errorMessage = $_SESSION['farmer_error'] ?? '';
+
+unset(
+    $_SESSION['farmer_success'],
+    $_SESSION['farmer_error']
+);
+
 $errors = [];
-$success = '';
+
+if ($errorMessage !== '') {
+    $errors[] = $errorMessage;
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
 
-        $errors[] = 'Invalid CSRF token.';
+        $_SESSION['farmer_error'] = 'Invalid CSRF token.';
 
-    } else {
+        redirect('farmers.php');
+    }
 
-        $farmerId = isset($_POST['farmer_id'])
-            ? (int) $_POST['farmer_id']
-            : 0;
+    $farmerId = filter_input(
+        INPUT_POST,
+        'farmer_id',
+        FILTER_VALIDATE_INT
+    );
 
-        $action = $_POST['action'] ?? '';
+    if (!$farmerId || $farmerId <= 0) {
 
-        if ($farmerId <= 0) {
+        $_SESSION['farmer_error'] = 'Invalid farmer.';
 
-            $errors[] = 'Invalid farmer.';
+        redirect('farmers.php');
+    }
 
-        } elseif (!in_array($action, ['approve', 'reject'], true)) {
+    $action = $_POST['action'] ?? '';
 
-            $errors[] = 'Invalid action.';
+    if (!in_array($action, ['approve', 'reject'], true)) {
+
+        $_SESSION['farmer_error'] = 'Invalid action.';
+
+        redirect('farmers.php');
+    }
+
+    $newStatus = $action === 'approve'
+        ? 'approved'
+        : 'rejected';
+
+    $stmt = $conn->prepare("
+        SELECT
+            f.id,
+            f.stall_name,
+            f.user_id,
+            f.approval_status
+        FROM farmers f
+        WHERE f.id = ?
+        LIMIT 1
+    ");
+
+    if (!$stmt) {
+
+        $_SESSION['farmer_error'] =
+            'Failed to prepare farmer lookup.';
+
+        redirect('farmers.php');
+    }
+
+    $stmt->bind_param(
+        'i',
+        $farmerId
+    );
+
+    if (!$stmt->execute()) {
+
+        $stmt->close();
+
+        $_SESSION['farmer_error'] =
+            'Failed to load farmer.';
+
+        redirect('farmers.php');
+    }
+
+    $result = $stmt->get_result();
+
+    $farmer = $result->fetch_assoc();
+
+    $stmt->close();
+
+    if (!$farmer) {
+
+        $_SESSION['farmer_error'] =
+            'Farmer not found.';
+
+        redirect('farmers.php');
+    }
+
+    if ($farmer['approval_status'] !== 'pending') {
+
+        $_SESSION['farmer_error'] =
+            'This farmer has already been processed.';
+
+        redirect('farmers.php');
+    }
+
+    $updateStmt = $conn->prepare("
+        UPDATE farmers
+        SET approval_status = ?
+        WHERE id = ?
+          AND approval_status = 'pending'
+    ");
+
+    if (!$updateStmt) {
+
+        $_SESSION['farmer_error'] =
+            'Failed to prepare approval update.';
+
+        redirect('farmers.php');
+    }
+
+    $updateStmt->bind_param(
+        'si',
+        $newStatus,
+        $farmerId
+    );
+
+    if (!$updateStmt->execute()) {
+
+        $updateStmt->close();
+
+        $_SESSION['farmer_error'] =
+            'Failed to update farmer.';
+
+        redirect('farmers.php');
+    }
+
+    if ($updateStmt->affected_rows !== 1) {
+
+        $updateStmt->close();
+
+        $_SESSION['farmer_error'] =
+            'The farmer could not be updated. '
+            . 'They may have already been processed.';
+
+        redirect('farmers.php');
+    }
+
+    $updateStmt->close();
+
+    if (!empty($farmer['user_id'])) {
+
+        if ($newStatus === 'approved') {
+
+            createNotification(
+                $conn,
+                (int) $farmer['user_id'],
+                'farmer_approved',
+                'Farmer Account Approved',
+                "Your farmer account for {$farmer['stall_name']} has been approved. You can now access your farmer dashboard."
+            );
+
+            $_SESSION['farmer_success'] =
+                'Farmer approved successfully.';
 
         } else {
 
-            $newStatus = $action === 'approve'
-                ? 'approved'
-                : 'rejected';
+            createNotification(
+                $conn,
+                (int) $farmer['user_id'],
+                'farmer_rejected',
+                'Farmer Account Rejected',
+                "Your farmer account for {$farmer['stall_name']} has been rejected."
+            );
 
-            /*
-             * Get the farmer first so we have their
-             * user_id and stall_name for the notification.
-             */
-            $stmt = $conn->prepare("
-                SELECT
-                    f.id,
-                    f.stall_name,
-                    f.user_id,
-                    f.approval_status
-                FROM farmers f
-                WHERE f.id = ?
-                LIMIT 1
-            ");
-
-            if (!$stmt) {
-
-               $errors[] =
-                'Failed to prepare farmer lookup.';
-
-            } else {
-
-                $stmt->bind_param("i", $farmerId);
-                $stmt->execute();
-
-                $result = $stmt->get_result();
-                $farmer = $result->fetch_assoc();
-
-                $stmt->close();
-
-                if (!$farmer) {
-
-                    $errors[] = 'Farmer not found.';
-
-                } elseif ($farmer['approval_status'] !== 'pending') {
-
-                    $errors[] =
-                        'This farmer has already been processed.';
-
-                } else {
-
-                    /*
-                     * Only update a farmer who is still pending.
-                     * This also protects against two admin requests
-                     * processing the same farmer.
-                     */
-                    $updateStmt = $conn->prepare("
-                        UPDATE farmers
-                        SET approval_status = ?
-                        WHERE id = ?
-                          AND approval_status = 'pending'
-                    ");
-
-                    if (!$updateStmt) {
-
-                        $errors[] =
-                         'Failed to prepare approval update.';
-
-                    } else {
-
-                        $updateStmt->bind_param(
-                            "si",
-                            $newStatus,
-                            $farmerId
-                        );
-
-                        if ($updateStmt->execute()) {
-
-                            if ($updateStmt->affected_rows === 1) {
-
-                                /*
-                                 * Notify the farmer.
-                                 */
-                                if (!empty($farmer['user_id'])) {
-
-                                    if ($newStatus === 'approved') {
-
-                                        createNotification(
-                                            $conn,
-                                            (int) $farmer['user_id'],
-                                            'farmer_approved',
-                                            'Farmer Account Approved',
-                                            "Your farmer account for {$farmer['stall_name']} has been approved. You can now access your farmer dashboard."
-                                        );
-
-                                        $success =
-                                            'Farmer approved successfully.';
-
-                                    } else {
-
-                                        createNotification(
-                                            $conn,
-                                            (int) $farmer['user_id'],
-                                            'farmer_rejected',
-                                            'Farmer Account Rejected',
-                                            "Your farmer account for {$farmer['stall_name']} has been rejected."
-                                        );
-
-                                        $success =
-                                            'Farmer rejected successfully.';
-                                    }
-
-                                } else {
-
-                                    /*
-                                     * Fallback if the farmer has no
-                                     * associated user account.
-                                     */
-                                    $success = $newStatus === 'approved'
-                                        ? 'Farmer approved successfully.'
-                                        : 'Farmer rejected successfully.';
-                                }
-
-                            } else {
-
-                                $errors[] =
-                                    'The farmer could not be updated. '
-                                    . 'They may have already been processed.';
-                            }
-
-                        } else {
-
-                            $errors[] =
-                                'Failed to update farmer: '
-                                . $updateStmt->error;
-                        }
-
-                        $updateStmt->close();
-                    }
-                }
-            }
+            $_SESSION['farmer_success'] =
+                'Farmer rejected successfully.';
         }
+
+    } else {
+
+        $_SESSION['farmer_success'] =
+            $newStatus === 'approved'
+                ? 'Farmer approved successfully.'
+                : 'Farmer rejected successfully.';
     }
+
+    redirect('farmers.php');
 }
 
-
-/*
- * Load all farmers for the directory.
- */
 $farmers = [];
 
 $stmt = $conn->prepare("
@@ -202,18 +221,23 @@ if ($stmt) {
     if ($stmt->execute()) {
 
         $result = $stmt->get_result();
-        $farmers = $result->fetch_all(MYSQLI_ASSOC);
+
+        $farmers = $result->fetch_all(
+            MYSQLI_ASSOC
+        );
 
     } else {
 
-        $errors[] = 'Failed to load farmers.';
+        $errors[] =
+            'Failed to load farmers.';
     }
 
     $stmt->close();
 
 } else {
 
-    $errors[] = 'Failed to prepare farmer query.';
+    $errors[] =
+        'Failed to prepare farmer query.';
 }
 
 ?>
@@ -262,6 +286,7 @@ if ($stmt) {
 <body>
 
     <?php include __DIR__ . '/../includes/navbar.php'; ?>
+
     <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
     <main class="main-content admin-farmers-page">
@@ -292,14 +317,18 @@ if ($stmt) {
 
         </section>
 
-        <?php if (!empty($success)): ?>
+        <?php if ($success !== ''): ?>
 
             <div class="admin-page-alert alert-success">
-                <span class="admin-alert-mark">✓</span>
+
+                <span class="admin-alert-mark">
+                    ✓
+                </span>
 
                 <p>
                     <?= e($success) ?>
                 </p>
+
             </div>
 
         <?php endif; ?>
@@ -308,7 +337,9 @@ if ($stmt) {
 
             <div class="admin-page-alert alert-danger">
 
-                <span class="admin-alert-mark">!</span>
+                <span class="admin-alert-mark">
+                    !
+                </span>
 
                 <div>
 
@@ -343,8 +374,14 @@ if ($stmt) {
                 </div>
 
                 <span class="admin-record-count">
+
                     <?= count($farmers) ?>
-                    <?= count($farmers) === 1 ? 'farmer' : 'farmers' ?>
+
+                    <?= count($farmers) === 1
+                        ? 'farmer'
+                        : 'farmers'
+                    ?>
+
                 </span>
 
             </div>
@@ -370,201 +407,237 @@ if ($stmt) {
 
                     <tbody>
 
-                        <?php if (!empty($farmers)): ?>
+                    <?php if (!empty($farmers)): ?>
 
-                            <?php foreach ($farmers as $farmer): ?>
+                        <?php foreach ($farmers as $farmer): ?>
 
-                                <?php
+                            <?php
 
-                                $farmerId = (int) $farmer['id'];
-                                $status = $farmer['approval_status'];
+                            $farmerId =
+                                (int) $farmer['id'];
 
-                                ?>
+                            $status =
+                                $farmer['approval_status']
+                                ?? 'pending';
 
-                                <tr>
+                            $stallName =
+                                trim(
+                                    $farmer['stall_name']
+                                    ?? ''
+                                );
 
-                                    <td class="admin-table-id">
-                                        <?= $farmerId ?>
-                                    </td>
+                            $contactPerson =
+                                trim(
+                                    $farmer['contact_person']
+                                    ?? ''
+                                );
 
-                                    <td>
+                            $initial =
+                                strtoupper(
+                                    substr(
+                                        $stallName !== ''
+                                            ? $stallName
+                                            : 'F',
+                                        0,
+                                        1
+                                    )
+                                );
 
-                                        <div class="admin-farmer-name">
-
-                                            <div class="admin-farmer-avatar">
-                                                <?= strtoupper(
-                                                    substr(
-                                                        $farmer['stall_name'],
-                                                        0,
-                                                        1
-                                                    )
-                                                ) ?>
-                                            </div>
-
-                                            <div>
-
-                                                <strong>
-                                                    <?= e($farmer['stall_name']) ?>
-                                                </strong>
-
-                                                <span>
-                                                    <?= e(
-                                                        $farmer['contact_person']
-                                                        ?? 'No contact name'
-                                                    ) ?>
-                                                </span>
-
-                                            </div>
-
-                                        </div>
-
-                                    </td>
-
-                                    <td class="admin-table-contact">
-                                        <?= e(
-                                            $farmer['contact_person']
-                                            ?? 'N/A'
-                                        ) ?>
-                                    </td>
-
-                                    <td class="admin-table-email">
-                                        <?= e(
-                                            $farmer['email']
-                                            ?? 'N/A'
-                                        ) ?>
-                                    </td>
-
-                                    <td class="admin-table-address">
-                                        <?= e(
-                                            $farmer['address']
-                                            ?? 'N/A'
-                                        ) ?>
-                                    </td>
-
-                                    <td>
-
-                                        <span
-                                            class="admin-status admin-status-<?= e($status) ?>"
-                                        >
-                                            <?= e(ucfirst($status)) ?>
-                                        </span>
-
-                                    </td>
-
-                                    <td class="admin-table-date">
-
-                                        <?= !empty($farmer['created_at'])
-                                            ? date(
-                                                'M j, Y',
-                                                strtotime($farmer['created_at'])
-                                            )
-                                            : 'N/A'
-                                        ?>
-
-                                    </td>
-
-                                    <td>
-
-                                        <div class="admin-farmer-actions">
-
-                                            <a
-                                                href="farmer_details.php?id=<?= $farmerId ?>"
-                                                class="admin-action-view"
-                                            >
-                                                View
-                                            </a>
-
-                                            <?php if ($status === 'pending'): ?>
-
-                                                <form
-                                                    method="POST"
-                                                    onsubmit="return confirm('Approve this farmer?');"
-                                                >
-
-                                                    <?= csrf_field() ?>
-
-                                                    <input
-                                                        type="hidden"
-                                                        name="farmer_id"
-                                                        value="<?= $farmerId ?>"
-                                                    >
-
-                                                    <input
-                                                        type="hidden"
-                                                        name="action"
-                                                        value="approve"
-                                                    >
-
-                                                    <button
-                                                        type="submit"
-                                                        class="admin-action-approve"
-                                                    >
-                                                        Approve
-                                                    </button>
-
-                                                </form>
-
-                                                <form
-                                                    method="POST"
-                                                    onsubmit="return confirm('Reject this farmer?');"
-                                                >
-
-                                                    <?= csrf_field() ?>
-
-                                                    <input
-                                                        type="hidden"
-                                                        name="farmer_id"
-                                                        value="<?= $farmerId ?>"
-                                                    >
-
-                                                    <input
-                                                        type="hidden"
-                                                        name="action"
-                                                        value="reject"
-                                                    >
-
-                                                    <button
-                                                        type="submit"
-                                                        class="admin-action-reject"
-                                                    >
-                                                        Reject
-                                                    </button>
-
-                                                </form>
-
-                                            <?php endif; ?>
-
-                                        </div>
-
-                                    </td>
-
-                                </tr>
-
-                            <?php endforeach; ?>
-
-                        <?php else: ?>
+                            ?>
 
                             <tr>
 
-                                <td
-                                    colspan="8"
-                                    class="admin-table-empty"
-                                >
-                                    <span>✦</span>
+                                <td class="admin-table-id">
+                                    <?= $farmerId ?>
+                                </td>
 
-                                    <strong>
-                                        No farmers found.
-                                    </strong>
+                                <td>
 
-                                    <p>
-                                        Farmer registrations will appear here.
-                                    </p>
+                                    <div class="admin-farmer-name">
+
+                                        <div class="admin-farmer-avatar">
+                                            <?= e($initial) ?>
+                                        </div>
+
+                                        <div>
+
+                                            <strong>
+                                                <?= e(
+                                                    $stallName !== ''
+                                                        ? $stallName
+                                                        : 'N/A'
+                                                ) ?>
+                                            </strong>
+
+                                            <span>
+                                                <?= e(
+                                                    $contactPerson !== ''
+                                                        ? $contactPerson
+                                                        : 'No contact name'
+                                                ) ?>
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+                                <td class="admin-table-contact">
+                                    <?= e(
+                                        $contactPerson !== ''
+                                            ? $contactPerson
+                                            : 'N/A'
+                                    ) ?>
+                                </td>
+
+                                <td class="admin-table-email">
+                                    <?= e(
+                                        $farmer['email']
+                                        ?? 'N/A'
+                                    ) ?>
+                                </td>
+
+                                <td class="admin-table-address">
+                                    <?= e(
+                                        $farmer['address']
+                                        ?? 'N/A'
+                                    ) ?>
+                                </td>
+
+                                <td>
+
+                                    <span
+                                        class="admin-status admin-status-<?= e($status) ?>"
+                                    >
+                                        <?= e(
+                                            ucfirst($status)
+                                        ) ?>
+                                    </span>
+
+                                </td>
+
+                                <td class="admin-table-date">
+
+                                    <?= !empty(
+                                        $farmer['created_at']
+                                    )
+                                        ? date(
+                                            'M j, Y',
+                                            strtotime(
+                                                $farmer['created_at']
+                                            )
+                                        )
+                                        : 'N/A'
+                                    ?>
+
+                                </td>
+
+                                <td>
+
+                                    <div class="admin-farmer-actions">
+
+                                        <a
+                                            href="farmer_details.php?id=<?= $farmerId ?>"
+                                            class="admin-action-view"
+                                        >
+                                            View
+                                        </a>
+
+                                        <?php if ($status === 'pending'): ?>
+
+                                            <form
+                                                method="POST"
+                                                action="farmers.php"
+                                                onsubmit="return confirm('Approve this farmer?');"
+                                            >
+
+                                                <?= csrf_field() ?>
+
+                                                <input
+                                                    type="hidden"
+                                                    name="farmer_id"
+                                                    value="<?= $farmerId ?>"
+                                                >
+
+                                                <input
+                                                    type="hidden"
+                                                    name="action"
+                                                    value="approve"
+                                                >
+
+                                                <button
+                                                    type="submit"
+                                                    class="admin-action-approve"
+                                                >
+                                                    Approve
+                                                </button>
+
+                                            </form>
+
+                                            <form
+                                                method="POST"
+                                                action="farmers.php"
+                                                onsubmit="return confirm('Reject this farmer?');"
+                                            >
+
+                                                <?= csrf_field() ?>
+
+                                                <input
+                                                    type="hidden"
+                                                    name="farmer_id"
+                                                    value="<?= $farmerId ?>"
+                                                >
+
+                                                <input
+                                                    type="hidden"
+                                                    name="action"
+                                                    value="reject"
+                                                >
+
+                                                <button
+                                                    type="submit"
+                                                    class="admin-action-reject"
+                                                >
+                                                    Reject
+                                                </button>
+
+                                            </form>
+
+                                        <?php endif; ?>
+
+                                    </div>
 
                                 </td>
 
                             </tr>
 
-                        <?php endif; ?>
+                        <?php endforeach; ?>
+
+                    <?php else: ?>
+
+                        <tr>
+
+                            <td
+                                colspan="8"
+                                class="admin-table-empty"
+                            >
+
+                                <span>✦</span>
+
+                                <strong>
+                                    No farmers found.
+                                </strong>
+
+                                <p>
+                                    Farmer registrations will appear here.
+                                </p>
+
+                            </td>
+
+                        </tr>
+
+                    <?php endif; ?>
 
                     </tbody>
 
@@ -577,4 +650,5 @@ if ($stmt) {
     </main>
 
 </body>
+
 </html>

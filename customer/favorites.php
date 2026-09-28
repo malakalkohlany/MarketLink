@@ -328,7 +328,7 @@ $stmt->close();
     <section class="customer-farmers-intro">
         <div class="customer-shopping-note">
             <span class="customer-shopping-note-icon">
-                <i class="fa-solid fa-heart"></i>
+                <i data-lucide="heart"></i>
             </span>
 
             <div>
@@ -404,7 +404,7 @@ $stmt->close();
                                         title="Remove from Favorites"
                                         aria-label="Remove from Favorites"
                                     >
-                                        <i class="fa-solid fa-heart"></i>
+                                        <i data-lucide="heart"></i>
                                     </button>
                                 </form>
 
@@ -456,7 +456,7 @@ $stmt->close();
                                     class="customer-product-details"
                                 >
                                     View Product
-                                    <i class="fa-solid fa-arrow-right"></i>
+                                    <i data-lucide=" arrow-right"></i>
                                 </a>
                             </div>
 
@@ -472,7 +472,7 @@ $stmt->close();
 
             <div class="customer-farmers-empty">
                 <span class="customer-farmers-empty-mark">
-                    <i class="fa-solid fa-heart"></i>
+                    <i data-lucide="heart"></i>
                 </span>
 
                 <strong>
@@ -547,7 +547,7 @@ $stmt->close();
                                     title="Remove from Favorites"
                                     aria-label="Remove from Favorites"
                                 >
-                                    <i class="fa-solid fa-heart"></i>
+                                    <i data-lucide="heart"></i>
                                 </button>
                             </form>
 
@@ -566,7 +566,7 @@ $stmt->close();
                             <?php if (!empty($farmer['contact_person'])): ?>
 
                                 <div class="customer-farmer-meta">
-                                    <i class="fa-solid fa-user"></i>
+                                    <i data-lucide=" fa-user"></i>
 
                                     <span>
                                         <?= e($farmer['contact_person']) ?>
@@ -578,7 +578,7 @@ $stmt->close();
                             <?php if (!empty($farmer['address'])): ?>
 
                                 <div class="customer-farmer-meta">
-                                    <i class="fa-solid fa-location-dot"></i>
+                                    <i data-lucide="MapPin"></i>
 
                                     <span>
                                         <?= e($farmer['address']) ?>
@@ -600,7 +600,7 @@ $stmt->close();
                                     class="customer-farmer-details"
                                 >
                                     View Farmer
-                                    <i class="fa-solid fa-arrow-right"></i>
+                                    <i data-lucide=" arrow-right"></i>
                                 </a>
                             </div>
 
@@ -616,7 +616,7 @@ $stmt->close();
 
             <div class="customer-farmers-empty">
                 <span class="customer-farmers-empty-mark">
-                    <i class="fa-solid fa-seedling"></i>
+                    <i data-lucide=" sprout"></i>
                 </span>
 
                 <strong>
@@ -691,7 +691,7 @@ $stmt->close();
                                     title="Remove from Favorites"
                                     aria-label="Remove from Favorites"
                                 >
-                                    <i class="fa-solid fa-heart"></i>
+                                    <i data-lucide="heart"></i>
                                 </button>
                             </form>
 
@@ -710,7 +710,7 @@ $stmt->close();
                             <?php if (!empty($market['address'])): ?>
 
                                 <div class="customer-farmer-meta">
-                                    <i class="fa-solid fa-location-dot"></i>
+                                    <i data-lucide="MapPin"></i>
 
                                     <span>
                                         <?= e($market['address']) ?>
@@ -722,7 +722,7 @@ $stmt->close();
                             <?php if (!empty($market['operating_days'])): ?>
 
                                 <div class="customer-farmer-meta">
-                                    <i class="fa-solid fa-calendar-days"></i>
+                                    <i data-lucide="calendar-days"></i>
 
                                     <span>
                                         <?= e($market['operating_days']) ?>
@@ -737,7 +737,7 @@ $stmt->close();
                             ): ?>
 
                                 <div class="customer-farmer-meta">
-                                    <i class="fa-solid fa-clock"></i>
+                                    <i data-lucide=" clock"></i>
 
                                     <span>
                                         <?= e(
@@ -771,7 +771,7 @@ $stmt->close();
                                     class="customer-farmer-details"
                                 >
                                     View Market
-                                    <i class="fa-solid fa-arrow-right"></i>
+                                    <i data-lucide=" arrow-right"></i>
                                 </a>
                             </div>
 
@@ -787,7 +787,7 @@ $stmt->close();
 
             <div class="customer-farmers-empty">
                 <span class="customer-farmers-empty-mark">
-                    <i class="fa-solid fa-store"></i>
+                    <i data-lucide=" store"></i>
                 </span>
 
                 <strong>
@@ -805,6 +805,11 @@ $stmt->close();
     </section>
 
 </main>
+
+<script src="../assets/js/lucide.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 
 </body>
 </html>

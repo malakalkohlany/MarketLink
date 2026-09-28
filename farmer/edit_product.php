@@ -379,7 +379,7 @@ $categories = $category_stmt->get_result();
                             >
 
                             <span class="farmer-file-input-icon">
-                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                                <i data-lucide=" fa-cloud-arrow-up"></i>
                             </span>
 
                             <strong>
@@ -441,7 +441,7 @@ $categories = $category_stmt->get_result();
                         type="submit"
                         class="farmer-form-submit"
                     >
-                        <i class="fa-solid fa-check"></i>
+                        <i data-lucide=" check"></i>
                         Update Product
                     </button>
 
@@ -454,6 +454,11 @@ $categories = $category_stmt->get_result();
     </section>
 
 </main>
+
+<script src="../assets/js/lucide.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 
 <script src="../assets/js/app.js"></script>
 

@@ -159,7 +159,7 @@ unset($order);
 
             <div class="customer-orders-empty">
                 <span class="customer-orders-empty-mark">
-                    <i class="fa-solid fa-receipt"></i>
+                    <i data-lucide=" fa-receipt"></i>
                 </span>
 
                 <strong>
@@ -176,7 +176,7 @@ unset($order);
                     class="customer-orders-browse"
                 >
                     Browse Products
-                    <i class="fa-solid fa-arrow-right"></i>
+                    <i data-lucide=" arrow-right"></i>
                 </a>
             </div>
 
@@ -246,7 +246,7 @@ unset($order);
                                         <?php else: ?>
 
                                             <div class="customer-order-item-image customer-order-item-placeholder">
-                                                <i class="fa-solid fa-leaf"></i>
+                                                <i data-lucide=" fa-leaf"></i>
                                             </div>
 
                                         <?php endif; ?>
@@ -329,7 +329,7 @@ unset($order);
                                         class="customer-order-action customer-order-edit"
                                     >
                                         Modify Order
-                                        <i class="fa-solid fa-arrow-right"></i>
+                                        <i data-lucide=" arrow-right"></i>
                                     </a>
 
                                     <form
@@ -363,7 +363,7 @@ unset($order);
                                         class="customer-order-action customer-order-reorder"
                                     >
                                         Reorder
-                                        <i class="fa-solid fa-rotate-right"></i>
+                                        <i data-lucide=" fa-rotate-right"></i>
                                     </a>
 
                                 <?php endif; ?>
@@ -403,14 +403,14 @@ unset($order);
                             href="?page=<?= $currentPage - 1 ?>"
                             class="customer-orders-pagination-button"
                         >
-                            <i class="fa-solid fa-arrow-left"></i>
+                            <i data-lucide=" arrow-left"></i>
                             Previous
                         </a>
 
                     <?php else: ?>
 
                         <span class="customer-orders-pagination-button is-disabled">
-                            <i class="fa-solid fa-arrow-left"></i>
+                            <i data-lucide=" arrow-left"></i>
                             Previous
                         </span>
 
@@ -452,14 +452,14 @@ unset($order);
                             class="customer-orders-pagination-button"
                         >
                             Next
-                            <i class="fa-solid fa-arrow-right"></i>
+                            <i data-lucide=" arrow-right"></i>
                         </a>
 
                     <?php else: ?>
 
                         <span class="customer-orders-pagination-button is-disabled">
                             Next
-                            <i class="fa-solid fa-arrow-right"></i>
+                            <i data-lucide=" arrow-right"></i>
                         </span>
 
                     <?php endif; ?>
@@ -480,6 +480,11 @@ unset($order);
 
     </section>
 </main>
+
+<script src="../assets/js/lucide.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 
 </body>
 </html>

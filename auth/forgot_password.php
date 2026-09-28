@@ -125,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <body class="auth-page">
     <a href="../index.php" class="auth-home-link">
-        <i class="fa-solid fa-arrow-left"></i>
+        <i data-lucide=" arrow-left"></i>
         <span>MarketLink</span>
     </a>
 
@@ -282,6 +282,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     </main>
 
+    <script src="../assets/js/lucide.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+    
 </body>
 
 </html>
