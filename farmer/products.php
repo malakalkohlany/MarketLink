@@ -137,7 +137,7 @@ $record_label = $total_products === 1 ? 'product' : 'products';
                 </span>
 
                 <a href="add_product.php" class="farmer-add-product">
-                    <i class="fa-solid fa-plus"></i>
+                    <i data-lucide=" fa-plus"></i>
                     Add Product
                 </a>
             </div>
@@ -157,7 +157,7 @@ $record_label = $total_products === 1 ? 'product' : 'products';
                 </span>
 
                 <a href="add_product.php" class="farmer-empty-add-product">
-                    <i class="fa-solid fa-plus"></i>
+                    <i data-lucide=" fa-plus"></i>
                     Add Product
                 </a>
             </div>
@@ -261,7 +261,7 @@ $record_label = $total_products === 1 ? 'product' : 'products';
                                     href="edit_product.php?id=<?= (int)$product['id'] ?>"
                                     class="farmer-product-edit"
                                 >
-                                    <i class="fa-solid fa-pen"></i>
+                                    <i data-lucide=" fa-pen"></i>
                                     Edit Product
                                 </a>
 

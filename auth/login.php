@@ -20,7 +20,7 @@ require_once 'login_process.php';
 <body class="auth-page">
 
 <a href="../index.php" class="auth-home-link">
-        <i class="fa-solid fa-arrow-left"></i>
+        <i data-lucide=" arrow-left"></i>
         <span>MarketLink</span>
     </a>
 

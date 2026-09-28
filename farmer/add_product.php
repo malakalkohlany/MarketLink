@@ -270,7 +270,7 @@ $categories = $category_stmt->get_result();
 
         <div class="customer-products-notice customer-products-success">
             <span class="customer-products-notice-icon">
-                <i class="fa-solid fa-check"></i>
+                <i data-lucide=" check"></i>
             </span>
 
             <div>
@@ -421,7 +421,7 @@ $categories = $category_stmt->get_result();
                         name="add_product"
                         class="farmer-form-submit"
                     >
-                        <i class="fa-solid fa-plus"></i>
+                        <i data-lucide=" fa-plus"></i>
                         Add Product
                     </button>
 

@@ -117,11 +117,8 @@ if ($stmt) {
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
@@ -153,34 +150,64 @@ if ($stmt) {
         rel="stylesheet"
         href="../assets/css/notifications.css"
     >
-
 </head>
-
 <body>
 
     <?php require_once __DIR__ . '/../includes/navbar.php'; ?>
 
     <?php require_once __DIR__ . '/../includes/sidebar.php'; ?>
 
-    <main class="main-content">
+    <main class="main-content notifications-page">
 
-        <div class="notifications-page">
+        <section class="notifications-hero">
 
-            <!-- Page Header -->
+            <div class="notifications-hero-copy">
 
-            <div class="notifications-page-header">
+                <span class="eyebrow">
+                    YOUR ACTIVITY / NOTIFICATIONS
+                </span>
 
-                <div>
+                <h1>
+                    Stay in the <em>loop.</em>
+                </h1>
 
-                    <span class="page-eyebrow">
-                        YOUR ACTIVITY
+                <p>
+                    Keep up with orders, products, markets, announcements, and everything happening across your MarketLink activity.
+                </p>
+
+            </div>
+
+            <div class="notifications-hero-mark">
+                08
+            </div>
+
+        </section>
+
+        <section class="notifications-overview">
+
+            <div class="notifications-summary">
+
+                <div class="notifications-summary-icon">
+                    <i data-lucide=" bell"></i>
+                </div>
+
+                <div class="notifications-summary-content">
+
+                    <strong>
+                        <?= $total_notifications ?>
+                        <?= $total_notifications === 1
+                            ? 'notification'
+                            : 'notifications'
+                        ?>
+                    </strong>
+
+                    <span>
+                        <?php if ($unreadCount > 0): ?>
+                            <?= $unreadCount ?> unread
+                        <?php else: ?>
+                            You're all caught up.
+                        <?php endif; ?>
                     </span>
-
-                    <h1>Notifications</h1>
-
-                    <p>
-                        Stay up to date with your MarketLink activity.
-                    </p>
 
                 </div>
 
@@ -188,9 +215,10 @@ if ($stmt) {
 
                     <button
                         type="button"
-                        class="mark-all-button"
+                        class="notifications-mark-all"
                         onclick="markAllPageNotificationsRead()"
                     >
+                        <i data-lucide=" check-check"></i>
                         Mark all as read
                     </button>
 
@@ -198,315 +226,287 @@ if ($stmt) {
 
             </div>
 
+        </section>
 
-            <!-- Summary -->
+        <section class="notifications-section">
 
-            <div class="notifications-summary">
-
-                <div class="notifications-summary-icon">
-                    ♡
-                </div>
+            <div class="notifications-section-heading">
 
                 <div>
 
-                    <strong>
-
-                        <?= $total_notifications ?>
-
-                        <?= $total_notifications === 1
-                            ? 'notification'
-                            : 'notifications'
-                        ?>
-
-                    </strong>
-
-                    <span>
-
-                        <?php if ($unreadCount > 0): ?>
-
-                            <?= $unreadCount ?> unread
-
-                        <?php else: ?>
-
-                            You're all caught up.
-
-                        <?php endif; ?>
-
+                    <span class="customer-section-number">
+                        01 / NOTIFICATIONS
                     </span>
+
+                    <h2>
+                        Your recent <em>activity.</em>
+                    </h2>
 
                 </div>
 
+                <span class="customer-record-count">
+                    <?= $total_notifications ?>
+                    <?= $total_notifications === 1
+                        ? 'NOTIFICATION'
+                        : 'NOTIFICATIONS'
+                    ?>
+                </span>
+
             </div>
 
-            <section class="notifications-section">
+            <?php if (empty($notifications)): ?>
 
-                <?php if (empty($notifications)): ?>
+                <div class="notifications-empty">
 
-                    <div class="notifications-empty">
-
-                        <div class="notifications-empty-icon">
-                            ♡
-                        </div>
-
-                        <h2>No notifications yet</h2>
-
-                        <p>
-                            When there's something important to share,
-                            you'll see it here.
-                        </p>
-
+                    <div class="notifications-empty-mark">
+                        <i data-lucide=" bell-off"></i>
                     </div>
 
-                <?php else: ?>
+                    <h3>
+                        No notifications yet.
+                    </h3>
 
-                    <div class="notifications-page-list">
+                    <p>
+                        When there's something important to share, you'll see it here.
+                    </p>
 
-                        <?php foreach ($notifications as $notification): ?>
+                </div>
 
-                            <?php
+            <?php else: ?>
 
-                            $isUnread =
-                                (int) $notification['is_read'] === 0;
+                <div class="notifications-list">
 
-                            $type =
-                                trim(
-                                    (string) $notification['type']
-                                );
+                    <?php foreach ($notifications as $notification): ?>
 
-                            ?>
+                        <?php
+                        $isUnread =
+                            (int)$notification['is_read'] === 0;
 
-                            <article
-                                class="notification-page-item <?= $isUnread ? 'unread' : '' ?>"
-                                data-id="<?= (int) $notification['id'] ?>"
-                            >
+                        $type =
+                            trim(
+                                (string)$notification['type']
+                            );
 
-                                <div class="notification-page-indicator"></div>
+                        $typeLabel =
+                            $type !== ''
+                                ? ucfirst($type)
+                                : 'Update';
+                        ?>
 
+                        <article
+                            class="notification-item <?= $isUnread ? 'unread' : '' ?>"
+                            data-id="<?= (int)$notification['id'] ?>"
+                        >
 
-                                <div class="notification-page-icon">
+                            <div class="notification-indicator"></div>
 
-                                    <?php if ($type === 'order'): ?>
+                            <div class="notification-icon notification-icon-<?= htmlspecialchars($type, ENT_QUOTES, 'UTF-8') ?>">
 
-                                        🛒
+                                <?php if ($type === 'order'): ?>
 
-                                    <?php elseif ($type === 'product'): ?>
+                                    <i data-lucide=" shopping-bag"></i>
 
-                                        🌱
+                                <?php elseif ($type === 'product'): ?>
 
-                                    <?php elseif ($type === 'market'): ?>
+                                    <i data-lucide=" sprout"></i>
 
-                                        📍
+                                <?php elseif ($type === 'market'): ?>
 
-                                    <?php elseif ($type === 'review'): ?>
+                                    <i data-lucide=" store"></i>
 
-                                        ★
+                                <?php elseif ($type === 'review'): ?>
 
-                                    <?php elseif ($type === 'announcement'): ?>
+                                    <i data-lucide=" fa-star"></i>
 
-                                        📢
+                                <?php elseif ($type === 'announcement'): ?>
 
-                                    <?php else: ?>
+                                    <i data-lucide=" megaphone"></i>
 
-                                        ♡
+                                <?php else: ?>
+
+                                    <i data-lucide=" bell"></i>
+
+                                <?php endif; ?>
+
+                            </div>
+
+                            <div class="notification-content">
+
+                                <div class="notification-top">
+
+                                    <div class="notification-heading">
+
+                                        <h3>
+                                            <?= htmlspecialchars(
+                                                $notification['title'],
+                                                ENT_QUOTES,
+                                                'UTF-8'
+                                            ) ?>
+                                        </h3>
+
+                                        <?php if ($type !== ''): ?>
+
+                                            <span class="notification-type">
+                                                <?= htmlspecialchars(
+                                                    $typeLabel,
+                                                    ENT_QUOTES,
+                                                    'UTF-8'
+                                                ) ?>
+                                            </span>
+
+                                        <?php endif; ?>
+
+                                    </div>
+
+                                    <?php if ($isUnread): ?>
+
+                                        <span class="notification-unread-label">
+                                            Unread
+                                        </span>
 
                                     <?php endif; ?>
 
                                 </div>
 
+                                <p>
+                                    <?= nl2br(
+                                        htmlspecialchars(
+                                            $notification['message'],
+                                            ENT_QUOTES,
+                                            'UTF-8'
+                                        )
+                                    ) ?>
+                                </p>
 
-                                <div class="notification-page-content">
+                                <div class="notification-bottom">
 
-                                    <div class="notification-page-top">
-
-                                        <div>
-
-                                            <h3>
-                                                <?= htmlspecialchars(
-                                                    $notification['title'],
-                                                    ENT_QUOTES,
-                                                    'UTF-8'
-                                                ) ?>
-                                            </h3>
-
-                                            <?php if ($type !== ''): ?>
-
-                                                <span class="notification-type">
-
-                                                    <?= htmlspecialchars(
-                                                        ucfirst($type),
-                                                        ENT_QUOTES,
-                                                        'UTF-8'
-                                                    ) ?>
-
-                                                </span>
-
-                                            <?php endif; ?>
-
-                                        </div>
-
-
-                                        <?php if ($isUnread): ?>
-
-                                            <span class="notification-unread-label">
-                                                Unread
-                                            </span>
-
-                                        <?php endif; ?>
-
-                                    </div>
-
-
-                                    <p>
-
-                                        <?= nl2br(
-                                            htmlspecialchars(
-                                                $notification['message'],
-                                                ENT_QUOTES,
-                                                'UTF-8'
+                                    <span class="notification-time">
+                                        <i data-lucide=" clock"></i>
+                                        <?= date(
+                                            'M j, Y · g:i A',
+                                            strtotime(
+                                                $notification['created_at']
                                             )
                                         ) ?>
+                                    </span>
 
-                                    </p>
+                                    <?php if ($isUnread): ?>
 
+                                        <button
+                                            type="button"
+                                            class="notification-read-button"
+                                            onclick="markPageNotificationRead(<?= (int)$notification['id'] ?>)"
+                                        >
+                                            <i data-lucide=" check"></i>
+                                            Mark as read
+                                        </button>
 
-                                    <div class="notification-page-bottom">
+                                    <?php else: ?>
 
-                                        <span class="notification-page-time">
-
-                                            <?= date(
-                                                'M j, Y · g:i A',
-                                                strtotime(
-                                                    $notification['created_at']
-                                                )
-                                            ) ?>
-
+                                        <span class="notification-read-status">
+                                            <i data-lucide=" check"></i>
+                                            Read
                                         </span>
 
-
-                                        <?php if ($isUnread): ?>
-
-                                            <button
-                                                type="button"
-                                                class="notification-read-button"
-                                                onclick="markPageNotificationRead(
-                                                    <?= (int) $notification['id'] ?>
-                                                )"
-                                            >
-                                                Mark as read
-                                            </button>
-
-                                        <?php else: ?>
-
-                                            <span class="notification-read-status">
-                                                Read
-                                            </span>
-
-                                        <?php endif; ?>
-
-                                    </div>
+                                    <?php endif; ?>
 
                                 </div>
 
-                            </article>
+                            </div>
 
-                        <?php endforeach; ?>
+                        </article>
+
+                    <?php endforeach; ?>
+
+                </div>
+
+                <?php if ($total_notifications_pages > 1): ?>
+
+                    <div class="product-pagination">
+
+                        <?php if ($notifications_page > 1): ?>
+
+                            <a
+                                href="?page=<?= $notifications_page - 1 ?>"
+                                aria-label="Previous page"
+                            >
+                                <i data-lucide=" arrow-left"></i>
+                            </a>
+
+                        <?php endif; ?>
+
+                        <?php for (
+                            $i = 1;
+                            $i <= $total_notifications_pages;
+                            $i++
+                        ): ?>
+
+                            <a
+                                href="?page=<?= $i ?>"
+                                <?= $i == $notifications_page
+                                    ? 'class="active"'
+                                    : ''
+                                ?>
+                            >
+                                <?= $i ?>
+                            </a>
+
+                        <?php endfor; ?>
+
+                        <?php if (
+                            $notifications_page <
+                            $total_notifications_pages
+                        ): ?>
+
+                            <a
+                                href="?page=<?= $notifications_page + 1 ?>"
+                                aria-label="Next page"
+                            >
+                                <i data-lucide=" arrow-right"></i>
+                            </a>
+
+                        <?php endif; ?>
 
                     </div>
 
-
-                    <!-- Pagination -->
-
-                    <?php if ($total_notifications_pages > 1): ?>
-
-                        <div class="pagination">
-
-                            <?php if ($notifications_page > 1): ?>
-
-                                <a
-                                    href="?page=<?= $notifications_page - 1 ?>"
-                                >
-                                    Previous
-                                </a>
-
-                            <?php endif; ?>
-
-
-                            <?php for (
-                                $i = 1;
-                                $i <= $total_notifications_pages;
-                                $i++
-                            ): ?>
-
-                                <a
-                                    href="?page=<?= $i ?>"
-                                    <?= $i == $notifications_page
-                                        ? 'class="active"'
-                                        : ''
-                                    ?>
-                                >
-                                    <?= $i ?>
-                                </a>
-
-                            <?php endfor; ?>
-
-
-                            <?php if (
-                                $notifications_page <
-                                $total_notifications_pages
-                            ): ?>
-
-                                <a
-                                    href="?page=<?= $notifications_page + 1 ?>"
-                                >
-                                    Next
-                                </a>
-
-                            <?php endif; ?>
-
-                        </div>
-
-                    <?php endif; ?>
-
                 <?php endif; ?>
 
-            </section>
+            <?php endif; ?>
 
-        </div>
+        </section>
 
     </main>
 
+    <script src="../assets/js/app.js"></script>
+    <script src="../assets/js/lucide.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 
     <script>
-
         function markPageNotificationRead(notificationId) {
-
             fetch(
                 '/MarketLink/actions/mark_notifications_read.php',
                 {
                     method: 'POST',
-
                     headers: {
                         'Content-Type':
                             'application/x-www-form-urlencoded'
                     },
-
                     body:
                         'notification_id=' +
                         encodeURIComponent(notificationId)
                 }
             )
-
             .then(response => response.json())
-
             .then(data => {
-
                 if (!data.success) {
                     return;
                 }
 
                 const item =
                     document.querySelector(
-                        '.notification-page-item[data-id="' +
+                        '.notification-item[data-id="' +
                         notificationId +
                         '"]'
                     );
@@ -515,9 +515,7 @@ if ($stmt) {
                     return;
                 }
 
-
                 item.classList.remove('unread');
-
 
                 const label =
                     item.querySelector(
@@ -528,68 +526,69 @@ if ($stmt) {
                     label.remove();
                 }
 
-
                 const button =
                     item.querySelector(
                         '.notification-read-button'
                     );
 
                 if (button) {
-
                     const status =
                         document.createElement('span');
 
                     status.className =
                         'notification-read-status';
 
-                    status.textContent = 'Read';
+                    const icon =
+                        document.createElement('i');
+
+                    icon.className =
+                        'fa-solid check';
+
+                    status.appendChild(icon);
+                    status.appendChild(
+                        document.createTextNode(' Read')
+                    );
 
                     button.replaceWith(status);
                 }
 
-
                 updatePageUnreadCount();
 
+                if (
+                    typeof updateNotificationBadge ===
+                    'function'
+                ) {
+                    updateNotificationBadge();
+                }
             })
-
             .catch(error => {
-
                 console.error(
                     'Notification error:',
                     error
                 );
-
             });
-
         }
 
-
         function markAllPageNotificationsRead() {
-
             fetch(
                 '/MarketLink/actions/mark_all_notifications_read.php',
                 {
                     method: 'POST'
                 }
             )
-
             .then(response => response.json())
-
             .then(data => {
-
                 if (!data.success) {
                     return;
                 }
 
-
                 document
                     .querySelectorAll(
-                        '.notification-page-item.unread'
+                        '.notification-item.unread'
                     )
                     .forEach(item => {
 
                         item.classList.remove('unread');
-
 
                         const label =
                             item.querySelector(
@@ -600,83 +599,77 @@ if ($stmt) {
                             label.remove();
                         }
 
-
                         const button =
                             item.querySelector(
                                 '.notification-read-button'
                             );
 
                         if (button) {
-
                             const status =
                                 document.createElement('span');
 
                             status.className =
                                 'notification-read-status';
 
-                            status.textContent = 'Read';
+                            const icon =
+                                document.createElement('i');
+
+                            icon.className =
+                                'fa-solid check';
+
+                            status.appendChild(icon);
+                            status.appendChild(
+                                document.createTextNode(' Read')
+                            );
 
                             button.replaceWith(status);
                         }
-
                     });
-
 
                 const button =
                     document.querySelector(
-                        '.mark-all-button'
+                        '.notifications-mark-all'
                     );
 
                 if (button) {
                     button.remove();
                 }
 
-
                 updatePageUnreadCount();
-                
-                if (typeof updateNotificationBadge === 'function') {
+
+                if (
+                    typeof updateNotificationBadge ===
+                    'function'
+                ) {
                     updateNotificationBadge();
                 }
-
             })
-
             .catch(error => {
-
                 console.error(
                     'Notification error:',
                     error
                 );
-
             });
-
         }
 
-
         function updatePageUnreadCount() {
-
             const unreadCount =
                 document.querySelectorAll(
-                    '.notification-page-item.unread'
+                    '.notification-item.unread'
                 ).length;
-
 
             const summaryText =
                 document.querySelector(
-                    '.notifications-summary span'
+                    '.notifications-summary-content span'
                 );
 
-
             if (summaryText) {
-
                 summaryText.textContent =
                     unreadCount > 0
                         ? unreadCount + ' unread'
                         : "You're all caught up.";
-
             }
-
         }
-
     </script>
 
 </body>

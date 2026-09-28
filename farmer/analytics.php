@@ -196,7 +196,7 @@ $total_revenue = (float)($order_stats['total_revenue'] ?? 0);
             <div class="farmer-dashboard-stat-card">
 
                 <div class="farmer-dashboard-stat-icon">
-                    <i class="fa-solid fa-box-open"></i>
+                    <i data-lucide=" fa-box-open"></i>
                 </div>
 
                 <div class="farmer-dashboard-stat-content">
@@ -220,7 +220,7 @@ $total_revenue = (float)($order_stats['total_revenue'] ?? 0);
             <div class="farmer-dashboard-stat-card">
 
                 <div class="farmer-dashboard-stat-icon dashboard-stat-icon-sage">
-                    <i class="fa-solid fa-bag-shopping"></i>
+                    <i data-lucide=" shopping-bag"></i>
                 </div>
 
                 <div class="farmer-dashboard-stat-content">
@@ -244,7 +244,7 @@ $total_revenue = (float)($order_stats['total_revenue'] ?? 0);
             <div class="farmer-dashboard-stat-card">
 
                 <div class="farmer-dashboard-stat-icon dashboard-stat-icon-marigold">
-                    <i class="fa-solid fa-chart-line"></i>
+                    <i data-lucide=" fa-chart-line"></i>
                 </div>
 
                 <div class="farmer-dashboard-stat-content">
@@ -268,7 +268,7 @@ $total_revenue = (float)($order_stats['total_revenue'] ?? 0);
             <div class="farmer-dashboard-stat-card farmer-dashboard-revenue-card">
 
                 <div class="farmer-dashboard-stat-icon dashboard-stat-icon-sage">
-                    <i class="fa-solid fa-coins"></i>
+                    <i data-lucide=" fa-coins"></i>
                 </div>
 
                 <div class="farmer-dashboard-stat-content">
@@ -317,7 +317,7 @@ $total_revenue = (float)($order_stats['total_revenue'] ?? 0);
 
                     <div class="farmer-dashboard-chart-empty">
                         <div class="farmer-dashboard-empty-mark">
-                            <i class="fa-solid fa-chart-line"></i>
+                            <i data-lucide=" fa-chart-line"></i>
                         </div>
 
                         <h3>
@@ -363,7 +363,7 @@ $total_revenue = (float)($order_stats['total_revenue'] ?? 0);
 
                     <div class="farmer-dashboard-chart-empty">
                         <div class="farmer-dashboard-empty-mark">
-                            <i class="fa-solid fa-seedling"></i>
+                            <i data-lucide=" sprout"></i>
                         </div>
 
                         <h3>

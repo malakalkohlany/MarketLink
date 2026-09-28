@@ -243,7 +243,7 @@ $marketCount = count($markets);
     <section class="customer-farmers-intro">
         <div class="customer-shopping-note">
             <span class="customer-shopping-note-icon">
-                <i class="fa-solid fa-location-dot"></i>
+                <i data-lucide=" fa-location-dot"></i>
             </span>
 
             <div>
@@ -287,7 +287,7 @@ $marketCount = count($markets);
                 </label>
 
                 <div class="customer-farmer-input-wrap">
-                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <i data-lucide=" fa-magnifying-glass"></i>
 
                     <input
                         type="text"
@@ -304,7 +304,7 @@ $marketCount = count($markets);
                 </label>
 
                 <div class="customer-day-filter">
-                    <i class="fa-solid fa-calendar-days"></i>
+                    <i data-lucide=" fa-calendar-days"></i>
 
                     <select id="marketDayFilter">
                         <option value="">All Days</option>
@@ -325,7 +325,7 @@ $marketCount = count($markets);
                     id="findNearbyMarkets"
                     class="customer-farmer-location-button"
                 >
-                    <i class="fa-solid fa-location-crosshairs"></i>
+                    <i data-lucide=" fa-location-crosshairs"></i>
                     Find Markets Near Me
                 </button>
 
@@ -335,7 +335,7 @@ $marketCount = count($markets);
                     class="customer-farmer-show-all"
                     style="display: none;"
                 >
-                    <i class="fa-solid fa-rotate-left"></i>
+                    <i data-lucide=" fa-rotate-left"></i>
                     Show All Markets
                 </button>
 
@@ -383,7 +383,7 @@ $marketCount = count($markets);
                 id="marketNoMatch"
             >
                 <span class="customer-farmers-no-match-icon">
-                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <i data-lucide=" fa-magnifying-glass"></i>
                 </span>
 
                 <strong>
@@ -471,7 +471,7 @@ $marketCount = count($markets);
                             <?php if (!empty($market['address'])): ?>
 
                                 <div class="customer-farmer-meta">
-                                    <i class="fa-solid fa-location-dot"></i>
+                                    <i data-lucide=" fa-location-dot"></i>
 
                                     <span>
                                         <?= e($market['address']) ?>
@@ -483,7 +483,7 @@ $marketCount = count($markets);
                             <?php if (!empty($market['operating_days'])): ?>
 
                                 <div class="customer-farmer-meta">
-                                    <i class="fa-solid fa-calendar-days"></i>
+                                    <i data-lucide=" fa-calendar-days"></i>
 
                                     <span>
                                         <?= e($market['operating_days']) ?>
@@ -498,7 +498,7 @@ $marketCount = count($markets);
                             ): ?>
 
                                 <div class="customer-farmer-meta">
-                                    <i class="fa-solid fa-clock"></i>
+                                    <i data-lucide=" clock"></i>
 
                                     <span>
                                         <?= e(date('g:i A', strtotime($market['opening_time']))) ?>
@@ -521,7 +521,7 @@ $marketCount = count($markets);
                                     class="customer-farmer-details"
                                 >
                                     View Market
-                                    <i class="fa-solid fa-arrow-right"></i>
+                                    <i data-lucide=" arrow-right"></i>
                                 </a>
 
                             </div>
@@ -544,7 +544,7 @@ $marketCount = count($markets);
             <div class="customer-farmers-empty">
 
                 <span class="customer-farmers-empty-mark">
-                    <i class="fa-solid fa-store"></i>
+                    <i data-lucide=" store"></i>
                 </span>
 
                 <strong>
@@ -661,7 +661,7 @@ function renderPagination() {
         'farmer-pagination-button farmer-pagination-arrow';
 
     previousButton.innerHTML =
-        '<i class="fa-solid fa-arrow-left"></i> Previous';
+        '<i data-lucide=" arrow-left"></i> Previous';
 
     previousButton.disabled =
         currentPage === 1;
@@ -722,7 +722,7 @@ function renderPagination() {
         'farmer-pagination-button farmer-pagination-arrow';
 
     nextButton.innerHTML =
-        'Next <i class="fa-solid fa-arrow-right"></i>';
+        'Next <i data-lucide=" arrow-right"></i>';
 
     nextButton.disabled =
         currentPage === totalPages;

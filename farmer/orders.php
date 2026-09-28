@@ -549,7 +549,7 @@ $orders = $order_stmt->get_result();
                                             href="order_details.php?id=<?= (int)$order['id'] ?>"
                                             class="farmer-order-details"
                                         >
-                                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                            <i data-lucide=" arrow-up-right-from-square"></i>
                                             View Details
                                         </a>
 

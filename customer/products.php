@@ -527,7 +527,7 @@ if (
 
         <div class="customer-products-notice customer-products-success">
             <span class="customer-products-notice-icon">
-                <i class="fa-solid fa-circle-check"></i>
+                <i data-lucide=" fa-circle-check"></i>
             </span>
 
             <div>
@@ -549,7 +549,7 @@ if (
         <div class="customer-shopping-note">
 
             <span class="customer-shopping-note-icon">
-                <i class="fa-solid fa-basket-shopping"></i>
+                <i data-lucide=" fa-basket-shopping"></i>
             </span>
 
             <div>
@@ -622,7 +622,7 @@ if (
 
                 <div class="customer-product-input-wrap">
 
-                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <i data-lucide=" fa-magnifying-glass"></i>
 
                     <input
                         type="text"
@@ -1006,7 +1006,7 @@ if (
 
                             <div class="customer-product-farmer">
 
-                                <i class="fa-solid fa-store"></i>
+                                <i data-lucide=" store"></i>
 
                                 <?= e($farmerName) ?>
 
@@ -1093,7 +1093,7 @@ if (
                                             class="customer-product-add"
                                         >
 
-                                            <i class="fa-solid fa-cart-plus"></i>
+                                            <i data-lucide=" fa-cart-plus"></i>
 
                                             Add to Cart
 
@@ -1106,7 +1106,7 @@ if (
                                             class="customer-product-add"
                                         >
 
-                                            <i class="fa-solid fa-cart-plus"></i>
+                                            <i data-lucide=" fa-cart-plus"></i>
 
                                             Add to Cart
 
@@ -1125,8 +1125,8 @@ if (
                                     >
 
                                         <i
-                                            class="fa-solid <?= !$canAddForCartMarket
-                                                ? 'fa-store-slash'
+                                            data-lucide=" <?= !$canAddForCartMarket
+                                                ? 'store-slash'
                                                 : 'fa-box-open' ?>"
                                         ></i>
 
@@ -1193,7 +1193,7 @@ if (
         class="customer-floating-cart"
     >
 
-        <i class="fa-solid fa-cart-shopping"></i>
+        <i data-lucide=" fa-cart-shopping"></i>
 
         <span>
             Cart

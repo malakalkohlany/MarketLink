@@ -248,7 +248,7 @@ $orders = $order_stmt->get_result();
 
         <?php if (isset($success_message)): ?>
             <div class="customer-products-notice customer-products-success">
-                <i class="fa-solid fa-circle-check"></i>
+                <i data-lucide=" fa-circle-check"></i>
                 <span><?= e($success_message) ?></span>
             </div>
         <?php endif; ?>
@@ -382,7 +382,7 @@ $orders = $order_stmt->get_result();
                             type="submit"
                             class="farmer-form-submit"
                         >
-                            <i class="fa-solid fa-plus"></i>
+                            <i data-lucide=" fa-plus"></i>
                             Add Pickup Slot
                         </button>
                     </div>
@@ -413,7 +413,7 @@ $orders = $order_stmt->get_result();
 
                 <div class="customer-products-empty">
                     <div class="customer-products-empty-mark">
-                        <i class="fa-solid fa-clock"></i>
+                        <i data-lucide=" clock"></i>
                     </div>
 
                     <h3>
@@ -562,7 +562,7 @@ $orders = $order_stmt->get_result();
 
                 <div class="customer-products-empty">
                     <div class="customer-products-empty-mark">
-                        <i class="fa-solid fa-bag-shopping"></i>
+                        <i data-lucide=" shopping-bag"></i>
                     </div>
 
                     <h3>

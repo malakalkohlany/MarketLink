@@ -483,7 +483,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="customer-shopping-note">
 
             <span class="customer-shopping-note-icon">
-                <i class="fa-solid fa-cart-plus"></i>
+                <i data-lucide=" fa-cart-plus"></i>
             </span>
 
             <div>
@@ -530,7 +530,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="customer-add-cart-error">
 
                 <span class="customer-add-cart-error-icon">
-                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <i data-lucide=" fa-circle-exclamation"></i>
                 </span>
 
                 <span>
@@ -558,7 +558,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         <div class="customer-add-cart-image-placeholder">
 
-                            <i class="fa-solid fa-image"></i>
+                            <i data-lucide=" fa-image"></i>
 
                         </div>
 
@@ -578,7 +578,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div class="customer-add-cart-product-farmer">
 
-                        <i class="fa-solid fa-store"></i>
+                        <i data-lucide=" store"></i>
 
                         <span>
                             <?= e($farmerName) ?>
@@ -627,7 +627,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </label>
 
                         <span>
-                            <i class="fa-solid fa-location-dot"></i>
+                            <i data-lucide=" fa-location-dot"></i>
                             Pickup location
                         </span>
 
@@ -678,7 +678,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                                         <span class="customer-add-cart-market-name">
 
-                                            <i class="fa-solid fa-location-dot"></i>
+                                            <i data-lucide=" fa-location-dot"></i>
 
                                             <?= e($market['name']) ?>
 
@@ -698,7 +698,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                                         <span class="customer-add-cart-current-market">
 
-                                            <i class="fa-solid fa-check"></i>
+                                            <i data-lucide=" check"></i>
 
                                             Current cart market
 
@@ -733,7 +733,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </label>
 
                         <span>
-                            <i class="fa-solid fa-scale-balanced"></i>
+                            <i data-lucide=" fa-scale-balanced"></i>
                             In <?= e($unit) ?>
                         </span>
 
@@ -757,19 +757,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         <?php if ($stockStatus === 'unavailable'): ?>
 
-                            <i class="fa-solid fa-circle-xmark"></i>
+                            <i data-lucide=" fa-circle-xmark"></i>
 
                             Currently unavailable this week.
 
                         <?php elseif ($stockStatus === 'sold_out'): ?>
 
-                            <i class="fa-solid fa-circle-xmark"></i>
+                            <i data-lucide=" fa-circle-xmark"></i>
 
                             Sold out for this week.
 
                         <?php else: ?>
 
-                            <i class="fa-solid fa-circle-check"></i>
+                            <i data-lucide=" fa-circle-check"></i>
 
                             Available this week:
                             <?= e($stock) ?>
@@ -787,7 +787,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         href="customer/products.php"
                         class="customer-add-cart-cancel"
                     >
-                        <i class="fa-solid fa-arrow-left"></i>
+                        <i data-lucide=" arrow-left"></i>
                         Cancel
                     </a>
 
@@ -801,7 +801,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ) ? 'disabled' : '' ?>
                     >
 
-                        <i class="fa-solid fa-cart-plus"></i>
+                        <i data-lucide=" fa-cart-plus"></i>
 
                         <?php if (!$cartMarketAllowed): ?>
 
