@@ -14,7 +14,7 @@ if (
 }
 
 if (empty($cart)) {
-    redirect('cart.php');
+    redirect('customer/orders.php');
 }
 
 $error = '';
@@ -1225,7 +1225,7 @@ if (
 // ==================================================
 // Redirect
 // ==================================================
-redirect('orders.php');
+redirect('customer/orders.php');
 
         } catch (Throwable $e) {
             if ($transactionStarted) {
@@ -1238,8 +1238,7 @@ redirect('orders.php');
     }
     }
 }
-?>
-<!DOCTYPE html>
+?><!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -1264,529 +1263,318 @@ redirect('orders.php');
         href="../assets/css/sidebar.css"
     >
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+    <link
+        rel="stylesheet"
+        href="../assets/css/customer.css"
+    >
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f5f6fa;
-            color: #333;
-        }
+    <link
+        rel="stylesheet"
+        href="../assets/css/customer_n.css"
+    >
 
-        .confirm-container {
-            width: 92%;
-            max-width: 1100px;
-            margin: 40px auto 60px;
-        }
-
-        .page-header {
-            margin-bottom: 30px;
-        }
-
-        .page-header h1 {
-            margin: 0 0 8px;
-            font-size: 32px;
-            color: #222;
-        }
-
-        .page-header p {
-            margin: 0;
-            color: #777;
-            font-size: 15px;
-        }
-
-        .error-message {
-            background: #fee2e2;
-            color: #b91c1c;
-            border: 1px solid #fecaca;
-            border-radius: 10px;
-            padding: 14px 16px;
-            margin-bottom: 20px;
-            line-height: 1.5;
-        }
-
-        .market-notice {
-            background: #f5eee7;
-            color: #72583e;
-            border: 1px solid #dbc4a5;
-            border-radius: 10px;
-            padding: 13px 15px;
-            margin-bottom: 20px;
-            line-height: 1.5;
-            font-size: 14px;
-        }
-
-        .market-notice strong {
-            color: #443223;
-        }
-
-        .confirm-layout {
-            display: grid;
-            grid-template-columns: 1.7fr 1fr;
-            gap: 25px;
-            align-items: start;
-        }
-
-        .confirm-card,
-        .summary-card {
-            background: white;
-            border-radius: 16px;
-            padding: 25px;
-            box-shadow:
-                0 5px 20px rgba(0, 0, 0, 0.07);
-        }
-
-        .card-title {
-            margin: 0 0 20px;
-            font-size: 20px;
-            color: #222;
-        }
-
-        .confirm-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px 0;
-            border-bottom: 1px solid #eeeeee;
-        }
-
-        .confirm-item:first-of-type {
-            padding-top: 0;
-        }
-
-        .confirm-image {
-            width: 65px;
-            height: 65px;
-            border-radius: 10px;
-            object-fit: cover;
-            background: #eeeeee;
-            flex-shrink: 0;
-        }
-
-        .confirm-no-image {
-            width: 65px;
-            height: 65px;
-            border-radius: 10px;
-            background: #eeeeee;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #999;
-            font-size: 11px;
-            flex-shrink: 0;
-        }
-
-        .confirm-item-info {
-            flex: 1;
-        }
-
-        .confirm-product-name {
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 6px;
-        }
-
-        .confirm-product-details {
-            color: #888;
-            font-size: 14px;
-        }
-
-        .confirm-item-total {
-            font-weight: bold;
-            color: #333;
-            min-width: 90px;
-            text-align: right;
-        }
-
-        .form-group {
-            margin-bottom: 22px;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #444;
-        }
-
-        .form-select,
-        .form-textarea {
-            width: 100%;
-            padding: 12px 13px;
-            border: 1px solid #dcdcdc;
-            border-radius: 8px;
-            background: white;
-            font-size: 14px;
-            color: #333;
-            outline: none;
-        }
-
-        .form-select:focus,
-        .form-textarea:focus {
-            border-color: #72583e;
-        }
-
-        .form-textarea {
-            min-height: 110px;
-            resize: vertical;
-        }
-
-        .form-help {
-            margin-top: 7px;
-            color: #888;
-            font-size: 13px;
-        }
-
-        .summary-card {
-            position: sticky;
-            top: 25px;
-        }
-
-        .summary-row {
-            display: flex;
-            justify-content: space-between;
-            gap: 15px;
-            padding: 10px 0;
-            color: #666;
-            font-size: 15px;
-        }
-
-        .summary-total {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 15px;
-            padding-top: 18px;
-            border-top: 1px solid #eeeeee;
-        }
-
-        .summary-total-label {
-            font-size: 16px;
-            font-weight: bold;
-            color: #444;
-        }
-
-        .summary-total-price {
-            font-size: 24px;
-            font-weight: bold;
-            color: #72583e;
-        }
-
-        .confirm-button {
-            width: 100%;
-            border: none;
-            padding: 14px 20px;
-            margin-top: 20px;
-            background: #72583e;
-            color: white;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .confirm-button:hover {
-            background: #443223;
-        }
-
-        .back-button {
-            display: block;
-            text-align: center;
-            margin-top: 12px;
-            padding: 12px 20px;
-            background: #f1f2f6;
-            color: #444;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        .back-button:hover {
-            background: #e5e7eb;
-        }
-
-        .no-slots {
-            background: #fff7ed;
-            color: #9a3412;
-            border: 1px solid #fed7aa;
-            border-radius: 8px;
-            padding: 12px;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
-        @media (max-width: 800px) {
-            .confirm-container {
-                width: 94%;
-                margin-top: 25px;
-            }
-
-            .confirm-layout {
-                grid-template-columns: 1fr;
-            }
-
-            .summary-card {
-                position: static;
-            }
-        }
-
-        @media (max-width: 600px) {
-            .confirm-card,
-            .summary-card {
-                padding: 20px;
-            }
-
-            .confirm-item {
-                align-items: flex-start;
-            }
-
-            .confirm-item-total {
-                min-width: auto;
-            }
-        }
-    </style>
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
 </head>
 
 <body>
-    <?php include __DIR__ . '/../includes/navbar.php'; ?>
 
-    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
+<?php include __DIR__ . '/../includes/navbar.php'; ?>
+<?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-    <main class="main-content">
-        <div class="confirm-container">
-            <div class="page-header">
-                <h1>
-                    Confirm Order
-                </h1>
+<main class="main-content customer-confirm-order-page">
 
-                <p>
-                    Review your order and select a pickup date and time.
-                </p>
+    <span class="eyebrow">
+        CUSTOMER / CONFIRM ORDER
+    </span>
+
+    <?php if (!empty($error)): ?>
+        <div class="customer-confirm-order-error">
+            <span class="customer-confirm-order-error-icon">
+                <i class="fa-solid fa-circle-exclamation"></i>
+            </span>
+
+            <span>
+                <?= htmlspecialchars($error) ?>
+            </span>
+        </div>
+    <?php endif; ?>
+
+    <?php if ($cartMarketId !== null): ?>
+        <div class="customer-confirm-order-market-note">
+            <span class="customer-confirm-order-market-icon">
+                <i class="fa-solid fa-location-dot"></i>
+            </span>
+
+            <div>
+                <strong>
+                    Pickup market.
+                </strong>
+
+                <span>
+                    <?= htmlspecialchars(
+                        $cartMarketName ?? 'Selected Market'
+                    ) ?>
+                    · All products in this order must be collected
+                    from this market.
+                </span>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <section class="customer-confirm-order-section">
+
+        <div class="customer-section-heading">
+            <div>
+                <span class="customer-section-number">
+                    01 / REVIEW
+                </span>
+
+                <h2>
+                    Review your <em>order.</em>
+                </h2>
             </div>
 
-            <?php if (!empty($error)): ?>
-                <div class="error-message">
-                    <?= htmlspecialchars($error) ?>
-                </div>
-            <?php endif; ?>
+            <span class="customer-record-count">
+                <?= count($cartItems) ?>
+                item<?= count($cartItems) !== 1 ? 's' : '' ?>
+            </span>
+        </div>
 
-            <?php if ($cartMarketId !== null): ?>
-                <div class="market-notice">
-                    <strong>Pickup Market:</strong>
-                    <?= htmlspecialchars(
-                        $cartMarketName ??
-                        'Selected Market'
-                    ) ?>
+        <div class="customer-confirm-order-layout">
 
-                    <br>
+            <div class="customer-confirm-order-items">
 
-                    All products in this order must be collected
-                    from this market.
-                </div>
-            <?php endif; ?>
+                <?php foreach ($cartItems as $item): ?>
 
-            <div class="confirm-layout">
-                <div class="confirm-card">
-                    <h2 class="card-title">
-                        Order Details
-                    </h2>
+                    <article class="customer-confirm-order-item">
 
-                    <?php foreach ($cartItems as $item): ?>
-                        <div class="confirm-item">
-                            <?php if (!empty($item['image'])): ?>
-                                <img
-                                    src="../uploads/products/<?= htmlspecialchars($item['image']) ?>"
-                                    alt="<?= htmlspecialchars($item['name']) ?>"
-                                    class="confirm-image"
-                                >
-                            <?php else: ?>
-                                <div class="confirm-no-image">
-                                    No Image
-                                </div>
-                            <?php endif; ?>
+                        <?php if (!empty($item['image'])): ?>
 
-                            <div class="confirm-item-info">
-                                <div class="confirm-product-name">
-                                    <?= htmlspecialchars(
-                                        $item['name']
-                                    ) ?>
-                                </div>
+                            <img
+                                src="../uploads/products/<?= htmlspecialchars($item['image']) ?>"
+                                alt="<?= htmlspecialchars($item['name']) ?>"
+                                class="customer-confirm-order-item-image"
+                            >
 
-                                <div class="confirm-product-details">
-                                    Quantity:
-                                    <?= number_format(
-                                        (float) $item['quantity'],
-                                        2
-                                    ) ?>
+                        <?php else: ?>
 
-                                    <?= htmlspecialchars(
-                                        $item['unit'] ?? ''
-                                    ) ?>
-
-                                    × $
-
-                                    <?= number_format(
-                                        (float) $item['unit_price'],
-                                        2
-                                    ) ?>
-                                </div>
+                            <div class="customer-confirm-order-item-image customer-confirm-order-item-placeholder">
+                                <i class="fa-solid fa-leaf"></i>
                             </div>
 
-                            <div class="confirm-item-total">
-                                $
+                        <?php endif; ?>
+
+                        <div class="customer-confirm-order-item-info">
+
+                            <span class="customer-confirm-order-item-label">
+                                PRODUCT
+                            </span>
+
+                            <strong class="customer-confirm-order-item-name">
+                                <?= htmlspecialchars($item['name']) ?>
+                            </strong>
+
+                            <span class="customer-confirm-order-item-meta">
                                 <?= number_format(
-                                    (float) $item['subtotal'],
+                                    (float)$item['quantity'],
                                     2
                                 ) ?>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
 
-                <div class="summary-card">
-                    <h2 class="card-title">
-                        Order Summary
+                                <?= htmlspecialchars(
+                                    $item['unit'] ?? ''
+                                ) ?>
+
+                                ×
+
+                                $<?= number_format(
+                                    (float)$item['unit_price'],
+                                    2
+                                ) ?>
+                            </span>
+
+                        </div>
+
+                        <span class="customer-confirm-order-item-total">
+                            $<?= number_format(
+                                (float)$item['subtotal'],
+                                2
+                            ) ?>
+                        </span>
+
+                    </article>
+
+                <?php endforeach; ?>
+
+            </div>
+
+            <div class="customer-confirm-order-summary">
+
+                <div class="customer-confirm-order-summary-heading">
+
+                    <span class="customer-section-number">
+                        02 / CHECKOUT
+                    </span>
+
+                    <h2>
+                        Order <em>details.</em>
                     </h2>
 
-                    <form method="POST">
-                        <?= csrf_field() ?>
-                        <div class="form-group">
-                            <label
-                                for="pickup_date"
-                                class="form-label"
-                            >
-                                Pickup Date
-                            </label>
+                </div>
 
-                            <?php if (!empty($pickupDates)): ?>
-                                <select
-                                    name="pickup_date"
-                                    id="pickup_date"
-                                    class="form-select"
-                                    required
-                                >
-                                    <option value="">
-                                        Select a pickup date
+                <form method="POST">
+
+                    <?= csrf_field() ?>
+
+                    <div class="customer-confirm-order-field">
+
+                        <label
+                            for="pickup_date"
+                            class="customer-confirm-order-label"
+                        >
+                            Pickup date
+                        </label>
+
+                        <?php if (!empty($pickupDates)): ?>
+
+                            <select
+                                name="pickup_date"
+                                id="pickup_date"
+                                class="customer-confirm-order-select"
+                                required
+                            >
+                                <option value="">
+                                    Select a pickup date
+                                </option>
+
+                                <?php foreach ($pickupDates as $date): ?>
+
+                                    <option
+                                        value="<?= htmlspecialchars($date['date']) ?>"
+                                        <?= $selectedPickupDate === $date['date']
+                                            ? 'selected'
+                                            : '' ?>
+                                    >
+                                        <?= htmlspecialchars($date['label']) ?>
                                     </option>
 
-                                    <?php foreach ($pickupDates as $date): ?>
-                                        <option
-                                            value="<?= htmlspecialchars($date['date']) ?>"
-                                            <?=
-                                                $selectedPickupDate ===
-                                                $date['date']
-                                                    ? 'selected'
-                                                    : ''
-                                            ?>
-                                        >
-                                            <?= htmlspecialchars(
-                                                $date['label']
-                                            ) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
+                                <?php endforeach; ?>
 
-                                <div class="form-help">
-                                    Pickup dates are based on the farmer's
-                                    available pickup days this week.
-                                </div>
-                            <?php else: ?>
-                                <div class="no-slots">
-                                    No pickup dates are currently
-                                    available for this farmer.
-                                </div>
-                            <?php endif; ?>
-                        </div>
+                            </select>
 
-                        <div class="form-group">
-                            <label
-                                for="pickup_slot_id"
-                                class="form-label"
-                            >
-                                Pickup Time
-                            </label>
+                            <span class="customer-confirm-order-help">
+                                Pickup dates are based on the farmer's
+                                available pickup days this week.
+                            </span>
 
-                            <?php if (!empty($pickupSlots)): ?>
-                                <select
-                                    name="pickup_slot_id"
-                                    id="pickup_slot_id"
-                                    class="form-select"
-                                    required
-                                >
-                                    <option value="">
-                                        Select a pickup time
-                                    </option>
+                        <?php else: ?>
 
-                                    <?php foreach ($pickupSlots as $slot): ?>
-                                        <option
-                                            value="<?= (int) $slot['id'] ?>"
-                                            data-day="<?= htmlspecialchars($slot['day_of_week']) ?>"
-                                            <?=
-                                                $selectedPickupSlotId ===
-                                                (int) $slot['id']
-                                                    ? 'selected'
-                                                    : ''
-                                            ?>
-                                        >
-                                            <?= htmlspecialchars(
-                                                $slot['pickup_date_label']
-                                            ) ?>
-
-                                            -
-
-                                            <?= date(
-                                                'h:i A',
-                                                strtotime($slot['start_time'])
-                                            ) ?>
-
-                                            to
-
-                                            <?= date(
-                                                'h:i A',
-                                                strtotime($slot['end_time'])
-                                            ) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-
-                                <div class="form-help">
-                                    Select the pickup time that matches
-                                    your selected pickup day.
-                                </div>
-                            <?php else: ?>
-                                <div class="no-slots">
-                                    No pickup slots are currently
-                                    available for this farmer.
-                                </div>
-                            <?php endif; ?>
-                        </div>
-
-                        <div class="form-group">
-                            <label
-                                for="notes"
-                                class="form-label"
-                            >
-                                Notes
-                            </label>
-
-                            <textarea
-                                name="notes"
-                                id="notes"
-                                class="form-textarea"
-                                maxlength="1000"
-                                placeholder="Add any notes for your order..."
-                            ><?= htmlspecialchars($notes) ?></textarea>
-
-                            <div class="form-help">
-                                Optional. Maximum 1000 characters.
+                            <div class="customer-confirm-order-no-slots">
+                                No pickup dates are currently available
+                                for this farmer.
                             </div>
-                        </div>
 
-                        <div class="summary-row">
+                        <?php endif; ?>
+
+                    </div>
+
+                    <div class="customer-confirm-order-field">
+
+                        <label
+                            for="pickup_slot_id"
+                            class="customer-confirm-order-label"
+                        >
+                            Pickup time
+                        </label>
+
+                        <?php if (!empty($pickupSlots)): ?>
+
+                            <select
+                                name="pickup_slot_id"
+                                id="pickup_slot_id"
+                                class="customer-confirm-order-select"
+                                required
+                            >
+                                <option value="">
+                                    Select a pickup time
+                                </option>
+
+                                <?php foreach ($pickupSlots as $slot): ?>
+
+                                    <option
+                                        value="<?= (int)$slot['id'] ?>"
+                                        data-day="<?= htmlspecialchars($slot['day_of_week']) ?>"
+                                        <?= $selectedPickupSlotId === (int)$slot['id']
+                                            ? 'selected'
+                                            : '' ?>
+                                    >
+                                        <?= htmlspecialchars(
+                                            $slot['pickup_date_label']
+                                        ) ?>
+
+                                        -
+
+                                        <?= date(
+                                            'h:i A',
+                                            strtotime($slot['start_time'])
+                                        ) ?>
+
+                                        to
+
+                                        <?= date(
+                                            'h:i A',
+                                            strtotime($slot['end_time'])
+                                        ) ?>
+                                    </option>
+
+                                <?php endforeach; ?>
+
+                            </select>
+
+                            <span class="customer-confirm-order-help">
+                                Select the pickup time that matches
+                                your selected pickup day.
+                            </span>
+
+                        <?php else: ?>
+
+                            <div class="customer-confirm-order-no-slots">
+                                No pickup slots are currently available
+                                for this farmer.
+                            </div>
+
+                        <?php endif; ?>
+
+                    </div>
+
+                    <div class="customer-confirm-order-field">
+
+                        <label
+                            for="notes"
+                            class="customer-confirm-order-label"
+                        >
+                            Notes
+                        </label>
+
+                        <textarea
+                            name="notes"
+                            id="notes"
+                            class="customer-confirm-order-textarea"
+                            maxlength="1000"
+                            placeholder="Add any notes for your order..."
+                        ><?= htmlspecialchars($notes) ?></textarea>
+
+                        <span class="customer-confirm-order-help">
+                            Optional. Maximum 1000 characters.
+                        </span>
+
+                    </div>
+
+                    <div class="customer-confirm-order-breakdown">
+
+                        <div class="customer-confirm-order-row">
                             <span>
                                 Items
                             </span>
@@ -1796,157 +1584,174 @@ redirect('orders.php');
                             </span>
                         </div>
 
-                        <div class="summary-row">
+                        <div class="customer-confirm-order-row">
                             <span>
                                 Market
                             </span>
 
                             <span>
                                 <?= htmlspecialchars(
-                                    $cartMarketName ??
-                                    'Selected Market'
+                                    $cartMarketName ?? 'Selected Market'
                                 ) ?>
                             </span>
                         </div>
 
-                        <div class="summary-row">
+                        <div class="customer-confirm-order-row">
                             <span>
                                 Subtotal
                             </span>
 
                             <span>
-                                $
-                                <?= number_format(
+                                $<?= number_format(
                                     $cartSubtotal,
                                     2
                                 ) ?>
                             </span>
                         </div>
 
-                        <div class="summary-total">
-                            <span class="summary-total-label">
-                                Order Total
+                        <div class="customer-confirm-order-total">
+
+                            <span>
+                                Order total
                             </span>
 
-                            <span class="summary-total-price">
-                                $
-                                <?= number_format(
+                            <strong>
+                                $<?= number_format(
                                     $cartSubtotal,
                                     2
                                 ) ?>
-                            </span>
+                            </strong>
+
                         </div>
+
+                    </div>
+
+                    <div class="customer-confirm-order-actions">
 
                         <?php if (!empty($pickupSlots)): ?>
+
                             <button
                                 type="submit"
-                                class="confirm-button"
+                                class="customer-confirm-order-submit"
                             >
                                 Confirm Order
+                                <i class="fa-solid fa-arrow-right"></i>
                             </button>
+
                         <?php endif; ?>
 
                         <a
                             href="cart.php"
-                            class="back-button"
+                            class="customer-confirm-order-back"
                         >
+                            <i class="fa-solid fa-arrow-left"></i>
                             Back to Cart
                         </a>
-                    </form>
-                </div>
+
+                    </div>
+
+                </form>
+
             </div>
+
         </div>
-    </main>
 
-    <script>
-        const pickupDate =
-            document.getElementById('pickup_date');
+    </section>
 
-        const pickupSlot =
-            document.getElementById('pickup_slot_id');
+</main>
 
-        function updatePickupSlots() {
-            if (!pickupDate || !pickupSlot) {
-                return;
-            }
+<script>
+    const pickupDate =
+        document.getElementById('pickup_date');
 
-            const selectedDate =
-                pickupDate.value;
+    const pickupSlot =
+        document.getElementById('pickup_slot_id');
 
-            if (!selectedDate) {
-                return;
-            }
-
-            const date =
-                new Date(
-                    selectedDate + 'T00:00:00'
-                );
-
-            const dayNames = [
-                'Sunday',
-                'Monday',
-                'Tuesday',
-                'Wednesday',
-                'Thursday',
-                'Friday',
-                'Saturday'
-            ];
-
-            const selectedDay =
-                dayNames[date.getDay()];
-
-            let selectedStillValid = false;
-
-            Array.from(
-                pickupSlot.options
-            ).forEach(function(option, index) {
-                if (index === 0) {
-                    return;
-                }
-
-                const optionDay =
-                    option.dataset.day;
-
-                const matches =
-                    optionDay === selectedDay;
-
-                option.hidden =
-                    !matches;
-
-                option.disabled =
-                    !matches;
-
-                if (
-                    matches &&
-                    option.selected
-                ) {
-                    selectedStillValid = true;
-                }
-            });
-
-            if (!selectedStillValid) {
-                const currentOption =
-                    pickupSlot.options[
-                        pickupSlot.selectedIndex
-                    ];
-
-                if (
-                    currentOption &&
-                    currentOption.disabled
-                ) {
-                    pickupSlot.value = '';
-                }
-            }
+    function updatePickupSlots() {
+        if (!pickupDate || !pickupSlot) {
+            return;
         }
 
-        if (pickupDate) {
-            pickupDate.addEventListener(
-                'change',
-                updatePickupSlots
+        const selectedDate =
+            pickupDate.value;
+
+        if (!selectedDate) {
+            return;
+        }
+
+        const date =
+            new Date(
+                selectedDate + 'T00:00:00'
             );
-        }
 
-        updatePickupSlots();
-    </script>
+        const dayNames = [
+            'Sunday',
+            'Monday',
+            'Tuesday',
+            'Wednesday',
+            'Thursday',
+            'Friday',
+            'Saturday'
+        ];
+
+        const selectedDay =
+            dayNames[date.getDay()];
+
+        let selectedStillValid = false;
+
+        Array.from(
+            pickupSlot.options
+        ).forEach(function(option, index) {
+
+            if (index === 0) {
+                return;
+            }
+
+            const optionDay =
+                option.dataset.day;
+
+            const matches =
+                optionDay === selectedDay;
+
+            option.hidden =
+                !matches;
+
+            option.disabled =
+                !matches;
+
+            if (
+                matches &&
+                option.selected
+            ) {
+                selectedStillValid = true;
+            }
+        });
+
+        if (!selectedStillValid) {
+
+            const currentOption =
+                pickupSlot.options[
+                    pickupSlot.selectedIndex
+                ];
+
+            if (
+                currentOption &&
+                currentOption.disabled
+            ) {
+                pickupSlot.value = '';
+            }
+        }
+    }
+
+    if (pickupDate) {
+        pickupDate.addEventListener(
+            'change',
+            updatePickupSlots
+        );
+    }
+
+    updatePickupSlots();
+</script>
+
 </body>
 </html>
