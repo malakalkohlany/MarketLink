@@ -570,13 +570,21 @@ $farmerCount = count($farmers);
         4
     );
 
+    // L.tileLayer(
+    //     'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    //     {
+    //         maxZoom: 19,
+    //         attribution: '&copy; OpenStreetMap contributors'
+    //     }
+    // ).addTo(map);
+
     L.tileLayer(
-        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-        {
-            maxZoom: 19,
-            attribution: '&copy; OpenStreetMap contributors'
-        }
-    ).addTo(map);
+    'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
+    {
+        maxZoom: 20,
+        attribution: '&copy; OpenStreetMap contributors'
+    }
+).addTo(map);
 
     const farmers = <?= json_encode(
         $farmers,
