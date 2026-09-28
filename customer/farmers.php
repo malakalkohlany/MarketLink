@@ -422,12 +422,7 @@ $farmerCount = count($farmers);
                         <div class="customer-farmer-card-top">
 
                             <span class="customer-farmer-card-number">
-                                <?= str_pad(
-                                    (string) ($farmerId),
-                                    2,
-                                    '0',
-                                    STR_PAD_LEFT
-                                ) ?>
+                               
                             </span>
 
                             <form
