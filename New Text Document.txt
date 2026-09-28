@@ -41,7 +41,30 @@ Customers can:
 * View order status.
 * Submit product reviews.
 
-The system also provides separate interfaces for farmers and administrators according to their roles and permissions.
+Farmers can:
+
+* Manage their products.
+* Add new products and edit their product information.
+* Manage product stock and availability.
+* View customer orders and manage order status.
+* Manage their farmer profile and stall information.
+* View their assigned markets and pickup slots.
+* Receive and manage system notifications.
+
+Administrators can:
+
+* View the system dashboard and overall statistics.
+* Manage registered users and their account status.
+* Review and manage farmer registrations and approval status.
+* Review and manage products and their availability.
+* Create and manage product categories.
+* Create, edit, and manage markets.
+* Create, publish, archive, and delete announcements.
+* View and monitor system notifications.
+* Review and manage customer reviews.
+* View system reports, order statistics, farmer activity, and market revenue.
+
+The system provides separate interfaces for customers, farmers, and administrators according to their roles and permissions.
 
 ---------
 
