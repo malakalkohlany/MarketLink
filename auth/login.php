@@ -76,6 +76,12 @@ require_once 'login_process.php';
                 </form>
 
                 <p class="auth-footer">
+                   <a href="forgot_password.php" class="btn-link">
+                     Forgot your password?
+                  </a>
+                </p>
+
+                <p class="auth-footer">
                     Don't have an account?
                     <a href="register.php" class="btn-link">Create one</a>
                 </p>
