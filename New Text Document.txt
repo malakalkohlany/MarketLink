@@ -89,7 +89,7 @@ order_status_history
 reports
 reviews
 markets
-markets_farmer
+market_farmer
 favorite_products
 favorite_farmers
 favorite_markets
