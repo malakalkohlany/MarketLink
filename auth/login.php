@@ -14,9 +14,15 @@ require_once 'login_process.php';
     <link rel="stylesheet" href="../assets/css/base.css">
     <link rel="stylesheet" href="../assets/css/components.css">
     <link rel="stylesheet" href="../assets/css/auth.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 
 <body class="auth-page">
+
+<a href="../index.php" class="auth-home-link">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span>MarketLink</span>
+    </a>
 
     <main class="auth-container">
 
