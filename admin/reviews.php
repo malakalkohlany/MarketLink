@@ -111,26 +111,11 @@ foreach ($reviews as $review) {
 
     <title>Reviews | MarketLink</title>
 
-    <link
-        rel="stylesheet"
-        href="../assets/css/base.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="../assets/css/navbar.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="../assets/css/sidebar.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="../assets/css/admin.css"
-    >
-    
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/customer.css">
     <link rel="stylesheet" href="../assets/css/admin_ann.css">
 </head>
 
@@ -141,8 +126,8 @@ foreach ($reviews as $review) {
 
 <main class="main-content admin-reviews-page">
 
-    <section class="admin-page-hero">
-        <div class="admin-page-hero-copy">
+    <section class="customer-page-hero admin-customers-hero">
+        <div class="customer-page-hero-copy">
             <span class="eyebrow">
                 ADMIN / REVIEWS
             </span>
@@ -157,7 +142,7 @@ foreach ($reviews as $review) {
             </p>
         </div>
 
-        <div class="admin-page-mark">
+        <div class="customer-page-hero-mark">
             09
         </div>
     </section>

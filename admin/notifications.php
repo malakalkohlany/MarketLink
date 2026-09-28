@@ -220,23 +220,11 @@ $query_string = http_build_query([
     >
     <title>Notifications | MarketLink</title>
 
-    <link
-        rel="stylesheet"
-        href="../assets/css/base.css"
-    >
-    <link
-        rel="stylesheet"
-        href="../assets/css/navbar.css"
-    >
-    <link
-        rel="stylesheet"
-        href="../assets/css/sidebar.css"
-    >
-    <link
-        rel="stylesheet"
-        href="../assets/css/admin.css"
-    >
-    
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/customer.css">
     <link rel="stylesheet" href="../assets/css/admin_ann.css">
 </head>
 
@@ -247,8 +235,8 @@ $query_string = http_build_query([
 
 <main class="main-content admin-notifications-page">
 
-    <section class="admin-page-hero">
-        <div class="admin-page-hero-copy">
+    <section class="customer-page-hero admin-customers-hero">
+        <div class="customer-page-hero-copy">
             <span class="eyebrow">
                 ADMIN / NOTIFICATIONS
             </span>
@@ -263,7 +251,7 @@ $query_string = http_build_query([
             </p>
         </div>
 
-        <div class="admin-page-mark">
+        <div class="customer-page-hero-mark">
             08
         </div>
     </section>
