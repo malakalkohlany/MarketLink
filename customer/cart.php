@@ -74,7 +74,7 @@ foreach ($cart as $item) {
 
     <link
         rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+        href="../assets/fontawesome/css/all.min.css"
     >
 
 </head>
@@ -87,56 +87,9 @@ foreach ($cart as $item) {
 
 <main class="main-content customer-cart-page">
 
-    <div class="customer-page-hero customer-cart-hero">
-
-        <div class="customer-page-hero-copy">
-
-            <span class="eyebrow">
+<span class="eyebrow">
                 CUSTOMER / SHOPPING CART
             </span>
-
-            <h1>
-                Fresh picks,<br>
-                ready for <em>you.</em>
-            </h1>
-
-            <p>
-                Review the products you've selected and make sure everything
-                is ready before placing your order.
-            </p>
-
-        </div>
-
-        <div class="customer-page-hero-mark">
-            04
-        </div>
-
-    </div>
-
-    <section class="customer-cart-intro">
-
-        <div class="customer-shopping-note">
-
-            <span class="customer-shopping-note-icon">
-                <i class="fa-solid fa-basket-shopping"></i>
-            </span>
-
-            <div>
-
-                <strong>
-                    Your selected products.
-                </strong>
-
-                <span>
-                    Adjust quantities, remove items, or continue shopping
-                    before confirming your order.
-                </span>
-
-            </div>
-
-        </div>
-
-    </section>
 
     <section class="customer-cart-section">
 
@@ -308,71 +261,49 @@ foreach ($cart as $item) {
     </section>
 
     <?php if (!empty($cart)): ?>
+    <div class="customer-cart-floating-actions" id="cartFloatingActions">
+        <a
+            href="products.php"
+            class="continue-shopping"
+        >
+            <i class="fa-solid fa-arrow-left"></i>
+            Continue Shopping
+        </a>
 
-        <section class="customer-cart-summary-section">
+        <a
+            href="confirm_order.php"
+            class="checkout-button"
+        >
+            Confirm Order
+            <i class="fa-solid fa-arrow-right"></i>
+        </a>
+    </div>
 
-            <div class="customer-section-heading">
+    <section class="customer-cart-summary-section" id="cartSummarySection">
+        <div class="customer-section-heading">
+            <div>
+                <span class="customer-section-number">
+                    02 / CHECKOUT
+                </span>
+                <h2>
+                    Order <em>summary.</em>
+                </h2>
+            </div>
+        </div>
 
-                <div>
-
-                    <span class="customer-section-number">
-                        02 / CHECKOUT
-                    </span>
-
-                    <h2>
-                        Order <em>summary.</em>
-                    </h2>
-
-                </div>
-
+        <aside class="cart-summary">
+            <div class="summary-row">
+                <span>Items</span>
+                <span><?= $totalItems ?></span>
             </div>
 
-            <aside class="cart-summary">
-
-                <div class="summary-row">
-
-                    <span>
-                        Items
-                    </span>
-
-                    <span>
-                        <?= $totalItems ?>
-                    </span>
-
-                </div>
-
-                <div class="summary-row summary-total">
-
-                    <span>
-                        Subtotal
-                    </span>
-
-                    <span>
-                        <?= formatPrice($cartSubtotal) ?>
-                    </span>
-
-                </div>
-
-                <a
-                    href="confirm_order.php"
-                    class="checkout-button"
-                >
-                    Confirm Order
-                </a>
-
-                <a
-                    href="products.php"
-                    class="continue-shopping"
-                >
-                    <i class="fa-solid fa-arrow-left"></i>
-                    Continue Shopping
-                </a>
-
-            </aside>
-
-        </section>
-
-    <?php endif; ?>
+            <div class="summary-row summary-total">
+                <span>Subtotal</span>
+                <span><?= formatPrice($cartSubtotal) ?></span>
+            </div>
+        </aside>
+    </section>
+<?php endif; ?>
 
 </main>
 

@@ -21,3 +21,24 @@ function removeItem(productId) {
         'remove_from_cart.php?product_id='
         + encodeURIComponent(productId);
 }
+
+const cartFloatingActions = document.getElementById('cartFloatingActions');
+const cartSummarySection = document.getElementById('cartSummarySection');
+
+if (cartFloatingActions && cartSummarySection) {
+    const summaryObserver = new IntersectionObserver(
+        (entries) => {
+            entries.forEach((entry) => {
+                cartFloatingActions.classList.toggle(
+                    'is-hidden',
+                    entry.isIntersecting
+                );
+            });
+        },
+        {
+            threshold: 0.1
+        }
+    );
+
+    summaryObserver.observe(cartSummarySection);
+}
