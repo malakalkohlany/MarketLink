@@ -471,3 +471,114 @@
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
 }
+
+.farmer-inventory-page {
+    background: var(--cream);
+}
+
+.farmer-inventory-section {
+    padding-bottom: var(--space-section-small);
+}
+
+.farmer-inventory-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    box-shadow: var(--shadow-soft);
+}
+
+.farmer-inventory-table {
+    width: 100%;
+    min-width: 760px;
+    border-collapse: collapse;
+}
+
+.farmer-inventory-table th {
+    padding: 15px 18px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-alt);
+    color: var(--text-muted);
+    font-family: var(--font-main);
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-align: left;
+    text-transform: uppercase;
+}
+
+.farmer-inventory-table td {
+    padding: 17px 18px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-soft);
+    font-size: 0.76rem;
+    line-height: 1.5;
+}
+
+.farmer-inventory-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.farmer-inventory-table tbody tr {
+    transition: background var(--transition-fast);
+}
+
+.farmer-inventory-table tbody tr:hover {
+    background: var(--cream-light);
+}
+
+.farmer-inventory-product {
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.farmer-inventory-price {
+    color: var(--terracotta-dark);
+    font-family: var(--font-main);
+    font-weight: 700;
+}
+
+.inventory-stock-available {
+    color: var(--sage-dark);
+    font-family: var(--font-main);
+    font-weight: 700;
+}
+
+.inventory-stock-empty {
+    color: var(--terracotta-dark);
+    font-family: var(--font-main);
+    font-weight: 700;
+}
+
+.farmer-inventory-status,
+.farmer-inventory-availability {
+    display: inline-flex;
+    min-height: 25px;
+    align-items: center;
+    padding: 0 10px;
+    border-radius: var(--radius-pill);
+    font-family: var(--font-main);
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.farmer-inventory-availability.inventory-available {
+    background: var(--sage-soft);
+    color: var(--sage-dark);
+}
+
+.farmer-inventory-availability.inventory-unavailable {
+    background: var(--terracotta-soft);
+    color: var(--terracotta-dark);
+}
+
+@media (max-width: 800px) {
+    .farmer-inventory-table-wrapper {
+        border-radius: var(--radius-md);
+    }
+}
