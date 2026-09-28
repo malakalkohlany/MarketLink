@@ -983,9 +983,8 @@ if (
                                 >
 
                                     <i
-                                        class="<?= $isFavorite
-                                            ? 'fa-solid'
-                                            : 'fa-regular' ?> fa-heart"
+                                        data-lucide="heart"
+                                        class="<?= $isFavorite ? 'favorite-active' : '' ?>"
                                     ></i>
 
                                 </button>

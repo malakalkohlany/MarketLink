@@ -696,10 +696,7 @@ mysqli_stmt_close($favoriteStmt);
 
                                 <?php if (!empty($farmer['address'])): ?>
                                     <p>
-                                        <i
-                                            data-lucide="
-                                            fa-location-dot"
-                                        ></i>
+                                        <i data-lucide="map-pin"></i>
                                         <?= e($farmer['address']) ?>
                                     </p>
                                 <?php endif; ?>

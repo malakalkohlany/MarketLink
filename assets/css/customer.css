@@ -1783,6 +1783,14 @@
     color: var(--terracotta);
 }
 
+.customer-farmer-favorite.is-favorite svg {
+    fill: currentColor;
+}
+
+.rating-star-filled {
+    fill: currentColor;
+}
+
 .customer-farmer-card-content {
     display: flex;
     min-height: 264px;

@@ -451,7 +451,7 @@ $marketCount = count($markets);
                                     title="<?= $isFavorite ? 'Remove from Favorites' : 'Add to Favorites' ?>"
                                     aria-label="<?= $isFavorite ? 'Remove from Favorites' : 'Add to Favorites' ?>"
                                 >
-                                    <i class="<?= $isFavorite ? 'fa-solid' : 'fa-regular' ?> fa-heart"></i>
+                                    <i data-lucide="heart"></i>
                                 </button>
 
                             </form>

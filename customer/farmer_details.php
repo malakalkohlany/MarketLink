@@ -1226,11 +1226,7 @@ $roundedRating = (int) round($averageRating);
                                         disabled
                                     >
 
-                                        <i
-                                            data-lucide=" <?= $isUnavailable
-                                                ? 'fa-box-open'
-                                                : 'fa-box-open' ?>"
-                                        ></i>
+                                        <i data-lucide="package-open"></i>
 
                                         <?php if ($isUnavailable): ?>
 

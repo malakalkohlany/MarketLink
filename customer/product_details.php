@@ -791,9 +791,8 @@ $roundedRating =
                 ): ?>
 
                     <i
-                        class="<?= $i <= $roundedRating
-                            ? 'fa-solid'
-                            : 'fa-regular' ?>star"
+                        data-lucide="star"
+                        class="<?= $i <= $roundedRating ? 'rating-star-filled' : '' ?>"
                     ></i>
 
                 <?php endfor; ?>
@@ -859,9 +858,8 @@ $roundedRating =
                                     ): ?>
 
                                         <i
-                                            class="<?= $i <= $reviewRating
-                                                ? 'fa-solid'
-                                                : 'fa-regular' ?>star"
+                                            data-lucide="star"
+                                            class="<?= $i <= $reviewRating ? 'rating-star-filled' : '' ?>"
                                         ></i>
 
                                     <?php endfor; ?>
