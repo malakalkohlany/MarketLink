@@ -33,379 +33,207 @@ foreach ($cart as $item) {
     $cartSubtotal += $quantity * $price;
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
+
     <title>My Cart - MarketLink</title>
+
     <link
         rel="stylesheet"
         href="../assets/css/base.css"
     >
+
     <link
         rel="stylesheet"
         href="../assets/css/navbar.css"
     >
+
     <link
         rel="stylesheet"
         href="../assets/css/sidebar.css"
     >
-    <style>
-        .cart-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 30px;
-        }
 
-        .cart-header {
-            margin-bottom: 30px;
-        }
+    <link
+        rel="stylesheet"
+        href="../assets/css/customer.css"
+    >
+    <link
+        rel="stylesheet"
+        href="../assets/css/customer_n.css"
+    >
 
-        .cart-header h1 {
-            margin: 0 0 8px;
-        }
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
 
-        .cart-header p {
-            margin: 0;
-            color: #777;
-        }
-
-        .cart-header-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-        }
-
-        .clear-cart-button {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 10px 15px;
-            border: 1px solid #d7b9b0;
-            border-radius: 8px;
-            background: #fff;
-            color: #8a5a5a;
-            font-family: inherit;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .clear-cart-button:hover {
-            background: #f8e8e5;
-            border-color: #c99e94;
-        }
-
-        @media (max-width: 650px) {
-            .cart-header-row {
-                align-items: flex-start;
-                flex-direction: column;
-            }
-        }
-
-        .cart-layout {
-            display: grid;
-            grid-template-columns: 1fr 320px;
-            gap: 25px;
-            align-items: start;
-        }
-
-        .cart-items {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .cart-item {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            padding: 20px;
-            background: #fff;
-            border-radius: 12px;
-            border: 1px solid #e5e0da;
-        }
-
-        .cart-item-image {
-            width: 100px;
-            height: 100px;
-            border-radius: 10px;
-            object-fit: cover;
-            flex-shrink: 0;
-            background: #f3eee8;
-        }
-
-        .cart-item-image-placeholder {
-            width: 100px;
-            height: 100px;
-            border-radius: 10px;
-            background: #f3eee8;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #8a8178;
-            flex-shrink: 0;
-        }
-
-        .cart-item-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .cart-item-name {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 6px;
-        }
-
-        .cart-item-price {
-            color: #72583E;
-            margin-bottom: 4px;
-        }
-
-        .cart-item-unit {
-            color: #888;
-            font-size: 14px;
-        }
-
-        .cart-item-quantity {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .quantity-button {
-            width: 34px;
-            height: 34px;
-            border: 1px solid #d7cec4;
-            background: #fff;
-            border-radius: 7px;
-            cursor: pointer;
-            font-size: 18px;
-        }
-
-        .quantity-button:hover {
-            background: #f5f0eb;
-        }
-
-        .quantity-value {
-            min-width: 45px;
-            text-align: center;
-            font-weight: 600;
-        }
-
-        .cart-item-subtotal {
-            min-width: 100px;
-            text-align: right;
-            font-weight: 600;
-        }
-
-        .remove-item {
-            border: none;
-            background: none;
-            color: #8a5a5a;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .remove-item:hover {
-            text-decoration: underline;
-        }
-
-        .cart-summary {
-            background: #fff;
-            border: 1px solid #e5e0da;
-            border-radius: 12px;
-            padding: 25px;
-            position: sticky;
-            top: 95px;
-        }
-
-        .cart-summary h2 {
-            margin-top: 0;
-            margin-bottom: 20px;
-        }
-
-        .summary-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 12px;
-        }
-
-        .summary-total {
-            border-top: 1px solid #e5e0da;
-            padding-top: 15px;
-            margin-top: 15px;
-            font-size: 19px;
-            font-weight: 600;
-        }
-
-        .checkout-button {
-            display: block;
-            width: 100%;
-            margin-top: 20px;
-            padding: 13px;
-            border: none;
-            border-radius: 8px;
-            background: #72583E;
-            color: #fff;
-            text-align: center;
-            text-decoration: none;
-            cursor: pointer;
-            font-size: 15px;
-        }
-
-        .checkout-button:hover {
-            background: #5f4833;
-        }
-
-        .continue-shopping {
-            display: block;
-            text-align: center;
-            margin-top: 15px;
-            color: #72583E;
-            text-decoration: none;
-        }
-
-        .empty-cart {
-            background: #fff;
-            border: 1px solid #e5e0da;
-            border-radius: 12px;
-            padding: 60px 30px;
-            text-align: center;
-        }
-
-        .empty-cart-icon {
-            font-size: 45px;
-            margin-bottom: 15px;
-        }
-
-        .empty-cart h2 {
-            margin-bottom: 10px;
-        }
-
-        .empty-cart p {
-            color: #777;
-            margin-bottom: 25px;
-        }
-
-        .browse-products-button {
-            display: inline-block;
-            padding: 12px 22px;
-            background: #72583E;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 8px;
-        }
-
-        @media (max-width: 900px) {
-            .cart-layout {
-                grid-template-columns: 1fr;
-            }
-
-            .cart-summary {
-                position: static;
-            }
-        }
-
-        @media (max-width: 650px) {
-            .cart-item {
-                flex-wrap: wrap;
-            }
-
-            .cart-item-info {
-                width: calc(100% - 120px);
-            }
-
-            .cart-item-subtotal {
-                margin-left: auto;
-            }
-        }
-    </style>
 </head>
+
 <body>
-<?php require_once __DIR__ . '/../includes/navbar.php'; ?>
-<?php require_once __DIR__ . '/../includes/sidebar.php'; ?>
 
-<main class="main-content">
-    <div class="cart-container">
-        <div class="cart-header">
-            <div class="cart-header-row">
-                <div>
-                    <h1>My Cart</h1>
-                    <p>Review the products you want to order.</p>
-                </div>
+<?php include __DIR__ . '/../includes/navbar.php'; ?>
 
-                <?php if (!empty($cart)): ?>
-                    <form
-                        method="POST"
-                        action="cart.php"
-                        onsubmit="return confirm('Are you sure you want to clear your entire cart?');"
-                    >
-                        <button
-                            type="submit"
-                            name="clear_cart"
-                            value="1"
-                            class="clear-cart-button"
-                        >
-                            <i class="fa-solid fa-trash"></i>
-                            Clear Cart
-                        </button>
-                    </form>
-                <?php endif; ?>
+<?php include __DIR__ . '/../includes/sidebar.php'; ?>
+
+<main class="main-content customer-cart-page">
+
+    <div class="customer-page-hero customer-cart-hero">
+
+        <div class="customer-page-hero-copy">
+
+            <span class="eyebrow">
+                CUSTOMER / SHOPPING CART
+            </span>
+
+            <h1>
+                Fresh picks,<br>
+                ready for <em>you.</em>
+            </h1>
+
+            <p>
+                Review the products you've selected and make sure everything
+                is ready before placing your order.
+            </p>
+
+        </div>
+
+        <div class="customer-page-hero-mark">
+            04
+        </div>
+
+    </div>
+
+    <section class="customer-cart-intro">
+
+        <div class="customer-shopping-note">
+
+            <span class="customer-shopping-note-icon">
+                <i class="fa-solid fa-basket-shopping"></i>
+            </span>
+
+            <div>
+
+                <strong>
+                    Your selected products.
+                </strong>
+
+                <span>
+                    Adjust quantities, remove items, or continue shopping
+                    before confirming your order.
+                </span>
+
             </div>
+
+        </div>
+
+    </section>
+
+    <section class="customer-cart-section">
+
+        <div class="customer-section-heading">
+
+            <div>
+
+                <span class="customer-section-number">
+                    01 / REVIEW
+                </span>
+
+                <h2>
+                    Your <em>cart.</em>
+                </h2>
+
+            </div>
+
+            <span class="customer-record-count">
+
+                <?= $totalItems ?>
+
+                item<?= $totalItems != 1 ? 's' : '' ?>
+
+            </span>
+
         </div>
 
         <?php if (empty($cart)): ?>
-            <div class="empty-cart">
-                <div class="empty-cart-icon">
-                    🛒
-                </div>
 
-                <h2>Your cart is empty</h2>
+            <div class="customer-farmers-empty">
 
-                <p>
-                    You haven't added any products yet.
-                </p>
+                <span class="customer-farmers-empty-mark">
+
+                    <i class="fa-solid fa-basket-shopping"></i>
+
+                </span>
+
+                <strong>
+                    Your cart is empty.
+                </strong>
+
+                <span>
+                    You haven't added any products yet. Browse the marketplace
+                    to find fresh produce from local farmers.
+                </span>
 
                 <a
                     href="products.php"
-                    class="browse-products-button"
+                    class="customer-farmer-details"
                 >
                     Browse Products
+
+                    <i class="fa-solid fa-arrow-right"></i>
                 </a>
+
             </div>
+
         <?php else: ?>
+
             <div class="cart-layout">
+
                 <div class="cart-items">
+
                     <?php foreach ($cart as $item): ?>
+
                         <?php
+
                         $productId = (int)$item['product_id'] ?? 0;
+
                         $quantity = (float)$item['quantity'] ?? 0;
+
                         $price = (float)$item['price'] ?? 0;
+
                         $subtotal = $quantity * $price;
+
                         ?>
 
-                        <div class="cart-item">
+                        <article class="cart-item">
+
                             <?php if (!empty($item['image'])): ?>
+
                                 <img
                                     src="../uploads/products/<?= e($item['image']) ?>"
                                     alt="<?= e($item['name']) ?>"
                                     class="cart-item-image"
                                 >
+
                             <?php else: ?>
+
                                 <div class="cart-item-image-placeholder">
                                     No Image
                                 </div>
+
                             <?php endif; ?>
 
                             <div class="cart-item-info">
+
                                 <div class="cart-item-name">
                                     <?= e($item['name']) ?>
                                 </div>
@@ -415,12 +243,17 @@ foreach ($cart as $item) {
                                 </div>
 
                                 <div class="cart-item-unit">
+
                                     per
+
                                     <?= e($item['unit']) ?>
+
                                 </div>
+
                             </div>
 
                             <div class="cart-item-quantity">
+
                                 <button
                                     type="button"
                                     class="quantity-button"
@@ -446,6 +279,7 @@ foreach ($cart as $item) {
                                 >
                                     +
                                 </button>
+
                             </div>
 
                             <div class="cart-item-subtotal">
@@ -456,55 +290,94 @@ foreach ($cart as $item) {
                                 type="button"
                                 class="remove-item"
                                 onclick="removeItem(<?= $productId ?>)"
+                                aria-label="Remove <?= e($item['name']) ?>"
                             >
-                                Remove
+                                <i class="fa-solid fa-xmark"></i>
                             </button>
-                        </div>
+
+                        </article>
+
                     <?php endforeach; ?>
+
                 </div>
 
-                <aside class="cart-summary">
-                    <h2>Order Summary</h2>
-
-                    <div class="summary-row">
-                        <span>
-                            Items
-                        </span>
-
-                        <span>
-                            <?= $totalItems ?>
-                        </span>
-                    </div>
-
-                    <div class="summary-row summary-total">
-                        <span>
-                            Subtotal
-                        </span>
-
-                        <span>
-                            <?= formatPrice($cartSubtotal) ?>
-                        </span>
-                    </div>
-
-                    <a
-                        href="confirm_order.php"
-                        class="checkout-button"
-                    >
-                        Confirm Order
-                    </a>
-
-                    <a
-                        href="products.php"
-                        class="continue-shopping"
-                    >
-                        ← Continue Shopping
-                    </a>
-                </aside>
             </div>
+
         <?php endif; ?>
-    </div>
+
+    </section>
+
+    <?php if (!empty($cart)): ?>
+
+        <section class="customer-cart-summary-section">
+
+            <div class="customer-section-heading">
+
+                <div>
+
+                    <span class="customer-section-number">
+                        02 / CHECKOUT
+                    </span>
+
+                    <h2>
+                        Order <em>summary.</em>
+                    </h2>
+
+                </div>
+
+            </div>
+
+            <aside class="cart-summary">
+
+                <div class="summary-row">
+
+                    <span>
+                        Items
+                    </span>
+
+                    <span>
+                        <?= $totalItems ?>
+                    </span>
+
+                </div>
+
+                <div class="summary-row summary-total">
+
+                    <span>
+                        Subtotal
+                    </span>
+
+                    <span>
+                        <?= formatPrice($cartSubtotal) ?>
+                    </span>
+
+                </div>
+
+                <a
+                    href="confirm_order.php"
+                    class="checkout-button"
+                >
+                    Confirm Order
+                </a>
+
+                <a
+                    href="products.php"
+                    class="continue-shopping"
+                >
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Continue Shopping
+                </a>
+
+            </aside>
+
+        </section>
+
+    <?php endif; ?>
+
 </main>
 
 <script src="../assets/js/cart.js"></script>
+
 </body>
+
 </html>

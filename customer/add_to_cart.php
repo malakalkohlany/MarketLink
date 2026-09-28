@@ -18,7 +18,7 @@ if (!$productId) {
 }
 
 if (!$productId) {
-    redirect('products.php');
+    redirect('customer/products.php');
 }
 
 $today = new DateTime();
@@ -399,7 +399,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
      if ($errorMessage === '') {
-    redirect('products.php');
+    redirect('customer/products.php');
        }
     }
 }
@@ -813,7 +813,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div class="actions">
                         <a
-                            href="products.php"
+                            href="customer/products.php"
                             class="cancel-button"
                         >
                             Cancel
