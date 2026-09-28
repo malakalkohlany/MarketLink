@@ -4,10 +4,6 @@ require_once __DIR__ . '/../includes/include.php';
 
 requireRole(R_CUSTOMER);
 
-// ======================================================
-// Get Customer + Order ID
-// ======================================================
-
 $customerId = (int) getUserId();
 $orderId    = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 
@@ -15,10 +11,6 @@ if ($orderId <= 0) {
     $_SESSION['error'] = 'Invalid order.';
     redirect('customer/orders.php');
 }
-
-// ======================================================
-// Get Completed Order
-// ======================================================
 
 $stmt = $conn->prepare("
     SELECT
@@ -52,10 +44,6 @@ if (!$order) {
     redirect('customer/orders.php');
 }
 
-// ======================================================
-// Only Completed Orders Can Be Reordered
-// ======================================================
-
 if ($order['status'] !== 'completed') {
     $_SESSION['error'] = 'Only completed orders can be reordered.';
     redirect('customer/orders.php');
@@ -63,10 +51,6 @@ if ($order['status'] !== 'completed') {
 
 $farmerId = (int) $order['farmer_id'];
 $marketId = (int) $order['market_id'];
-
-// ======================================================
-// Get Farmer
-// ======================================================
 
 $farmerStmt = $conn->prepare("
     SELECT
@@ -101,10 +85,6 @@ if ($farmer['approval_status'] !== A_APPROVED) {
 }
 
 $farmerName = $farmer['stall_name'];
-
-// ======================================================
-// Get Market
-// ======================================================
 
 $marketStmt = $conn->prepare("
     SELECT
@@ -141,20 +121,12 @@ if (!$market) {
 $marketName = $market['name'];
 $marketDays = $market['operating_days'];
 
-// ======================================================
-// Get Current Week Monday
-// ======================================================
-
 $today = new DateTime('today');
 
 $weekStart = clone $today;
 $weekStart->modify('monday this week');
 
 $weekStartDate = $weekStart->format('Y-m-d');
-
-// ======================================================
-// Get Order Items
-// ======================================================
 
 $itemStmt = $conn->prepare("
     SELECT
@@ -210,10 +182,6 @@ if (empty($orderItems)) {
     redirect('customer/orders.php');
 }
 
-// ======================================================
-// Build New Cart
-// ======================================================
-
 $newCart = [];
 
 foreach ($orderItems as $item) {
@@ -221,32 +189,18 @@ foreach ($orderItems as $item) {
     $productId = (int) $item['product_id'];
     $quantity  = (float) $item['quantity'];
 
-    // --------------------------------------------------
-    // Make sure the product still belongs to the same
-    // farmer as the original order.
-    // --------------------------------------------------
-
     if ((int) $item['farmer_id'] !== $farmerId) {
         $_SESSION['error'] =
             'One of the products in this order is no longer available from the original farmer.';
 
         redirect('customer/orders.php');
     }
-
-    // --------------------------------------------------
-    // Product must still be available.
-    // --------------------------------------------------
-
     if ((int) $item['is_available'] !== 1) {
         $_SESSION['error'] =
             'The product "' . $item['name'] . '" is no longer available for reorder.';
 
         redirect('customer/orders.php');
     }
-
-    // --------------------------------------------------
-    // Product must still be approved.
-    // --------------------------------------------------
 
     if ($item['moderation_status'] !== M_APPROVED) {
         $_SESSION['error'] =
@@ -255,10 +209,6 @@ foreach ($orderItems as $item) {
         redirect('customer/orders.php');
     }
 
-    // --------------------------------------------------
-    // Farmer must still be approved.
-    // --------------------------------------------------
-
     if ($item['approval_status'] !== A_APPROVED) {
         $_SESSION['error'] =
             'The farmer for "' . $item['name'] . '" is no longer available for ordering.';
@@ -266,9 +216,6 @@ foreach ($orderItems as $item) {
         redirect('customer/orders.php');
     }
 
-    // --------------------------------------------------
-    // Quantity must be valid.
-    // --------------------------------------------------
 
     if ($quantity <= 0) {
         $_SESSION['error'] =
@@ -277,9 +224,6 @@ foreach ($orderItems as $item) {
         redirect('customer/orders.php');
     }
 
-    // ==================================================
-    // Generate Weekly Stock From Template If Needed
-    // ==================================================
 
     $stockStmt = $conn->prepare("
         SELECT
@@ -309,11 +253,6 @@ foreach ($orderItems as $item) {
 
     $stockStmt->close();
 
-    // --------------------------------------------------
-    // If no weekly stock exists, generate it from the
-    // farmer's recurring weekly stock template.
-    // This matches the behavior of add_to_cart.php.
-    // --------------------------------------------------
 
     if (!$weeklyStock) {
 
@@ -406,9 +345,6 @@ foreach ($orderItems as $item) {
         }
     }
 
-    // ==================================================
-    // Validate Weekly Stock
-    // ==================================================
 
     if (!$weeklyStock) {
         $_SESSION['error'] =
@@ -447,14 +383,6 @@ foreach ($orderItems as $item) {
         redirect('customer/orders.php');
     }
 
-    // ==================================================
-    // Build Cart Item
-    //
-    // IMPORTANT:
-    // This is intentionally the SAME structure used
-    // by add_to_cart.php.
-    // ==================================================
-
     $price = (float) $item['price'];
 
     $newCart[$productId] = [
@@ -473,33 +401,14 @@ foreach ($orderItems as $item) {
     ];
 }
 
-// ======================================================
-// Make Sure Cart Was Successfully Built
-// ======================================================
 
 if (empty($newCart)) {
     $_SESSION['error'] = 'Unable to prepare this order for reorder.';
     redirect('customer/orders.php');
 }
 
-// ======================================================
-// Replace Cart
-//
-// This is a NEW reorder cart.
-// The original completed order is NOT modified.
-// ======================================================
-
 $_SESSION['cart'] = $newCart;
 
-// Optional informational message.
-// confirm_order.php can still be used normally.
 $_SESSION['success'] = 'Your previous order has been added for reorder.';
-
-// ======================================================
-// IMPORTANT:
-// Go DIRECTLY to confirm_order.php.
-//
-// Do NOT redirect to cart.php.
-// ======================================================
 
 redirect('customer/confirm_order.php');

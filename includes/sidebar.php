@@ -397,19 +397,6 @@ function hasSubmenu(array $pages): bool
 
             <ul class="sidebar-list">
 
-                <!-- My Stall -->
-                <li>
-                    <a
-                        href="<?= BASE_URL ?>farmer/stall.php"
-                        class="<?= isActive(['stall.php']) ?>"
-                    >
-                        <span class="nav-icon">
-                            <i data-lucide="store"></i>
-                        </span>
-
-                        <span>My Stall</span>
-                    </a>
-                </li>
 
 
                 <!-- Markets -->
@@ -641,6 +628,19 @@ function hasSubmenu(array $pages): bool
                         </span>
 
                         <span>Products</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a
+                        href="<?= BASE_URL ?>admin/orders.php"
+                        class="<?= isActive(['orders.php']) ?>"
+                    >
+                        <span class="nav-icon">
+                            <i data-lucide="shopping-basket"></i>
+                        </span>
+
+                        <span>Orders</span>
                     </a>
                 </li>
 

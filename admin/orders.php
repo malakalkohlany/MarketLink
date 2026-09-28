@@ -161,69 +161,6 @@ if ($stmt) {
         href="../assets/css/sidebar.css"
     >
 
-    <style>
-            .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            margin-top: 25px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-
-        .pagination a {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-
-            min-width: 40px;
-            height: 40px;
-
-            padding: 0 12px;
-
-            border: 1px solid #ddd;
-            border-radius: 8px;
-
-            background: #fff;
-            color: #333;
-
-            text-decoration: none;
-
-            font-size: 14px;
-            font-weight: 600;
-
-            transition: 0.2s;
-        }
-
-        .pagination a:hover {
-            background: #27ae60;
-            border-color: #27ae60;
-            color: #fff;
-        }
-
-        .pagination a.active {
-            background: #27ae60;
-            border-color: #27ae60;
-            color: #fff;
-        }
-
-        @media (max-width: 600px) {
-
-            .pagination {
-                gap: 5px;
-            }
-
-            .pagination a {
-                min-width: 36px;
-                height: 36px;
-                padding: 0 9px;
-                font-size: 13px;
-            }
-
-        }
-
-    </style>
 
 </head>
 
