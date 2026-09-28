@@ -582,3 +582,128 @@
         border-radius: var(--radius-md);
     }
 }
+
+.farmer-orders-page {
+    background: var(--cream);
+}
+
+.farmer-orders-section {
+    padding-bottom: var(--space-section-small);
+}
+
+.farmer-order-status {
+    display: inline-flex;
+    min-height: 25px;
+    align-items: center;
+    padding: 0 10px;
+    border-radius: var(--radius-pill);
+    font-family: var(--font-main);
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.status-pending {
+    background: var(--marigold-soft);
+    color: var(--marigold-dark);
+}
+
+.status-accepted,
+.status-preparing {
+    background: var(--sage-soft);
+    color: var(--sage-dark);
+}
+
+.status-ready {
+    background: var(--marigold-soft);
+    color: var(--marigold-dark);
+}
+
+.status-completed {
+    background: var(--sage-soft);
+    color: var(--sage-dark);
+}
+
+.status-cancelled {
+    background: var(--terracotta-soft);
+    color: var(--terracotta-dark);
+}
+
+.farmer-order-actions {
+    display: flex;
+    min-width: 190px;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.farmer-order-details {
+    color: var(--terracotta-dark);
+    font-family: var(--font-main);
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color var(--transition-fast);
+}
+
+.farmer-order-details:hover {
+    color: var(--terracotta);
+}
+
+.farmer-order-status-form {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 6px;
+}
+
+.farmer-order-status-form select {
+    min-width: 0;
+    height: 34px;
+    flex: 1;
+    padding: 0 8px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    outline: none;
+    background: var(--cream-light);
+    color: var(--text-soft);
+    font-family: var(--font-body);
+    font-size: 0.64rem;
+}
+
+.farmer-order-status-form select:focus {
+    border-color: var(--sage);
+    box-shadow: 0 0 0 3px rgba(111, 124, 89, 0.13);
+}
+
+.farmer-order-status-form button {
+    height: 34px;
+    padding: 0 11px;
+    border: 1px solid var(--terracotta);
+    border-radius: var(--radius-pill);
+    background: var(--terracotta);
+    color: var(--text-on-terracotta);
+    font-family: var(--font-main);
+    font-size: 0.57rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition:
+        transform var(--transition-fast),
+        background var(--transition-fast);
+}
+
+.farmer-order-status-form button:hover {
+    background: var(--terracotta-dark);
+    transform: var(--lift-small);
+}
+
+@media (max-width: 800px) {
+    .farmer-order-actions {
+        min-width: 170px;
+    }
+}

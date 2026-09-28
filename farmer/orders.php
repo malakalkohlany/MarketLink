@@ -374,163 +374,288 @@ $orders = $order_stmt->get_result();
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orders</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+    <title>Orders | MarketLink</title>
+
     <link rel="stylesheet" href="../assets/css/base.css">
     <link rel="stylesheet" href="../assets/css/navbar.css">
     <link rel="stylesheet" href="../assets/css/sidebar.css">
+    <link rel="stylesheet" href="../assets/css/customer.css">
+    <link rel="stylesheet" href="../assets/css/farmer.css">
 </head>
+
 <body>
 
-    <?php include __DIR__ . '/../includes/navbar.php'; ?>
-    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
+<?php include __DIR__ . '/../includes/navbar.php'; ?>
+<?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-    <main class="main-content">
+<main class="main-content farmer-orders-page">
 
-        <h1>My Orders</h1>
-        <table border="1">
-            <thead>
-                <tr>
-                    <th>Order ID</th>
-                    <th>Customer</th>
-                    <th>Status</th>
-                    <th>Subtotal</th>
-                    <th>Notes</th>
-                    <th>Date</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
+    <section class="customer-page-hero">
 
-                <?php while ($order = $orders->fetch_assoc()): ?>
+        <div class="customer-page-hero-copy">
 
-                    <tr>
+            <span class="eyebrow">
+                FARMER / ORDERS
+            </span>
 
-                        <td><?= e($order['id']) ?></td>
+            <h1>
+                Keep orders <em>moving.</em>
+            </h1>
 
-                        <td><?= e($order['customer_name']) ?></td>
+            <p>
+                Review customer orders and keep each one moving through its next stage.
+            </p>
 
-                        <td><?= e($order['status']) ?></td>
+        </div>
 
-                        <td><?= formatPrice($order['subtotal']) ?></td>
+        <div class="customer-page-hero-mark">
+            05
+        </div>
 
-                        <td><?= e($order['notes'] ?? '') ?></td>
+    </section>
 
-                        <td><?= formatDateTime($order['created_at']) ?></td>
+    <section class="farmer-orders-section">
 
-                        <td>
+        <div class="customer-section-heading">
 
-                            <a href="order_details.php?id=<?= (int)$order['id'] ?>">
-                                View Details
-                            </a>
+            <div>
 
-                            <?php
-                            $current_status = $order['status'];
+                <span class="customer-section-number">
+                    01 / ORDERS
+                </span>
 
-                            $next_statuses = [
-                                'pending' => [
-                                    'accepted' => 'Accept Order',
-                                    'cancelled' => 'Cancel Order'
-                                ],
+                <h2>
+                    Customer <em>orders.</em>
+                </h2>
 
-                                'accepted' => [
-                                    'preparing' => 'Start Preparing',
-                                    'cancelled' => 'Cancel Order'
-                                ],
+            </div>
 
-                                'preparing' => [
-                                    'ready' => 'Mark Ready',
-                                    'cancelled' => 'Cancel Order'
-                                ],
+            <span class="customer-record-count">
+                <?= $total_orders ?>
+                <?= $total_orders === 1 ? 'ORDER' : 'ORDERS' ?>
+            </span>
 
-                                'ready' => [
-                                    'completed' => 'Mark Completed'
-                                ],
+        </div>
 
-                                'completed' => [],
+        <?php if ($total_orders === 0): ?>
 
-                                'cancelled' => []
-                            ];
-                            ?>
+            <div class="customer-products-empty">
 
-                            <?php if (!empty($next_statuses[$current_status])): ?>
+                <div class="customer-products-empty-mark">
+                    ✦
+                </div>
 
-                                <form
-                                    method="POST"
-                                    style="margin-top: 8px;"
-                                >
+                <h3>
+                    No orders yet.
+                </h3>
 
-                                <?= csrf_field() ?>
+                <p>
+                    Customer orders will appear here when someone purchases one of your products.
+                </p>
 
-                                    <input
-                                        type="hidden"
-                                        name="order_id"
-                                        value="<?= (int)$order['id'] ?>"
-                                    >
+            </div>
 
-                                    <select
-                                        name="status"
-                                        required
-                                    >
+        <?php else: ?>
 
-                                        <option value="">
-                                            Change Status
-                                        </option>
+            <div class="farmer-inventory-table-wrapper">
 
-                                        <?php foreach (
-                                            $next_statuses[$current_status]
-                                            as $status_value => $status_label
-                                        ): ?>
+                <table class="farmer-inventory-table">
 
-                                            <option value="<?= e($status_value) ?>">
-                                                <?= e($status_label) ?>
-                                            </option>
+                    <thead>
+                        <tr>
+                            <th>Order</th>
+                            <th>Customer</th>
+                            <th>Status</th>
+                            <th>Subtotal</th>
+                            <th>Notes</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
 
-                                        <?php endforeach; ?>
+                    <tbody>
 
-                                    </select>
+                        <?php while ($order = $orders->fetch_assoc()): ?>
 
-                                    <button type="submit">
-                                        Update
-                                    </button>
+                            <tr>
 
-                                </form>
+                                <td>
+                                    <span class="farmer-inventory-product">
+                                        #<?= (int) $order['id'] ?>
+                                    </span>
+                                </td>
 
-                            <?php endif; ?>
+                                <td>
+                                    <?= e($order['customer_name']) ?>
+                                </td>
 
-                        </td>
+                                <td>
 
-                    </tr>
+                                    <span class="farmer-order-status status-<?= e($order['status']) ?>">
+                                        <?= e($order['status']) ?>
+                                    </span>
 
-                <?php endwhile; ?>
+                                </td>
 
-            </tbody>
+                                <td>
+                                    <span class="farmer-inventory-price">
+                                        <?= formatPrice($order['subtotal']) ?>
+                                    </span>
+                                </td>
 
-        </table>
-        <?php if ($total_pages > 1): ?>
+                                <td>
+                                    <?= e($order['notes'] ?? '') ?>
+                                </td>
 
-    <div class="pagination">
+                                <td>
+                                    <?= formatDateTime($order['created_at']) ?>
+                                </td>
 
-        <?php if ($page > 1): ?>
-            <a href="?page=<?= $page - 1 ?>">Previous</a>
+                                <td>
+
+                                    <div class="farmer-order-actions">
+
+                                        <a
+                                            href="order_details.php?id=<?= (int) $order['id'] ?>"
+                                            class="farmer-order-details"
+                                        >
+                                            View Details
+                                        </a>
+
+                                        <?php
+
+                                        $current_status = $order['status'];
+
+                                        $next_statuses = [
+                                            'pending' => [
+                                                'accepted' => 'Accept Order',
+                                                'cancelled' => 'Cancel Order'
+                                            ],
+                                            'accepted' => [
+                                                'preparing' => 'Start Preparing',
+                                                'cancelled' => 'Cancel Order'
+                                            ],
+                                            'preparing' => [
+                                                'ready' => 'Mark Ready',
+                                                'cancelled' => 'Cancel Order'
+                                            ],
+                                            'ready' => [
+                                                'completed' => 'Mark Completed'
+                                            ],
+                                            'completed' => [],
+                                            'cancelled' => []
+                                        ];
+
+                                        ?>
+
+                                        <?php if (!empty($next_statuses[$current_status])): ?>
+
+                                            <form
+                                                method="POST"
+                                                class="farmer-order-status-form"
+                                            >
+
+                                                <?= csrf_field() ?>
+
+                                                <input
+                                                    type="hidden"
+                                                    name="order_id"
+                                                    value="<?= (int) $order['id'] ?>"
+                                                >
+
+                                                <select
+                                                    name="status"
+                                                    required
+                                                >
+                                                    <option value="">
+                                                        Change Status
+                                                    </option>
+
+                                                    <?php foreach (
+                                                        $next_statuses[$current_status]
+                                                        as $status_value => $status_label
+                                                    ): ?>
+
+                                                        <option value="<?= e($status_value) ?>">
+                                                            <?= e($status_label) ?>
+                                                        </option>
+
+                                                    <?php endforeach; ?>
+
+                                                </select>
+
+                                                <button type="submit">
+                                                    Update
+                                                </button>
+
+                                            </form>
+
+                                        <?php endif; ?>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        <?php endwhile; ?>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <?php if ($total_pages > 1): ?>
+
+                <div class="product-pagination">
+
+                    <?php if ($page > 1): ?>
+
+                        <a href="?page=<?= $page - 1 ?>">
+                            Previous
+                        </a>
+
+                    <?php endif; ?>
+
+                    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+
+                        <a
+                            href="?page=<?= $i ?>"
+                            class="<?= $i == $page ? 'active' : '' ?>"
+                        >
+                            <?= $i ?>
+                        </a>
+
+                    <?php endfor; ?>
+
+                    <?php if ($page < $total_pages): ?>
+
+                        <a href="?page=<?= $page + 1 ?>">
+                            Next
+                        </a>
+
+                    <?php endif; ?>
+
+                </div>
+
+            <?php endif; ?>
+
         <?php endif; ?>
 
-        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-            <a href="?page=<?= $i ?>"
-               <?= $i == $page ? 'class="active"' : '' ?>>
-                <?= $i ?>
-            </a>
-        <?php endfor; ?>
+    </section>
 
-        <?php if ($page < $total_pages): ?>
-            <a href="?page=<?= $page + 1 ?>">Next</a>
-        <?php endif; ?>
+</main>
 
-    </div>
+<script src="../assets/js/app.js"></script>
 
-    <?php endif; ?>
-    </main>
 </body>
+
 </html>
