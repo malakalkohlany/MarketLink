@@ -968,27 +968,21 @@ if (
                                 >
 
                                 <button
-                                    type="submit"
-                                    name="toggle_favorite"
-                                    class="<?= $isFavorite
-                                        ? 'is-favorite'
-                                        : '' ?>"
-                                    title="<?= $isFavorite
-                                        ? 'Remove from Favorites'
-                                        : 'Add to Favorites' ?>"
-                                    aria-label="<?= $isFavorite
-                                        ? 'Remove from Favorites'
-                                        : 'Add to Favorites' ?>"
-                                >
-
-                                    <i
-                                        data-lucide="heart"
-                                        class="<?= $isFavorite ? 'favorite-active' : '' ?>"
-                                    ></i>
-
-                                </button>
+        type="submit"
+        name="toggle_favorite"
+        class="customer-farmer-favorite <?= $isFavorite ? 'is-favorite' : '' ?>"
+        title="<?= $isFavorite ? 'Remove from Favorites' : 'Add to Favorites' ?>"
+        aria-label="<?= $isFavorite ? 'Remove from Favorites' : 'Add to Favorites' ?>"
+    >
+        <i
+            data-lucide="heart"
+            class="<?= $isFavorite ? 'favorite-active' : '' ?>"
+        ></i>
+    </button>
 
                             </form>
+
+                            
 
                         </div>
 
@@ -1213,6 +1207,35 @@ if (
 <script src="../assets/js/app.js"></script>
 
 <script src="../assets/js/customer-products.js"></script>
+
+<script>
+document.querySelectorAll('.customer-product-favorite').forEach(function (form) {
+    form.addEventListener('submit', function () {
+        sessionStorage.setItem(
+            'marketsScrollPosition',
+            window.scrollY.toString()
+        );
+    });
+});
+
+// Restore scroll position after the page reloads
+window.addEventListener('load', function () {
+    const savedPosition = sessionStorage.getItem(
+        'marketsScrollPosition'
+    );
+
+    if (savedPosition !== null) {
+        window.scrollTo(
+            0,
+            parseInt(savedPosition, 10)
+        );
+
+        sessionStorage.removeItem(
+            'marketsScrollPosition'
+        );
+    }
+});
+</script>
 
 </body>
 </html>

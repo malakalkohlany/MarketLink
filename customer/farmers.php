@@ -1095,6 +1095,34 @@ $farmerCount = count($farmers);
     setTimeout(function () {
         map.invalidateSize();
     }, 300);
+
+    // Remember scroll position when submitting a favorite
+document.querySelectorAll('.customer-farmer-favorite-form').forEach(function (form) {
+    form.addEventListener('submit', function () {
+        sessionStorage.setItem(
+            'marketsScrollPosition',
+            window.scrollY.toString()
+        );
+    });
+});
+
+// Restore scroll position after the page reloads
+window.addEventListener('load', function () {
+    const savedPosition = sessionStorage.getItem(
+        'marketsScrollPosition'
+    );
+
+    if (savedPosition !== null) {
+        window.scrollTo(
+            0,
+            parseInt(savedPosition, 10)
+        );
+
+        sessionStorage.removeItem(
+            'marketsScrollPosition'
+        );
+    }
+});
 </script>
 
 </body>
