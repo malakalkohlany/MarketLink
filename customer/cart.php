@@ -190,7 +190,7 @@ foreach ($cart as $item) {
                             <?php if (!empty($item['image'])): ?>
 
                                 <img
-                                    src="../uploads/products/<?= e($item['image']) ?>"
+                                    src="../<?= e($item['image']) ?>"
                                     alt="<?= e($item['name']) ?>"
                                     class="cart-item-image"
                                 >
