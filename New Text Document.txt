@@ -1,0 +1,139 @@
+# MarketLink
+
+## Local Farmers and Markets E-Commerce Platform
+
+---
+
+# 1. Project Overview
+
+MarketLink is a web-based e-commerce platform that connects customers with local farmers and markets.
+
+The system allows customers to browse agricultural products, search and filter products, add products and farmers to favorites, place orders, and submit reviews.
+
+Farmers can manage their products and orders, while administrators can manage the main system data and monitor the platform.
+
+The system was developed using PHP, MySQL/MariaDB, HTML, CSS, JavaScript, and XAMPP. phpMyAdmin was used as a database management tool.
+
+---
+
+# 2. Problem Definition
+
+Local customers may have difficulty finding local farmers, agricultural products, prices, available stock, and nearby markets in one place.
+
+Farmers may also have difficulty presenting their products online, reaching customers, managing stock, and handling customer orders.
+
+There is therefore a need for a centralized platform that connects customers, farmers, and markets and organizes the process of browsing products and placing orders.
+
+---
+
+# 3. Proposed Solution
+
+MarketLink provides a centralized web platform connecting customers with local farmers and markets.
+
+Customers can:
+
+* Browse products.
+* Search and filter products.
+* View product details.
+* Add products, farmers, and markets to favorites.
+* Add products to a shopping cart.
+* Place orders.
+* View order status.
+* Submit product reviews.
+
+The system also provides separate interfaces for farmers and administrators according to their roles and permissions.
+
+---
+
+# 4. Project Objectives
+
+1. Connect customers with local farmers and markets.
+2. Provide an organized platform for agricultural products.
+3. Allow customers to easily search and filter products.
+4. Allow customers to place and manage orders.
+5. Provide favorites for products, farmers, and markets.
+6. Provide a review system for customer feedback.
+7. Provide administrators with centralized management tools.
+8. Protect the system using authentication and role-based authorization.
+
+---
+
+# 5. Design Specifications
+
+## 5.1 Technologies
+
+| Technology      | Purpose                       |
+| --------------- | ----------------------------- |
+| PHP             | Backend development           |
+| MySQL / MariaDB | Database                      |
+| phpMyAdmin      | Database management           |
+| HTML            | Page structure                |
+| CSS             | Interface design              |
+| JavaScript      | Interactive functionality     |
+| XAMPP           | Local development environment |
+| Git / GitHub    | Version control               |
+
+## 5.2 Database
+
+Database name: `marketlink`
+
+The main database tables are:
+
+```text
+users
+farmers
+categories
+products
+orders
+order_items
+order_status_history
+reports
+reviews
+markets
+markets_farmer
+favorite_products
+favorite_farmers
+favorite_markets
+notifications
+announcements
+pickup_slots
+weekly_stock
+weekly_stock_templates
+```
+
+The database stores users, farmers, products, orders, reviews, markets, favorites, notifications, and other system information.
+
+---
+
+# 6. System Architecture
+
+```text
++----------------------+
+|      User Browser    |
++----------+-----------+
+           |
+           v
++----------------------+
+|     PHP Application  |
+| Customer / Farmer /  |
+|       Admin          |
++----------+-----------+
+           |
+           v
++----------------------+
+|   MySQL / MariaDB    |
+|       Database       |
++----------------------+
+```
+
+The user interacts with the system through a web browser.
+
+The PHP application processes user requests and applies the appropriate business logic according to the user's role.
+
+The PHP application communicates with the MySQL/MariaDB database to store and retrieve system data.
+
+The system supports three main roles:
+
+* **Customer:** browses products, manages favorites, places orders, and submits reviews.
+* **Farmer:** manages products and handles customer orders.
+* **Admin:** manages the main system data and monitors the platform.
