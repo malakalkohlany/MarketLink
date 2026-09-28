@@ -447,3 +447,27 @@
         padding: 17px;
     }
 }
+
+.farmer-current-image {
+    margin-top: 16px;
+}
+
+.farmer-current-image-label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-muted);
+    font-family: var(--font-main);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.farmer-current-image img {
+    display: block;
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+}
