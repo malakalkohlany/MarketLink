@@ -1,1200 +1,2896 @@
--- ============================================================
--- MarketLink Seed Data
--- ============================================================
--- All users use the SAME password hash:
--- $2y$10$GBCQn0E9tKL/wy6gc30AK.gDRyxDANNzWTpetmguhxMU6GyYHhl6W
---
--- Example plaintext password associated with this hash:
--- Use the password you originally generated this hash for.
---
--- IMPORTANT:
--- This file assumes the MarketLink schema already exists.
--- ============================================================
-
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+00:00";
+SET NAMES utf8mb4;
+
 SET FOREIGN_KEY_CHECKS = 0;
+
+SET FOREIGN_KEY_CHECKS = 1;
 
 START TRANSACTION;
 
--- Delete dependent records first
-DELETE FROM order_status_history;
-DELETE FROM reviews;
-DELETE FROM order_items;
-DELETE FROM orders;
-
-DELETE FROM weekly_stock;
-DELETE FROM pickup_slots;
-
-DELETE FROM favorite_products;
-DELETE FROM favorite_markets;
-DELETE FROM favorite_farmers;
-
-DELETE FROM market_farmer;
-
-DELETE FROM products;
-DELETE FROM notifications;
-DELETE FROM announcements;
-DELETE FROM reports;
-
-DELETE FROM farmers;
-DELETE FROM markets;
-DELETE FROM categories;
-DELETE FROM users;
-
--- Reset AUTO_INCREMENT values
-ALTER TABLE order_status_history AUTO_INCREMENT = 1;
-ALTER TABLE reviews AUTO_INCREMENT = 1;
-ALTER TABLE order_items AUTO_INCREMENT = 1;
-ALTER TABLE orders AUTO_INCREMENT = 1;
-ALTER TABLE weekly_stock AUTO_INCREMENT = 1;
-ALTER TABLE pickup_slots AUTO_INCREMENT = 1;
-ALTER TABLE products AUTO_INCREMENT = 1;
-ALTER TABLE notifications AUTO_INCREMENT = 1;
-ALTER TABLE announcements AUTO_INCREMENT = 1;
-ALTER TABLE reports AUTO_INCREMENT = 1;
-ALTER TABLE farmers AUTO_INCREMENT = 1;
-ALTER TABLE markets AUTO_INCREMENT = 1;
-ALTER TABLE categories AUTO_INCREMENT = 1;
-ALTER TABLE users AUTO_INCREMENT = 1;
-
-
--- ============================================================
--- 1. USERS
--- ============================================================
--- Password hash is intentionally identical for ALL users.
-
-INSERT INTO users
-    (id, name, email, password_hash, phone, address, role, status)
-VALUES
-    (1, 'Alex Morgan', 'alex.morgan@example.com',
-     '$2y$10$GBCQn0E9tKL/wy6gc30AK.gDRyxDANNzWTpetmguhxMU6GyYHhl6W',
-     '+1-202-555-0101', 'Brooklyn, New York, USA', 'customer', 'active'),
-
-    (2, 'Sophie Bennett', 'sophie.bennett@example.com',
-     '$2y$10$GBCQn0E9tKL/wy6gc30AK.gDRyxDANNzWTpetmguhxMU6GyYHhl6W',
-     '+1-202-555-0102', 'Cambridge, Massachusetts, USA', 'customer', 'active'),
-
-    (3, 'Daniel Carter', 'daniel.carter@example.com',
-     '$2y$10$GBCQn0E9tKL/wy6gc30AK.gDRyxDANNzWTpetmguhxMU6GyYHhl6W',
-     '+1-202-555-0103', 'Austin, Texas, USA', 'customer', 'active'),
-
-    (4, 'Emma Wilson', 'emma.wilson@example.com',
-     '$2y$10$GBCQn0E9tKL/wy6gc30AK.gDRyxDANNzWTpetmguhxMU6GyYHhl6W',
-     '+1-202-555-0104', 'Portland, Oregon, USA', 'customer', 'active'),
-
-    (5, 'Oliver Thompson', 'oliver.thompson@example.com',
-     '$2y$10$GBCQn0E9tKL/wy6gc30AK.gDRyxDANNzWTpetmguhxMU6GyYHhl6W',
-     '+1-202-555-0105', 'Seattle, Washington, USA', 'farmer', 'active'),
-
-    (6, 'Grace Anderson', 'grace.anderson@example.com',
-     '$2y$10$GBCQn0E9tKL/wy6gc30AK.gDRyxDANNzWTpetmguhxMU6GyYHhl6W',
-     '+1-202-555-0106', 'Denver, Colorado, USA', 'farmer', 'active'),
-
-    (7, 'Liam Parker', 'liam.parker@example.com',
-     '$2y$10$GBCQn0E9tKL/wy6gc30AK.gDRyxDANNzWTpetmguhxMU6GyYHhl6W',
-     '+1-202-555-0107', 'Chicago, Illinois, USA', 'farmer', 'active'),
-
-    (8, 'Mia Richardson', 'mia.richardson@example.com',
-     '$2y$10$GBCQn0E9tKL/wy6gc30AK.gDRyxDANNzWTpetmguhxMU6GyYHhl6W',
-     '+1-202-555-0108', 'San Diego, California, USA', 'farmer', 'active'),
-
-    (9, 'James Mitchell', 'james.mitchell@example.com',
-     '$2y$10$GBCQn0E9tKL/wy6gc30AK.gDRyxDANNzWTpetmguhxMU6GyYHhl6W',
-     '+1-202-555-0109', 'Boston, Massachusetts, USA', 'admin', 'active');
-
-
--- ============================================================
--- 2. FARMERS
--- ============================================================
-
-INSERT INTO farmers
-    (id, user_id, stall_name, contact_person, description,
-     address, latitude, longitude, approval_status)
-VALUES
-    (1,
-     5,
-     'Morgan Valley Farms',
-     'Oliver Thompson',
-     'A small family farm specializing in seasonal vegetables, herbs, and fresh eggs.',
-     'Seattle, Washington, USA',
-     47.60620000, -122.33210000,
-     'approved'),
-
-    (2,
-     6,
-     'Green Meadow Organics',
-     'Grace Anderson',
-     'Organic produce grown using sustainable farming practices with a focus on seasonal crops.',
-     'Denver, Colorado, USA',
-     39.73920000, -104.99030000,
-     'approved'),
-
-    (3,
-     7,
-     'Parker Family Farm',
-     'Liam Parker',
-     'Family-owned farm producing fresh vegetables, fruit, honey, and artisan products.',
-     'Chicago, Illinois, USA',
-     41.87810000, -87.62980000,
-     'approved'),
-
-    (4,
-     8,
-     'Sunrise Harvest Co.',
-     'Mia Richardson',
-     'A coastal farm offering fresh seasonal produce, herbs, citrus, and natural honey.',
-     'San Diego, California, USA',
-     32.71570000, -117.16110000,
-     'approved');
-
-
--- ============================================================
--- 2. CATEGORIES
--- ============================================================
-
-INSERT INTO categories
-    (id, name, description, image, status)
-VALUES
-    (
-        1,
-        'Vegetables',
-        'Fresh seasonal vegetables grown by local farmers.',
-        NULL,
-        'active'
-    ),
-    (
-        2,
-        'Fruits',
-        'Fresh locally grown seasonal fruits.',
-        NULL,
-        'active'
-    ),
-    (
-        3,
-        'Herbs',
-        'Fresh culinary herbs and aromatic greens.',
-        NULL,
-        'active'
-    ),
-    (
-        4,
-        'Eggs & Dairy',
-        'Fresh eggs and locally produced dairy products.',
-        NULL,
-        'active'
-    ),
-    (
-        5,
-        'Honey',
-        'Natural honey and bee products from local producers.',
-        NULL,
-        'active'
-    ),
-    (
-        6,
-        'Leafy Greens',
-        'Fresh lettuce, spinach, kale and other leafy greens.',
-        NULL,
-        'active'
-    ),
-    (
-        7,
-        'Root Vegetables',
-        'Fresh potatoes, carrots, onions and other root crops.',
-        NULL,
-        'active'
-    ),
-    (
-        8,
-        'Pantry & Artisan',
-        'Locally made preserves, sauces and artisan farm products.',
-        NULL,
-        'active'
-    );
-
-
--- ============================================================
--- 3. MARKETS
--- ============================================================
-
-INSERT INTO markets
-    (
-        id,
-        name,
-        description,
-        address,
-        latitude,
-        longitude,
-        opening_time,
-        closing_time,
-        operating_days,
-        map_provider,
-        status
-    )
-VALUES
-    (
-        1,
-        'Riverside Farmers Market',
-        'A lively community market featuring fresh produce, herbs, eggs and artisan farm products.',
-        'Riverside Square, Seattle, Washington, USA',
-        47.60620000,
-        -122.33210000,
-        '09:00:00',
-        '17:00:00',
-        'Wednesday,Saturday,Sunday',
-        'OpenStreetMap',
-        'active'
-    ),
-    (
-        2,
-        'Greenfield Market',
-        'A neighborhood farmers market focused on fresh vegetables, fruit and seasonal produce.',
-        'Greenfield Community Center, Denver, Colorado, USA',
-        39.73920000,
-        -104.99030000,
-        '09:00:00',
-        '17:00:00',
-        'Friday,Saturday,Sunday',
-        'OpenStreetMap',
-        'active'
-    ),
-    (
-        3,
-        'Oak Street Market',
-        'A friendly neighborhood market with local produce, honey and artisan goods.',
-        'Oak Street Plaza, Chicago, Illinois, USA',
-        41.87810000,
-        -87.62980000,
-        '10:00:00',
-        '16:00:00',
-        'Saturday,Sunday',
-        'OpenStreetMap',
-        'active'
-    ),
-    (
-        4,
-        'Harborview Market',
-        'A coastal market featuring fresh vegetables, citrus, herbs and natural honey.',
-        'Harborview Community Park, San Diego, California, USA',
-        32.71570000,
-        -117.16110000,
-        '09:00:00',
-        '16:00:00',
-        'Saturday,Sunday',
-        'OpenStreetMap',
-        'active'
-    );
-
-
--- ============================================================
--- 4. FARMER ↔ MARKET RELATIONSHIPS
--- ============================================================
-
-INSERT INTO market_farmer
-    (market_id, farmer_id)
-VALUES
-    -- Oliver / Morgan Valley
-    (1, 1),
-
-    -- Grace / Green Meadow
-    (1, 2),
-    (2, 2),
-
-    -- Liam / Parker Family
-    (2, 3),
-    (3, 3),
-
-    -- Mia / Sunrise Harvest
-    (3, 4),
-    (4, 4);
-
-
--- ============================================================
--- 5. PRODUCTS
--- ============================================================
-
-INSERT INTO products
-    (
-        id,
-        farmer_id,
-        category_id,
-        name,
-        description,
-        price,
-        unit,
-        stock_quantity,
-        image,
-        is_available,
-        moderation_status,
-        moderation_reason
-    )
-VALUES
-
-    -- ========================================================
-    -- FARMER 1 - MORGAN VALLEY FARMS
-    -- ========================================================
-
-    (
-        1,
-        1,
-        1,
-        'Vine Tomatoes',
-        'Fresh ripe tomatoes harvested from Morgan Valley Farms.',
-        3.50,
-        'kg',
-        100.00,
-        NULL,
-        1,
-        'approved',
-        NULL
-    ),
-
-    (
-        2,
-        1,
-        6,
-        'Baby Spinach',
-        'Tender baby spinach leaves harvested fresh each week.',
-        2.75,
-        '250 g',
-        80.00,
-        NULL,
-        1,
-        'approved',
-        NULL
-    ),
-
-    (
-        3,
-        1,
-        3,
-        'Fresh Basil',
-        'Fragrant fresh basil suitable for salads, sauces and cooking.',
-        2.25,
-        'bunch',
-        50.00,
-        NULL,
-        1,
-        'approved',
-        NULL
-    ),
-
-    (
-        4,
-        1,
-        4,
-        'Farm Fresh Eggs',
-        'Fresh free-range eggs collected from the farm.',
-        5.50,
-        'dozen',
-        60.00,
-        NULL,
-        1,
-        'approved',
-        NULL
-    ),
-
-
-    -- ========================================================
-    -- FARMER 2 - GREEN MEADOW ORGANICS
-    -- ========================================================
-
-    (
-        5,
-        2,
-        1,
-        'Organic Carrots',
-        'Crisp organic carrots grown without synthetic pesticides.',
-        2.90,
-        'kg',
-        100.00,
-        NULL,
-        1,
-        'approved',
-        NULL
-    ),
-
-    (
-        6,
-        2,
-        7,
-        'Golden Potatoes',
-        'Fresh golden potatoes ideal for roasting, baking and cooking.',
-        2.40,
-        'kg',
-        120.00,
-        NULL,
-        1,
-        'approved',
-        NULL
-    ),
-
-    (
-        7,
-        2,
-        6,
-        'Crisp Lettuce',
-        'Fresh crisp heads of locally grown lettuce.',
-        2.20,
-        'head',
-        60.00,
-        NULL,
-        1,
-        'approved',
-        NULL
-    ),
-
-
-    -- ========================================================
-    -- FARMER 3 - PARKER FAMILY FARM
-    -- ========================================================
-
-    (
-        8,
-        3,
-        2,
-        'Strawberries',
-        'Sweet seasonal strawberries harvested at peak ripeness.',
-        4.80,
-        '500 g',
-        70.00,
-        NULL,
-        1,
-        'approved',
-        NULL
-    ),
-
-    (
-        9,
-        3,
-        5,
-        'Wildflower Honey',
-        'Natural honey collected from local wildflower fields.',
-        8.50,
-        'jar',
-        40.00,
-        NULL,
-        1,
-        'approved',
-        NULL
-    ),
-
-    (
-        10,
-        3,
-        1,
-        'Sweet Bell Peppers',
-        'Colorful sweet peppers with a crisp texture.',
-        4.25,
-        'kg',
-        75.00,
-        NULL,
-        1,
-        'approved',
-        NULL
-    ),
-
-
-    -- ========================================================
-    -- FARMER 4 - SUNRISE HARVEST
-    -- ========================================================
-
-    (
-        11,
-        4,
-        2,
-        'Fresh Oranges',
-        'Juicy seasonal oranges grown in the coastal climate.',
-        3.80,
-        'kg',
-        100.00,
-        NULL,
-        1,
-        'approved',
-        NULL
-    ),
-
-    (
-        12,
-        4,
-        3,
-        'Fresh Mint',
-        'Aromatic fresh mint harvested throughout the growing season.',
-        1.90,
-        'bunch',
-        60.00,
-        NULL,
-        1,
-        'approved',
-        NULL
-    ),
-
-    (
-        13,
-        4,
-        5,
-        'Coastal Wildflower Honey',
-        'Natural local honey produced from coastal wildflowers.',
-        9.00,
-        'jar',
-        35.00,
-        NULL,
-        1,
-        'approved',
-        NULL
-    );
-
-
--- ============================================================
--- 6. WEEKLY STOCK TEMPLATES
---
--- These are recurring defaults.
--- They are NOT the actual current-week quantities.
--- ============================================================
-
-INSERT INTO weekly_stock_templates
-    (
-        id,
-        farmer_id,
-        product_id,
-        default_quantity,
-        is_active
-    )
-VALUES
-
-    -- Farmer 1
-    (1, 1, 1, 60.00, 1),
-    (2, 1, 2, 40.00, 1),
-    (3, 1, 3, 25.00, 1),
-    (4, 1, 4, 30.00, 1),
-
-    -- Farmer 2
-    (5, 2, 5, 50.00, 1),
-    (6, 2, 6, 70.00, 1),
-    (7, 2, 7, 35.00, 1),
-
-    -- Farmer 3
-    (8, 3, 8, 40.00, 1),
-    (9, 3, 9, 20.00, 1),
-    (10, 3, 10, 45.00, 1),
-
-    -- Farmer 4
-    (11, 4, 11, 60.00, 1),
-    (12, 4, 12, 30.00, 1),
-    (13, 4, 13, 20.00, 1);
-
-
--- ============================================================
--- 7. CURRENT WEEKLY STOCK
---
--- Current week:
--- 2026-09-21 -> 2026-09-27
---
--- Some quantities intentionally differ from the templates
--- so we can test farmer weekly adjustments.
--- ============================================================
-
-INSERT INTO weekly_stock
-    (
-        id,
-        farmer_id,
-        product_id,
-        week_start,
-        planned_quantity,
-        actual_quantity,
-        status,
-        is_active
-    )
-VALUES
-
-    -- ========================================================
-    -- FARMER 1
-    -- ========================================================
-
-    (
-        1,
-        1,
-        1,
-        '2026-09-21',
-        60.00,
-        60.00,
-        'available',
-        1
-    ),
-
-    (
-        2,
-        1,
-        2,
-        '2026-09-21',
-        40.00,
-        27.50,
-        'available',
-        1
-    ),
-
-    (
-        3,
-        1,
-        3,
-        '2026-09-21',
-        25.00,
-        0.00,
-        'sold_out',
-        1
-    ),
-
-    (
-        4,
-        1,
-        4,
-        '2026-09-21',
-        30.00,
-        30.00,
-        'unavailable',
-        1
-    ),
-
-
-    -- ========================================================
-    -- FARMER 2
-    -- ========================================================
-
-    (
-        5,
-        2,
-        5,
-        '2026-09-21',
-        50.00,
-        50.00,
-        'available',
-        1
-    ),
-
-    (
-        6,
-        2,
-        6,
-        '2026-09-21',
-        70.00,
-        48.00,
-        'available',
-        1
-    ),
-
-    (
-        7,
-        2,
-        7,
-        '2026-09-21',
-        35.00,
-        0.00,
-        'sold_out',
-        1
-    ),
-
-
-    -- ========================================================
-    -- FARMER 3
-    -- ========================================================
-
-    (
-        8,
-        3,
-        8,
-        '2026-09-21',
-        40.00,
-        32.00,
-        'available',
-        1
-    ),
-
-    (
-        9,
-        3,
-        9,
-        '2026-09-21',
-        20.00,
-        20.00,
-        'available',
-        1
-    ),
-
-    (
-        10,
-        3,
-        10,
-        '2026-09-21',
-        45.00,
-        45.00,
-        'available',
-        1
-    ),
-
-
-    -- ========================================================
-    -- FARMER 4
-    -- ========================================================
-
-    (
-        11,
-        4,
-        11,
-        '2026-09-21',
-        60.00,
-        60.00,
-        'available',
-        1
-    ),
-
-    (
-        12,
-        4,
-        12,
-        '2026-09-21',
-        30.00,
-        18.00,
-        'available',
-        1
-    ),
-
-    (
-        13,
-        4,
-        13,
-        '2026-09-21',
-        20.00,
-        0.00,
-        'sold_out',
-        1
-    );
-
-
--- ============================================================
--- 8. PICKUP SLOTS
---
--- IMPORTANT:
--- Today = Sunday, September 27, 2026.
---
--- These Sunday slots intentionally have FUTURE cutoff times
--- so you can test checkout right now.
---
--- Current local time is around 13:07.
--- ============================================================
-
-INSERT INTO pickup_slots
-    (
-        id,
-        farmer_id,
-        market_id,
-        day_of_week,
-        start_time,
-        end_time,
-        cutoff_time,
-        max_orders,
-        is_available
-    )
-VALUES
-
-    -- ========================================================
-    -- FARMER 1 / RIVERSIDE MARKET
-    -- ========================================================
-
-    (
-        1,
-        1,
-        1,
-        'Sunday',
-        '14:00:00',
-        '16:00:00',
-        '13:30:00',
-        20,
-        1
-    ),
-
-    (
-        2,
-        1,
-        1,
-        'Sunday',
-        '16:30:00',
-        '18:00:00',
-        '16:00:00',
-        20,
-        1
-    ),
-
-
-    -- ========================================================
-    -- FARMER 2 / RIVERSIDE MARKET
-    -- ========================================================
-
-    (
-        3,
-        2,
-        1,
-        'Sunday',
-        '14:00:00',
-        '16:00:00',
-        '13:30:00',
-        15,
-        1
-    ),
-
-    (
-        4,
-        2,
-        1,
-        'Sunday',
-        '16:30:00',
-        '18:00:00',
-        '16:00:00',
-        15,
-        1
-    ),
-
-
-    -- ========================================================
-    -- FARMER 2 / GREENFIELD MARKET
-    -- ========================================================
-
-    (
-        5,
-        2,
-        2,
-        'Sunday',
-        '14:30:00',
-        '16:30:00',
-        '14:00:00',
-        15,
-        1
-    ),
-
-    (
-        6,
-        2,
-        2,
-        'Sunday',
-        '17:00:00',
-        '18:30:00',
-        '16:30:00',
-        15,
-        1
-    ),
-
-
-    -- ========================================================
-    -- FARMER 3 / GREENFIELD MARKET
-    -- ========================================================
-
-    (
-        7,
-        3,
-        2,
-        'Sunday',
-        '14:00:00',
-        '16:00:00',
-        '13:30:00',
-        15,
-        1
-    ),
-
-    (
-        8,
-        3,
-        2,
-        'Sunday',
-        '16:30:00',
-        '18:00:00',
-        '16:00:00',
-        15,
-        1
-    ),
-
-
-    -- ========================================================
-    -- FARMER 3 / OAK STREET MARKET
-    -- ========================================================
-
-    (
-        9,
-        3,
-        3,
-        'Sunday',
-        '14:30:00',
-        '16:30:00',
-        '14:00:00',
-        15,
-        1
-    ),
-
-    (
-        10,
-        3,
-        3,
-        'Sunday',
-        '17:00:00',
-        '18:30:00',
-        '16:30:00',
-        15,
-        1
-    ),
-
-
-    -- ========================================================
-    -- FARMER 4 / OAK STREET MARKET
-    -- ========================================================
-
-    (
-        11,
-        4,
-        3,
-        'Sunday',
-        '14:00:00',
-        '16:00:00',
-        '13:30:00',
-        15,
-        1
-    ),
-
-    (
-        12,
-        4,
-        3,
-        'Sunday',
-        '16:30:00',
-        '18:00:00',
-        '16:00:00',
-        15,
-        1
-    ),
-
-
-    -- ========================================================
-    -- FARMER 4 / HARBORVIEW MARKET
-    -- ========================================================
-
-    (
-        13,
-        4,
-        4,
-        'Sunday',
-        '14:30:00',
-        '16:30:00',
-        '14:00:00',
-        15,
-        1
-    ),
-
-    (
-        14,
-        4,
-        4,
-        'Sunday',
-        '17:00:00',
-        '18:30:00',
-        '16:30:00',
-        15,
-        1
-    );
-
-
--- ============================================================
--- 9. FAVORITES
--- ============================================================
-
-INSERT INTO favorite_farmers
-    (customer_id, farmer_id)
-VALUES
-    (1, 1),
-    (1, 2),
-    (2, 2),
-    (2, 3),
-    (3, 3),
-    (4, 4);
-
-
-INSERT INTO favorite_markets
-    (customer_id, market_id)
-VALUES
-    (1, 1),
-    (2, 2),
-    (3, 3),
-    (4, 4);
-
-
-INSERT INTO favorite_products
-    (customer_id, product_id)
-VALUES
-    (1, 1),
-    (1, 4),
-    (2, 5),
-    (2, 8),
-    (3, 9),
-    (4, 11);
-
-
--- ============================================================
--- 10. NOTIFICATIONS
--- ============================================================
-
-INSERT INTO notifications
-    (
-        id,
-        user_id,
-        type,
-        title,
-        message,
-        is_read
-    )
-VALUES
-    (
-        1,
-        1,
-        'weekly_stock_updated',
-        'Weekly Stock Updated',
-        'Morgan Valley Farms has updated their stock for this week.',
-        0
-    ),
-    (
-        2,
-        1,
-        'announcement',
-        'Welcome to MarketLink',
-        'Discover fresh products from local farmers and shop your weekly market.',
-        1
-    ),
-    (
-        3,
-        2,
-        'weekly_stock_updated',
-        'Weekly Stock Updated',
-        'Green Meadow Organics has updated their stock for this week.',
-        0
-    ),
-    (
-        4,
-        3,
-        'weekly_stock_updated',
-        'Weekly Stock Updated',
-        'Parker Family Farm has updated their stock for this week.',
-        0
-    ),
-    (
-        5,
-        4,
-        'weekly_stock_updated',
-        'Weekly Stock Updated',
-        'Sunrise Harvest Co. has updated their stock for this week.',
-        1
-    ),
-    (
-        6,
-        5,
-        'weekly_stock_reminder',
-        'Weekly Stock Reminder',
-        'It is a new week! Please review and update your weekly stock.',
-        0
-    ),
-    (
-        7,
-        6,
-        'weekly_stock_reminder',
-        'Weekly Stock Reminder',
-        'It is a new week! Please review and update your weekly stock.',
-        0
-    ),
-    (
-        8,
-        7,
-        'weekly_stock_reminder',
-        'Weekly Stock Reminder',
-        'It is a new week! Please review and update your weekly stock.',
-        1
-    ),
-    (
-        9,
-        8,
-        'weekly_stock_reminder',
-        'Weekly Stock Reminder',
-        'It is a new week! Please review and update your weekly stock.',
-        0
-    );
-
-
--- ============================================================
--- 11. ANNOUNCEMENTS
--- ============================================================
-
-INSERT INTO announcements
-    (
-        id,
-        admin_id,
-        title,
-        message,
-        status,
-        expires_at
-    )
-VALUES
-    (
-        1,
-        9,
-        'Welcome to MarketLink',
-        'MarketLink connects customers with local farmers and their weekly fresh stock.',
-        'published',
-        '2026-12-31 23:59:59'
-    ),
-    (
-        2,
-        9,
-        'Weekly Stock Is Now Available',
-        'Farmers have updated their stock for the current week. Browse products and plan your pickup.',
-        'published',
-        '2026-10-04 23:59:59'
-    ),
-    (
-        3,
-        9,
-        'MarketLink Test Announcement',
-        'This is a development announcement for testing the notification and announcement system.',
-        'draft',
-        NULL
-    );
-
-
--- ============================================================
--- 12. RESET AUTO-INCREMENT VALUES
--- ============================================================
-
-ALTER TABLE categories
-    AUTO_INCREMENT = 9;
-
-ALTER TABLE markets
-    AUTO_INCREMENT = 5;
-
-ALTER TABLE products
-    AUTO_INCREMENT = 14;
-
-ALTER TABLE weekly_stock_templates
-    AUTO_INCREMENT = 14;
-
-ALTER TABLE weekly_stock
-    AUTO_INCREMENT = 14;
-
-ALTER TABLE pickup_slots
-    AUTO_INCREMENT = 15;
-
-ALTER TABLE notifications
-    AUTO_INCREMENT = 10;
-
-ALTER TABLE announcements
-    AUTO_INCREMENT = 4;
-
-
--- ============================================================
--- FINISH
--- ============================================================
+INSERT INTO users (
+    name,
+    email,
+    password_hash,
+    phone,
+    address,
+    role,
+    status
+) VALUES
+(
+    'Daniel Brooks',
+    'daniel.brooks@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(503) 555-0142',
+    'Portland, Oregon',
+    'customer',
+    'active'
+),
+(
+    'Emily Carter',
+    'emily.carter@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(206) 555-0187',
+    'Seattle, Washington',
+    'customer',
+    'active'
+),
+(
+    'Michael Turner',
+    'michael.turner@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(303) 555-0126',
+    'Denver, Colorado',
+    'customer',
+    'active'
+),
+(
+    'Sophia Bennett',
+    'sophia.bennett@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(415) 555-0164',
+    'San Francisco, California',
+    'customer',
+    'active'
+),
+(
+    'James Wilson',
+    'james.wilson@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(512) 555-0193',
+    'Austin, Texas',
+    'customer',
+    'active'
+),
+(
+    'Olivia Mitchell',
+    'olivia.mitchell@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(617) 555-0138',
+    'Boston, Massachusetts',
+    'customer',
+    'active'
+),
+(
+    'Ethan Parker',
+    'ethan.parker@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(312) 555-0175',
+    'Chicago, Illinois',
+    'customer',
+    'active'
+),
+(
+    'Ava Richardson',
+    'ava.richardson@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(919) 555-0119',
+    'Raleigh, North Carolina',
+    'customer',
+    'active'
+),
+(
+    'Benjamin Cooper',
+    'benjamin.cooper@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(801) 555-0152',
+    'Salt Lake City, Utah',
+    'customer',
+    'active'
+),
+(
+    'Mia Anderson',
+    'mia.anderson@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(612) 555-0147',
+    'Minneapolis, Minnesota',
+    'customer',
+    'active'
+),
+(
+    'Lucas Morgan',
+    'lucas.morgan@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(404) 555-0181',
+    'Atlanta, Georgia',
+    'customer',
+    'active'
+),
+(
+    'Charlotte Hayes',
+    'charlotte.hayes@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(615) 555-0124',
+    'Nashville, Tennessee',
+    'customer',
+    'active'
+),
+(
+    'Henry Foster',
+    'henry.foster@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(614) 555-0198',
+    'Columbus, Ohio',
+    'customer',
+    'active'
+),
+(
+    'Amelia Reed',
+    'amelia.reed@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(215) 555-0168',
+    'Philadelphia, Pennsylvania',
+    'customer',
+    'active'
+),
+(
+    'Alexander Hughes',
+    'alexander.hughes@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(704) 555-0135',
+    'Charlotte, North Carolina',
+    'customer',
+    'active'
+),
+(
+    'Harper Collins',
+    'harper.collins@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(602) 555-0172',
+    'Phoenix, Arizona',
+    'customer',
+    'active'
+),
+(
+    'William Sanders',
+    'william.sanders@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(816) 555-0116',
+    'Kansas City, Missouri',
+    'customer',
+    'active'
+),
+(
+    'Evelyn Murphy',
+    'evelyn.murphy@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(617) 555-0191',
+    'Boston, Massachusetts',
+    'customer',
+    'active'
+),
+(
+    'Noah Jenkins',
+    'noah.jenkins@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(503) 555-0161',
+    'Portland, Oregon',
+    'customer',
+    'active'
+),
+(
+    'Abigail Perry',
+    'abigail.perry@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(720) 555-0149',
+    'Denver, Colorado',
+    'customer',
+    'active'
+),
+(
+    'Samuel Ross',
+    'samuel.ross@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(512) 555-0184',
+    'Austin, Texas',
+    'customer',
+    'active'
+),
+(
+    'Ella Griffin',
+    'ella.griffin@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(206) 555-0131',
+    'Seattle, Washington',
+    'customer',
+    'active'
+),
+(
+    'Jack Wallace',
+    'jack.wallace@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(415) 555-0196',
+    'San Francisco, California',
+    'customer',
+    'active'
+),
+(
+    'Grace Simmons',
+    'grace.simmons@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(312) 555-0158',
+    'Chicago, Illinois',
+    'customer',
+    'active'
+),
+(
+    'Daniela Price',
+    'daniela.price@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(919) 555-0174',
+    'Raleigh, North Carolina',
+    'customer',
+    'active'
+),
+(
+    'Matthew Bennett',
+    'matthew.bennett@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(801) 555-0128',
+    'Salt Lake City, Utah',
+    'customer',
+    'active'
+),
+(
+    'Lily Coleman',
+    'lily.coleman@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(404) 555-0167',
+    'Atlanta, Georgia',
+    'customer',
+    'active'
+),
+(
+    'David Walker',
+    'david.walker@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(614) 555-0144',
+    'Columbus, Ohio',
+    'customer',
+    'active'
+),
+(
+    'Nathan Bell',
+    'nathan.bell@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(602) 555-0113',
+    'Phoenix, Arizona',
+    'customer',
+    'active'
+),
+(
+    'Sarah Thompson',
+    'sarah.thompson@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(913) 555-0186',
+    'Overland Park, Kansas',
+    'customer',
+    'active'
+),
+(
+    'Christopher Evans',
+    'christopher.evans@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(615) 555-0137',
+    'Nashville, Tennessee',
+    'customer',
+    'active'
+),
+(
+    'Rachel Morgan',
+    'rachel.morgan@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(503) 555-0156',
+    'Portland, Oregon',
+    'farmer',
+    'active'
+),
+(
+    'Andrew Coleman',
+    'andrew.coleman@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(206) 555-0118',
+    'Seattle, Washington',
+    'farmer',
+    'active'
+),
+(
+    'Jessica Warren',
+    'jessica.warren@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(303) 555-0179',
+    'Denver, Colorado',
+    'farmer',
+    'active'
+),
+(
+    'Thomas Mitchell',
+    'thomas.mitchell@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(512) 555-0141',
+    'Austin, Texas',
+    'farmer',
+    'active'
+),
+(
+    'Laura Peterson',
+    'laura.peterson@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(919) 555-0192',
+    'Raleigh, North Carolina',
+    'farmer',
+    'active'
+),
+(
+    'Robert Lawson',
+    'robert.lawson@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(415) 555-0122',
+    'San Francisco, California',
+    'farmer',
+    'active'
+),
+(
+    'Amanda Foster',
+    'amanda.foster@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(312) 555-0189',
+    'Chicago, Illinois',
+    'farmer',
+    'active'
+),
+(
+    'Marcus Reed',
+    'marcus.reed@marketlink.demo',
+    '$2y$10$BAcwi9TLoUcfzvdyKBacX.4R8zOlGcpw4ZIqFVxRA5b6.6WAMafx.',
+    '(503) 555-0109',
+    'Portland, Oregon',
+    'admin',
+    'active'
+);
+
+INSERT INTO categories (
+    name,
+    description,
+    image,
+    status
+) VALUES
+(
+    'Vegetables',
+    'Fresh seasonal vegetables grown by local farmers.',
+    NULL,
+    'active'
+),
+(
+    'Root Vegetables',
+    'Fresh root vegetables including carrots, potatoes, beets, and similar crops.',
+    NULL,
+    'active'
+),
+(
+    'Leafy Greens',
+    'Fresh leafy greens harvested from local farms.',
+    NULL,
+    'active'
+),
+(
+    'Herbs',
+    'Fresh culinary herbs grown and harvested locally.',
+    NULL,
+    'active'
+),
+(
+    'Fruits',
+    'Fresh seasonal fruits sourced from local farms.',
+    NULL,
+    'active'
+),
+(
+    'Eggs',
+    'Fresh farm eggs from local producers.',
+    NULL,
+    'active'
+),
+(
+    'Dairy Products',
+    'Fresh locally produced dairy products.',
+    NULL,
+    'active'
+),
+(
+    'Honey',
+    'Locally produced natural honey and honey products.',
+    NULL,
+    'active'
+),
+(
+    'Grains',
+    'Locally produced grains and grain-based farm products.',
+    NULL,
+    'active'
+),
+(
+    'Pantry and Artisan',
+    'Locally made pantry goods and artisan food products.',
+    NULL,
+    'active'
+),
+(
+    'Poultry',
+    'Fresh poultry products from local farms.',
+    NULL,
+    'active'
+),
+(
+    'Meat',
+    'Locally produced farm-fresh meat products.',
+    NULL,
+    'active'
+),
+(
+    'Other',
+    'Other locally produced agricultural and farm products.',
+    NULL,
+    'active'
+);
+
+INSERT INTO markets (
+    name,
+    description,
+    address,
+    latitude,
+    longitude,
+    opening_time,
+    closing_time,
+    operating_days,
+    map_provider,
+    status
+) VALUES
+(
+    'Riverfront Farmers Market',
+    'A community farmers market featuring fresh produce, eggs, dairy products, and locally made goods.',
+    '1000 SW Naito Parkway, Portland, OR 97204',
+    45.51520,
+    -122.67340,
+    '08:00:00',
+    '14:00:00',
+    'Saturday,Sunday',
+    'OpenStreetMap',
+    'active'
+),
+(
+    'Pike Place Community Market',
+    'A busy local market connecting shoppers with regional farmers and independent food producers.',
+    '85 Pike Street, Seattle, WA 98101',
+    47.60870,
+    -122.34080,
+    '09:00:00',
+    '15:00:00',
+    'Saturday',
+    'OpenStreetMap',
+    'active'
+),
+(
+    'Capitol Hill Farmers Market',
+    'A neighborhood market offering seasonal produce, farm products, and artisan foods.',
+    '7001 E Colfax Avenue, Denver, CO 80220',
+    39.74020,
+    -104.95950,
+    '09:00:00',
+    '14:00:00',
+    'Saturday',
+    'OpenStreetMap',
+    'active'
+),
+(
+    'Downtown Austin Farmers Market',
+    'A weekly market featuring local farms, fresh produce, specialty foods, and artisan products.',
+    '422 Guadalupe Street, Austin, TX 78701',
+    30.26760,
+    -97.74650,
+    '09:00:00',
+    '13:00:00',
+    'Saturday',
+    'OpenStreetMap',
+    'active'
+),
+(
+    'North Hills Farmers Market',
+    'A community-focused market featuring seasonal produce and products from nearby farms.',
+    '4321 Lassiter Mill Road, Raleigh, NC 27609',
+    35.85890,
+    -78.64310,
+    '08:00:00',
+    '13:00:00',
+    'Saturday',
+    'OpenStreetMap',
+    'active'
+);
 
 COMMIT;
 
-SET FOREIGN_KEY_CHECKS = 1;
+START TRANSACTION;
+
+INSERT INTO farmers (
+    user_id,
+    stall_name,
+    contact_person,
+    description,
+    address,
+    latitude,
+    longitude,
+    approval_status
+)
+SELECT
+    id,
+    'Morgan Family Farm',
+    'Rachel Morgan',
+    'A family farm offering seasonal vegetables, herbs, eggs, and locally produced pantry goods.',
+    '4821 SE Foster Road, Portland, OR 97206',
+    45.48481000,
+    -122.55892000,
+    'approved'
+FROM users
+WHERE email = 'rachel.morgan@marketlink.demo';
+
+INSERT INTO farmers (
+    user_id,
+    stall_name,
+    contact_person,
+    description,
+    address,
+    latitude,
+    longitude,
+    approval_status
+)
+SELECT
+    id,
+    'Cedar Valley Produce',
+    'Andrew Coleman',
+    'A small family-run farm specializing in fresh vegetables, leafy greens, root vegetables, and seasonal produce.',
+    '1735 NE 119th Avenue, Vancouver, WA 98684',
+    45.63742000,
+    -122.55791000,
+    'approved'
+FROM users
+WHERE email = 'andrew.coleman@marketlink.demo';
+
+INSERT INTO farmers (
+    user_id,
+    stall_name,
+    contact_person,
+    description,
+    address,
+    latitude,
+    longitude,
+    approval_status
+)
+SELECT
+    id,
+    'Warren Family Orchard',
+    'Jessica Warren',
+    'A family orchard producing seasonal fruits, honey, eggs, and handcrafted farm products.',
+    '2180 South Chambers Road, Aurora, CO 80014',
+    39.67128000,
+    -104.80964000,
+    'approved'
+FROM users
+WHERE email = 'jessica.warren@marketlink.demo';
+
+INSERT INTO farmers (
+    user_id,
+    stall_name,
+    contact_person,
+    description,
+    address,
+    latitude,
+    longitude,
+    approval_status
+)
+SELECT
+    id,
+    'Hill Country Harvest',
+    'Thomas Mitchell',
+    'A Texas farm offering seasonal vegetables, poultry, eggs, herbs, and locally produced pantry items.',
+    '14520 FM 973, Manor, TX 78653',
+    30.34287000,
+    -97.55643000,
+    'approved'
+FROM users
+WHERE email = 'thomas.mitchell@marketlink.demo';
+
+INSERT INTO farmers (
+    user_id,
+    stall_name,
+    contact_person,
+    description,
+    address,
+    latitude,
+    longitude,
+    approval_status
+)
+SELECT
+    id,
+    'Pine Ridge Farm',
+    'Laura Peterson',
+    'A local farm growing vegetables, leafy greens, herbs, and seasonal fruits for nearby communities.',
+    '3912 Poole Road, Raleigh, NC 27610',
+    35.75892000,
+    -78.55543000,
+    'approved'
+FROM users
+WHERE email = 'laura.peterson@marketlink.demo';
+
+INSERT INTO farmers (
+    user_id,
+    stall_name,
+    contact_person,
+    description,
+    address,
+    latitude,
+    longitude,
+    approval_status
+)
+SELECT
+    id,
+    'Golden Gate Family Farm',
+    'Robert Lawson',
+    'A Northern California family farm producing vegetables, fruits, herbs, eggs, and artisan farm products.',
+    '850 Hillside Boulevard, San Mateo, CA 94402',
+    37.56374000,
+    -122.32315000,
+    'approved'
+FROM users
+WHERE email = 'robert.lawson@marketlink.demo';
+
+INSERT INTO farmers (
+    user_id,
+    stall_name,
+    contact_person,
+    description,
+    address,
+    latitude,
+    longitude,
+    approval_status
+)
+SELECT
+    id,
+    'Prairie Table Farm',
+    'Amanda Foster',
+    'A Midwest farm supplying fresh vegetables, grains, eggs, dairy products, and seasonal produce.',
+    '6120 West Higgins Road, Chicago, IL 60631',
+    41.99842000,
+    -87.80631000,
+    'approved'
+FROM users
+WHERE email = 'amanda.foster@marketlink.demo';
+
+INSERT INTO announcements (
+    admin_id,
+    title,
+    message,
+    status,
+    expires_at
+)
+SELECT
+    id,
+    'Welcome to MarketLink',
+    'Welcome to MarketLink, your local marketplace for discovering farmers, fresh products, and convenient market pickup options.',
+    'published',
+    NULL
+FROM users
+WHERE email = 'marcus.reed@marketlink.demo';
+
+INSERT INTO announcements (
+    admin_id,
+    title,
+    message,
+    status,
+    expires_at
+)
+SELECT
+    id,
+    'Weekly Ordering Is Now Available',
+    'Customers can now plan their purchases ahead of time through weekly product availability and scheduled market pickup.',
+    'published',
+    NULL
+FROM users
+WHERE email = 'marcus.reed@marketlink.demo';
+
+INSERT INTO announcements (
+    admin_id,
+    title,
+    message,
+    status,
+    expires_at
+)
+SELECT
+    id,
+    'New Farmers Joining MarketLink',
+    'New local farmers are joining MarketLink and expanding the selection of fresh products available to customers.',
+    'published',
+    NULL
+FROM users
+WHERE email = 'marcus.reed@marketlink.demo';
+
+INSERT INTO announcements (
+    admin_id,
+    title,
+    message,
+    status,
+    expires_at
+)
+SELECT
+    id,
+    'Market Pickup Reminder',
+    'Remember to check your selected pickup market, date, and time before placing your weekly order.',
+    'published',
+    NULL
+FROM users
+WHERE email = 'marcus.reed@marketlink.demo';
+
+INSERT INTO announcements (
+    admin_id,
+    title,
+    message,
+    status,
+    expires_at
+)
+SELECT
+    id,
+    'Seasonal Produce Updates',
+    'Seasonal availability is updated regularly as farmers add new products and adjust their weekly stock.',
+    'draft',
+    NULL
+FROM users
+WHERE email = 'marcus.reed@marketlink.demo';
+
+INSERT INTO notifications (
+    user_id,
+    type,
+    title,
+    message,
+    is_read
+)
+SELECT
+    id,
+    'system',
+    'Welcome to MarketLink',
+    'Your MarketLink account is ready. Explore local farmers, markets, and available products.',
+    0
+FROM users
+WHERE email = 'emma.brooks@marketlink.demo';
+
+INSERT INTO notifications (
+    user_id,
+    type,
+    title,
+    message,
+    is_read
+)
+SELECT
+    id,
+    'market',
+    'New Market Available',
+    'A new market has been added to MarketLink. Visit the markets section to explore available pickup locations.',
+    1
+FROM users
+WHERE email = 'daniel.hayes@marketlink.demo';
+
+INSERT INTO notifications (
+    user_id,
+    type,
+    title,
+    message,
+    is_read
+)
+SELECT
+    id,
+    'favorite',
+    'Favorite Farmer Updated',
+    'A farmer you follow has updated their available products.',
+    0
+FROM users
+WHERE email = 'olivia.carter@marketlink.demo';
+
+INSERT INTO notifications (
+    user_id,
+    type,
+    title,
+    message,
+    is_read
+)
+SELECT
+    id,
+    'system',
+    'Weekly Ordering Available',
+    'Weekly product availability is now available for upcoming pickup weeks.',
+    0
+FROM users
+WHERE email = 'ethan.turner@marketlink.demo';
+
+INSERT INTO notifications (
+    user_id,
+    type,
+    title,
+    message,
+    is_read
+)
+SELECT
+    id,
+    'market',
+    'Pickup Information Updated',
+    'Pickup information for one of your favorite markets has been updated.',
+    1
+FROM users
+WHERE email = 'sophia.martin@marketlink.demo';
+
+INSERT INTO notifications (
+    user_id,
+    type,
+    title,
+    message,
+    is_read
+)
+SELECT
+    id,
+    'system',
+    'New Products Added',
+    'New seasonal products have been added by local farmers.',
+    0
+FROM users
+WHERE email = 'noah.wilson@marketlink.demo';
+
+INSERT INTO notifications (
+    user_id,
+    type,
+    title,
+    message,
+    is_read
+)
+SELECT
+    id,
+    'favorite',
+    'Farmer Availability Updated',
+    'A farmer in your favorites has updated their product availability for the coming week.',
+    1
+FROM users
+WHERE email = 'ava.richards@marketlink.demo';
+
+INSERT INTO notifications (
+    user_id,
+    type,
+    title,
+    message,
+    is_read
+)
+SELECT
+    id,
+    'system',
+    'Order Reminder',
+    'Remember to review your pickup details before your scheduled collection time.',
+    0
+FROM users
+WHERE email = 'liam.bennett@marketlink.demo';
+
+INSERT INTO notifications (
+    user_id,
+    type,
+    title,
+    message,
+    is_read
+)
+SELECT
+    id,
+    'market',
+    'Market Schedule Reminder',
+    'Check the market schedule before selecting a pickup slot for your next order.',
+    1
+FROM users
+WHERE email = 'grace.mitchell@marketlink.demo';
+
+INSERT INTO notifications (
+    user_id,
+    type,
+    title,
+    message,
+    is_read
+)
+SELECT
+    id,
+    'system',
+    'Welcome Back',
+    'New products and weekly availability may be available from your favorite farmers.',
+    0
+FROM users
+WHERE email = 'jackson.murphy@marketlink.demo';
+
+INSERT INTO reports (
+    generated_by,
+    report_type
+)
+SELECT
+    id,
+    'market_activity'
+FROM users
+WHERE email = 'marcus.reed@marketlink.demo';
+
+INSERT INTO reports (
+    generated_by,
+    report_type
+)
+SELECT
+    id,
+    'product_inventory'
+FROM users
+WHERE email = 'marcus.reed@marketlink.demo';
+
+INSERT INTO reports (
+    generated_by,
+    report_type
+)
+SELECT
+    id,
+    'order_summary'
+FROM users
+WHERE email = 'marcus.reed@marketlink.demo';
+
+INSERT INTO reports (
+    generated_by,
+    report_type
+)
+SELECT
+    id,
+    'farmer_activity'
+FROM users
+WHERE email = 'marcus.reed@marketlink.demo';
+
+INSERT INTO favorite_markets (
+    customer_id,
+    market_id
+)
+SELECT
+    u.id,
+    m.id
+FROM users u
+CROSS JOIN markets m
+WHERE u.email = 'sophia.bennett@marketlink.demo'
+AND m.name = 'Riverfront Farmers Market';
+
+INSERT INTO favorite_markets (
+    customer_id,
+    market_id
+)
+SELECT
+    u.id,
+    m.id
+FROM users u
+CROSS JOIN markets m
+WHERE u.email = 'daniel.brooks@marketlink.demo'
+AND m.name = 'Pike Place Community Market';
+
+INSERT INTO favorite_markets (
+    customer_id,
+    market_id
+)
+SELECT
+    u.id,
+    m.id
+FROM users u
+CROSS JOIN markets m
+WHERE u.email = 'benjamin.cooper@marketlink.demo'
+AND m.name = 'Capitol Hill Farmers Market';
+
+INSERT INTO favorite_markets (
+    customer_id,
+    market_id
+)
+SELECT
+    u.id,
+    m.id
+FROM users u
+CROSS JOIN markets m
+WHERE u.email = 'mia.anderson@marketlink.demo'
+AND m.name = 'Downtown Austin Farmers Market';
+
+INSERT INTO favorite_markets (
+    customer_id,
+    market_id
+)
+SELECT
+    u.id,
+    m.id
+FROM users u
+CROSS JOIN markets m
+WHERE u.email = 'sophia.martin@marketlink.demo'
+AND m.name = 'North Hills Farmers Market';
+
+INSERT INTO favorite_markets (
+    customer_id,
+    market_id
+)
+SELECT
+    u.id,
+    m.id
+FROM users u
+CROSS JOIN markets m
+WHERE u.email = 'charlotte.hayes@marketlink.demo'
+AND m.name = 'Riverfront Farmers Market';
+
+INSERT INTO favorite_markets (
+    customer_id,
+    market_id
+)
+SELECT
+    u.id,
+    m.id
+FROM users u
+CROSS JOIN markets m
+WHERE u.email = 'ava.richards@marketlink.demo'
+AND m.name = 'Capitol Hill Farmers Market';
+
+INSERT INTO favorite_markets (
+    customer_id,
+    market_id
+)
+SELECT
+    u.id,
+    m.id
+FROM users u
+CROSS JOIN markets m
+WHERE u.email = 'liam.bennett@marketlink.demo'
+AND m.name = 'Downtown Austin Farmers Market';
+
+INSERT INTO favorite_markets (
+    customer_id,
+    market_id
+)
+SELECT
+    u.id,
+    m.id
+FROM users u
+CROSS JOIN markets m
+WHERE u.email = 'grace.mitchell@marketlink.demo'
+AND m.name = 'Pike Place Community Market';
+
+INSERT INTO favorite_markets (
+    customer_id,
+    market_id
+)
+SELECT
+    u.id,
+    m.id
+FROM users u
+CROSS JOIN markets m
+WHERE u.email = 'jackson.murphy@marketlink.demo'
+AND m.name = 'North Hills Farmers Market';
+
+COMMIT;
+
+START TRANSACTION;
+
+INSERT INTO products (
+    farmer_id,
+    category_id,
+    name,
+    description,
+    price,
+    unit,
+    stock_quantity,
+    image,
+    is_available,
+    moderation_status
+)
+SELECT f.id, c.id, 'tomatoes', 'Fresh locally grown tomatoes harvested in season.', 3.49, 'kg', 50.00, 'uploads/products/tomatoes.jpg', 1, 'approved'
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN categories c ON c.name = 'Vegetables'
+WHERE u.email = 'rachel.morgan@marketlink.demo';
+
+INSERT INTO products (
+    farmer_id, category_id, name, description, price, unit, stock_quantity, image, is_available, moderation_status
+)
+SELECT f.id, c.id, 'bell peppers', 'Fresh crisp bell peppers suitable for cooking and salads.', 4.25, 'kg', 35.00, 'uploads/products/bell_peppers.jpg', 1, 'approved'
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN categories c ON c.name = 'Vegetables'
+WHERE u.email = 'rachel.morgan@marketlink.demo';
+
+INSERT INTO products (
+    farmer_id, category_id, name, description, price, unit, stock_quantity, image, is_available, moderation_status
+)
+SELECT f.id, c.id, 'cucumbers', 'Fresh locally grown cucumbers.', 2.99, 'kg', 40.00, 'uploads/products/cucumbers.jpg', 1, 'approved'
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN categories c ON c.name = 'Vegetables'
+WHERE u.email = 'rachel.morgan@marketlink.demo';
+
+INSERT INTO products (
+    farmer_id, category_id, name, description, price, unit, stock_quantity, image, is_available, moderation_status
+)
+SELECT f.id, c.id, 'zucchini', 'Tender seasonal zucchini harvested fresh from the farm.', 3.25, 'kg', 30.00, 'uploads/products/zucchini.jpg', 1, 'approved'
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN categories c ON c.name = 'Vegetables'
+WHERE u.email = 'rachel.morgan@marketlink.demo';
+
+INSERT INTO products (
+    farmer_id, category_id, name, description, price, unit, stock_quantity, image, is_available, moderation_status
+)
+SELECT f.id, c.id, 'eggplant', 'Fresh seasonal eggplant with a firm texture.', 3.75, 'kg', 28.00, 'uploads/products/eggplant.jpg', 1, 'approved'
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN categories c ON c.name = 'Vegetables'
+WHERE u.email = 'rachel.morgan@marketlink.demo';
+
+INSERT INTO products (
+    farmer_id, category_id, name, description, price, unit, stock_quantity, image, is_available, moderation_status
+)
+SELECT f.id, c.id, 'potatoes', 'Fresh farm-grown potatoes.', 2.79, 'kg', 60.00, 'uploads/products/potatoes.jpg', 1, 'approved'
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN categories c ON c.name = 'Root Vegetables'
+WHERE u.email = 'andrew.coleman@marketlink.demo';
+
+INSERT INTO products (
+    farmer_id, category_id, name, description, price, unit, stock_quantity, image, is_available, moderation_status
+)
+SELECT f.id, c.id, 'carrots', 'Fresh crisp carrots harvested locally.', 2.89, 'kg', 45.00, 'uploads/products/carrots.jpg', 1, 'approved'
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN categories c ON c.name = 'Root Vegetables'
+WHERE u.email = 'andrew.coleman@marketlink.demo';
+
+INSERT INTO products (
+    farmer_id, category_id, name, description, price, unit, stock_quantity, image, is_available, moderation_status
+)
+SELECT f.id, c.id, 'red onions', 'Fresh red onions grown on the farm.', 3.19, 'kg', 40.00, 'uploads/products/red_onions.jpg', 1, 'approved'
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN categories c ON c.name = 'Root Vegetables'
+WHERE u.email = 'andrew.coleman@marketlink.demo';
+
+INSERT INTO products (
+    farmer_id, category_id, name, description, price, unit, stock_quantity, image, is_available, moderation_status
+)
+SELECT f.id, c.id, 'spinach', 'Fresh leafy spinach harvested for the week.', 2.49, 'bunch', 45.00, 'uploads/products/spinach.jpg', 1, 'approved'
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN categories c ON c.name = 'Leafy Greens'
+WHERE u.email = 'andrew.coleman@marketlink.demo';
+
+INSERT INTO products (
+    farmer_id, category_id, name, description, price, unit, stock_quantity, image, is_available, moderation_status
+)
+SELECT f.id, c.id, 'romaine lettuce', 'Fresh crisp romaine lettuce.', 2.79, 'head', 35.00, 'uploads/products/romaine_lettuce.jpg', 1, 'approved'
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN categories c ON c.name = 'Leafy Greens'
+WHERE u.email = 'andrew.coleman@marketlink.demo';
+
+INSERT INTO products (
+    farmer_id, category_id, name, description, price, unit, stock_quantity, image, is_available, moderation_status
+)
+SELECT f.id, c.id, 'kale', 'Fresh locally grown kale.', 2.69, 'bunch', 30.00, 'uploads/products/kale.jpg', 1, 'approved'
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN categories c ON c.name = 'Leafy Greens'
+WHERE u.email = 'andrew.coleman@marketlink.demo';
+
+INSERT INTO products (
+    farmer_id, category_id, name, description, price, unit, stock_quantity, image, is_available, moderation_status
+)
+SELECT f.id, c.id, 'mint', 'Fresh aromatic mint harvested locally.', 2.25, 'bunch', 25.00, 'uploads/products/mint.jpg', 1, 'approved'
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN categories c ON c.name = 'Herbs'
+WHERE u.email = 'laura.peterson@marketlink.demo';
+
+INSERT INTO products (
+    farmer_id, category_id, name, description, price, unit, stock_quantity, image, is_available, moderation_status
+)
+SELECT f.id, c.id, 'basil', 'Fresh fragrant basil leaves.', 2.50, 'bunch', 25.00, 'uploads/products/basil.jpg', 1, 'approved'
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN categories c ON c.name = 'Herbs'
+WHERE u.email = 'laura.peterson@marketlink.demo';
+
+INSERT INTO products (
+    farmer_id, category_id, name, description, price, unit, stock_quantity, image, is_available, moderation_status
+)
+SELECT f.id, c.id, 'coriander', 'Fresh locally grown coriander.', 2.25, 'bunch', 25.00, 'uploads/products/coriander.jpg', 1, 'approved'
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN categories c ON c.name = 'Herbs'
+WHERE u.email = 'laura.peterson@marketlink.demo';
+
+INSERT INTO products (
+    farmer_id, category_id, name, description, price, unit, stock_quantity, image, is_available, moderation_status
+)
+SELECT f.id, c.id, 'bananas', 'Ripe fresh bananas selected for quality.', 2.49, 'kg', 45.00, 'uploads/products/bananas.jpg', 1, 'approved'
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN categories c ON c.name = 'Fruits'
+WHERE u.email = 'jessica.warren@marketlink.demo';
+
+INSERT INTO products (
+    farmer_id, category_id, name, description, price, unit, stock_quantity, image, is_available, moderation_status
+)
+SELECT f.id, c.id, 'oranges', 'Juicy seasonal oranges.', 3.29, 'kg', 40.00, 'uploads/products/oranges.jpg', 1, 'approved'
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN categories c ON c.name = 'Fruits'
+WHERE u.email = 'jessica.warren@marketlink.demo';
+
+INSERT INTO products (
+    farmer_id, category_id, name, description, price, unit, stock_quantity, image, is_available, moderation_status
+)
+SELECT f.id, c.id, 'apples', 'Fresh crisp seasonal apples.', 3.99, 'kg', 40.00, 'uploads/products/apples.jpg', 1, 'approved'
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN categories c ON c.name = 'Fruits'
+WHERE u.email = 'jessica.warren@marketlink.demo';
+
+INSERT INTO products (
+    farmer_id, category_id, name, description, price, unit, stock_quantity, image, is_available, moderation_status
+)
+SELECT f.id, c.id, 'mangoes', 'Sweet seasonal mangoes.', 4.49, 'kg', 30.00, 'uploads/products/mangoes.jpg', 1, 'approved'
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN categories c ON c.name = 'Fruits'
+WHERE u.email = 'jessica.warren@marketlink.demo';
+
+INSERT INTO products (
+    farmer_id, category_id, name, description, price, unit, stock_quantity, image, is_available, moderation_status
+)
+SELECT f.id, c.id, 'eggs', 'Fresh farm eggs collected regularly.', 5.49, 'dozen', 40.00, 'uploads/products/eggs.jpg', 1, 'approved'
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN categories c ON c.name = 'Eggs'
+WHERE u.email = 'thomas.mitchell@marketlink.demo';
+
+INSERT INTO products (
+    farmer_id, category_id, name, description, price, unit, stock_quantity, image, is_available, moderation_status
+)
+SELECT f.id, c.id, 'free-range eggs', 'Fresh free-range eggs from pasture-raised hens.', 6.99, 'dozen', 35.00, 'uploads/products/free-range_eggs.jpg', 1, 'approved'
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN categories c ON c.name = 'Eggs'
+WHERE u.email = 'thomas.mitchell@marketlink.demo';
+
+INSERT INTO products (
+    farmer_id, category_id, name, description, price, unit, stock_quantity, image, is_available, moderation_status
+)
+SELECT f.id, c.id, 'cow milk', 'Fresh locally produced cow milk.', 4.99, 'liter', 30.00, 'uploads/products/cow_milk.jpg', 1, 'approved'
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN categories c ON c.name = 'Dairy Products'
+WHERE u.email = 'thomas.mitchell@marketlink.demo';
+
+INSERT INTO products (
+    farmer_id, category_id, name, description, price, unit, stock_quantity, image, is_available, moderation_status
+)
+SELECT f.id, c.id, 'homemade yogurt', 'Creamy homemade yogurt prepared from fresh farm milk.', 5.49, 'kg', 25.00, 'uploads/products/homemade_yogurt.jpg', 1, 'approved'
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN categories c ON c.name = 'Dairy Products'
+WHERE u.email = 'thomas.mitchell@marketlink.demo';
+
+INSERT INTO products (
+    farmer_id, category_id, name, description, price, unit, stock_quantity, image, is_available, moderation_status
+)
+SELECT f.id, c.id, 'white cheese', 'Fresh homemade white cheese.', 7.49, 'kg', 20.00, 'uploads/products/white_cheese.jpg', 1, 'approved'
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN categories c ON c.name = 'Dairy Products'
+WHERE u.email = 'thomas.mitchell@marketlink.demo';
+
+INSERT INTO products (
+    farmer_id, category_id, name, description, price, unit, stock_quantity, image, is_available, moderation_status
+)
+SELECT f.id, c.id, 'local honey', 'Naturally produced local honey.', 9.99, 'jar', 25.00, 'uploads/products/local_honey.jpg', 1, 'approved'
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN categories c ON c.name = 'Honey'
+WHERE u.email = 'robert.lawson@marketlink.demo';
+
+INSERT INTO products (
+    farmer_id, category_id, name, description, price, unit, stock_quantity, image, is_available, moderation_status
+)
+SELECT f.id, c.id, 'raw mountain honey', 'Raw honey collected from mountain-area hives.', 13.99, 'jar', 20.00, 'uploads/products/raw_mountain_honey.jpg', 1, 'approved'
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN categories c ON c.name = 'Honey'
+WHERE u.email = 'robert.lawson@marketlink.demo';
+
+INSERT INTO products (
+    farmer_id, category_id, name, description, price, unit, stock_quantity, image, is_available, moderation_status
+)
+SELECT f.id, c.id, 'whole wheat flour', 'Locally milled whole wheat flour.', 4.99, 'kg', 35.00, 'uploads/products/whole_wheat_flour.jpg', 1, 'approved'
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN categories c ON c.name = 'Grains'
+WHERE u.email = 'amanda.foster@marketlink.demo';
+
+INSERT INTO products (
+    farmer_id, category_id, name, description, price, unit, stock_quantity, image, is_available, moderation_status
+)
+SELECT f.id, c.id, 'local wheat', 'Locally grown wheat grain.', 3.99, 'kg', 40.00, 'uploads/products/local_wheat.jpg', 1, 'approved'
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN categories c ON c.name = 'Grains'
+WHERE u.email = 'amanda.foster@marketlink.demo';
+
+INSERT INTO products (
+    farmer_id, category_id, name, description, price, unit, stock_quantity, image, is_available, moderation_status
+)
+SELECT f.id, c.id, 'homemade tomato sauce', 'Homemade tomato sauce prepared from locally grown tomatoes.', 6.49, 'jar', 25.00, 'uploads/products/homemade_tomato_sauce.jpg', 1, 'approved'
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN categories c ON c.name = 'Pantry and Artisan'
+WHERE u.email = 'rachel.morgan@marketlink.demo';
+
+INSERT INTO products (
+    farmer_id, category_id, name, description, price, unit, stock_quantity, image, is_available, moderation_status
+)
+SELECT f.id, c.id, 'mixed vegetables pickles', 'Homemade pickled mixed vegetables.', 6.99, 'jar', 25.00, 'uploads/products/mixed_vegetables_pickles.jpg', 1, 'approved'
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN categories c ON c.name = 'Pantry and Artisan'
+WHERE u.email = 'laura.peterson@marketlink.demo';
+
+INSERT INTO products (
+    farmer_id, category_id, name, description, price, unit, stock_quantity, image, is_available, moderation_status
+)
+SELECT f.id, c.id, 'homemade strawberry jam', 'Small-batch strawberry jam made with seasonal fruit.', 7.49, 'jar', 20.00, 'uploads/products/homemade_strawberry_jam.jpg', 1, 'approved'
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN categories c ON c.name = 'Pantry and Artisan'
+WHERE u.email = 'jessica.warren@marketlink.demo';
+
+INSERT INTO products (
+    farmer_id, category_id, name, description, price, unit, stock_quantity, image, is_available, moderation_status
+)
+SELECT f.id, c.id, 'fresh chicken', 'Fresh locally raised chicken.', 8.99, 'kg', 25.00, 'uploads/products/fresh_chicken.jpg', 1, 'approved'
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN categories c ON c.name = 'Poultry'
+WHERE u.email = 'thomas.mitchell@marketlink.demo';
+
+INSERT INTO products (
+    farmer_id, category_id, name, description, price, unit, stock_quantity, image, is_available, moderation_status
+)
+SELECT f.id, c.id, 'fresh goat meat', 'Fresh locally sourced goat meat.', 13.99, 'kg', 20.00, 'uploads/products/fresh_goat_meat.jpg', 1, 'approved'
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN categories c ON c.name = 'Meat'
+WHERE u.email = 'robert.lawson@marketlink.demo';
+
+INSERT INTO favorite_farmers (customer_id, farmer_id)
+SELECT u.id, f.id
+FROM users u
+JOIN farmers f
+JOIN users fu ON fu.id = f.user_id
+WHERE u.email = 'emily.carter@marketlink.demo'
+AND fu.email = 'amanda.foster@marketlink.demo';
+
+INSERT INTO favorite_farmers (customer_id, farmer_id)
+SELECT u.id, f.id
+FROM users u
+JOIN farmers f
+JOIN users fu ON fu.id = f.user_id
+WHERE u.email = 'daniel.brooks@marketlink.demo'
+AND fu.email = 'robert.lawson@marketlink.demo';
+
+INSERT INTO favorite_farmers (customer_id, farmer_id)
+SELECT u.id, f.id
+FROM users u
+JOIN farmers f
+JOIN users fu ON fu.id = f.user_id
+WHERE u.email = 'sophia.bennett@marketlink.demo'
+AND fu.email = 'amanda.foster@marketlink.demo';
+
+INSERT INTO favorite_farmers (customer_id, farmer_id)
+SELECT u.id, f.id
+FROM users u
+JOIN farmers f
+JOIN users fu ON fu.id = f.user_id
+WHERE u.email = 'sophia.bennett@marketlink.demo'
+AND fu.email = 'thomas.mitchell@marketlink.demo';
+
+INSERT INTO favorite_farmers (customer_id, farmer_id)
+SELECT u.id, f.id
+FROM users u
+JOIN farmers f
+JOIN users fu ON fu.id = f.user_id
+WHERE u.email = 'james.wilson@marketlink.demo'
+AND fu.email = 'laura.peterson@marketlink.demo';
+
+INSERT INTO favorite_farmers (customer_id, farmer_id)
+SELECT u.id, f.id
+FROM users u
+JOIN farmers f
+JOIN users fu ON fu.id = f.user_id
+WHERE u.email = 'noah.wilson@marketlink.demo'
+AND fu.email = 'robert.lawson@marketlink.demo';
+
+INSERT INTO favorite_farmers (customer_id, farmer_id)
+SELECT u.id, f.id
+FROM users u
+JOIN farmers f
+JOIN users fu ON fu.id = f.user_id
+WHERE u.email = 'ava.richards@marketlink.demo'
+AND fu.email = 'amanda.foster@marketlink.demo';
+
+INSERT INTO favorite_farmers (customer_id, farmer_id)
+SELECT u.id, f.id
+FROM users u
+JOIN farmers f
+JOIN users fu ON fu.id = f.user_id
+WHERE u.email = 'liam.bennett@marketlink.demo'
+AND fu.email = 'rachel.morgan@marketlink.demo';
+
+INSERT INTO favorite_farmers (customer_id, farmer_id)
+SELECT u.id, f.id
+FROM users u
+JOIN farmers f
+JOIN users fu ON fu.id = f.user_id
+WHERE u.email = 'grace.mitchell@marketlink.demo'
+AND fu.email = 'sarah.thompson@marketlink.demo';
+
+INSERT INTO favorite_farmers (customer_id, farmer_id)
+SELECT u.id, f.id
+FROM users u
+JOIN farmers f
+JOIN users fu ON fu.id = f.user_id
+WHERE u.email = 'jackson.murphy@marketlink.demo'
+AND fu.email = 'thomas.mitchell@marketlink.demo';
+
+INSERT INTO market_farmer (market_id, farmer_id)
+SELECT m.id, f.id
+FROM markets m
+JOIN farmers f
+JOIN users u ON u.id = f.user_id
+WHERE m.name = 'Riverfront Farmers Market'
+AND u.email = 'rachel.morgan@marketlink.demo';
+
+INSERT INTO market_farmer (market_id, farmer_id)
+SELECT m.id, f.id
+FROM markets m
+JOIN farmers f
+JOIN users u ON u.id = f.user_id
+WHERE m.name = 'Riverfront Farmers Market'
+AND u.email = 'andrew.coleman@marketlink.demo';
+
+INSERT INTO market_farmer (market_id, farmer_id)
+SELECT m.id, f.id
+FROM markets m
+JOIN farmers f
+JOIN users u ON u.id = f.user_id
+WHERE m.name = 'Pike Place Community Market'
+AND u.email = 'rachel.morgan@marketlink.demo';
+
+INSERT INTO market_farmer (market_id, farmer_id)
+SELECT m.id, f.id
+FROM markets m
+JOIN farmers f
+JOIN users u ON u.id = f.user_id
+WHERE m.name = 'Pike Place Community Market'
+AND u.email = 'andrew.coleman@marketlink.demo';
+
+INSERT INTO market_farmer (market_id, farmer_id)
+SELECT m.id, f.id
+FROM markets m
+JOIN farmers f
+JOIN users u ON u.id = f.user_id
+WHERE m.name = 'Capitol Hill Farmers Market'
+AND u.email = 'jessica.warren@marketlink.demo';
+
+INSERT INTO market_farmer (market_id, farmer_id)
+SELECT m.id, f.id
+FROM markets m
+JOIN farmers f
+JOIN users u ON u.id = f.user_id
+WHERE m.name = 'Capitol Hill Farmers Market'
+AND u.email = 'laura.peterson@marketlink.demo';
+
+INSERT INTO market_farmer (market_id, farmer_id)
+SELECT m.id, f.id
+FROM markets m
+JOIN farmers f
+JOIN users u ON u.id = f.user_id
+WHERE m.name = 'Downtown Austin Farmers Market'
+AND u.email = 'thomas.mitchell@marketlink.demo';
+
+INSERT INTO market_farmer (market_id, farmer_id)
+SELECT m.id, f.id
+FROM markets m
+JOIN farmers f
+JOIN users u ON u.id = f.user_id
+WHERE m.name = 'Downtown Austin Farmers Market'
+AND u.email = 'robert.lawson@marketlink.demo';
+
+INSERT INTO market_farmer (market_id, farmer_id)
+SELECT m.id, f.id
+FROM markets m
+JOIN farmers f
+JOIN users u ON u.id = f.user_id
+WHERE m.name = 'North Hills Farmers Market'
+AND u.email = 'laura.peterson@marketlink.demo';
+
+INSERT INTO market_farmer (market_id, farmer_id)
+SELECT m.id, f.id
+FROM markets m
+JOIN farmers f
+JOIN users u ON u.id = f.user_id
+WHERE m.name = 'North Hills Farmers Market'
+AND u.email = 'amanda.foster@marketlink.demo';
+
+INSERT INTO pickup_slots (
+    farmer_id,
+    market_id,
+    day_of_week,
+    start_time,
+    end_time,
+    cutoff_time,
+    max_orders,
+    is_available
+)
+SELECT f.id, m.id, 'Saturday', '09:00:00', '12:00:00', '18:00:00', 20, 1
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN markets m ON m.name = 'Riverfront Farmers Market'
+WHERE u.email = 'rachel.morgan@marketlink.demo';
+
+INSERT INTO pickup_slots (
+    farmer_id,
+    market_id,
+    day_of_week,
+    start_time,
+    end_time,
+    cutoff_time,
+    max_orders,
+    is_available
+)
+SELECT f.id, m.id, 'Saturday', '09:00:00', '12:00:00', '18:00:00', 20, 1
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN markets m ON m.name = 'Riverfront Farmers Market'
+WHERE u.email = 'andrew.coleman@marketlink.demo';
+
+INSERT INTO pickup_slots (
+    farmer_id,
+    market_id,
+    day_of_week,
+    start_time,
+    end_time,
+    cutoff_time,
+    max_orders,
+    is_available
+)
+SELECT f.id, m.id, 'Sunday', '10:00:00', '13:00:00', '18:00:00', 20, 1
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN markets m ON m.name = 'Pike Place Community Market'
+WHERE u.email = 'rachel.morgan@marketlink.demo';
+
+INSERT INTO pickup_slots (
+    farmer_id,
+    market_id,
+    day_of_week,
+    start_time,
+    end_time,
+    cutoff_time,
+    max_orders,
+    is_available
+)
+SELECT f.id, m.id, 'Sunday', '10:00:00', '13:00:00', '18:00:00', 20, 1
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN markets m ON m.name = 'Pike Place Community Market'
+WHERE u.email = 'andrew.coleman@marketlink.demo';
+
+INSERT INTO pickup_slots (
+    farmer_id,
+    market_id,
+    day_of_week,
+    start_time,
+    end_time,
+    cutoff_time,
+    max_orders,
+    is_available
+)
+SELECT f.id, m.id, 'Saturday', '08:30:00', '11:30:00', '18:00:00', 20, 1
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN markets m ON m.name = 'Capitol Hill Farmers Market'
+WHERE u.email = 'jessica.warren@marketlink.demo';
+
+INSERT INTO pickup_slots (
+    farmer_id,
+    market_id,
+    day_of_week,
+    start_time,
+    end_time,
+    cutoff_time,
+    max_orders,
+    is_available
+)
+SELECT f.id, m.id, 'Saturday', '08:30:00', '11:30:00', '18:00:00', 20, 1
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN markets m ON m.name = 'Capitol Hill Farmers Market'
+WHERE u.email = 'laura.peterson@marketlink.demo';
+
+INSERT INTO pickup_slots (
+    farmer_id,
+    market_id,
+    day_of_week,
+    start_time,
+    end_time,
+    cutoff_time,
+    max_orders,
+    is_available
+)
+SELECT f.id, m.id, 'Saturday', '09:00:00', '12:00:00', '18:00:00', 20, 1
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN markets m ON m.name = 'Downtown Austin Farmers Market'
+WHERE u.email = 'thomas.mitchell@marketlink.demo';
+
+INSERT INTO pickup_slots (
+    farmer_id,
+    market_id,
+    day_of_week,
+    start_time,
+    end_time,
+    cutoff_time,
+    max_orders,
+    is_available
+)
+SELECT f.id, m.id, 'Saturday', '09:00:00', '12:00:00', '18:00:00', 20, 1
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN markets m ON m.name = 'Downtown Austin Farmers Market'
+WHERE u.email = 'robert.lawson@marketlink.demo';
+
+INSERT INTO pickup_slots (
+    farmer_id,
+    market_id,
+    day_of_week,
+    start_time,
+    end_time,
+    cutoff_time,
+    max_orders,
+    is_available
+)
+SELECT f.id, m.id, 'Saturday', '08:00:00', '11:00:00', '18:00:00', 20, 1
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN markets m ON m.name = 'North Hills Farmers Market'
+WHERE u.email = 'laura.peterson@marketlink.demo';
+
+INSERT INTO pickup_slots (
+    farmer_id,
+    market_id,
+    day_of_week,
+    start_time,
+    end_time,
+    cutoff_time,
+    max_orders,
+    is_available
+)
+SELECT f.id, m.id, 'Saturday', '08:00:00', '11:00:00', '18:00:00', 20, 1
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN markets m ON m.name = 'North Hills Farmers Market'
+WHERE u.email = 'amanda.foster@marketlink.demo';
+
+COMMIT;
+
+START TRANSACTION;
+
+INSERT INTO weekly_stock_templates (farmer_id, product_id, default_quantity)
+SELECT f.id, p.id, p.stock_quantity
+FROM farmers f
+JOIN users u ON u.id = f.user_id
+JOIN products p ON p.farmer_id = f.id;
+
+INSERT INTO weekly_stock (farmer_id, product_id, week_start, planned_quantity, actual_quantity, status, is_active)
+SELECT
+    p.farmer_id,
+    p.id,
+    DATE_ADD(
+        DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY),
+        INTERVAL w.week_offset WEEK
+    ),
+    CASE
+        WHEN p.stock_quantity >= 40 THEN p.stock_quantity
+        ELSE p.stock_quantity * 2
+    END,
+    CASE
+        WHEN w.week_offset = 0 THEN p.stock_quantity
+        ELSE 0
+    END,
+    'available',
+    1
+FROM products p
+CROSS JOIN (
+    SELECT 0 AS week_offset
+    UNION ALL SELECT 1
+    UNION ALL SELECT 2
+    UNION ALL SELECT 3
+    UNION ALL SELECT 4
+    UNION ALL SELECT 5
+    UNION ALL SELECT 6
+    UNION ALL SELECT 7
+    UNION ALL SELECT 8
+    UNION ALL SELECT 9
+    UNION ALL SELECT 10
+    UNION ALL SELECT 11
+    UNION ALL SELECT 12
+    UNION ALL SELECT 13
+    UNION ALL SELECT 14
+    UNION ALL SELECT 15
+    UNION ALL SELECT 16
+    UNION ALL SELECT 17
+    UNION ALL SELECT 18
+    UNION ALL SELECT 19
+    UNION ALL SELECT 20
+    UNION ALL SELECT 21
+    UNION ALL SELECT 22
+    UNION ALL SELECT 23
+    UNION ALL SELECT 24
+    UNION ALL SELECT 25
+) w;
+
+COMMIT;
+
+START TRANSACTION;
+
+INSERT INTO favorite_products (customer_id, product_id)
+SELECT u.id, p.id
+FROM users u
+JOIN products p ON p.name = 'tomatoes'
+WHERE u.email = 'daniel.brooks@marketlink.demo';
+
+INSERT INTO favorite_products (customer_id, product_id)
+SELECT u.id, p.id
+FROM users u
+JOIN products p ON p.name = 'bell peppers'
+WHERE u.email = 'emily.carter@marketlink.demo';
+
+INSERT INTO favorite_products (customer_id, product_id)
+SELECT u.id, p.id
+FROM users u
+JOIN products p ON p.name = 'apples'
+WHERE u.email = 'michael.turner@marketlink.demo';
+
+INSERT INTO favorite_products (customer_id, product_id)
+SELECT u.id, p.id
+FROM users u
+JOIN products p ON p.name = 'free-range eggs'
+WHERE u.email = 'sophia.bennett@marketlink.demo';
+
+INSERT INTO favorite_products (customer_id, product_id)
+SELECT u.id, p.id
+FROM users u
+JOIN products p ON p.name = 'spinach'
+WHERE u.email = 'james.wilson@marketlink.demo';
+
+INSERT INTO favorite_products (customer_id, product_id)
+SELECT u.id, p.id
+FROM users u
+JOIN products p ON p.name = 'local honey'
+WHERE u.email = 'olivia.mitchell@marketlink.demo';
+
+INSERT INTO favorite_products (customer_id, product_id)
+SELECT u.id, p.id
+FROM users u
+JOIN products p ON p.name = 'whole wheat flour'
+WHERE u.email = 'ethan.parker@marketlink.demo';
+
+INSERT INTO favorite_products (customer_id, product_id)
+SELECT u.id, p.id
+FROM users u
+JOIN products p ON p.name = 'fresh chicken'
+WHERE u.email = 'ava.richardson@marketlink.demo';
+
+INSERT INTO favorite_products (customer_id, product_id)
+SELECT u.id, p.id
+FROM users u
+JOIN products p ON p.name = 'homemade strawberry jam'
+WHERE u.email = 'benjamin.cooper@marketlink.demo';
+
+INSERT INTO favorite_products (customer_id, product_id)
+SELECT u.id, p.id
+FROM users u
+JOIN products p ON p.name = 'potatoes'
+WHERE u.email = 'mia.anderson@marketlink.demo';
+
+INSERT INTO favorite_products (customer_id, product_id)
+SELECT u.id, p.id
+FROM users u
+JOIN products p ON p.name = 'cow milk'
+WHERE u.email = 'lucas.morgan@marketlink.demo';
+
+INSERT INTO favorite_products (customer_id, product_id)
+SELECT u.id, p.id
+FROM users u
+JOIN products p ON p.name = 'mangoes'
+WHERE u.email = 'charlotte.hayes@marketlink.demo';
+
+INSERT INTO favorite_products (customer_id, product_id)
+SELECT u.id, p.id
+FROM users u
+JOIN products p ON p.name = 'kale'
+WHERE u.email = 'henry.foster@marketlink.demo';
+
+INSERT INTO favorite_products (customer_id, product_id)
+SELECT u.id, p.id
+FROM users u
+JOIN products p ON p.name = 'raw mountain honey'
+WHERE u.email = 'amelia.reed@marketlink.demo';
+
+INSERT INTO favorite_products (customer_id, product_id)
+SELECT u.id, p.id
+FROM users u
+JOIN products p ON p.name = 'homemade tomato sauce'
+WHERE u.email = 'alexander.hughes@marketlink.demo';
+
+INSERT INTO orders (customer_id, farmer_id, market_id, pickup_slot_id, pickup_date, status, subtotal, notes)
+SELECT
+    u.id,
+    f.id,
+    m.id,
+    ps.id,
+    DATE_SUB(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 2 DAY),
+    'completed',
+    20.19,
+    'Please have the order ready for pickup.'
+FROM users u
+JOIN farmers f ON f.user_id = (
+    SELECT id FROM users WHERE email = 'rachel.morgan@marketlink.demo'
+)
+JOIN markets m ON m.name = 'Riverfront Farmers Market'
+JOIN pickup_slots ps
+    ON ps.farmer_id = f.id
+    AND ps.market_id = m.id
+    AND ps.day_of_week = 'Saturday'
+WHERE u.email = 'daniel.brooks@marketlink.demo';
+
+INSERT INTO orders (customer_id, farmer_id, market_id, pickup_slot_id, pickup_date, status, subtotal, notes)
+SELECT
+    u.id,
+    f.id,
+    m.id,
+    ps.id,
+    DATE_SUB(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 2 DAY),
+    'completed',
+    20.69,
+    'Thank you.'
+FROM users u
+JOIN farmers f ON f.user_id = (
+    SELECT id FROM users WHERE email = 'andrew.coleman@marketlink.demo'
+)
+JOIN markets m ON m.name = 'Riverfront Farmers Market'
+JOIN pickup_slots ps
+    ON ps.farmer_id = f.id
+    AND ps.market_id = m.id
+    AND ps.day_of_week = 'Saturday'
+WHERE u.email = 'emily.carter@marketlink.demo';
+
+INSERT INTO orders (customer_id, farmer_id, market_id, pickup_slot_id, pickup_date, status, subtotal, notes)
+SELECT
+    u.id,
+    f.id,
+    m.id,
+    ps.id,
+    DATE_SUB(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 2 DAY),
+    'completed',
+    23.94,
+    'Please keep the fruit together.'
+FROM users u
+JOIN farmers f ON f.user_id = (
+    SELECT id FROM users WHERE email = 'jessica.warren@marketlink.demo'
+)
+JOIN markets m ON m.name = 'Capitol Hill Farmers Market'
+JOIN pickup_slots ps
+    ON ps.farmer_id = f.id
+    AND ps.market_id = m.id
+    AND ps.day_of_week = 'Saturday'
+WHERE u.email = 'michael.turner@marketlink.demo';
+
+INSERT INTO orders (customer_id, farmer_id, market_id, pickup_slot_id, pickup_date, status, subtotal, notes)
+SELECT
+    u.id,
+    f.id,
+    m.id,
+    ps.id,
+    DATE_SUB(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 2 DAY),
+    'completed',
+    20.97,
+    'Fresh items preferred.'
+FROM users u
+JOIN farmers f ON f.user_id = (
+    SELECT id FROM users WHERE email = 'thomas.mitchell@marketlink.demo'
+)
+JOIN markets m ON m.name = 'Downtown Austin Farmers Market'
+JOIN pickup_slots ps
+    ON ps.farmer_id = f.id
+    AND ps.market_id = m.id
+    AND ps.day_of_week = 'Saturday'
+WHERE u.email = 'sophia.bennett@marketlink.demo';
+
+INSERT INTO orders (customer_id, farmer_id, market_id, pickup_slot_id, pickup_date, status, subtotal, notes)
+SELECT
+    u.id,
+    f.id,
+    m.id,
+    ps.id,
+    DATE_SUB(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 2 DAY),
+    'completed',
+    14.45,
+    'Please package carefully.'
+FROM users u
+JOIN farmers f ON f.user_id = (
+    SELECT id FROM users WHERE email = 'laura.peterson@marketlink.demo'
+)
+JOIN markets m ON m.name = 'North Hills Farmers Market'
+JOIN pickup_slots ps
+    ON ps.farmer_id = f.id
+    AND ps.market_id = m.id
+    AND ps.day_of_week = 'Saturday'
+WHERE u.email = 'james.wilson@marketlink.demo';
+
+INSERT INTO orders (customer_id, farmer_id, market_id, pickup_slot_id, pickup_date, status, subtotal, notes)
+SELECT
+    u.id,
+    f.id,
+    m.id,
+    ps.id,
+    DATE_SUB(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 2 DAY),
+    'ready',
+    19.98,
+    'I will pick this up during the morning slot.'
+FROM users u
+JOIN farmers f ON f.user_id = (
+    SELECT id FROM users WHERE email = 'robert.lawson@marketlink.demo'
+)
+JOIN markets m ON m.name = 'Downtown Austin Farmers Market'
+JOIN pickup_slots ps
+    ON ps.farmer_id = f.id
+    AND ps.market_id = m.id
+    AND ps.day_of_week = 'Saturday'
+WHERE u.email = 'olivia.mitchell@marketlink.demo';
+
+INSERT INTO orders (customer_id, farmer_id, market_id, pickup_slot_id, pickup_date, status, subtotal, notes)
+SELECT
+    u.id,
+    f.id,
+    m.id,
+    ps.id,
+    DATE_SUB(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 2 DAY),
+    'preparing',
+    14.97,
+    'Looking forward to the order.'
+FROM users u
+JOIN farmers f ON f.user_id = (
+    SELECT id FROM users WHERE email = 'amanda.foster@marketlink.demo'
+)
+JOIN markets m ON m.name = 'North Hills Farmers Market'
+JOIN pickup_slots ps
+    ON ps.farmer_id = f.id
+    AND ps.market_id = m.id
+    AND ps.day_of_week = 'Saturday'
+WHERE u.email = 'ethan.parker@marketlink.demo';
+
+INSERT INTO orders (customer_id, farmer_id, market_id, pickup_slot_id, pickup_date, status, subtotal, notes)
+SELECT
+    u.id,
+    f.id,
+    m.id,
+    ps.id,
+    DATE_ADD(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 5 DAY),
+    'accepted',
+    18.47,
+    'Please have everything ready by pickup time.'
+FROM users u
+JOIN farmers f ON f.user_id = (
+    SELECT id FROM users WHERE email = 'rachel.morgan@marketlink.demo'
+)
+JOIN markets m ON m.name = 'Riverfront Farmers Market'
+JOIN pickup_slots ps
+    ON ps.farmer_id = f.id
+    AND ps.market_id = m.id
+    AND ps.day_of_week = 'Saturday'
+WHERE u.email = 'ava.richardson@marketlink.demo';
+
+INSERT INTO orders (customer_id, farmer_id, market_id, pickup_slot_id, pickup_date, status, subtotal, notes)
+SELECT
+    u.id,
+    f.id,
+    m.id,
+    ps.id,
+    DATE_ADD(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 5 DAY),
+    'pending',
+    17.98,
+    'Please confirm the order when possible.'
+FROM users u
+JOIN farmers f ON f.user_id = (
+    SELECT id FROM users WHERE email = 'jessica.warren@marketlink.demo'
+)
+JOIN markets m ON m.name = 'Capitol Hill Farmers Market'
+JOIN pickup_slots ps
+    ON ps.farmer_id = f.id
+    AND ps.market_id = m.id
+    AND ps.day_of_week = 'Saturday'
+WHERE u.email = 'benjamin.cooper@marketlink.demo';
+
+INSERT INTO orders (customer_id, farmer_id, market_id, pickup_slot_id, pickup_date, status, subtotal, notes)
+SELECT
+    u.id,
+    f.id,
+    m.id,
+    ps.id,
+    DATE_ADD(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 5 DAY),
+    'pending',
+    13.95,
+    'Morning pickup requested.'
+FROM users u
+JOIN farmers f ON f.user_id = (
+    SELECT id FROM users WHERE email = 'andrew.coleman@marketlink.demo'
+)
+JOIN markets m ON m.name = 'Riverfront Farmers Market'
+JOIN pickup_slots ps
+    ON ps.farmer_id = f.id
+    AND ps.market_id = m.id
+    AND ps.day_of_week = 'Saturday'
+WHERE u.email = 'mia.anderson@marketlink.demo';
+
+INSERT INTO orders (customer_id, farmer_id, market_id, pickup_slot_id, pickup_date, status, subtotal, notes)
+SELECT
+    u.id,
+    f.id,
+    m.id,
+    ps.id,
+    DATE_ADD(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 5 DAY),
+    'cancelled',
+    9.98,
+    'Customer cancelled before preparation.'
+FROM users u
+JOIN farmers f ON f.user_id = (
+    SELECT id FROM users WHERE email = 'thomas.mitchell@marketlink.demo'
+)
+JOIN markets m ON m.name = 'Downtown Austin Farmers Market'
+JOIN pickup_slots ps
+    ON ps.farmer_id = f.id
+    AND ps.market_id = m.id
+    AND ps.day_of_week = 'Saturday'
+WHERE u.email = 'lucas.morgan@marketlink.demo';
+
+INSERT INTO orders (customer_id, farmer_id, market_id, pickup_slot_id, pickup_date, status, subtotal, notes)
+SELECT
+    u.id,
+    f.id,
+    m.id,
+    ps.id,
+    DATE_ADD(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 5 DAY),
+    'accepted',
+    16.47,
+    'Weekly pickup order.'
+FROM users u
+JOIN farmers f ON f.user_id = (
+    SELECT id FROM users WHERE email = 'jessica.warren@marketlink.demo'
+)
+JOIN markets m ON m.name = 'Capitol Hill Farmers Market'
+JOIN pickup_slots ps
+    ON ps.farmer_id = f.id
+    AND ps.market_id = m.id
+    AND ps.day_of_week = 'Saturday'
+WHERE u.email = 'charlotte.hayes@marketlink.demo';
+
+COMMIT;
+
+START TRANSACTION;
+
+INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal)
+SELECT
+    o.id,
+    p.id,
+    5,
+    p.price,
+    ROUND(5 * p.price, 2)
+FROM orders o
+JOIN products p ON p.name = 'tomatoes'
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'daniel.brooks@marketlink.demo'
+)
+AND o.farmer_id = (
+    SELECT f.id
+    FROM farmers f
+    JOIN users u ON u.id = f.user_id
+    WHERE u.email = 'rachel.morgan@marketlink.demo'
+)
+AND o.status = 'completed';
+
+INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal)
+SELECT
+    o.id,
+    p.id,
+    1,
+    p.price,
+    p.price
+FROM orders o
+JOIN products p ON p.name = 'tomatoes'
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'daniel.brooks@marketlink.demo'
+)
+AND o.farmer_id = (
+    SELECT f.id
+    FROM farmers f
+    JOIN users u ON u.id = f.user_id
+    WHERE u.email = 'rachel.morgan@marketlink.demo'
+)
+AND o.status = 'completed'
+LIMIT 1;
+
+INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal)
+SELECT
+    o.id,
+    p.id,
+    1,
+    p.price,
+    p.price
+FROM orders o
+JOIN products p ON p.name = 'mint'
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'daniel.brooks@marketlink.demo'
+)
+AND o.farmer_id = (
+    SELECT f.id
+    FROM farmers f
+    JOIN users u ON u.id = f.user_id
+    WHERE u.email = 'rachel.morgan@marketlink.demo'
+)
+AND o.status = 'completed'
+LIMIT 1;
+
+INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal)
+SELECT
+    o.id,
+    p.id,
+    5,
+    p.price,
+    ROUND(5 * p.price, 2)
+FROM orders o
+JOIN products p ON p.name = 'cucumbers'
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'emily.carter@marketlink.demo'
+)
+AND o.farmer_id = (
+    SELECT f.id
+    FROM farmers f
+    JOIN users u ON u.id = f.user_id
+    WHERE u.email = 'andrew.coleman@marketlink.demo'
+)
+AND o.status = 'completed';
+
+INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal)
+SELECT
+    o.id,
+    p.id,
+    1,
+    p.price,
+    p.price
+FROM orders o
+JOIN products p ON p.name = 'tomatoes'
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'emily.carter@marketlink.demo'
+)
+AND o.farmer_id = (
+    SELECT f.id
+    FROM farmers f
+    JOIN users u ON u.id = f.user_id
+    WHERE u.email = 'andrew.coleman@marketlink.demo'
+)
+AND o.status = 'completed'
+LIMIT 1;
+
+INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal)
+SELECT
+    o.id,
+    p.id,
+    1,
+    p.price,
+    p.price
+FROM orders o
+JOIN products p ON p.name = 'mint'
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'emily.carter@marketlink.demo'
+)
+AND o.farmer_id = (
+    SELECT f.id
+    FROM farmers f
+    JOIN users u ON u.id = f.user_id
+    WHERE u.email = 'andrew.coleman@marketlink.demo'
+)
+AND o.status = 'completed'
+LIMIT 1;
+
+INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal)
+SELECT
+    o.id,
+    p.id,
+    3,
+    p.price,
+    ROUND(3 * p.price, 2)
+FROM orders o
+JOIN products p ON p.name = 'tomatoes'
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'michael.turner@marketlink.demo'
+)
+AND o.farmer_id = (
+    SELECT f.id
+    FROM farmers f
+    JOIN users u ON u.id = f.user_id
+    WHERE u.email = 'jessica.warren@marketlink.demo'
+)
+AND o.status = 'completed';
+
+INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal)
+SELECT
+    o.id,
+    p.id,
+    3,
+    p.price,
+    ROUND(3 * p.price, 2)
+FROM orders o
+JOIN products p ON p.name = 'mangoes'
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'michael.turner@marketlink.demo'
+)
+AND o.farmer_id = (
+    SELECT f.id
+    FROM farmers f
+    JOIN users u ON u.id = f.user_id
+    WHERE u.email = 'jessica.warren@marketlink.demo'
+)
+AND o.status = 'completed';
+
+INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal)
+SELECT
+    o.id,
+    p.id,
+    2,
+    p.price,
+    ROUND(2 * p.price, 2)
+FROM orders o
+JOIN products p ON p.name = 'cow milk'
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'sophia.bennett@marketlink.demo'
+)
+AND o.farmer_id = (
+    SELECT f.id
+    FROM farmers f
+    JOIN users u ON u.id = f.user_id
+    WHERE u.email = 'thomas.mitchell@marketlink.demo'
+)
+AND o.status = 'completed';
+
+INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal)
+SELECT
+    o.id,
+    p.id,
+    1,
+    p.price,
+    p.price
+FROM orders o
+JOIN products p ON p.name = 'white cheese'
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'sophia.bennett@marketlink.demo'
+)
+AND o.farmer_id = (
+    SELECT f.id
+    FROM farmers f
+    JOIN users u ON u.id = f.user_id
+    WHERE u.email = 'thomas.mitchell@marketlink.demo'
+)
+AND o.status = 'completed'
+LIMIT 1;
+
+INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal)
+SELECT
+    o.id,
+    p.id,
+    2,
+    p.price,
+    ROUND(2 * p.price, 2)
+FROM orders o
+JOIN products p ON p.name = 'tomatoes'
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'james.wilson@marketlink.demo'
+)
+AND o.farmer_id = (
+    SELECT f.id
+    FROM farmers f
+    JOIN users u ON u.id = f.user_id
+    WHERE u.email = 'laura.peterson@marketlink.demo'
+)
+AND o.status = 'completed';
+
+INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal)
+SELECT
+    o.id,
+    p.id,
+    3,
+    p.price,
+    ROUND(3 * p.price, 2)
+FROM orders o
+JOIN products p ON p.name = 'bananas'
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'james.wilson@marketlink.demo'
+)
+AND o.farmer_id = (
+    SELECT f.id
+    FROM farmers f
+    JOIN users u ON u.id = f.user_id
+    WHERE u.email = 'laura.peterson@marketlink.demo'
+)
+AND o.status = 'completed';
+
+INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal)
+SELECT
+    o.id,
+    p.id,
+    2,
+    p.price,
+    ROUND(2 * p.price, 2)
+FROM orders o
+JOIN products p ON p.name = 'tomatoes'
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'olivia.mitchell@marketlink.demo'
+)
+AND o.farmer_id = (
+    SELECT f.id
+    FROM farmers f
+    JOIN users u ON u.id = f.user_id
+    WHERE u.email = 'robert.lawson@marketlink.demo'
+)
+AND o.status = 'ready';
+
+INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal)
+SELECT
+    o.id,
+    p.id,
+    4,
+    p.price,
+    ROUND(4 * p.price, 2)
+FROM orders o
+JOIN products p ON p.name = 'zucchini'
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'olivia.mitchell@marketlink.demo'
+)
+AND o.farmer_id = (
+    SELECT f.id
+    FROM farmers f
+    JOIN users u ON u.id = f.user_id
+    WHERE u.email = 'robert.lawson@marketlink.demo'
+)
+AND o.status = 'ready';
+
+INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal)
+SELECT
+    o.id,
+    p.id,
+    3,
+    p.price,
+    ROUND(3 * p.price, 2)
+FROM orders o
+JOIN products p ON p.name = 'tomatoes'
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'ethan.parker@marketlink.demo'
+)
+AND o.farmer_id = (
+    SELECT f.id
+    FROM farmers f
+    JOIN users u ON u.id = f.user_id
+    WHERE u.email = 'amanda.foster@marketlink.demo'
+)
+AND o.status = 'preparing';
+
+INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal)
+SELECT
+    o.id,
+    p.id,
+    2,
+    p.price,
+    ROUND(2 * p.price, 2)
+FROM orders o
+JOIN products p ON p.name = 'mint'
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'ethan.parker@marketlink.demo'
+)
+AND o.farmer_id = (
+    SELECT f.id
+    FROM farmers f
+    JOIN users u ON u.id = f.user_id
+    WHERE u.email = 'amanda.foster@marketlink.demo'
+)
+AND o.status = 'preparing';
+
+INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal)
+SELECT
+    o.id,
+    p.id,
+    1,
+    p.price,
+    p.price
+FROM orders o
+JOIN products p ON p.name = 'tomatoes'
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'ava.richardson@marketlink.demo'
+)
+AND o.farmer_id = (
+    SELECT f.id
+    FROM farmers f
+    JOIN users u ON u.id = f.user_id
+    WHERE u.email = 'rachel.morgan@marketlink.demo'
+)
+AND o.status = 'accepted';
+
+INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal)
+SELECT
+    o.id,
+    p.id,
+    2,
+    p.price,
+    ROUND(2 * p.price, 2)
+FROM orders o
+JOIN products p ON p.name = 'white cheese'
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'ava.richardson@marketlink.demo'
+)
+AND o.farmer_id = (
+    SELECT f.id
+    FROM farmers f
+    JOIN users u ON u.id = f.user_id
+    WHERE u.email = 'rachel.morgan@marketlink.demo'
+)
+AND o.status = 'accepted';
+
+INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal)
+SELECT
+    o.id,
+    p.id,
+    4,
+    p.price,
+    ROUND(4 * p.price, 2)
+FROM orders o
+JOIN products p ON p.name = 'zucchini'
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'benjamin.cooper@marketlink.demo'
+)
+AND o.farmer_id = (
+    SELECT f.id
+    FROM farmers f
+    JOIN users u ON u.id = f.user_id
+    WHERE u.email = 'jessica.warren@marketlink.demo'
+)
+AND o.status = 'pending';
+
+INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal)
+SELECT
+    o.id,
+    p.id,
+    2,
+    p.price,
+    ROUND(2 * p.price, 2)
+FROM orders o
+JOIN products p ON p.name = 'bananas'
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'benjamin.cooper@marketlink.demo'
+)
+AND o.farmer_id = (
+    SELECT f.id
+    FROM farmers f
+    JOIN users u ON u.id = f.user_id
+    WHERE u.email = 'jessica.warren@marketlink.demo'
+)
+AND o.status = 'pending';
+
+INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal)
+SELECT
+    o.id,
+    p.id,
+    3,
+    p.price,
+    ROUND(3 * p.price, 2)
+FROM orders o
+JOIN products p ON p.name = 'cucumbers'
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'mia.anderson@marketlink.demo'
+)
+AND o.farmer_id = (
+    SELECT f.id
+    FROM farmers f
+    JOIN users u ON u.id = f.user_id
+    WHERE u.email = 'andrew.coleman@marketlink.demo'
+)
+AND o.status = 'pending';
+
+INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal)
+SELECT
+    o.id,
+    p.id,
+    2,
+    p.price,
+    ROUND(2 * p.price, 2)
+FROM orders o
+JOIN products p ON p.name = 'bananas'
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'mia.anderson@marketlink.demo'
+)
+AND o.farmer_id = (
+    SELECT f.id
+    FROM farmers f
+    JOIN users u ON u.id = f.user_id
+    WHERE u.email = 'andrew.coleman@marketlink.demo'
+)
+AND o.status = 'pending';
+
+INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal)
+SELECT
+    o.id,
+    p.id,
+    1,
+    p.price,
+    p.price
+FROM orders o
+JOIN products p ON p.name = 'tomatoes'
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'lucas.morgan@marketlink.demo'
+)
+AND o.farmer_id = (
+    SELECT f.id
+    FROM farmers f
+    JOIN users u ON u.id = f.user_id
+    WHERE u.email = 'thomas.mitchell@marketlink.demo'
+)
+AND o.status = 'cancelled';
+
+INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal)
+SELECT
+    o.id,
+    p.id,
+    1,
+    p.price,
+    p.price
+FROM orders o
+JOIN products p ON p.name = 'homemade tomato sauce'
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'lucas.morgan@marketlink.demo'
+)
+AND o.farmer_id = (
+    SELECT f.id
+    FROM farmers f
+    JOIN users u ON u.id = f.user_id
+    WHERE u.email = 'thomas.mitchell@marketlink.demo'
+)
+AND o.status = 'cancelled';
+
+INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal)
+SELECT
+    o.id,
+    p.id,
+    1,
+    p.price,
+    p.price
+FROM orders o
+JOIN products p ON p.name = 'tomatoes'
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'charlotte.hayes@marketlink.demo'
+)
+AND o.farmer_id = (
+    SELECT f.id
+    FROM farmers f
+    JOIN users u ON u.id = f.user_id
+    WHERE u.email = 'jessica.warren@marketlink.demo'
+)
+AND o.status = 'accepted';
+
+INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal)
+SELECT
+    o.id,
+    p.id,
+    2,
+    p.price,
+    ROUND(2 * p.price, 2)
+FROM orders o
+JOIN products p ON p.name = 'homemade tomato sauce'
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'charlotte.hayes@marketlink.demo'
+)
+AND o.farmer_id = (
+    SELECT f.id
+    FROM farmers f
+    JOIN users u ON u.id = f.user_id
+    WHERE u.email = 'jessica.warren@marketlink.demo'
+)
+AND o.status = 'accepted';
+
+INSERT INTO order_status_history (order_id, status, changed_by)
+SELECT
+    o.id,
+    'pending',
+    o.customer_id
+FROM orders o
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'daniel.brooks@marketlink.demo'
+);
+
+INSERT INTO order_status_history (order_id, status, changed_by)
+SELECT
+    o.id,
+    'accepted',
+    f.user_id
+FROM orders o
+JOIN farmers f ON f.id = o.farmer_id
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'daniel.brooks@marketlink.demo'
+);
+
+INSERT INTO order_status_history (order_id, status, changed_by)
+SELECT
+    o.id,
+    'preparing',
+    f.user_id
+FROM orders o
+JOIN farmers f ON f.id = o.farmer_id
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'daniel.brooks@marketlink.demo'
+);
+
+INSERT INTO order_status_history (order_id, status, changed_by)
+SELECT
+    o.id,
+    'ready',
+    f.user_id
+FROM orders o
+JOIN farmers f ON f.id = o.farmer_id
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'daniel.brooks@marketlink.demo'
+);
+
+INSERT INTO order_status_history (order_id, status, changed_by)
+SELECT
+    o.id,
+    'completed',
+    f.user_id
+FROM orders o
+JOIN farmers f ON f.id = o.farmer_id
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'daniel.brooks@marketlink.demo'
+);
+
+INSERT INTO order_status_history (order_id, status, changed_by)
+SELECT o.id, 'pending', o.customer_id
+FROM orders o
+WHERE o.status = 'completed'
+AND o.customer_id <> (
+    SELECT id FROM users WHERE email = 'daniel.brooks@marketlink.demo'
+);
+
+INSERT INTO order_status_history (order_id, status, changed_by)
+SELECT o.id, 'accepted', f.user_id
+FROM orders o
+JOIN farmers f ON f.id = o.farmer_id
+WHERE o.status = 'completed'
+AND o.customer_id <> (
+    SELECT id FROM users WHERE email = 'daniel.brooks@marketlink.demo'
+);
+
+INSERT INTO order_status_history (order_id, status, changed_by)
+SELECT o.id, 'preparing', f.user_id
+FROM orders o
+JOIN farmers f ON f.id = o.farmer_id
+WHERE o.status = 'completed'
+AND o.customer_id <> (
+    SELECT id FROM users WHERE email = 'daniel.brooks@marketlink.demo'
+);
+
+INSERT INTO order_status_history (order_id, status, changed_by)
+SELECT o.id, 'ready', f.user_id
+FROM orders o
+JOIN farmers f ON f.id = o.farmer_id
+WHERE o.status = 'completed'
+AND o.customer_id <> (
+    SELECT id FROM users WHERE email = 'daniel.brooks@marketlink.demo'
+);
+
+INSERT INTO order_status_history (order_id, status, changed_by)
+SELECT o.id, 'completed', f.user_id
+FROM orders o
+JOIN farmers f ON f.id = o.farmer_id
+WHERE o.status = 'completed'
+AND o.customer_id <> (
+    SELECT id FROM users WHERE email = 'daniel.brooks@marketlink.demo'
+);
+
+INSERT INTO order_status_history (order_id, status, changed_by)
+SELECT o.id, 'pending', o.customer_id
+FROM orders o
+WHERE o.status = 'ready';
+
+INSERT INTO order_status_history (order_id, status, changed_by)
+SELECT o.id, 'accepted', f.user_id
+FROM orders o
+JOIN farmers f ON f.id = o.farmer_id
+WHERE o.status = 'ready';
+
+INSERT INTO order_status_history (order_id, status, changed_by)
+SELECT o.id, 'preparing', f.user_id
+FROM orders o
+JOIN farmers f ON f.id = o.farmer_id
+WHERE o.status = 'ready';
+
+INSERT INTO order_status_history (order_id, status, changed_by)
+SELECT o.id, 'ready', f.user_id
+FROM orders o
+JOIN farmers f ON f.id = o.farmer_id
+WHERE o.status = 'ready';
+
+INSERT INTO order_status_history (order_id, status, changed_by)
+SELECT o.id, 'pending', o.customer_id
+FROM orders o
+WHERE o.status = 'preparing';
+
+INSERT INTO order_status_history (order_id, status, changed_by)
+SELECT o.id, 'accepted', f.user_id
+FROM orders o
+JOIN farmers f ON f.id = o.farmer_id
+WHERE o.status = 'preparing';
+
+INSERT INTO order_status_history (order_id, status, changed_by)
+SELECT o.id, 'preparing', f.user_id
+FROM orders o
+JOIN farmers f ON f.id = o.farmer_id
+WHERE o.status = 'preparing';
+
+INSERT INTO order_status_history (order_id, status, changed_by)
+SELECT o.id, 'pending', o.customer_id
+FROM orders o
+WHERE o.status = 'accepted';
+
+INSERT INTO order_status_history (order_id, status, changed_by)
+SELECT o.id, 'accepted', f.user_id
+FROM orders o
+JOIN farmers f ON f.id = o.farmer_id
+WHERE o.status = 'accepted';
+
+INSERT INTO order_status_history (order_id, status, changed_by)
+SELECT o.id, 'pending', o.customer_id
+FROM orders o
+WHERE o.status = 'pending';
+
+INSERT INTO order_status_history (order_id, status, changed_by)
+SELECT o.id, 'pending', o.customer_id
+FROM orders o
+WHERE o.status = 'cancelled';
+
+INSERT INTO order_status_history (order_id, status, changed_by)
+SELECT o.id, 'cancelled', o.customer_id
+FROM orders o
+WHERE o.status = 'cancelled';
+
+INSERT INTO reviews (customer_id, farmer_id, product_id, order_id, rating, comment, status, farmer_response, farmer_response_at)
+SELECT
+    o.customer_id,
+    o.farmer_id,
+    p.id,
+    o.id,
+    5,
+    'The tomatoes were fresh and excellent quality.',
+    'approved',
+    'Thank you for your kind review.',
+    NOW()
+FROM orders o
+JOIN products p ON p.name = 'tomatoes'
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'daniel.brooks@marketlink.demo'
+)
+AND o.status = 'completed';
+
+INSERT INTO reviews (customer_id, farmer_id, product_id, order_id, rating, comment, status, farmer_response, farmer_response_at)
+SELECT
+    o.customer_id,
+    o.farmer_id,
+    p.id,
+    o.id,
+    4,
+    'Everything was fresh and well prepared.',
+    'approved',
+    'We appreciate your feedback.',
+    NOW()
+FROM orders o
+JOIN products p ON p.name = 'cucumbers'
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'emily.carter@marketlink.demo'
+)
+AND o.status = 'completed';
+
+INSERT INTO reviews (customer_id, farmer_id, product_id, order_id, rating, comment, status, farmer_response, farmer_response_at)
+SELECT
+    o.customer_id,
+    o.farmer_id,
+    p.id,
+    o.id,
+    5,
+    'The fruit was fresh and flavorful.',
+    'approved',
+    'Thank you. We are glad you enjoyed it.',
+    NOW()
+FROM orders o
+JOIN products p ON p.name = 'mangoes'
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'michael.turner@marketlink.demo'
+)
+AND o.status = 'completed';
+
+INSERT INTO reviews (customer_id, farmer_id, product_id, order_id, rating, comment, status, farmer_response, farmer_response_at)
+SELECT
+    o.customer_id,
+    o.farmer_id,
+    p.id,
+    o.id,
+    5,
+    'The dairy products were fresh and carefully packaged.',
+    'approved',
+    'Thank you for supporting our farm.',
+    NOW()
+FROM orders o
+JOIN products p ON p.name = 'cow milk'
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'sophia.bennett@marketlink.demo'
+)
+AND o.status = 'completed';
+
+INSERT INTO reviews (customer_id, farmer_id, product_id, order_id, rating, comment, status, farmer_response, farmer_response_at)
+SELECT
+    o.customer_id,
+    o.farmer_id,
+    p.id,
+    o.id,
+    4,
+    'The produce was fresh and good quality.',
+    'pending',
+    NULL,
+    NULL
+FROM orders o
+JOIN products p ON p.name = 'bananas'
+WHERE o.customer_id = (
+    SELECT id FROM users WHERE email = 'james.wilson@marketlink.demo'
+)
+AND o.status = 'completed';
+
+COMMIT;
