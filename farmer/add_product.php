@@ -3,7 +3,6 @@
 require_once __DIR__ . '/../includes/include.php';
 
 requireRole(R_FARMER);
-
 requireApprovedFarmer();
 
 $default_categories = [
@@ -25,49 +24,42 @@ $category_insert = $conn->prepare("
 ");
 
 foreach ($default_categories as $category_name) {
-
     $category_insert->bind_param("s", $category_name);
     $category_insert->execute();
-
 }
 
 $category_insert->close();
 
 $user_id = getUserId();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST'){
 
-    $stmt = $conn->prepare("
-        SELECT id
-        FROM farmers
-        WHERE user_id = ?
-        LIMIT 1
-    ");
+$stmt = $conn->prepare("
+    SELECT id
+    FROM farmers
+    WHERE user_id = ?
+    LIMIT 1");
 
-    $stmt->bind_param("i", $user_id);
-    $stmt->execute();
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
 
-    $result = $stmt->get_result();
-    $farmer = $result->fetch_assoc();
+$result = $stmt->get_result();
+$farmer = $result->fetch_assoc();
 
-    $farmer_id = $farmer['id'];
+$farmer_id =$farmer['id'];
 
-    $name = trim($_POST['name'] ?? '');
+    $name = trim($_POST['name']);
+    $category_id = (int) $_POST['category_id'];
+    $description = trim($_POST['description']);
+    $price = (float) $_POST['price'];
+    $unit = trim($_POST['unit']);
+    $stock_quantity = (float) $_POST['stock_quantity'];
 
-    $category_id = (int) ($_POST['category_id'] ?? 0);
+    $image_name = $_FILES['image']['name'];
+    $image_tmp = $_FILES['image']['tmp_name'];
 
-    $description = trim($_POST['description'] ?? '');
-
-    $price_input = trim($_POST['price'] ?? '');
-    $price = (float) $price_input;
-
-    $unit = trim($_POST['unit'] ?? '');
-
-    $stock_input = trim($_POST['stock_quantity'] ?? '');
-    $stock_quantity = (float) $stock_input;
-
-    $image_name = '';
-    $image_db_path = '';
+    $image_extension = strtolower(pathinfo($image_name, PATHINFO_EXTENSION));
+    $new_image_name = uniqid('product_', true) . '.' . $image_extension;
 
 if (
     empty($name) ||
@@ -128,11 +120,24 @@ $stmt = $conn->prepare("
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 ");
 
-        $image_info = getimagesize($image_tmp);
+$stmt->bind_param(
+    "iissdsds",
+    $farmer_id,
+    $category_id,
+    $name,
+    $description,
+    $price,
+    $unit,
+    $stock_quantity,
+    $image_db_path
+);
 
-        if ($image_info === false) {
-            die("Uploaded file is not a valid image.");
-        }
+if (!$stmt->execute()) {
+    die("Insert failed: " . $conn->error);
+}
+
+$stmt->close();
+
 
 // ==================================================
 // Notify interested customers about new stock
@@ -140,7 +145,7 @@ $stmt = $conn->prepare("
 
 $farmerInfoStmt = $conn->prepare("
     SELECT
-        f.stall_name, 
+        f.stall_name,
         GROUP_CONCAT(mf.market_id) AS market_ids
     FROM farmers f
     LEFT JOIN market_farmer mf
@@ -218,16 +223,13 @@ $success_message = "Product added successfully!";
 }
 
 $category_stmt = $conn->prepare("
-    SELECT id, name
+    SELECT id , name
     FROM categories
     WHERE status = 'active'
-    ORDER BY name ASC
-");
+    ORDER BY name ASC");
 
 $category_stmt->execute();
-
 $categories = $category_stmt->get_result();
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -282,7 +284,7 @@ $categories = $category_stmt->get_result();
             <br><br>
 
             <label for="description">Description</label>
-            <textarea id="description" name="description" required></textarea>
+            <textarea id="description" name="description"></textarea>
             <br><br>
 
             <label for="price">Price</label>
