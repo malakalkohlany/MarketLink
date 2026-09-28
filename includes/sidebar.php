@@ -395,19 +395,6 @@ function hasSubmenu(array $pages): bool
 
             <ul class="sidebar-list">
 
-                <!-- My Stall -->
-                <li>
-                    <a
-                        href="<?= BASE_URL ?>farmer/stall.php"
-                        class="<?= isActive(['stall.php']) ?>"
-                    >
-                        <span class="nav-icon">
-                            <i data-lucide="store"></i>
-                        </span>
-
-                        <span>My Stall</span>
-                    </a>
-                </li>
 
 
                 <!-- Markets -->
