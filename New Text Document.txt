@@ -2,7 +2,7 @@
 
 ## Local Farmers and Markets E-Commerce Platform
 
----
+---------
 
 # 1. Project Overview
 
@@ -14,7 +14,7 @@ Farmers can manage their products and orders, while administrators can manage th
 
 The system was developed using PHP, MySQL/MariaDB, HTML, CSS, JavaScript, and XAMPP. phpMyAdmin was used as a database management tool.
 
----
+---------
 
 # 2. Problem Definition
 
@@ -24,7 +24,7 @@ Farmers may also have difficulty presenting their products online, reaching cust
 
 There is therefore a need for a centralized platform that connects customers, farmers, and markets and organizes the process of browsing products and placing orders.
 
----
+---------
 
 # 3. Proposed Solution
 
@@ -43,7 +43,7 @@ Customers can:
 
 The system also provides separate interfaces for farmers and administrators according to their roles and permissions.
 
----
+---------
 
 # 4. Project Objectives
 
@@ -56,7 +56,7 @@ The system also provides separate interfaces for farmers and administrators acco
 7. Provide administrators with centralized management tools.
 8. Protect the system using authentication and role-based authorization.
 
----
+---------
 
 # 5. Design Specifications
 
@@ -79,7 +79,6 @@ Database name: `marketlink`
 
 The main database tables are:
 
-```text
 users
 farmers
 categories
@@ -99,11 +98,11 @@ announcements
 pickup_slots
 weekly_stock
 weekly_stock_templates
-```
+
 
 The database stores users, farmers, products, orders, reviews, markets, favorites, notifications, and other system information.
 
----
+---------
 
 # 6. System Architecture
 
@@ -124,8 +123,6 @@ The database stores users, farmers, products, orders, reviews, markets, favorite
 |   MySQL / MariaDB    |
 |       Database       |
 +----------------------+
-```
-
 The user interacts with the system through a web browser.
 
 The PHP application processes user requests and applies the appropriate business logic according to the user's role.
@@ -137,3 +134,85 @@ The system supports three main roles:
 * **Customer:** browses products, manages favorites, places orders, and submits reviews.
 * **Farmer:** manages products and handles customer orders.
 * **Admin:** manages the main system data and monitors the platform.
+
+---------
+# 7. Database Design
+
+The MarketLink database uses a relational database structure to store and organize the system's data.
+
+The database contains tables for users, farmers, products, categories, orders, reviews, markets, favorites, notifications, and other system operations.
+
+Primary keys and foreign keys are used to connect related tables and maintain data consistency.
+
+---------
+8. Entity Relationship Diagram (ERD)
+
+The Entity Relationship Diagram (ERD) represents the main entities in the MarketLink database and shows the relationships between them.
+
+The ERD illustrates how users, farmers, products, categories, orders, order items, reviews, markets, and favorites are connected within the database.
+
+The diagram helps explain the database structure and how data is related between different parts of the system
+---------
+# 9. Data Flow Diagram (DFD)
+
+The Data Flow Diagram (DFD) illustrates how data moves between the users, the MarketLink system, and the database.
+
+The DFD shows the main interactions of customers, farmers, and administrators with the system and how their data is processed and stored.
+---------
+# 10. Flowcharts
+
+Flowcharts are used to illustrate the main processes and workflows in the MarketLink system.
+
+The main processes include:
+
+* User Login and Authentication.
+* Browsing and Searching Products.
+* Adding Products to the Shopping Cart.
+* Placing an Order.
+* Managing Orders.
+* Submitting Product Reviews.
+---------
+# 10. User Interface Design
+
+The MarketLink user interface is designed to provide a simple and organized experience for customers, farmers, and administrators.
+
+Each user role has a separate interface based on its permissions and required functions.
+
+The interface includes navigation menus, product pages, order management pages, profile pages, and administrative management pages.
+---------
+# 11. Implementation Steps
+
+The MarketLink system was implemented through several main stages:
+
+1. Analyzing the project requirements and defining the system features.
+2. Designing the database and defining the required tables and relationships.
+3. Developing the backend using PHP.
+4. Developing the user interfaces using HTML, CSS, and JavaScript.
+5. Implementing authentication and role-based access for customers, farmers, and administrators.
+6. Implementing product browsing, favorites, shopping cart, orders, and reviews.
+7. Testing the system and fixing errors during development.
+---------
+# 12. Security
+
+Security features were implemented to protect the MarketLink system and its data.
+
+The main security measures include:
+
+* User authentication and login verification.
+* Role-based authorization for customers, farmers, and administrators.
+* Password hashing for securely storing user passwords.
+* Input validation to reduce invalid or unsafe data.
+* Session management to protect user accounts.
+* CSRF protection for important form submissions.
+---------
+# 13. Conclusion
+
+MarketLink provides a centralized platform that connects customers with local farmers and markets.
+
+The system supports product browsing, searching, favorites, shopping cart, orders, reviews, and role-based management for customers, farmers, and administrators.
+
+The project demonstrates how web technologies and database systems can be used to provide an organized and efficient solution for connecting local agricultural businesses with customers.
+
+
+
+
