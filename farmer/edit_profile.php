@@ -18,14 +18,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $phone = trim($_POST['phone'] ?? '');
     $address = trim($_POST['address'] ?? '');
     $email = trim($_POST['email'] ?? '');
-
     $stall_name = trim($_POST['stall_name'] ?? '');
     $contact_person = trim($_POST['contact_person'] ?? '');
     $description = trim($_POST['description'] ?? '');
     $farmer_address = trim($_POST['farmer_address'] ?? '');
 
-    $latitude = $_POST['latitude'] ?? null;
-    $longitude = $_POST['longitude'] ?? null;
+    $latitude = isset($_POST['latitude']) && $_POST['latitude'] !== ''
+        ? (float) $_POST['latitude']
+        : null;
+
+    $longitude = isset($_POST['longitude']) && $_POST['longitude'] !== ''
+        ? (float) $_POST['longitude']
+        : null;
 
     $market_ids = $_POST['market_ids'] ?? [];
 
@@ -34,32 +38,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $market_ids = array_map('intval', $market_ids);
-    $market_ids = array_values(array_unique(array_filter(
-        $market_ids,
-        function ($id) {
-            return $id > 0;
-        }
-    )));
+
+    $market_ids = array_values(
+        array_unique(
+            array_filter(
+                $market_ids,
+                function ($id) {
+                    return $id > 0;
+                }
+            )
+        )
+    );
 
     if (
         isset($_FILES['profile_image']) &&
         $_FILES['profile_image']['error'] !== UPLOAD_ERR_NO_FILE
     ) {
-
         if ($_FILES['profile_image']['error'] !== UPLOAD_ERR_OK) {
-            die("Failed to upload profile image.");
+            die('Failed to upload profile image.');
         }
 
         $image = $_FILES['profile_image'];
 
         if ($image['size'] > 2 * 1024 * 1024) {
-            die("Profile image must be less than 2 MB.");
+            die('Profile image must be less than 2 MB.');
         }
 
         $image_info = getimagesize($image['tmp_name']);
 
         if ($image_info === false) {
-            die("Invalid image file.");
+            die('Invalid image file.');
         }
 
         $allowed_types = [
@@ -69,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ];
 
         if (!in_array($image_info[2], $allowed_types, true)) {
-            die("Only JPG, PNG, and WEBP images are allowed.");
+            die('Only JPG, PNG, and WEBP images are allowed.');
         }
 
         $extensions = [
@@ -87,20 +95,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $file_name = 'farmer_' . $user_id . '.' . $extension;
-
         $upload_path = $upload_dir . $file_name;
 
         foreach (['jpg', 'png', 'webp'] as $old_extension) {
 
-            $old_file = $upload_dir . 'farmer_' . $user_id . '.' . $old_extension;
+            $old_file =
+                $upload_dir .
+                'farmer_' .
+                $user_id .
+                '.' .
+                $old_extension;
 
-            if ($old_file !== $upload_path && file_exists($old_file)) {
+            if (
+                $old_file !== $upload_path &&
+                file_exists($old_file)
+            ) {
                 unlink($old_file);
             }
         }
 
-        if (!move_uploaded_file($image['tmp_name'], $upload_path)) {
-            die("Failed to save profile image.");
+        if (!move_uploaded_file(
+            $image['tmp_name'],
+            $upload_path
+        )) {
+            die('Failed to save profile image.');
         }
     }
 
@@ -115,11 +133,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $conn->prepare($sql);
 
         if (!$stmt) {
-            throw new Exception("Failed to prepare user update.");
+            throw new Exception(
+                'Failed to prepare user update.'
+            );
         }
 
         $stmt->bind_param(
-            "ssssi",
+            'ssssi',
             $name,
             $phone,
             $email,
@@ -128,7 +148,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );
 
         if (!$stmt->execute()) {
-            throw new Exception("Failed to update user information.");
+            throw new Exception(
+                'Failed to update user information.'
+            );
         }
 
         $stmt->close();
@@ -145,11 +167,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $conn->prepare($sql);
 
         if (!$stmt) {
-            throw new Exception("Failed to prepare farmer update.");
+            throw new Exception(
+                'Failed to prepare farmer update.'
+            );
         }
 
         $stmt->bind_param(
-            "ssssddi",
+            'ssssddi',
             $stall_name,
             $contact_person,
             $description,
@@ -160,7 +184,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );
 
         if (!$stmt->execute()) {
-            throw new Exception("Failed to update farmer information.");
+            throw new Exception(
+                'Failed to update farmer information.'
+            );
         }
 
         $stmt->close();
@@ -173,10 +199,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $conn->prepare($farmer_sql);
 
         if (!$stmt) {
-            throw new Exception("Failed to prepare farmer query.");
+            throw new Exception(
+                'Failed to prepare farmer query.'
+            );
         }
 
-        $stmt->bind_param("i", $user_id);
+        $stmt->bind_param(
+            'i',
+            $user_id
+        );
+
         $stmt->execute();
 
         $farmer_result = $stmt->get_result();
@@ -185,7 +217,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->close();
 
         if (!$farmer_row) {
-            throw new Exception("Farmer not found.");
+            throw new Exception(
+                'Farmer not found.'
+            );
         }
 
         $farmer_id = (int) $farmer_row['id'];
@@ -196,13 +230,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $conn->prepare($delete_sql);
 
         if (!$stmt) {
-            throw new Exception("Failed to prepare market relationship delete.");
+            throw new Exception(
+                'Failed to prepare market relationship delete.'
+            );
         }
 
-        $stmt->bind_param("i", $farmer_id);
+        $stmt->bind_param(
+            'i',
+            $farmer_id
+        );
 
         if (!$stmt->execute()) {
-            throw new Exception("Failed to update farmer markets.");
+            throw new Exception(
+                'Failed to update farmer markets.'
+            );
         }
 
         $stmt->close();
@@ -216,19 +257,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $conn->prepare($insert_sql);
 
             if (!$stmt) {
-                throw new Exception("Failed to prepare market relationship insert.");
+                throw new Exception(
+                    'Failed to prepare market relationship insert.'
+                );
             }
 
             foreach ($market_ids as $market_id) {
 
                 $stmt->bind_param(
-                    "ii",
+                    'ii',
                     $farmer_id,
                     $market_id
                 );
 
                 if (!$stmt->execute()) {
-                    throw new Exception("Failed to save farmer market.");
+                    throw new Exception(
+                        'Failed to save farmer market.'
+                    );
                 }
             }
 
@@ -260,28 +305,32 @@ $sql = "SELECT
             farmers.latitude,
             farmers.longitude
         FROM users
-        INNER JOIN farmers ON farmers.user_id = users.id
-        WHERE users.id = ? AND users.role = 'farmer'
+        INNER JOIN farmers
+            ON farmers.user_id = users.id
+        WHERE users.id = ?
+          AND users.role = 'farmer'
         LIMIT 1";
 
 $stmt = $conn->prepare($sql);
 
 if (!$stmt) {
-    die("Failed to prepare farmer profile query.");
+    die('Failed to prepare farmer profile query.');
 }
 
-$stmt->bind_param("i", $user_id);
+$stmt->bind_param(
+    'i',
+    $user_id
+);
 
 $stmt->execute();
 
 $result = $stmt->get_result();
-
 $farmer = $result->fetch_assoc();
 
 $stmt->close();
 
 if (!$farmer) {
-    die("Farmer profile not found.");
+    die('Farmer profile not found.');
 }
 
 $farmer_id = (int) $farmer['farmer_id'];
@@ -298,7 +347,7 @@ $markets_sql = "SELECT
 $markets_result = $conn->query($markets_sql);
 
 if (!$markets_result) {
-    die("Failed to load markets.");
+    die('Failed to load markets.');
 }
 
 $markets = [];
@@ -314,10 +363,13 @@ $selected_sql = "SELECT market_id
 $stmt = $conn->prepare($selected_sql);
 
 if (!$stmt) {
-    die("Failed to prepare selected markets query.");
+    die('Failed to prepare selected markets query.');
 }
 
-$stmt->bind_param("i", $farmer_id);
+$stmt->bind_param(
+    'i',
+    $farmer_id
+);
 
 $stmt->execute();
 
@@ -332,8 +384,10 @@ while ($row = $selected_result->fetch_assoc()) {
 $stmt->close();
 
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
     <meta charset="UTF-8">
@@ -343,7 +397,7 @@ $stmt->close();
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Edit Profile</title>
+    <title>Edit Profile | MarketLink</title>
 
     <link
         rel="stylesheet"
@@ -357,12 +411,26 @@ $stmt->close();
 
     <link
         rel="stylesheet"
+        href="../assets/css/components.css"
+    >
+
+    <link
+        rel="stylesheet"
         href="../assets/css/navbar.css"
     >
 
     <link
         rel="stylesheet"
         href="../assets/css/sidebar.css"
+    >
+    <link
+        rel="stylesheet"
+        href="../assets/css/customer.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/profile.css"
     >
 
 </head>
@@ -373,290 +441,511 @@ $stmt->close();
 
     <?php require_once __DIR__ . '/../includes/sidebar.php'; ?>
 
-    <main class="main-content">
+    <main class="main-content farmer-edit-profile-page">
 
-        <h1>Edit Profile</h1>
+        <section class="customer-page-hero">
 
-        <form
-            action="edit_profile.php"
-            method="post"
-            enctype="multipart/form-data"
-        >
+            <div class="customer-page-hero-copy">
 
-            <?= csrf_field() ?>
+                <span class="eyebrow">
+                    FARMER / PROFILE
+                </span>
 
-            <section>
+                <h1>
+                    Edit your <em>profile.</em>
+                </h1>
 
-                <h2>Profile Image</h2>
+                <p>
+                    Keep your personal details, farmer information, markets, and location up to date on MarketLink.
+                </p>
 
-                <div>
+            </div>
 
-                    <label for="profile_image">
-                        Profile Image
-                    </label>
 
-                    <input
-                        type="file"
-                        id="profile_image"
-                        name="profile_image"
-                        accept=".jpg,.jpeg,.png,.webp"
-                    >
+        </section>
 
-                    <small>
-                        Allowed formats: JPG, PNG, WEBP. Maximum size: 2 MB.
-                    </small>
+        <section class="farmer-edit-profile-section">
 
-                </div>
-
-            </section>
-
-            <section>
-
-                <h2>Personal Information</h2>
+            <div class="farmer-edit-profile-heading">
 
                 <div>
 
-                    <label for="name">
-                        Full Name
-                    </label>
+                    <span class="customer-section-number">
+                        01 / EDIT PROFILE
+                    </span>
 
-                    <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        value="<?= htmlspecialchars($farmer['name'] ?? '') ?>"
-                    >
+                    <h2>
+                        Keep things <em>current.</em>
+                    </h2>
 
                 </div>
 
-                <div>
+            </div>
 
-                    <label for="email">
-                        Email Address
-                    </label>
-
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value="<?= htmlspecialchars($farmer['email'] ?? '') ?>"
-                    >
-
-                </div>
-
-                <div>
-
-                    <label for="phone">
-                        Phone Number
-                    </label>
-
-                    <input
-                        type="text"
-                        id="phone"
-                        name="phone"
-                        value="<?= htmlspecialchars($farmer['phone'] ?? '') ?>"
-                    >
-
-                </div>
-
-                <div>
-
-                    <label for="address">
-                        Address
-                    </label>
-
-                    <input
-                        type="text"
-                        id="address"
-                        name="address"
-                        value="<?= htmlspecialchars($farmer['address'] ?? '') ?>"
-                    >
-
-                </div>
-
-            </section>
-
-            <section>
-
-                <h2>Farmer Information</h2>
-
-                <div>
-
-                    <label for="stall_name">
-                        Business / Stall Name
-                    </label>
-
-                    <input
-                        type="text"
-                        id="stall_name"
-                        name="stall_name"
-                        value="<?= htmlspecialchars($farmer['stall_name'] ?? '') ?>"
-                    >
-
-                </div>
-
-                <div>
-
-                    <label for="contact_person">
-                        Contact Person
-                    </label>
-
-                    <input
-                        type="text"
-                        id="contact_person"
-                        name="contact_person"
-                        value="<?= htmlspecialchars($farmer['contact_person'] ?? '') ?>"
-                    >
-
-                </div>
-
-                <div>
-
-                    <label for="description">
-                        Description
-                    </label>
-
-                    <textarea
-                        name="description"
-                        id="description"
-                    ><?= htmlspecialchars($farmer['description'] ?? '') ?></textarea>
-
-                </div>
-
-                <div>
-
-                    <label for="farmer_address">
-                        Farmer Address
-                    </label>
-
-                    <input
-                        type="text"
-                        id="farmer_address"
-                        name="farmer_address"
-                        value="<?= htmlspecialchars($farmer['farmer_address'] ?? '') ?>"
-                    >
-
-                </div>
-
-            </section>
-
-            <section>
-
-                <h2>Markets</h2>
-
-                <div>
-
-                    <label for="market_ids">
-                        Markets where you sell
-                    </label>
-
-                    <select
-                        id="market_ids"
-                        name="market_ids[]"
-                        multiple
-                        size="6"
-                    >
-
-                        <?php foreach ($markets as $market): ?>
-
-                            <option
-                                value="<?= (int) $market['id'] ?>"
-                                <?= in_array(
-                                    (int) $market['id'],
-                                    $selected_markets,
-                                    true
-                                ) ? 'selected' : '' ?>
-                            >
-                                <?= htmlspecialchars($market['name']) ?>
-                                <?php if (!empty($market['address'])): ?>
-                                    - <?= htmlspecialchars($market['address']) ?>
-                                <?php endif; ?>
-                            </option>
-
-                        <?php endforeach; ?>
-
-                    </select>
-
-                    <small>
-                        Hold Ctrl on Windows or Command on Mac to select multiple markets.
-                    </small>
-
-                </div>
-
-            </section>
-
-            <section>
-
-                <h2>Farmer Location</h2>
-
-                <div>
-
-                    <label>
-                        Farmer Location
-                    </label>
-
-                    <p>
-                        Click on the map to select your stall location.
-                    </p>
-
-                    <div
-                        id="map"
-                        style="width: 100%; height: 400px;"
-                    ></div>
-
-                </div>
-
-                <div>
-
-                    <label for="latitude">
-                        Latitude
-                    </label>
-
-                    <input
-                        type="text"
-                        id="latitude"
-                        name="latitude"
-                        value="<?= htmlspecialchars($farmer['latitude'] ?? '') ?>"
-                    >
-
-                </div>
-
-                <div>
-
-                    <label for="longitude">
-                        Longitude
-                    </label>
-
-                    <input
-                        type="text"
-                        id="longitude"
-                        name="longitude"
-                        value="<?= htmlspecialchars($farmer['longitude'] ?? '') ?>"
-                    >
-
-                </div>
-
-            </section>
-
-            <button type="submit">
-                Save Changes
-            </button>
-
-            <button
-                type="button"
-                onclick="window.location.href='profile.php'"
+            <form
+                class="farmer-edit-profile-form"
+                action="edit_profile.php"
+                method="post"
+                enctype="multipart/form-data"
             >
-                Cancel
-            </button>
 
-        </form>
+                <?= csrf_field() ?>
+
+                <section class="farmer-edit-profile-card">
+
+                    <div class="farmer-edit-profile-card-heading">
+
+                        <div class="farmer-edit-profile-card-icon">
+                            <i data-lucide="image"></i>
+                        </div>
+
+                        <div>
+
+                            <span class="farmer-edit-profile-card-number">
+                                01
+                            </span>
+
+                            <h3>
+                                Profile image
+                            </h3>
+
+                        </div>
+
+                    </div>
+
+                    <div class="farmer-edit-profile-image-layout">
+
+                        <div class="farmer-edit-profile-current-image">
+
+                            <?php
+                            $profile_image = '../assets/images/farmers/default-farmer.png';
+
+                            foreach (['jpg', 'png', 'webp'] as $extension) {
+                                $image_path =
+                                    __DIR__ .
+                                    '/../assets/images/farmers/farmer_' .
+                                    $user_id .
+                                    '.' .
+                                    $extension;
+
+                                if (file_exists($image_path)) {
+                                    $profile_image =
+                                        '../assets/images/farmers/farmer_' .
+                                        $user_id .
+                                        '.' .
+                                        $extension;
+                                    break;
+                                }
+                            }
+                            ?>
+
+                            <img
+                                src="<?= e($profile_image) ?>"
+                                alt="Current farmer profile image"
+                            >
+
+                        </div>
+
+                        <div class="farmer-edit-profile-file">
+
+                            <label
+                                for="profile_image"
+                                class="farmer-edit-profile-file-label"
+                            >
+                                <i data-lucide="cloud-upload"></i>
+
+                                <span>
+                                    Choose a new profile image
+                                </span>
+                            </label>
+
+                            <input
+                                type="file"
+                                id="profile_image"
+                                name="profile_image"
+                                accept=".jpg,.jpeg,.png,.webp"
+                            >
+
+                            <small>
+                                JPG, PNG, or WEBP. Maximum size: 2 MB.
+                            </small>
+
+                            <span
+                                class="farmer-edit-profile-file-name"
+                                id="profile-image-name"
+                            >
+                                No new image selected
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <section class="farmer-edit-profile-card">
+
+                    <div class="farmer-edit-profile-card-heading">
+
+                        <div class="farmer-edit-profile-card-icon">
+                            <i data-lucide="user"></i>
+                        </div>
+
+                        <div>
+
+                            <span class="farmer-edit-profile-card-number">
+                                02
+                            </span>
+
+                            <h3>
+                                Personal information
+                            </h3>
+
+                        </div>
+
+                    </div>
+
+                    <div class="farmer-edit-profile-grid">
+
+                        <div class="farmer-edit-profile-field">
+
+                            <label for="name">
+                                Full Name
+                            </label>
+
+                            <input
+                                type="text"
+                                id="name"
+                                name="name"
+                                value="<?= e($farmer['name'] ?? '') ?>"
+                            >
+
+                        </div>
+
+                        <div class="farmer-edit-profile-field">
+
+                            <label for="email">
+                                Email Address
+                            </label>
+
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                value="<?= e($farmer['email'] ?? '') ?>"
+                            >
+
+                        </div>
+
+                        <div class="farmer-edit-profile-field">
+
+                            <label for="phone">
+                                Phone Number
+                            </label>
+
+                            <input
+                                type="text"
+                                id="phone"
+                                name="phone"
+                                value="<?= e($farmer['phone'] ?? '') ?>"
+                            >
+
+                        </div>
+
+                        <div class="farmer-edit-profile-field">
+
+                            <label for="address">
+                                Address
+                            </label>
+
+                            <input
+                                type="text"
+                                id="address"
+                                name="address"
+                                value="<?= e($farmer['address'] ?? '') ?>"
+                            >
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <section class="farmer-edit-profile-card">
+
+                    <div class="farmer-edit-profile-card-heading">
+
+                        <div class="farmer-edit-profile-card-icon">
+                            <i data-lucide="store"></i>
+                        </div>
+
+                        <div>
+
+                            <span class="farmer-edit-profile-card-number">
+                                03
+                            </span>
+
+                            <h3>
+                                Farmer information
+                            </h3>
+
+                        </div>
+
+                    </div>
+
+                    <div class="farmer-edit-profile-grid">
+
+                        <div class="farmer-edit-profile-field">
+
+                            <label for="stall_name">
+                                Business / Stall Name
+                            </label>
+
+                            <input
+                                type="text"
+                                id="stall_name"
+                                name="stall_name"
+                                value="<?= e($farmer['stall_name'] ?? '') ?>"
+                            >
+
+                        </div>
+
+                        <div class="farmer-edit-profile-field">
+
+                            <label for="contact_person">
+                                Contact Person
+                            </label>
+
+                            <input
+                                type="text"
+                                id="contact_person"
+                                name="contact_person"
+                                value="<?= e($farmer['contact_person'] ?? '') ?>"
+                            >
+
+                        </div>
+
+                        <div class="farmer-edit-profile-field farmer-edit-profile-field-full">
+
+                            <label for="description">
+                                Description
+                            </label>
+
+                            <textarea
+                                name="description"
+                                id="description"
+                                rows="5"
+                            ><?= e($farmer['description'] ?? '') ?></textarea>
+
+                        </div>
+
+                        <div class="farmer-edit-profile-field farmer-edit-profile-field-full">
+
+                            <label for="farmer_address">
+                                Farmer Address
+                            </label>
+
+                            <input
+                                type="text"
+                                id="farmer_address"
+                                name="farmer_address"
+                                value="<?= e($farmer['farmer_address'] ?? '') ?>"
+                            >
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <section class="farmer-edit-profile-card">
+
+                    <div class="farmer-edit-profile-card-heading">
+
+                        <div class="farmer-edit-profile-card-icon">
+                            <i data-lucide="store"></i>
+                        </div>
+
+                        <div>
+
+                            <span class="farmer-edit-profile-card-number">
+                                04
+                            </span>
+
+                            <h3>
+                                Markets
+                            </h3>
+
+                        </div>
+
+                    </div>
+
+                    <div class="farmer-edit-profile-markets">
+
+                        <label for="market_ids">
+                            Markets where you sell
+                        </label>
+
+                        <select
+                            id="market_ids"
+                            name="market_ids[]"
+                            multiple
+                            size="6"
+                        >
+
+                            <?php foreach ($markets as $market): ?>
+
+                                <option
+                                    value="<?= (int) $market['id'] ?>"
+                                    <?= in_array(
+                                        (int) $market['id'],
+                                        $selected_markets,
+                                        true
+                                    ) ? 'selected' : '' ?>
+                                >
+                                    <?= e($market['name']) ?>
+
+                                    <?php if (!empty($market['address'])): ?>
+
+                                        - <?= e($market['address']) ?>
+
+                                    <?php endif; ?>
+
+                                </option>
+
+                            <?php endforeach; ?>
+
+                        </select>
+
+                        <small>
+                            Hold Ctrl on Windows or Command on Mac to select multiple markets.
+                        </small>
+
+                    </div>
+
+                </section>
+
+                <section class="farmer-edit-profile-card">
+
+                    <div class="farmer-edit-profile-card-heading">
+
+                        <div class="farmer-edit-profile-card-icon">
+                            <i data-lucide="map-pin"></i>
+                        </div>
+
+                        <div>
+
+                            <span class="farmer-edit-profile-card-number">
+                                05
+                            </span>
+
+                            <h3>
+                                Farmer location
+                            </h3>
+
+                        </div>
+
+                    </div>
+
+                    <div class="farmer-edit-profile-location">
+
+                        <div class="farmer-edit-profile-location-intro">
+
+                            <span>
+                                Stall location
+                            </span>
+
+                            <p>
+                                Click on the map to select your stall location.
+                            </p>
+
+                        </div>
+
+                        <div
+                            id="map"
+                            class="farmer-edit-profile-map"
+                        ></div>
+
+                        <div class="farmer-edit-profile-grid">
+
+                            <div class="farmer-edit-profile-field">
+
+                                <label for="latitude">
+                                    Latitude
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="latitude"
+                                    name="latitude"
+                                    value="<?= e($farmer['latitude'] ?? '') ?>"
+                                >
+
+                            </div>
+
+                            <div class="farmer-edit-profile-field">
+
+                                <label for="longitude">
+                                    Longitude
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="longitude"
+                                    name="longitude"
+                                    value="<?= e($farmer['longitude'] ?? '') ?>"
+                                >
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <div class="farmer-edit-profile-actions">
+
+                    <button
+                        type="submit"
+                        class="farmer-edit-profile-save"
+                    >
+                        <i data-lucide="save"></i>
+                        Save Changes
+                    </button>
+
+                    <a
+                        href="profile.php"
+                        class="farmer-edit-profile-cancel"
+                    >
+                        <i data-lucide="x"></i>
+                        Cancel
+                    </a>
+
+                </div>
+
+            </form>
+
+        </section>
 
     </main>
 
+    <script src="../assets/js/app.js"></script>
+
+    <script src="../assets/js/lucide.js"></script>
+
+    <script>
+        lucide.createIcons();
+    </script>
+
     <script>
         window.farmerLocation = {
-            latitude: <?= $farmer['latitude'] !== null ? $farmer['latitude'] : 15.3694 ?>,
-            longitude: <?= $farmer['longitude'] !== null ? $farmer['longitude'] : 44.1910 ?>
+            latitude: <?= $farmer['latitude'] !== null
+                ? (float) $farmer['latitude']
+                : 15.3694 ?>,
+            longitude: <?= $farmer['longitude'] !== null
+                ? (float) $farmer['longitude']
+                : 44.1910 ?>
         };
     </script>
 
@@ -664,6 +953,29 @@ $stmt->close();
 
     <script src="../assets/js/leaflet.js"></script>
 
+    <script>
+        const profileImageInput =
+            document.getElementById('profile_image');
+
+        const profileImageName =
+            document.getElementById('profile-image-name');
+
+        if (profileImageInput && profileImageName) {
+            profileImageInput.addEventListener(
+                'change',
+                function () {
+                    if (this.files.length > 0) {
+                        profileImageName.textContent =
+                            this.files[0].name;
+                    } else {
+                        profileImageName.textContent =
+                            'No new image selected';
+                    }
+                }
+            );
+        }
+    </script>
+
 </body>
+
 </html>
- 

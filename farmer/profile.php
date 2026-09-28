@@ -85,10 +85,6 @@ if (file_exists(__DIR__ . '/../assets/images/farmers/farmer_' . $user_id . '.jpg
         rel="stylesheet"
         href="../assets/css/customer.css"
     >
-    <link
-        rel="stylesheet"
-        href="../assets/css/farmer.css"
-    >
 
     <link
         rel="stylesheet"
