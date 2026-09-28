@@ -242,7 +242,7 @@ $farmerCount = count($farmers);
         </div>
 
         <div class="customer-page-hero-mark">
-            02
+            03
         </div>
 
     </div>

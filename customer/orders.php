@@ -150,7 +150,7 @@ unset($order);
             </div>
 
             <div class="customer-page-hero-mark">
-                06
+                07
             </div>
 
         </section>

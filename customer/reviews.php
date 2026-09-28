@@ -527,7 +527,7 @@ $stmt->close();
             </div>
 
             <div class="customer-page-hero-mark">
-                07
+                08
             </div>
 
         </section>

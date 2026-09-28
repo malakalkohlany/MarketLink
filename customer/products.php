@@ -516,7 +516,7 @@ if (
         </div>
 
         <div class="customer-page-hero-mark">
-            01
+            02
         </div>
     </section>
 

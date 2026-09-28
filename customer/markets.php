@@ -236,7 +236,7 @@ $marketCount = count($markets);
         </div>
 
         <div class="customer-page-hero-mark">
-            03
+            04
         </div>
     </div>
 

@@ -102,7 +102,7 @@ foreach ($cart as $item) {
             </div>
 
             <div class="customer-page-hero-mark">
-                05
+                06
             </div>
 
         </section>
