@@ -103,31 +103,44 @@ weekly_stock_templates
 The database stores users, farmers, products, orders, reviews, markets, favorites, notifications, and other system information.
 
 ---------
-
 # 6. System Architecture
 
-```text
+MarketLink follows a simple web-based architecture consisting of three main layers: the user interface, the application layer, and the database layer.
+
+The **User Interface Layer** allows customers, farmers, and administrators to interact with the system through a web browser. Each role has access to different pages and functions according to its permissions.
+
+The **Application Layer** is developed using PHP. It receives user requests, processes the required operations, applies business rules, validates data, manages authentication and authorization, and communicates with the database.
+
+The **Database Layer** uses MySQL/MariaDB to store and retrieve the system data, including users, products, orders, reviews, markets, and other related information.
+
+The main flow of the system is:
+
 +----------------------+
 |      User Browser    |
-+----------+-----------+
-           |
-           v
-+----------------------+
-|     PHP Application  |
 | Customer / Farmer /  |
 |       Admin          |
 +----------+-----------+
            |
+           | HTTP Requests
+           v
++----------------------+
+|     PHP Application  |
+| Authentication       |
+| Business Logic       |
+| Validation            |
+| Role-Based Access     |
++----------+-----------+
+           |
+           | SQL Queries
            v
 +----------------------+
 |   MySQL / MariaDB    |
 |       Database       |
 +----------------------+
-The user interacts with the system through a web browser.
 
-The PHP application processes user requests and applies the appropriate business logic according to the user's role.
+When a user performs an action, such as browsing products or placing an order, the request is sent from the browser to the PHP application. The application processes the request and communicates with the database when data needs to be retrieved, added, updated, or deleted. The result is then returned to the user's browser.
 
-The PHP application communicates with the MySQL/MariaDB database to store and retrieve system data.
+This architecture separates the user interface, application logic, and data storage, making the system easier to organize, maintain, and develop.
 
 The system supports three main roles:
 
@@ -145,34 +158,8 @@ The database contains tables for users, farmers, products, categories, orders, r
 Primary keys and foreign keys are used to connect related tables and maintain data consistency.
 
 ---------
-8. Entity Relationship Diagram (ERD)
 
-The Entity Relationship Diagram (ERD) represents the main entities in the MarketLink database and shows the relationships between them.
-
-The ERD illustrates how users, farmers, products, categories, orders, order items, reviews, markets, and favorites are connected within the database.
-
-The diagram helps explain the database structure and how data is related between different parts of the system
----------
-# 9. Data Flow Diagram (DFD)
-
-The Data Flow Diagram (DFD) illustrates how data moves between the users, the MarketLink system, and the database.
-
-The DFD shows the main interactions of customers, farmers, and administrators with the system and how their data is processed and stored.
----------
-# 10. Flowcharts
-
-Flowcharts are used to illustrate the main processes and workflows in the MarketLink system.
-
-The main processes include:
-
-* User Login and Authentication.
-* Browsing and Searching Products.
-* Adding Products to the Shopping Cart.
-* Placing an Order.
-* Managing Orders.
-* Submitting Product Reviews.
----------
-# 10. User Interface Design
+# 8. User Interface Design
 
 The MarketLink user interface is designed to provide a simple and organized experience for customers, farmers, and administrators.
 
@@ -180,7 +167,7 @@ Each user role has a separate interface based on its permissions and required fu
 
 The interface includes navigation menus, product pages, order management pages, profile pages, and administrative management pages.
 ---------
-# 11. Implementation Steps
+# 9. Implementation Steps
 
 The MarketLink system was implemented through several main stages:
 
@@ -192,7 +179,7 @@ The MarketLink system was implemented through several main stages:
 6. Implementing product browsing, favorites, shopping cart, orders, and reviews.
 7. Testing the system and fixing errors during development.
 ---------
-# 12. Security
+# 10. Security
 
 Security features were implemented to protect the MarketLink system and its data.
 
@@ -205,7 +192,7 @@ The main security measures include:
 * Session management to protect user accounts.
 * CSRF protection for important form submissions.
 ---------
-# 13. Conclusion
+# 11. Conclusion
 
 MarketLink provides a centralized platform that connects customers with local farmers and markets.
 
@@ -213,6 +200,6 @@ The system supports product browsing, searching, favorites, shopping cart, order
 
 The project demonstrates how web technologies and database systems can be used to provide an organized and efficient solution for connecting local agricultural businesses with customers.
 
-
+---------
 
 
