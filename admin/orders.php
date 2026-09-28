@@ -18,6 +18,7 @@ if ($page < 1) {
 }
 
 $offset = ($page - 1) * $items_per_page;
+
 $count_stmt = $conn->prepare("
     SELECT COUNT(*) AS total_orders
     FROM orders
@@ -39,8 +40,7 @@ if ($count_stmt) {
 
         $total_orders = 0;
 
-        $errors[] =
-    'Failed to count orders.';
+        $errors[] = 'Failed to count orders.';
     }
 
     $count_stmt->close();
@@ -49,15 +49,14 @@ if ($count_stmt) {
 
     $total_orders = 0;
 
-    $errors[] =
-    'Failed to prepare count query.';
+    $errors[] = 'Failed to prepare count query.';
 }
+
 $total_pages = $total_orders > 0
-    ? (int) ceil(
-        $total_orders / $items_per_page
-    )
+    ? (int) ceil($total_orders / $items_per_page)
     : 0;
-    if ($total_pages > 0 && $page > $total_pages) {
+
+if ($total_pages > 0 && $page > $total_pages) {
 
     $page = $total_pages;
 
@@ -70,36 +69,25 @@ $stmt = $conn->prepare("
         orders.status,
         orders.subtotal,
         orders.created_at,
-
         users.name AS customer_name,
         users.email AS customer_email,
         users.phone AS customer_phone,
-
         farmers.stall_name AS farmer_name,
-
         markets.name AS market_name
-
     FROM orders
-
     INNER JOIN users
         ON orders.customer_id = users.id
-
     LEFT JOIN farmers
         ON orders.farmer_id = farmers.id
-
     LEFT JOIN markets
         ON orders.market_id = markets.id
-
     WHERE users.role = 'customer'
-
     ORDER BY orders.created_at DESC
-
     LIMIT ? OFFSET ?
 ");
 
 if ($stmt) {
 
-    
     $stmt->bind_param(
         "ii",
         $items_per_page,
@@ -114,19 +102,18 @@ if ($stmt) {
 
     } else {
 
-        $errors[] =
-         'Failed to load orders.';
+        $errors[] = 'Failed to load orders.';
     }
 
     $stmt->close();
 
 } else {
 
-    $errors[] =
-    'Failed to prepare order query.';
+    $errors[] = 'Failed to prepare order query.';
 }
 
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -153,14 +140,23 @@ if ($stmt) {
 
     <link
         rel="stylesheet"
-        href="../assets/css/dashboard.css"
+        href="../assets/css/sidebar.css"
     >
 
     <link
         rel="stylesheet"
-        href="../assets/css/sidebar.css"
+        href="../assets/css/admin.css"
     >
 
+    <link
+        rel="stylesheet"
+        href="../assets/css/customer.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/admin_orders.css"
+    >
 
 </head>
 
@@ -170,73 +166,113 @@ if ($stmt) {
 
     <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
+    <main class="main-content admin-orders-page">
 
-    <div class="admin-container">
+        <section class="customer-page-hero admin-orders-hero">
 
-        <main class="main-content">
+            <div class="customer-page-hero-copy">
 
+                <span class="eyebrow">
+                    ADMIN / ORDERS
+                </span>
 
-            <!-- PAGE HEADER -->
+                <h1>
+                    Track customer <em>orders.</em>
+                </h1>
 
-            <div class="page-header">
-
-                <div>
-
-                    <h1>
-                        Orders
-                    </h1>
-
-                    <p>
-                        View all customer orders.
-                    </p>
-
-                </div>
+                <p>
+                    Review customer orders, connected farmers and markets,
+                    order totals, statuses, and recent activity.
+                </p>
 
             </div>
 
+            <div class="customer-page-hero-mark">
+                05
+            </div>
 
-            <!-- ERRORS -->
+        </section>
+
+        <section class="admin-orders-section">
+
+            <div class="customer-section-heading">
+
+                <div>
+
+                    <span class="customer-section-number">
+                        01 / ORDER DIRECTORY
+                    </span>
+
+                    <h2>
+                        Customer <em>orders.</em>
+                    </h2>
+
+                </div>
+
+                <span class="customer-record-count">
+                    <?= $total_orders ?> ORDERS
+                </span>
+
+            </div>
 
             <?php if (!empty($errors)): ?>
 
-                <div class="alert alert-danger">
+                <div class="admin-orders-alert">
 
-                    <?php foreach ($errors as $error): ?>
+                    <div class="admin-orders-alert-icon">
 
-                        <p>
-                            <?= htmlspecialchars($error) ?>
-                        </p>
+                        <i data-lucide="circle-alert"></i>
 
-                    <?php endforeach; ?>
+                    </div>
+
+                    <div>
+
+                        <?php foreach ($errors as $error): ?>
+
+                            <p>
+                                <?= htmlspecialchars($error) ?>
+                            </p>
+
+                        <?php endforeach; ?>
+
+                    </div>
 
                 </div>
 
             <?php endif; ?>
 
+            <div class="admin-orders-table-card">
 
-            <!-- ORDERS TABLE -->
+                <div class="admin-orders-table-header">
 
-            <section class="table-section">
+                    <div>
 
-                <div class="section-header">
+                        <span class="admin-orders-table-kicker">
+                            RECENT ACTIVITY
+                        </span>
 
-                    <h2>
-                        Customer Orders
-                    </h2>
+                        <h3>
+                            All customer orders.
+                        </h3>
+
+                    </div>
+
+                    <span class="admin-orders-table-count">
+                        <?= $total_orders ?> TOTAL
+                    </span>
 
                 </div>
 
+                <div class="admin-orders-table-wrap">
 
-                <div class="table-responsive">
-
-                    <table class="data-table">
+                    <table class="admin-orders-table">
 
                         <thead>
 
                             <tr>
 
                                 <th>
-                                    Order ID
+                                    Order
                                 </th>
 
                                 <th>
@@ -244,11 +280,7 @@ if ($stmt) {
                                 </th>
 
                                 <th>
-                                    Email
-                                </th>
-
-                                <th>
-                                    Phone
+                                    Contact
                                 </th>
 
                                 <th>
@@ -274,7 +306,7 @@ if ($stmt) {
                             </tr>
 
                         </thead>
-                        
+
                         <tbody>
 
                             <?php if (!empty($orders)): ?>
@@ -293,53 +325,46 @@ if ($stmt) {
 
                                     <tr>
 
-
-                                        <!-- ORDER ID -->
-
                                         <td>
 
-                                            #<?= (int) $order['id'] ?>
+                                            <span class="admin-orders-id">
+                                                #<?= (int) $order['id'] ?>
+                                            </span>
 
                                         </td>
 
-
-                                        <!-- CUSTOMER -->
-
                                         <td>
 
-                                            <?= htmlspecialchars(
-                                                $order['customer_name']
-                                                    ?? 'N/A'
-                                            ) ?>
+                                            <div class="admin-orders-customer">
+
+                                                <strong>
+                                                    <?= htmlspecialchars(
+                                                        $order['customer_name']
+                                                            ?? 'N/A'
+                                                    ) ?>
+                                                </strong>
+
+                                                <span>
+                                                    <?= htmlspecialchars(
+                                                        $order['customer_email']
+                                                            ?? 'N/A'
+                                                    ) ?>
+                                                </span>
+
+                                            </div>
 
                                         </td>
 
-
-                                        <!-- EMAIL -->
-
                                         <td>
 
-                                            <?= htmlspecialchars(
-                                                $order['customer_email']
-                                                    ?? 'N/A'
-                                            ) ?>
+                                            <span class="admin-orders-phone">
+                                                <?= htmlspecialchars(
+                                                    $order['customer_phone']
+                                                        ?? 'N/A'
+                                                ) ?>
+                                            </span>
 
                                         </td>
-
-
-                                        <!-- PHONE -->
-
-                                        <td>
-
-                                            <?= htmlspecialchars(
-                                                $order['customer_phone']
-                                                    ?? 'N/A'
-                                            ) ?>
-
-                                        </td>
-
-
-                                        <!-- FARMER -->
 
                                         <td>
 
@@ -350,9 +375,6 @@ if ($stmt) {
 
                                         </td>
 
-
-                                        <!-- MARKET -->
-
                                         <td>
 
                                             <?= htmlspecialchars(
@@ -362,74 +384,78 @@ if ($stmt) {
 
                                         </td>
 
-
-                                        <!-- TOTAL -->
-
                                         <td>
 
-                                            $<?= number_format(
-                                                (float) (
-                                                    $order['subtotal']
-                                                        ?? 0
-                                                ),
-                                                2
-                                            ) ?>
+                                            <strong class="admin-orders-total">
+                                                $<?= number_format(
+                                                    (float) (
+                                                        $order['subtotal']
+                                                            ?? 0
+                                                    ),
+                                                    2
+                                                ) ?>
+                                            </strong>
 
                                         </td>
-
-
-                                        <!-- STATUS -->
 
                                         <td>
 
                                             <span
-                                                class="status status-<?= htmlspecialchars(
+                                                class="admin-orders-status admin-orders-status-<?= htmlspecialchars(
                                                     $status
                                                 ) ?>"
                                             >
-
                                                 <?= htmlspecialchars(
                                                     ucfirst($status)
                                                 ) ?>
+                                            </span>
+
+                                        </td>
+
+                                        <td>
+
+                                            <span class="admin-orders-date">
+
+                                                <?= !empty($order['created_at'])
+                                                    ? date(
+                                                        'Y-m-d',
+                                                        strtotime(
+                                                            $order['created_at']
+                                                        )
+                                                    )
+                                                    : 'N/A'
+                                                ?>
 
                                             </span>
 
                                         </td>
 
-
-                                        <!-- DATE -->
-
-                                        <td>
-
-                                            <?= !empty(
-                                                $order['created_at']
-                                            )
-
-                                                ? date(
-                                                    'Y-m-d',
-                                                    strtotime(
-                                                        $order['created_at']
-                                                    )
-                                                )
-
-                                                : 'N/A'
-                                            ?>
-
-                                        </td>
-
-
                                     </tr>
 
                                 <?php endforeach; ?>
-
 
                             <?php else: ?>
 
                                 <tr>
 
-                                    <td colspan="9">
+                                    <td
+                                        colspan="8"
+                                        class="admin-orders-empty"
+                                    >
 
-                                        No orders found.
+                                        <div class="admin-orders-empty-mark">
+
+                                            <i data-lucide="receipt"></i>
+
+                                        </div>
+
+                                        <strong>
+                                            No orders found.
+                                        </strong>
+
+                                        <span>
+                                            Customer orders will appear here once they are placed.
+                                        </span>
 
                                     </td>
 
@@ -442,70 +468,69 @@ if ($stmt) {
                     </table>
 
                 </div>
-                
-                <?php if ($total_pages > 1): ?>
 
-                    <div class="pagination">
+            </div>
 
+            <?php if ($total_pages > 1): ?>
 
-                        <!-- PREVIOUS -->
+                <div class="admin-orders-pagination">
 
-                        <?php if ($page > 1): ?>
+                    <?php if ($page > 1): ?>
 
-                            <a
-                                href="?page=<?= $page - 1 ?>"
-                            >
-                                Previous
-                            </a>
+                        <a
+                            href="?page=<?= $page - 1 ?>"
+                            aria-label="Previous page"
+                        >
 
-                        <?php endif; ?>
+                            <i data-lucide="chevron-left"></i>
 
+                        </a>
 
-                        <!-- PAGE NUMBERS -->
+                    <?php endif; ?>
 
-                        <?php for (
-                            $i = 1;
-                            $i <= $total_pages;
-                            $i++
-                        ): ?>
+                    <?php for (
+                        $i = 1;
+                        $i <= $total_pages;
+                        $i++
+                    ): ?>
 
-                            <a
-                                href="?page=<?= $i ?>"
-                                class="<?= $i === $page
-                                    ? 'active'
-                                    : '' ?>"
-                            >
-                                <?= $i ?>
-                            </a>
+                        <a
+                            href="?page=<?= $i ?>"
+                            class="<?= $i === $page ? 'active' : '' ?>"
+                        >
+                            <?= $i ?>
+                        </a>
 
-                        <?php endfor; ?>
+                    <?php endfor; ?>
 
+                    <?php if ($page < $total_pages): ?>
 
-                        <!-- NEXT -->
+                        <a
+                            href="?page=<?= $page + 1 ?>"
+                            aria-label="Next page"
+                        >
 
-                        <?php if ($page < $total_pages): ?>
+                            <i data-lucide="chevron-right"></i>
 
-                            <a
-                                href="?page=<?= $page + 1 ?>"
-                            >
-                                Next
-                            </a>
+                        </a>
 
-                        <?php endif; ?>
+                    <?php endif; ?>
 
+                </div>
 
-                    </div>
+            <?php endif; ?>
 
-                <?php endif; ?>
+        </section>
 
+    </main>
 
-            </section>
+    <script src="../assets/js/app.js"></script>
 
+    <script src="../assets/js/lucide.js"></script>
 
-        </main>
-
-    </div>
-
+    <script>
+        lucide.createIcons();
+    </script>
 
 </body>
 

@@ -191,7 +191,7 @@ $stmt->close();
         </div>
 
         <div class="customer-page-hero-mark">
-            10
+            11
         </div>
     </section>
 

@@ -288,7 +288,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </p>
         </div>
 
-        <div class="customer-page-hero-mark">07</div>
     </section>
 
     <?php if ($errorMessage !== ''): ?>

@@ -402,9 +402,6 @@ if ($stmt) {
 
             </div>
 
-            <div class="customer-page-hero-mark">
-                03
-            </div>
 
         </section>
 

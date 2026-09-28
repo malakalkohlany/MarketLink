@@ -237,7 +237,7 @@ $endItem = min(
         </div>
 
         <div class="customer-page-hero-mark">
-            <span>05</span>
+            <span>04</span>
         </div>
 
     </section>

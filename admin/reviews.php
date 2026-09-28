@@ -143,7 +143,7 @@ foreach ($reviews as $review) {
         </div>
 
         <div class="customer-page-hero-mark">
-            09
+            10
         </div>
     </section>
 
