@@ -1,5 +1,5 @@
 <?php
-require_once DIR . '/../includes/include.php';
+require_once __DIR__ . '/../includes/include.php';
 
 requireRole(R_CUSTOMER);
 
