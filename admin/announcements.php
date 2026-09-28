@@ -15,77 +15,6 @@ $announcements = [];
 
 if (
     $_SERVER['REQUEST_METHOD'] === 'POST' &&
-    isset($_POST['add_announcement'])
-) {
-
-    $title = trim($_POST['title'] ?? '');
-    $message = trim($_POST['message'] ?? '');
-    $status = $_POST['status'] ?? 'draft';
-    $expires_at = trim($_POST['expires_at'] ?? '');
-
-    if ($title === '') {
-        $errors[] = 'Announcement title is required.';
-    }
-
-    if ($message === '') {
-        $errors[] = 'Announcement message is required.';
-    }
-
-    if (!in_array($status, ['draft', 'published', 'archived'], true)) {
-        $errors[] = 'Invalid announcement status.';
-    }
-
-    if ($expires_at !== '') {
-        $date = DateTime::createFromFormat('Y-m-d\TH:i', $expires_at);
-
-        if (!$date || $date->format('Y-m-d\TH:i') !== $expires_at) {
-            $errors[] = 'Invalid expiration date.';
-        }
-    }
-
-    if (empty($errors)) {
-
-        $expires_value = $expires_at !== ''
-            ? str_replace('T', ' ', $expires_at) . ':00'
-            : null;
-
-        $stmt = $conn->prepare("
-            INSERT INTO announcements
-            (
-                admin_id,
-                title,
-                message,
-                status,
-                expires_at
-            )
-            VALUES (?, ?, ?, ?, ?)
-        ");
-
-        if ($stmt) {
-
-            $stmt->bind_param(
-                'issss',
-                $admin_id,
-                $title,
-                $message,
-                $status,
-                $expires_value
-            );
-
-            if ($stmt->execute()) {
-                $success = 'Announcement added successfully.';
-                $_POST = [];
-            } else {
-                $errors[] = 'Failed to add announcement.';
-            }
-
-            $stmt->close();
-        } else {
-            $errors[] = 'Failed to prepare announcement.';
-        }
-    }
-}if (
-    $_SERVER['REQUEST_METHOD'] === 'POST' &&
     isset($_POST['update_status'])
 ) {
 
@@ -107,53 +36,17 @@ if (
 
     if (empty($errors)) {
 
+        /*
+         * Get the current announcement first.
+         * We need the old status to know whether
+         * this is a new publication.
+         */
         $stmt = $conn->prepare("
-            UPDATE announcements
-            SET status = ?
+            SELECT status, title, message
+            FROM announcements
             WHERE id = ?
             AND admin_id = ?
-        ");
-
-        if ($stmt) {
-
-            $stmt->bind_param(
-                'sii',
-                $new_status,
-                $announcement_id,
-                $admin_id
-            );
-
-            if ($stmt->execute()) {
-                header('Location: announcements.php');
-                exit;
-            }
-
-            $stmt->close();
-        }
-    }
-}
-
-if (
-    $_SERVER['REQUEST_METHOD'] === 'POST' &&
-    isset($_POST['delete_announcement'])
-) {
-
-    $announcement_id = filter_input(
-        INPUT_POST,
-        'id',
-        FILTER_VALIDATE_INT
-    );
-
-    if (!$announcement_id) {
-        $errors[] = 'Invalid announcement.';
-    }
-
-    if (empty($errors)) {
-
-        $stmt = $conn->prepare("
-            DELETE FROM announcements
-            WHERE id = ?
-            AND admin_id = ?
+            LIMIT 1
         ");
 
         if ($stmt) {
@@ -164,12 +57,104 @@ if (
                 $admin_id
             );
 
-            if ($stmt->execute()) {
-                header('Location: announcements.php');
-                exit;
-            }
+            $stmt->execute();
+
+            $result = $stmt->get_result();
+            $announcement = $result->fetch_assoc();
 
             $stmt->close();
+
+            if (!$announcement) {
+
+                $errors[] = 'Announcement not found.';
+
+            } else {
+
+                $old_status = $announcement['status'];
+
+                /*
+                 * Update announcement status
+                 */
+                $stmt = $conn->prepare("
+                    UPDATE announcements
+                    SET status = ?
+                    WHERE id = ?
+                    AND admin_id = ?
+                ");
+
+                if ($stmt) {
+
+                    $stmt->bind_param(
+                        'sii',
+                        $new_status,
+                        $announcement_id,
+                        $admin_id
+                    );
+
+                    if ($stmt->execute()) {
+
+                        $stmt->close();
+
+                        /*
+                         * Create notifications only when
+                         * the announcement becomes published.
+                         *
+                         * This prevents duplicate notifications
+                         * when the status is already published.
+                         */
+                        if (
+                            $new_status === 'published' &&
+                            $old_status !== 'published'
+                        ) {
+
+                            $notification_stmt = $conn->prepare("
+                                INSERT INTO notifications
+                                (
+                                    user_id,
+                                    type,
+                                    title,
+                                    message
+                                )
+                                SELECT
+                                    id,
+                                    'announcement',
+                                    ?,
+                                    ?
+                                FROM users
+                                WHERE role IN ('customer', 'farmer')
+                            ");
+
+                            if ($notification_stmt) {
+
+                                $notification_stmt->bind_param(
+                                    'ss',
+                                    $announcement['title'],
+                                    $announcement['message']
+                                );
+
+                                $notification_stmt->execute();
+                                $notification_stmt->close();
+                            }
+                        }
+
+                        header('Location: announcements.php');
+                        exit;
+
+                    } else {
+
+                        $errors[] = 'Failed to update announcement.';
+                        $stmt->close();
+                    }
+
+                } else {
+
+                    $errors[] = 'Failed to prepare announcement update.';
+                }
+            }
+
+        } else {
+
+            $errors[] = 'Failed to load announcement.';
         }
     }
 }
