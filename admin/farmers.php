@@ -379,7 +379,6 @@ if ($stmt) {
                             <th>Farmer</th>
                             <th>Contact</th>
                             <th>Email</th>
-                            <th>Address</th>
                             <th>Status</th>
                             <th>Joined</th>
                             <th>Action</th>
@@ -480,12 +479,6 @@ if ($stmt) {
                                     ) ?>
                                 </td>
 
-                                <td class="admin-table-address">
-                                    <?= e(
-                                        $farmer['address']
-                                        ?? 'N/A'
-                                    ) ?>
-                                </td>
 
                                 <td>
 

@@ -279,10 +279,10 @@
     overflow-wrap: anywhere;
     line-height: 1.4;
 }
-
+/* 
 .admin-farmer-actions {
     flex-wrap: wrap;
-}
+} */
 
 .admin-table-id {
     width: 55px;
@@ -390,12 +390,23 @@
 .admin-farmer-actions {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     flex-wrap: nowrap;
 }
 
 .admin-farmer-actions form {
+    display: inline-flex;
     margin: 0;
+    padding: 0;
+}
+
+.admin-farmer-actions a,
+.admin-farmer-actions button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    box-sizing: border-box;
 }
 
 .admin-action-view,
@@ -4013,5 +4024,48 @@
         height: 280px;
         border-radius: var(--radius-sm);
     }
+}
+
+.admin-farmers-table {
+    width: 100%;
+    overflow-x: visible;
+}
+
+.admin-farmers-table table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.admin-farmers-table th,
+.admin-farmers-table td {
+    box-sizing: border-box;
+}
+
+.admin-farmers-table th:last-child,
+.admin-farmers-table td:last-child {
+    width: 190px;
+}
+
+.admin-farmer-actions {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 6px !important;
+    flex-wrap: nowrap !important;
+}
+
+.admin-farmer-actions form {
+    display: block !important;
+    width: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.admin-farmer-actions a,
+.admin-farmer-actions button {
+    white-space: nowrap !important;
+    width: auto !important;
+    margin: 0 !important;
 }
 
