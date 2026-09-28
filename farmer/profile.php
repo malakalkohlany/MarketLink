@@ -157,10 +157,12 @@ if (file_exists(__DIR__ . '/../assets/images/farmers/farmer_' . $user_id . '.jpg
 
                     <div class="farmer-profile-image">
 
-                        <img
-                            src="<?= e($profile_image) ?>"
-                            alt="Farmer Profile Image"
-                        >
+                    <div class="farmer-profile-image-placeholder">
+                                <i data-lucide="image"></i>
+                                <span>Farmer photo</span>
+                            </div>
+
+                        
 
                     </div>
 

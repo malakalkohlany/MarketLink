@@ -517,32 +517,10 @@ $stmt->close();
 
                         <div class="farmer-edit-profile-current-image">
 
-                            <?php
-                            $profile_image = '../assets/images/farmers/default-farmer.png';
-
-                            foreach (['jpg', 'png', 'webp'] as $extension) {
-                                $image_path =
-                                    __DIR__ .
-                                    '/../assets/images/farmers/farmer_' .
-                                    $user_id .
-                                    '.' .
-                                    $extension;
-
-                                if (file_exists($image_path)) {
-                                    $profile_image =
-                                        '../assets/images/farmers/farmer_' .
-                                        $user_id .
-                                        '.' .
-                                        $extension;
-                                    break;
-                                }
-                            }
-                            ?>
-
-                            <img
-                                src="<?= e($profile_image) ?>"
-                                alt="Current farmer profile image"
-                            >
+                            <div class="farmer-profile-image-placeholder">
+                                <i data-lucide="image"></i>
+                                <span>Farmer photo</span>
+                            </div>
 
                         </div>
 
