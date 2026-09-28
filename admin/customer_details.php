@@ -103,7 +103,32 @@ if ($customer_id) {
         rel="stylesheet"
         href="../assets/css/admin.css"
     >
+    <style>
+        /* Customer details - order history table */
+.admin-customer-orders-table {
+    width: 100%;
+    overflow-x: auto;
+}
 
+.admin-customer-orders-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-customer-orders-table tr {
+    display: table-row;
+}
+
+.admin-customer-orders-table th,
+.admin-customer-orders-table td {
+    display: table-cell;
+}
+
+.admin-customer-orders-table .admin-table-empty {
+    text-align: center;
+    padding: 3rem 1.5rem;
+}
+    </style>
 </head>
 
 <body>

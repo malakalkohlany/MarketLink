@@ -175,7 +175,7 @@ $record_label = $total_products === 1 ? 'product' : 'products';
                             <?php if (!empty($product['image'])): ?>
 
                                 <img
-                                    src="/MarketLink/<?= e($product['image']) ?>"
+                                    src="../<?= e($product['image']) ?>"
                                     alt="<?= e($product['name']) ?>"
                                 >
 

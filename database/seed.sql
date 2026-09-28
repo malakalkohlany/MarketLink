@@ -3026,7 +3026,7 @@ SELECT
     5.99,
     'kg',
     40.00,
-    'whole_wheat_flour.jpg',
+    'uploads/products/whole_wheat_flour.jpg',
     1,
     'approved'
 WHERE NOT EXISTS
@@ -3059,7 +3059,7 @@ SELECT
     4.49,
     'kg',
     35.00,
-    'local_wheat.jpg',
+    'uploads/products/local_wheat.jpg',
     1,
     'approved'
 WHERE NOT EXISTS
@@ -3092,7 +3092,7 @@ SELECT
     6.49,
     'jar',
     25.00,
-    'homemade_tomato_sauce.jpg',
+    'uploads/products/homemade_tomato_sauce.jpg',
     1,
     'approved'
 WHERE NOT EXISTS
@@ -3125,7 +3125,7 @@ SELECT
     5.49,
     'jar',
     20.00,
-    'mixed_vegetable_pickles.jpg',
+    'uploads/products/mixed_vegetable_pickles.jpg',
     1,
     'approved'
 WHERE NOT EXISTS
@@ -3158,7 +3158,7 @@ SELECT
     7.49,
     'jar',
     18.00,
-    'homemade_strawberry_jam.jpg',
+    'uploads/products/homemade_strawberry_jam.jpg',
     1,
     'approved'
 WHERE NOT EXISTS
@@ -3191,7 +3191,7 @@ SELECT
     8.99,
     'kg',
     35.00,
-    'fresh_chicken.jpg',
+    'uploads/products/fresh_chicken.jpg',
     1,
     'approved'
 WHERE NOT EXISTS
@@ -3224,7 +3224,7 @@ SELECT
     14.99,
     'kg',
     20.00,
-    'fresh_goat_meat.jpg',
+    'uploads/products/fresh_goat_meat.jpg',
     1,
     'approved'
 WHERE NOT EXISTS
