@@ -248,7 +248,7 @@ $orders = $order_stmt->get_result();
 
         <?php if (isset($success_message)): ?>
             <div class="customer-products-notice customer-products-success">
-                <i data-lucide=" fa-circle-check"></i>
+                <i data-lucide="CheckCircle"></i>
                 <span><?= e($success_message) ?></span>
             </div>
         <?php endif; ?>

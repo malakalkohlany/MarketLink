@@ -527,7 +527,7 @@ if (
 
         <div class="customer-products-notice customer-products-success">
             <span class="customer-products-notice-icon">
-                <i data-lucide=" fa-circle-check"></i>
+                <i data-lucide="CheckCircle"></i>
             </span>
 
             <div>
@@ -1093,7 +1093,7 @@ if (
                                             class="customer-product-add"
                                         >
 
-                                            <i data-lucide=" fa-cart-plus"></i>
+                                            <i data-lucide="shopping-cart-plus"></i>
 
                                             Add to Cart
 
@@ -1106,7 +1106,7 @@ if (
                                             class="customer-product-add"
                                         >
 
-                                            <i data-lucide=" fa-cart-plus"></i>
+                                            <i data-lucide="shopping-cart-plus"></i>
 
                                             Add to Cart
 

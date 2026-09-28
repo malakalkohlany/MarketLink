@@ -328,7 +328,7 @@ $stmt->close();
     <section class="customer-farmers-intro">
         <div class="customer-shopping-note">
             <span class="customer-shopping-note-icon">
-                <i data-lucide=" fa-heart"></i>
+                <i data-lucide="heart"></i>
             </span>
 
             <div>
@@ -404,7 +404,7 @@ $stmt->close();
                                         title="Remove from Favorites"
                                         aria-label="Remove from Favorites"
                                     >
-                                        <i data-lucide=" fa-heart"></i>
+                                        <i data-lucide="heart"></i>
                                     </button>
                                 </form>
 
@@ -472,7 +472,7 @@ $stmt->close();
 
             <div class="customer-farmers-empty">
                 <span class="customer-farmers-empty-mark">
-                    <i data-lucide=" fa-heart"></i>
+                    <i data-lucide="heart"></i>
                 </span>
 
                 <strong>
@@ -547,7 +547,7 @@ $stmt->close();
                                     title="Remove from Favorites"
                                     aria-label="Remove from Favorites"
                                 >
-                                    <i data-lucide=" fa-heart"></i>
+                                    <i data-lucide="heart"></i>
                                 </button>
                             </form>
 
@@ -578,7 +578,7 @@ $stmt->close();
                             <?php if (!empty($farmer['address'])): ?>
 
                                 <div class="customer-farmer-meta">
-                                    <i data-lucide=" fa-location-dot"></i>
+                                    <i data-lucide="MapPin"></i>
 
                                     <span>
                                         <?= e($farmer['address']) ?>
@@ -691,7 +691,7 @@ $stmt->close();
                                     title="Remove from Favorites"
                                     aria-label="Remove from Favorites"
                                 >
-                                    <i data-lucide=" fa-heart"></i>
+                                    <i data-lucide="heart"></i>
                                 </button>
                             </form>
 
@@ -710,7 +710,7 @@ $stmt->close();
                             <?php if (!empty($market['address'])): ?>
 
                                 <div class="customer-farmer-meta">
-                                    <i data-lucide=" fa-location-dot"></i>
+                                    <i data-lucide="MapPin"></i>
 
                                     <span>
                                         <?= e($market['address']) ?>
@@ -722,7 +722,7 @@ $stmt->close();
                             <?php if (!empty($market['operating_days'])): ?>
 
                                 <div class="customer-farmer-meta">
-                                    <i data-lucide=" fa-calendar-days"></i>
+                                    <i data-lucide="calendar-days"></i>
 
                                     <span>
                                         <?= e($market['operating_days']) ?>

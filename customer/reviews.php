@@ -518,7 +518,7 @@ $stmt->close();
     <?php if (!empty($successMessage)): ?>
         <div class="customer-reviews-message customer-reviews-success">
             <span class="customer-reviews-message-icon">
-                <i data-lucide=" fa-circle-check"></i>
+                <i data-lucide="CheckCircle"></i>
             </span>
 
             <span>
@@ -530,7 +530,7 @@ $stmt->close();
     <?php if (!empty($errors)): ?>
         <div class="customer-reviews-message customer-reviews-error">
             <span class="customer-reviews-message-icon">
-                <i data-lucide=" fa-circle-exclamation"></i>
+                <i data-lucide="circle-alert"></i>
             </span>
 
             <div>

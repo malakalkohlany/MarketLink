@@ -356,7 +356,7 @@ $roundedRating =
             <div class="customer-products-notice customer-products-error">
 
                 <span class="customer-products-notice-icon">
-                    <i data-lucide=" fa-circle-exclamation"></i>
+                    <i data-lucide="circle-alert"></i>
                 </span>
 
                 <div>
@@ -576,7 +576,7 @@ $roundedRating =
                                 href="add_to_cart.php?id=<?= (int) $product['id'] ?>"
                                 class="customer-product-add"
                             >
-                                <i data-lucide=" fa-cart-plus"></i>
+                                <i data-lucide="shopping-cart-plus"></i>
                                 Add to Cart
                             </a>
 

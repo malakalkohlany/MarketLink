@@ -637,7 +637,7 @@ $roundedRating = (int) round($averageRating);
                     <div class="customer-farmer-profile-row">
 
                         <span>
-                            <i data-lucide=" fa-location-dot"></i>
+                            <i data-lucide="MapPin"></i>
                             Location
                         </span>
 
@@ -684,7 +684,7 @@ $roundedRating = (int) round($averageRating);
                     </div>
 
                     <span class="customer-farmer-map-icon">
-                        <i data-lucide=" fa-location-dot"></i>
+                        <i data-lucide="MapPin"></i>
                     </span>
 
                 </div>
@@ -698,7 +698,7 @@ $roundedRating = (int) round($averageRating);
 
                     <div class="customer-farmer-map-address">
 
-                        <i data-lucide=" fa-location-dot"></i>
+                        <i data-lucide="MapPin"></i>
 
                         <span>
                             <?= e($farmer['address']) ?>
@@ -785,7 +785,7 @@ $roundedRating = (int) round($averageRating);
                             <?php if (!empty($market['address'])): ?>
 
                                 <p>
-                                    <i data-lucide=" fa-location-dot"></i>
+                                    <i data-lucide="MapPin"></i>
                                     <?= e($market['address']) ?>
                                 </p>
 
@@ -796,7 +796,7 @@ $roundedRating = (int) round($averageRating);
                                 <div class="customer-farmer-market-detail">
 
                                     <span>
-                                        <i data-lucide=" fa-calendar-days"></i>
+                                        <i data-lucide="calendar-days"></i>
                                         Market Days
                                     </span>
 
@@ -1214,7 +1214,7 @@ $roundedRating = (int) round($averageRating);
                                         href="add_to_cart.php?id=<?= $productId ?>"
                                         class="customer-product-add"
                                     >
-                                        <i data-lucide=" fa-cart-plus"></i>
+                                        <i data-lucide="shopping-cart-plus"></i>
                                         Add to Cart
                                     </a>
 

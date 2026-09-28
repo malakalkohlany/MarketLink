@@ -483,7 +483,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="customer-shopping-note">
 
             <span class="customer-shopping-note-icon">
-                <i data-lucide=" fa-cart-plus"></i>
+                <i data-lucide="shopping-cart-plus"></i>
             </span>
 
             <div>
@@ -530,7 +530,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="customer-add-cart-error">
 
                 <span class="customer-add-cart-error-icon">
-                    <i data-lucide=" fa-circle-exclamation"></i>
+                    <i data-lucide="circle-alert"></i>
                 </span>
 
                 <span>
@@ -558,7 +558,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         <div class="customer-add-cart-image-placeholder">
 
-                            <i data-lucide=" fa-image"></i>
+                            <i data-lucide="image"></i>
 
                         </div>
 
@@ -627,7 +627,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </label>
 
                         <span>
-                            <i data-lucide=" fa-location-dot"></i>
+                            <i data-lucide="MapPin"></i>
                             Pickup location
                         </span>
 
@@ -678,7 +678,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                                         <span class="customer-add-cart-market-name">
 
-                                            <i data-lucide=" fa-location-dot"></i>
+                                            <i data-lucide="MapPin"></i>
 
                                             <?= e($market['name']) ?>
 
@@ -733,7 +733,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </label>
 
                         <span>
-                            <i data-lucide=" fa-scale-balanced"></i>
+                            <i data-lucide="scale"></i>
                             In <?= e($unit) ?>
                         </span>
 
@@ -757,19 +757,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         <?php if ($stockStatus === 'unavailable'): ?>
 
-                            <i data-lucide=" fa-circle-xmark"></i>
+                            <i data-lucide="XCircle"></i>
 
                             Currently unavailable this week.
 
                         <?php elseif ($stockStatus === 'sold_out'): ?>
 
-                            <i data-lucide=" fa-circle-xmark"></i>
+                            <i data-lucide="XCircle"></i>
 
                             Sold out for this week.
 
                         <?php else: ?>
 
-                            <i data-lucide=" fa-circle-check"></i>
+                            <i data-lucide="CheckCircle"></i>
 
                             Available this week:
                             <?= e($stock) ?>
@@ -801,7 +801,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ) ? 'disabled' : '' ?>
                     >
 
-                        <i data-lucide=" fa-cart-plus"></i>
+                        <i data-lucide="shopping-cart-plus"></i>
 
                         <?php if (!$cartMarketAllowed): ?>
 

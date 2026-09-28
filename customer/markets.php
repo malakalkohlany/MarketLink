@@ -243,7 +243,7 @@ $marketCount = count($markets);
     <section class="customer-farmers-intro">
         <div class="customer-shopping-note">
             <span class="customer-shopping-note-icon">
-                <i data-lucide=" fa-location-dot"></i>
+                <i data-lucide="MapPin"></i>
             </span>
 
             <div>
@@ -304,7 +304,7 @@ $marketCount = count($markets);
                 </label>
 
                 <div class="customer-day-filter">
-                    <i data-lucide=" fa-calendar-days"></i>
+                    <i data-lucide="calendar-days"></i>
 
                     <select id="marketDayFilter">
                         <option value="">All Days</option>
@@ -471,7 +471,7 @@ $marketCount = count($markets);
                             <?php if (!empty($market['address'])): ?>
 
                                 <div class="customer-farmer-meta">
-                                    <i data-lucide=" fa-location-dot"></i>
+                                    <i data-lucide="MapPin"></i>
 
                                     <span>
                                         <?= e($market['address']) ?>
@@ -483,7 +483,7 @@ $marketCount = count($markets);
                             <?php if (!empty($market['operating_days'])): ?>
 
                                 <div class="customer-farmer-meta">
-                                    <i data-lucide=" fa-calendar-days"></i>
+                                    <i data-lucide="calendar-days"></i>
 
                                     <span>
                                         <?= e($market['operating_days']) ?>

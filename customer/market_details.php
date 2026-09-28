@@ -587,9 +587,9 @@ mysqli_stmt_close($favoriteStmt);
                         ?>"
                     >
                         <?php if ($isFavorite): ?>
-                            <i data-lucide=" fa-heart"></i>
+                            <i data-lucide="heart"></i>
                         <?php else: ?>
-                            <i data-lucide=" fa-heart"></i>
+                            <i data-lucide="heart"></i>
                         <?php endif; ?>
                     </button>
                 </form>

@@ -1293,7 +1293,7 @@ redirect('customer/orders.php');
     <?php if (!empty($error)): ?>
         <div class="customer-confirm-order-error">
             <span class="customer-confirm-order-error-icon">
-                <i data-lucide=" fa-circle-exclamation"></i>
+                <i data-lucide="circle-alert"></i>
             </span>
 
             <span>
@@ -1305,7 +1305,7 @@ redirect('customer/orders.php');
     <?php if ($cartMarketId !== null): ?>
         <div class="customer-confirm-order-market-note">
             <span class="customer-confirm-order-market-icon">
-                <i data-lucide=" fa-location-dot"></i>
+                <i data-lucide="MapPin"></i>
             </span>
 
             <div>

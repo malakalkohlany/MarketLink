@@ -252,7 +252,7 @@ $farmerCount = count($farmers);
         <div class="customer-shopping-note">
 
             <span class="customer-shopping-note-icon">
-                <i data-lucide=" fa-location-dot"></i>
+                <i data-lucide="MapPin"></i>
             </span>
 
             <div>
@@ -486,7 +486,7 @@ $farmerCount = count($farmers);
 
                                 <div class="customer-farmer-meta">
 
-                                    <i data-lucide=" fa-location-dot"></i>
+                                    <i data-lucide="MapPin"></i>
 
                                     <span>
                                         <?= e($farmer['address']) ?>
