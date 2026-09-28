@@ -79,25 +79,28 @@ Database name: `marketlink`
 
 The main database tables are:
 
-users
-farmers
-categories
-products
-orders
-order_items
-order_status_history
-reports
-reviews
-markets
-market_farmer
-favorite_products
-favorite_farmers
-favorite_markets
-notifications
-announcements
-pickup_slots
-weekly_stock
-weekly_stock_templates
+| Table                    | Purpose                                             |
+| ------------------------ | --------------------------------------------------- |
+| `users`                  | Stores customer, farmer, and administrator accounts |
+| `farmers`                | Stores farmer profiles and approval information     |
+| `categories`             | Stores product categories                           |
+| `products`               | Stores agricultural products and stock information  |
+| `markets`                | Stores local market information                     |
+| `market_farmer`          | Links farmers with markets                          |
+| `favorite_products`      | Stores customer product favorites                   |
+| `favorite_farmers`       | Stores customer farmer favorites                    |
+| `favorite_markets`       | Stores customer market favorites                    |
+| `orders`                 | Stores customer orders                              |
+| `order_items`            | Stores products included in orders                  |
+| `order_status_history`   | Stores order status changes                         |
+| `pickup_slots`           | Stores farmer pickup schedules                      |
+| `weekly_stock`           | Stores weekly planned and actual stock              |
+| `weekly_stock_templates` | Stores reusable weekly stock templates              |
+| `reviews`                | Stores customer reviews and ratings                 |
+| `notifications`          | Stores user notifications                           |
+| `announcements`          | Stores administrator announcements                  |
+| `reports`                | Stores generated report information                 |
+
 
 
 The database stores users, farmers, products, orders, reviews, markets, favorites, notifications, and other system information.
