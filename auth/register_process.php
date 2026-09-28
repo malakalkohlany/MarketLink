@@ -239,7 +239,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // ==================================================
 
                 if ($role === 'customer') {
-    redirect(BASE_URL . 'customer/dashboard.php');
+    redirect('customer/dashboard.php');
 }
 
 
@@ -250,7 +250,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($role === 'farmer') {
     $_SESSION['farmer_id'] = $farmer_id;
 
-    redirect(BASE_URL . 'farmer/pending.php');
+    redirect('farmer/pending.php');
 }
 
             } catch (Exception $e) {
