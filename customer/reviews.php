@@ -511,14 +511,32 @@ $stmt->close();
 
 <main class="main-content customer-reviews-page">
 
-    <span class="eyebrow">
-        CUSTOMER / REVIEWS
-    </span>
+    <section class="customer-page-hero">
+
+            <div class="customer-page-hero-copy">
+
+                <span class="eyebrow">
+                    CUSTOMER / REVIEWS
+                </span>
+
+                <h1>
+                    Your <em>reviews.</em>
+                </h1>
+
+
+            </div>
+
+            <div class="customer-page-hero-mark">
+                07
+            </div>
+
+        </section>
+    
 
     <?php if (!empty($successMessage)): ?>
         <div class="customer-reviews-message customer-reviews-success">
             <span class="customer-reviews-message-icon">
-                <i class="fa-solid fa-circle-check"></i>
+                <i data-lucide="CheckCircle"></i>
             </span>
 
             <span>
@@ -530,7 +548,7 @@ $stmt->close();
     <?php if (!empty($errors)): ?>
         <div class="customer-reviews-message customer-reviews-error">
             <span class="customer-reviews-message-icon">
-                <i class="fa-solid fa-circle-exclamation"></i>
+                <i data-lucide="circle-alert"></i>
             </span>
 
             <div>
@@ -568,7 +586,7 @@ $stmt->close();
 
                 <div class="customer-review-form-card-header">
                     <span class="customer-review-card-icon">
-                        <i class="fa-solid fa-box-open"></i>
+                        <i data-lucide="package-open"></i>
                     </span>
 
                     <div>
@@ -774,7 +792,7 @@ $stmt->close();
                             class="customer-review-submit"
                         >
                             Submit Product Review
-                            <i class="fa-solid fa-arrow-right"></i>
+                            <i data-lucide=" arrow-right"></i>
                         </button>
 
                     </form>
@@ -783,7 +801,7 @@ $stmt->close();
 
                     <div class="customer-review-empty-option">
                         <span>
-                            <i class="fa-solid fa-circle-info"></i>
+                            <i data-lucide="info"></i>
                         </span>
 
                         <p>
@@ -800,7 +818,7 @@ $stmt->close();
 
                 <div class="customer-review-form-card-header">
                     <span class="customer-review-card-icon customer-review-card-icon-farmer">
-                        <i class="fa-solid fa-user"></i>
+                        <i data-lucide="user"></i>
                     </span>
 
                     <div>
@@ -1006,7 +1024,7 @@ $stmt->close();
                             class="customer-review-submit"
                         >
                             Submit Farmer Review
-                            <i class="fa-solid fa-arrow-right"></i>
+                            <i data-lucide=" arrow-right"></i>
                         </button>
 
                     </form>
@@ -1015,7 +1033,7 @@ $stmt->close();
 
                     <div class="customer-review-empty-option">
                         <span>
-                            <i class="fa-solid fa-circle-info"></i>
+                            <i data-lucide="info"></i>
                         </span>
 
                         <p>
@@ -1143,7 +1161,7 @@ $stmt->close();
 
                                 <div class="customer-farmer-response-header">
                                     <span>
-                                        <i class="fa-solid fa-reply"></i>
+                                        <i data-lucide="reply"></i>
                                     </span>
 
                                     <strong>
@@ -1190,14 +1208,14 @@ $stmt->close();
                             href="?page=<?= $currentPage - 1 ?>"
                             class="customer-reviews-pagination-button"
                         >
-                            <i class="fa-solid fa-arrow-left"></i>
+                            <i data-lucide=" arrow-left"></i>
                             Previous
                         </a>
 
                     <?php else: ?>
 
                         <span class="customer-reviews-pagination-button is-disabled">
-                            <i class="fa-solid fa-arrow-left"></i>
+                            <i data-lucide=" arrow-left"></i>
                             Previous
                         </span>
 
@@ -1239,14 +1257,14 @@ $stmt->close();
                             class="customer-reviews-pagination-button"
                         >
                             Next
-                            <i class="fa-solid fa-arrow-right"></i>
+                            <i data-lucide=" arrow-right"></i>
                         </a>
 
                     <?php else: ?>
 
                         <span class="customer-reviews-pagination-button is-disabled">
                             Next
-                            <i class="fa-solid fa-arrow-right"></i>
+                            <i data-lucide=" arrow-right"></i>
                         </span>
 
                     <?php endif; ?>
@@ -1260,7 +1278,7 @@ $stmt->close();
             <div class="customer-reviews-empty">
 
                 <span class="customer-reviews-empty-mark">
-                    <i class="fa-regular fa-star"></i>
+                    <i data-lucide="star"></i>
                 </span>
 
                 <strong>
@@ -1278,6 +1296,11 @@ $stmt->close();
     </section>
 
 </main>
+
+<script src="../assets/js/lucide.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 
 <script src="../assets/js/app.js"></script>
 <script src="../assets/js/customer-reviews.js"></script>

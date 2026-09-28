@@ -118,7 +118,7 @@ $markets = $market_stmt->get_result();
                 </p>
             </div>
 
-            <div class="customer-page-hero-mark">06</div>
+            <div class="customer-page-hero-mark">05</div>
         </section>
 
         <section class="farmer-markets-section">
@@ -141,7 +141,7 @@ $markets = $market_stmt->get_result();
 
                 <div class="customer-products-empty">
                     <div class="customer-products-empty-mark">
-                        <i class="fa-solid fa-store"></i>
+                        <i data-lucide=" store"></i>
                     </div>
 
                     <h3>No markets assigned.</h3>
@@ -225,7 +225,7 @@ $markets = $market_stmt->get_result();
                         <?php if ($page > 1): ?>
 
                             <a href="?page=<?= $page - 1 ?>">
-                                <i class="fa-solid fa-chevron-left"></i>
+                                <i data-lucide="chevron-left"></i>
                             </a>
 
                         <?php endif; ?>
@@ -244,7 +244,7 @@ $markets = $market_stmt->get_result();
                         <?php if ($page < $total_pages): ?>
 
                             <a href="?page=<?= $page + 1 ?>">
-                                <i class="fa-solid fa-chevron-right"></i>
+                                <i data-lucide="chevron-right"></i>
                             </a>
 
                         <?php endif; ?>
@@ -258,6 +258,11 @@ $markets = $market_stmt->get_result();
         </section>
 
     </main>
+
+    <script src="../assets/js/lucide.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 
 </body>
 </html>

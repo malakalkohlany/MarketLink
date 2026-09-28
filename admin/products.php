@@ -200,25 +200,12 @@ $endItem = min(
 
     <title>Products | MarketLink</title>
 
-    <link
-        rel="stylesheet"
-        href="../assets/css/base.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="../assets/css/navbar.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="../assets/css/sidebar.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="../assets/css/admin.css"
-    >
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/customer.css">
+    <link rel="stylesheet" href="../assets/css/admin_ann.css">
 
 </head>
 
@@ -230,9 +217,9 @@ $endItem = min(
 
 <main class="main-content admin-products-page">
 
-    <section class="admin-page-hero">
+    <section class="customer-page-hero admin-customers-hero">
 
-        <div>
+        <div class="customer-page-hero-copy">
 
             <span class="eyebrow">
                 ADMIN / PRODUCTS
@@ -249,7 +236,7 @@ $endItem = min(
 
         </div>
 
-        <div class="admin-page-mark">
+        <div class="customer-page-hero-mark">
             <span>05</span>
         </div>
 

@@ -95,7 +95,7 @@ if ($total_reviews_pages > 0 && $reviews_page > $total_reviews_pages) {
     }
 
     $response_stmt->close();
-    redirect('reviews.php');
+    redirect('farmer/reviews.php');
 }
 
 

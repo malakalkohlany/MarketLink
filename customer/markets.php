@@ -11,7 +11,7 @@ if (
     && isset($_POST['toggle_favorite'])
 ) {
     if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
-        redirect('markets.php');
+        redirect('customer/markets.php');
     }
 
     $marketId = filter_input(
@@ -21,7 +21,7 @@ if (
     );
 
     if (!$marketId || !$customerId) {
-        redirect('markets.php');
+        redirect('customer/markets.php');
     }
 
     $checkStmt = mysqli_prepare(
@@ -108,7 +108,7 @@ if (
         mysqli_stmt_close($insertStmt);
     }
 
-    redirect('markets.php');
+    redirect('customer/markets.php');
 }
 
 $favoriteMarkets = [];
@@ -243,7 +243,7 @@ $marketCount = count($markets);
     <section class="customer-farmers-intro">
         <div class="customer-shopping-note">
             <span class="customer-shopping-note-icon">
-                <i class="fa-solid fa-location-dot"></i>
+                <i data-lucide="MapPin"></i>
             </span>
 
             <div>
@@ -287,7 +287,7 @@ $marketCount = count($markets);
                 </label>
 
                 <div class="customer-farmer-input-wrap">
-                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <i data-lucide="search"></i>
 
                     <input
                         type="text"
@@ -304,7 +304,7 @@ $marketCount = count($markets);
                 </label>
 
                 <div class="customer-day-filter">
-                    <i class="fa-solid fa-calendar-days"></i>
+                    <i data-lucide="calendar-days"></i>
 
                     <select id="marketDayFilter">
                         <option value="">All Days</option>
@@ -325,7 +325,7 @@ $marketCount = count($markets);
                     id="findNearbyMarkets"
                     class="customer-farmer-location-button"
                 >
-                    <i class="fa-solid fa-location-crosshairs"></i>
+                    <i data-lucide="locate-fixed"></i>
                     Find Markets Near Me
                 </button>
 
@@ -335,7 +335,7 @@ $marketCount = count($markets);
                     class="customer-farmer-show-all"
                     style="display: none;"
                 >
-                    <i class="fa-solid fa-rotate-left"></i>
+                    <i data-lucide="rotate-ccw"></i>
                     Show All Markets
                 </button>
 
@@ -383,7 +383,7 @@ $marketCount = count($markets);
                 id="marketNoMatch"
             >
                 <span class="customer-farmers-no-match-icon">
-                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <i data-lucide="search"></i>
                 </span>
 
                 <strong>
@@ -451,7 +451,7 @@ $marketCount = count($markets);
                                     title="<?= $isFavorite ? 'Remove from Favorites' : 'Add to Favorites' ?>"
                                     aria-label="<?= $isFavorite ? 'Remove from Favorites' : 'Add to Favorites' ?>"
                                 >
-                                    <i class="<?= $isFavorite ? 'fa-solid' : 'fa-regular' ?> fa-heart"></i>
+                                    <i data-lucide="heart"></i>
                                 </button>
 
                             </form>
@@ -471,7 +471,7 @@ $marketCount = count($markets);
                             <?php if (!empty($market['address'])): ?>
 
                                 <div class="customer-farmer-meta">
-                                    <i class="fa-solid fa-location-dot"></i>
+                                    <i data-lucide="MapPin"></i>
 
                                     <span>
                                         <?= e($market['address']) ?>
@@ -483,7 +483,7 @@ $marketCount = count($markets);
                             <?php if (!empty($market['operating_days'])): ?>
 
                                 <div class="customer-farmer-meta">
-                                    <i class="fa-solid fa-calendar-days"></i>
+                                    <i data-lucide="calendar-days"></i>
 
                                     <span>
                                         <?= e($market['operating_days']) ?>
@@ -498,7 +498,7 @@ $marketCount = count($markets);
                             ): ?>
 
                                 <div class="customer-farmer-meta">
-                                    <i class="fa-solid fa-clock"></i>
+                                    <i data-lucide=" clock"></i>
 
                                     <span>
                                         <?= e(date('g:i A', strtotime($market['opening_time']))) ?>
@@ -521,7 +521,7 @@ $marketCount = count($markets);
                                     class="customer-farmer-details"
                                 >
                                     View Market
-                                    <i class="fa-solid fa-arrow-right"></i>
+                                    <i data-lucide=" arrow-right"></i>
                                 </a>
 
                             </div>
@@ -544,7 +544,7 @@ $marketCount = count($markets);
             <div class="customer-farmers-empty">
 
                 <span class="customer-farmers-empty-mark">
-                    <i class="fa-solid fa-store"></i>
+                    <i data-lucide=" store"></i>
                 </span>
 
                 <strong>
@@ -563,6 +563,11 @@ $marketCount = count($markets);
     </section>
 
 </main>
+
+<script src="../assets/js/lucide.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 
 <script
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
@@ -661,7 +666,7 @@ function renderPagination() {
         'farmer-pagination-button farmer-pagination-arrow';
 
     previousButton.innerHTML =
-        '<i class="fa-solid fa-arrow-left"></i> Previous';
+        '<i data-lucide=" arrow-left"></i> Previous';
 
     previousButton.disabled =
         currentPage === 1;
@@ -722,7 +727,7 @@ function renderPagination() {
         'farmer-pagination-button farmer-pagination-arrow';
 
     nextButton.innerHTML =
-        'Next <i class="fa-solid fa-arrow-right"></i>';
+        'Next <i data-lucide=" arrow-right"></i>';
 
     nextButton.disabled =
         currentPage === totalPages;

@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    redirect('customers.php');
+    redirect('admin/customers.php');
 }
 
 
@@ -103,30 +103,12 @@ if ($stmt) {
 
     <title>Customers | MarketLink</title>
 
-    <link
-        rel="stylesheet"
-        href="../assets/css/base.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="../assets/css/navbar.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="../assets/css/dashboard.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="../assets/css/sidebar.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="../assets/css/admin.css"
-    >
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/customer.css">
+    <link rel="stylesheet" href="../assets/css/admin_ann.css">
 
 </head>
 
@@ -139,9 +121,9 @@ if ($stmt) {
 
 <main class="main-content admin-customers-page">
 
-    <section class="admin-page-hero">
+    <section class="customer-page-hero admin-customers-hero">
 
-        <div>
+        <div class="customer-page-hero-copy">
 
             <span class="eyebrow">
                 ADMIN / CUSTOMERS
@@ -159,7 +141,7 @@ if ($stmt) {
         </div>
 
 
-        <div class="admin-page-mark">
+        <div class="customer-page-hero-mark">
             <span>03</span>
         </div>
 

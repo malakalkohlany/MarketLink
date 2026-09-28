@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    redirect('markets.php');
+    redirect('admin/markets.php');
 }
 
 $stmt = $conn->prepare("
@@ -81,6 +81,8 @@ if ($stmt) {
     <link rel="stylesheet" href="../assets/css/navbar.css">
     <link rel="stylesheet" href="../assets/css/sidebar.css">
     <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/customer.css">
+    <link rel="stylesheet" href="../assets/css/admin_ann.css">
 </head>
 
 <body>
@@ -92,8 +94,8 @@ if ($stmt) {
 
     <main class="main-content admin-markets-page">
 
-        <section class="admin-page-hero">
-            <div class="admin-page-hero-copy">
+        <section class="customer-page-hero admin-customers-hero">
+            <div class="customer-page-hero-copy">
                 <span class="eyebrow">ADMIN / MARKETS</span>
 
                 <h1>
@@ -106,7 +108,7 @@ if ($stmt) {
                 </p>
             </div>
 
-            <div class="admin-page-mark">07</div>
+            <div class="customer-page-hero-mark">07</div>
         </section>
 
         <?php if (!empty($errors)): ?>

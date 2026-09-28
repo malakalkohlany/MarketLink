@@ -326,6 +326,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="../assets/css/navbar.css">
     <link rel="stylesheet" href="../assets/css/sidebar.css">
     <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/customer.css">
+    <link rel="stylesheet" href="../assets/css/admin_ann.css">
 
     <link
         rel="stylesheet"
@@ -341,9 +343,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <main class="main-content admin-edit-market-page">
 
-    <section class="admin-page-hero">
+    <section class="customer-page-hero admin-customers-hero">
 
-        <div class="admin-page-hero-copy">
+        <div class="customer-page-hero-copy">
 
             <span class="eyebrow">
                 ADMIN / MARKETS
@@ -360,7 +362,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         </div>
 
-        <div class="admin-page-mark">
+        <div class="customer-page-hero-mark">
             07
         </div>
 

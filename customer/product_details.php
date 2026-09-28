@@ -345,7 +345,7 @@ $roundedRating =
                 href="<?= e($backPage) ?>"
                 class="customer-product-back-link"
             >
-                <i class="fa-solid fa-arrow-left"></i>
+                <i data-lucide=" arrow-left"></i>
                 <?= e($backText) ?>
             </a>
 
@@ -356,7 +356,7 @@ $roundedRating =
             <div class="customer-products-notice customer-products-error">
 
                 <span class="customer-products-notice-icon">
-                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <i data-lucide="circle-alert"></i>
                 </span>
 
                 <div>
@@ -422,7 +422,7 @@ $roundedRating =
 
                     <div class="customer-product-detail-farmer">
 
-                        <i class="fa-solid fa-store"></i>
+                        <i data-lucide=" store"></i>
 
                         <a
                             href="farmer_details.php?id=<?= (int) $product['farmer_id'] ?>"
@@ -576,7 +576,7 @@ $roundedRating =
                                 href="add_to_cart.php?id=<?= (int) $product['id'] ?>"
                                 class="customer-product-add"
                             >
-                                <i class="fa-solid fa-cart-plus"></i>
+                                <i data-lucide="shopping-cart-plus"></i>
                                 Add to Cart
                             </a>
 
@@ -590,7 +590,7 @@ $roundedRating =
 
                                 <?php if (!$hasWeeklyStock): ?>
 
-                                    <i class="fa-solid fa-calendar-xmark"></i>
+                                    <i data-lucide="calendar-x"></i>
                                     Weekly Stock Not Set
 
                                 <?php elseif (
@@ -598,12 +598,12 @@ $roundedRating =
                                     || $weeklyActualQuantity <= 0
                                 ): ?>
 
-                                    <i class="fa-solid fa-box-open"></i>
+                                    <i data-lucide="package-open"></i>
                                     Sold Out This Week
 
                                 <?php else: ?>
 
-                                    <i class="fa-solid fa-ban"></i>
+                                    <i data-lucide="ban"></i>
                                     Currently Unavailable
 
                                 <?php endif; ?>
@@ -616,7 +616,7 @@ $roundedRating =
                             href="<?= e($backPage) ?>"
                             class="customer-product-details"
                         >
-                            <i class="fa-solid fa-arrow-left"></i>
+                            <i data-lucide=" arrow-left"></i>
                             Back to Products
                         </a>
 
@@ -654,7 +654,7 @@ $roundedRating =
             <div class="customer-product-farmer-card-header">
 
                 <div class="customer-product-farmer-icon">
-                    <i class="fa-solid fa-store"></i>
+                    <i data-lucide=" store"></i>
                 </div>
 
                 <div>
@@ -734,7 +734,7 @@ $roundedRating =
                 class="customer-product-details customer-product-farmer-link"
             >
                 View Farmer
-                <i class="fa-solid fa-arrow-right"></i>
+                <i data-lucide=" arrow-right"></i>
             </a>
 
         </article>
@@ -791,9 +791,8 @@ $roundedRating =
                 ): ?>
 
                     <i
-                        class="<?= $i <= $roundedRating
-                            ? 'fa-solid'
-                            : 'fa-regular' ?> fa-star"
+                        data-lucide="star"
+                        class="<?= $i <= $roundedRating ? 'rating-star-filled' : '' ?>"
                     ></i>
 
                 <?php endfor; ?>
@@ -820,7 +819,7 @@ $roundedRating =
                 href="reviews.php?product_id=<?= (int) $product['id'] ?>"
                 class="customer-product-add customer-product-review-button"
             >
-                <i class="fa-solid fa-pen"></i>
+                <i data-lucide="pen"></i>
                 Write a Review
             </a>
 
@@ -859,9 +858,8 @@ $roundedRating =
                                     ): ?>
 
                                         <i
-                                            class="<?= $i <= $reviewRating
-                                                ? 'fa-solid'
-                                                : 'fa-regular' ?> fa-star"
+                                            data-lucide="star"
+                                            class="<?= $i <= $reviewRating ? 'rating-star-filled' : '' ?>"
                                         ></i>
 
                                     <?php endfor; ?>
@@ -903,7 +901,7 @@ $roundedRating =
 
                                 <div>
 
-                                    <i class="fa-solid fa-reply"></i>
+                                    <i data-lucide="reply"></i>
 
                                     <strong>
                                         Farmer Response
@@ -953,6 +951,11 @@ $roundedRating =
     </section>
 
 </main>
+
+<script src="../assets/js/lucide.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 
 <script src="../assets/js/app.js"></script>
 

@@ -9,7 +9,7 @@ $farmerId = isset($_GET['id'])
     : 0;
 
 if ($farmerId <= 0) {
-    redirect('farmers.php');
+    redirect('customer/farmers.php');
 }
 
 $farmerStmt = $conn->prepare("
@@ -137,7 +137,7 @@ if (!$farmer) {
                     href="farmers.php"
                     class="customer-farmer-back"
                 >
-                    <i class="fa-solid fa-arrow-left"></i>
+                    <i data-lucide=" arrow-left"></i>
                     Back to Farmers
                 </a>
 
@@ -580,7 +580,7 @@ $roundedRating = (int) round($averageRating);
                 href="farmers.php"
                 class="customer-farmer-back"
             >
-                <i class="fa-solid fa-arrow-left"></i>
+                <i data-lucide=" arrow-left"></i>
                 All Farmers
             </a>
 
@@ -621,7 +621,7 @@ $roundedRating = (int) round($averageRating);
                     <div class="customer-farmer-profile-row">
 
                         <span>
-                            <i class="fa-solid fa-user"></i>
+                            <i data-lucide="user"></i>
                             Contact Person
                         </span>
 
@@ -637,7 +637,7 @@ $roundedRating = (int) round($averageRating);
                     <div class="customer-farmer-profile-row">
 
                         <span>
-                            <i class="fa-solid fa-location-dot"></i>
+                            <i data-lucide="MapPin"></i>
                             Location
                         </span>
 
@@ -653,7 +653,7 @@ $roundedRating = (int) round($averageRating);
                     <div class="customer-farmer-profile-row">
 
                         <span>
-                            <i class="fa-solid fa-calendar"></i>
+                            <i data-lucide="calendar"></i>
                             Joined MarketLink
                         </span>
 
@@ -684,7 +684,7 @@ $roundedRating = (int) round($averageRating);
                     </div>
 
                     <span class="customer-farmer-map-icon">
-                        <i class="fa-solid fa-location-dot"></i>
+                        <i data-lucide="MapPin"></i>
                     </span>
 
                 </div>
@@ -698,7 +698,7 @@ $roundedRating = (int) round($averageRating);
 
                     <div class="customer-farmer-map-address">
 
-                        <i class="fa-solid fa-location-dot"></i>
+                        <i data-lucide="MapPin"></i>
 
                         <span>
                             <?= e($farmer['address']) ?>
@@ -785,7 +785,7 @@ $roundedRating = (int) round($averageRating);
                             <?php if (!empty($market['address'])): ?>
 
                                 <p>
-                                    <i class="fa-solid fa-location-dot"></i>
+                                    <i data-lucide="MapPin"></i>
                                     <?= e($market['address']) ?>
                                 </p>
 
@@ -796,7 +796,7 @@ $roundedRating = (int) round($averageRating);
                                 <div class="customer-farmer-market-detail">
 
                                     <span>
-                                        <i class="fa-solid fa-calendar-days"></i>
+                                        <i data-lucide="calendar-days"></i>
                                         Market Days
                                     </span>
 
@@ -818,7 +818,7 @@ $roundedRating = (int) round($averageRating);
                                 <div class="customer-farmer-market-detail">
 
                                     <span>
-                                        <i class="fa-solid fa-clock"></i>
+                                        <i data-lucide=" clock"></i>
                                         Opening Hours
                                     </span>
 
@@ -996,7 +996,7 @@ $roundedRating = (int) round($averageRating);
                             class="customer-farmer-product-link"
                         >
                             View Product
-                            <i class="fa-solid fa-arrow-right"></i>
+                            <i data-lucide=" arrow-right"></i>
                         </a>
 
                     </article>
@@ -1137,7 +1137,7 @@ $roundedRating = (int) round($averageRating);
 
                             <div class="customer-product-farmer">
 
-                                <i class="fa-solid fa-store"></i>
+                                <i data-lucide=" store"></i>
 
                                 <?= e($farmer['stall_name']) ?>
 
@@ -1214,7 +1214,7 @@ $roundedRating = (int) round($averageRating);
                                         href="add_to_cart.php?id=<?= $productId ?>"
                                         class="customer-product-add"
                                     >
-                                        <i class="fa-solid fa-cart-plus"></i>
+                                        <i data-lucide="shopping-cart-plus"></i>
                                         Add to Cart
                                     </a>
 
@@ -1226,11 +1226,7 @@ $roundedRating = (int) round($averageRating);
                                         disabled
                                     >
 
-                                        <i
-                                            class="fa-solid <?= $isUnavailable
-                                                ? 'fa-box-open'
-                                                : 'fa-box-open' ?>"
-                                        ></i>
+                                        <i data-lucide="package-open"></i>
 
                                         <?php if ($isUnavailable): ?>
 
@@ -1332,7 +1328,7 @@ $roundedRating = (int) round($averageRating);
                 class="customer-farmer-review-link"
             >
                 Write a Review
-                <i class="fa-solid fa-arrow-right"></i>
+                <i data-lucide=" arrow-right"></i>
             </a>
 
         </div>
@@ -1407,7 +1403,7 @@ $roundedRating = (int) round($averageRating);
 
                                 <div class="customer-farmer-response-title">
 
-                                    <i class="fa-solid fa-reply"></i>
+                                    <i data-lucide="reply"></i>
 
                                     Farmer Response
 
@@ -1468,6 +1464,10 @@ $roundedRating = (int) round($averageRating);
     </section>
 
 </main>
+<script src="../assets/js/lucide.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 
 <script
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"

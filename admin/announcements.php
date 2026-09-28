@@ -279,7 +279,7 @@ if (
 
                     $conn->commit();
 
-                    redirect('announcements.php');
+                    redirect('admin/announcements.php');
                 } catch (Exception $e) {
                     $conn->rollback();
                     $errors[] = $e->getMessage();
@@ -326,7 +326,7 @@ if (
             if ($stmt->execute()) {
                 $stmt->close();
 
-                redirect('announcements.php');
+                redirect('admin/announcements.php');
             } else {
                 $errors[] = 'Failed to delete announcement.';
                 $stmt->close();
@@ -369,6 +369,7 @@ if ($result) {
     <link rel="stylesheet" href="../assets/css/navbar.css">
     <link rel="stylesheet" href="../assets/css/sidebar.css">
     <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/customer.css">
     <link rel="stylesheet" href="../assets/css/admin_ann.css">
 </head>
 
@@ -379,8 +380,8 @@ if ($result) {
 
 <main class="main-content admin-announcements-page">
 
-    <section class="admin-page-hero">
-        <div class="admin-page-hero-copy">
+    <section class="customer-page-hero admin-customers-hero">
+        <div class="customer-page-hero-copy">
             <span class="eyebrow">ADMIN / ANNOUNCEMENTS</span>
 
             <h1>
@@ -392,7 +393,7 @@ if ($result) {
             </p>
         </div>
 
-        <div class="admin-page-mark">
+        <div class="customer-page-hero-mark">
             08
         </div>
     </section>

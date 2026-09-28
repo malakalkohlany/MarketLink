@@ -11,7 +11,7 @@ if (
     && isset($_POST['toggle_favorite'])
 ) {
     if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
-        redirect('products.php');
+        redirect('customer/products.php');
     }
 
     $productId = filter_input(
@@ -21,7 +21,7 @@ if (
     );
 
     if (!$productId || !$customerId) {
-        redirect('products.php');
+        redirect('customer/products.php');
     }
 
     $checkStmt = mysqli_prepare(
@@ -108,7 +108,7 @@ if (
         mysqli_stmt_close($insertStmt);
     }
 
-    redirect('products.php');
+    redirect('customer/products.php');
 }
 
 $favoriteProducts = [];
@@ -527,7 +527,7 @@ if (
 
         <div class="customer-products-notice customer-products-success">
             <span class="customer-products-notice-icon">
-                <i class="fa-solid fa-circle-check"></i>
+                <i data-lucide="CheckCircle"></i>
             </span>
 
             <div>
@@ -549,7 +549,7 @@ if (
         <div class="customer-shopping-note">
 
             <span class="customer-shopping-note-icon">
-                <i class="fa-solid fa-basket-shopping"></i>
+                <i data-lucide="shopping-basket"></i>
             </span>
 
             <div>
@@ -622,7 +622,7 @@ if (
 
                 <div class="customer-product-input-wrap">
 
-                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <i data-lucide="search"></i>
 
                     <input
                         type="text"
@@ -983,9 +983,8 @@ if (
                                 >
 
                                     <i
-                                        class="<?= $isFavorite
-                                            ? 'fa-solid'
-                                            : 'fa-regular' ?> fa-heart"
+                                        data-lucide="heart"
+                                        class="<?= $isFavorite ? 'favorite-active' : '' ?>"
                                     ></i>
 
                                 </button>
@@ -1006,7 +1005,7 @@ if (
 
                             <div class="customer-product-farmer">
 
-                                <i class="fa-solid fa-store"></i>
+                                <i data-lucide=" store"></i>
 
                                 <?= e($farmerName) ?>
 
@@ -1093,7 +1092,7 @@ if (
                                             class="customer-product-add"
                                         >
 
-                                            <i class="fa-solid fa-cart-plus"></i>
+                                            <i data-lucide="shopping-cart-plus"></i>
 
                                             Add to Cart
 
@@ -1106,7 +1105,7 @@ if (
                                             class="customer-product-add"
                                         >
 
-                                            <i class="fa-solid fa-cart-plus"></i>
+                                            <i data-lucide="shopping-cart-plus"></i>
 
                                             Add to Cart
 
@@ -1125,8 +1124,8 @@ if (
                                     >
 
                                         <i
-                                            class="fa-solid <?= !$canAddForCartMarket
-                                                ? 'fa-store-slash'
+                                            data-lucide=" <?= !$canAddForCartMarket
+                                                ? 'store-slash'
                                                 : 'fa-box-open' ?>"
                                         ></i>
 
@@ -1193,7 +1192,7 @@ if (
         class="customer-floating-cart"
     >
 
-        <i class="fa-solid fa-cart-shopping"></i>
+        <i data-lucide="shopping-cart"></i>
 
         <span>
             Cart
@@ -1206,6 +1205,11 @@ if (
     </a>
 
 <?php endif; ?>
+
+<script src="../assets/js/lucide.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 
 <script src="../assets/js/app.js"></script>
 

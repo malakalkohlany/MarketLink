@@ -295,7 +295,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ? (int)$_GET['page']
         : 1;
 
-    redirect('orders.php?page=' . max(1, $redirect_page));
+    redirect('farmer/orders.php?page=' . max(1, $redirect_page));
 }
 
 $items_per_page = 10;
@@ -416,7 +416,7 @@ $orders = $order_stmt->get_result();
         </div>
 
         <div class="customer-page-hero-mark">
-            05
+            04
         </div>
 
     </section>
@@ -549,7 +549,7 @@ $orders = $order_stmt->get_result();
                                             href="order_details.php?id=<?= (int)$order['id'] ?>"
                                             class="farmer-order-details"
                                         >
-                                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                            <i data-lucide=" arrow-up-right-from-square"></i>
                                             View Details
                                         </a>
 
@@ -632,6 +632,11 @@ $orders = $order_stmt->get_result();
     </section>
 
 </main>
+
+<script src="../assets/js/lucide.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 
 <script src="../assets/js/app.js"></script>
 

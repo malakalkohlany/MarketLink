@@ -7,7 +7,7 @@ if (
     isset($_POST['clear_cart'])
 ) {
     $_SESSION['cart'] = [];
-    redirect('cart.php');
+    redirect('customer/cart.php');
 }
 
 $cart = [];
@@ -87,9 +87,27 @@ foreach ($cart as $item) {
 
 <main class="main-content customer-cart-page">
 
-<span class="eyebrow">
+    <section class="customer-page-hero">
+
+            <div class="customer-page-hero-copy">
+
+                <span class="eyebrow">
                 CUSTOMER / SHOPPING CART
             </span>
+
+                <h1>
+                    Manage your <em>cart.</em>
+                </h1>
+
+            </div>
+
+            <div class="customer-page-hero-mark">
+                05
+            </div>
+
+        </section>
+
+
 
     <section class="customer-cart-section">
 
@@ -123,7 +141,7 @@ foreach ($cart as $item) {
 
                 <span class="customer-farmers-empty-mark">
 
-                    <i class="fa-solid fa-basket-shopping"></i>
+                    <i data-lucide="shopping-basket"></i>
 
                 </span>
 
@@ -142,7 +160,7 @@ foreach ($cart as $item) {
                 >
                     Browse Products
 
-                    <i class="fa-solid fa-arrow-right"></i>
+                    <i data-lucide=" arrow-right"></i>
                 </a>
 
             </div>
@@ -245,7 +263,7 @@ foreach ($cart as $item) {
                                 onclick="removeItem(<?= $productId ?>)"
                                 aria-label="Remove <?= e($item['name']) ?>"
                             >
-                                <i class="fa-solid fa-xmark"></i>
+                                <i data-lucide="check"></i>
                             </button>
 
                         </article>
@@ -266,7 +284,7 @@ foreach ($cart as $item) {
             href="products.php"
             class="continue-shopping"
         >
-            <i class="fa-solid fa-arrow-left"></i>
+            <i data-lucide=" arrow-left"></i>
             Continue Shopping
         </a>
 
@@ -275,7 +293,7 @@ foreach ($cart as $item) {
             class="checkout-button"
         >
             Confirm Order
-            <i class="fa-solid fa-arrow-right"></i>
+            <i data-lucide=" arrow-right"></i>
         </a>
     </div>
 
@@ -308,6 +326,10 @@ foreach ($cart as $item) {
 </main>
 
 <script src="../assets/js/cart.js"></script>
+<script src="../assets/js/lucide.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 
 </body>
 

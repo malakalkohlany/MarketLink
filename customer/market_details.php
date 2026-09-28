@@ -6,7 +6,7 @@ $customerId = (int)getUserId();
 $marketId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 if ($marketId <= 0) {
-    redirect('markets.php');
+    redirect('customer/markets.php');
 }
 
 if (
@@ -14,7 +14,7 @@ if (
     isset($_POST['toggle_favorite'])
 ) {
     if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
-        redirect('market_details.php?id=' . $marketId);
+        redirect('customer/market_details.php?id=' . $marketId);
     }
 
     $checkStmt = mysqli_prepare(
@@ -124,7 +124,7 @@ if (
         mysqli_stmt_close($insertStmt);
     }
 
-    redirect('market_details.php?id=' . $marketId);
+    redirect('customer/market_details.php?id=' . $marketId);
 }
 
 $stmt = mysqli_prepare(
@@ -173,7 +173,7 @@ $market = mysqli_fetch_assoc($result);
 mysqli_stmt_close($stmt);
 
 if (!$market) {
-    redirect('markets.php');
+    redirect('customer/markets.php');
 }
 
 $farmersStmt = mysqli_prepare(
@@ -587,9 +587,9 @@ mysqli_stmt_close($favoriteStmt);
                         ?>"
                     >
                         <?php if ($isFavorite): ?>
-                            <i class="fa-solid fa-heart"></i>
+                            <i data-lucide="heart"></i>
                         <?php else: ?>
-                            <i class="fa-regular fa-heart"></i>
+                            <i data-lucide="heart"></i>
                         <?php endif; ?>
                     </button>
                 </form>
@@ -661,7 +661,7 @@ mysqli_stmt_close($favoriteStmt);
 
             <?php if (empty($farmers)): ?>
                 <div class="market-empty-state">
-                    <i class="fa-solid fa-store"></i>
+                    <i data-lucide=" store"></i>
                     <p>
                         No approved farmers are currently
                         registered at this market.
@@ -675,7 +675,7 @@ mysqli_stmt_close($favoriteStmt);
                             class="market-farmer-card"
                         >
                             <div class="market-farmer-icon">
-                                <i class="fa-solid fa-wheat-awn"></i>
+                                <i data-lucide="wheat"></i>
                             </div>
 
                             <div class="market-farmer-info">
@@ -696,10 +696,7 @@ mysqli_stmt_close($favoriteStmt);
 
                                 <?php if (!empty($farmer['address'])): ?>
                                     <p>
-                                        <i
-                                            class="fa-solid
-                                            fa-location-dot"
-                                        ></i>
+                                        <i data-lucide="map-pin"></i>
                                         <?= e($farmer['address']) ?>
                                     </p>
                                 <?php endif; ?>
@@ -707,8 +704,8 @@ mysqli_stmt_close($favoriteStmt);
 
                             <div class="market-farmer-arrow">
                                 <i
-                                    class="fa-solid
-                                    fa-chevron-right"
+                                    data-lucide="
+                                   chevron-right"
                                 ></i>
                             </div>
                         </a>
@@ -729,6 +726,11 @@ mysqli_stmt_close($favoriteStmt);
 <script
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
 ></script>
+
+<script src="../assets/js/lucide.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 
 <script>
     const latitude =

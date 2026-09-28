@@ -116,9 +116,9 @@ $image_extension = $allowed_types[$image_info['mime']];
 
 $new_image_name = uniqid('product_', true) . '.' . $image_extension;
 
-$image_path = __DIR__ . '/../assets/images/products/' . $new_image_name;
+$image_path = __DIR__ . '/../uploads/products/' . $new_image_name;
 
-    $image_db_path = 'assets/images/products/' . $new_image_name;
+    $image_db_path = 'uploads/products/' . $new_image_name;
 
     if (!move_uploaded_file($image_tmp, $image_path)) {
         die("Failed to save product image.");
@@ -263,14 +263,13 @@ $categories = $category_stmt->get_result();
             </p>
         </div>
 
-        <div class="customer-page-hero-mark">02</div>
     </section>
 
     <?php if (isset($success_message)): ?>
 
         <div class="customer-products-notice customer-products-success">
             <span class="customer-products-notice-icon">
-                <i class="fa-solid fa-check"></i>
+                <i data-lucide=" check"></i>
             </span>
 
             <div>
@@ -421,7 +420,7 @@ $categories = $category_stmt->get_result();
                         name="add_product"
                         class="farmer-form-submit"
                     >
-                        <i class="fa-solid fa-plus"></i>
+                        <i data-lucide="plus"></i>
                         Add Product
                     </button>
 
@@ -434,6 +433,11 @@ $categories = $category_stmt->get_result();
     </section>
 
 </main>
+
+<script src="../assets/js/lucide.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 
 <script src="../assets/js/app.js"></script>
 

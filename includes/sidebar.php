@@ -227,7 +227,10 @@ function hasSubmenu(array $pages): bool
                 <li>
                     <a
                         href="<?= BASE_URL ?>customer/profile.php"
-                        class="<?= isActive(['profile.php']) ?>"
+                        class="<?= isActive([
+                            'profile.php',
+                            'edit_profile.php'
+                        ]) ?>"
                     >
                         <span class="nav-icon">
                             <i data-lucide="user-round"></i>
@@ -236,6 +239,28 @@ function hasSubmenu(array $pages): bool
                         <span>Profile</span>
                     </a>
                 </li>
+
+                <?php if (hasSubmenu([
+                        'profile.php',
+                        'edit_profile.php'
+                    ])): ?>
+
+                        <div class="sidebar-submenu">
+
+                            <a
+                                href="<?= BASE_URL ?>customer/edit_profile.php"
+                                class="sidebar-sublink <?= isSubActive('edit_profile.php') ?>"
+                            >
+                                <span class="nav-subicon">
+                                    <i data-lucide="user-pen"></i>
+                                </span>
+
+                                <span>Edit Profile</span>
+                            </a>
+
+                        </div>
+
+                    <?php endif; ?>
 
 
 
@@ -280,6 +305,20 @@ function hasSubmenu(array $pages): bool
                         </span>
 
                         <span>Dashboard</span>
+                    </a>
+                </li>
+
+                <!-- Analytics -->
+                <li>
+                    <a
+                        href="<?= BASE_URL ?>farmer/analytics.php"
+                        class="<?= isActive(['analytics.php']) ?>"
+                    >
+                        <span class="nav-icon">
+                            <i data-lucide="chart-no-axes-combined"></i>
+                        </span>
+
+                        <span>Analytics</span>
                     </a>
                 </li>
 
@@ -430,20 +469,6 @@ function hasSubmenu(array $pages): bool
                     </a>
                 </li>
 
-
-                <!-- Analytics -->
-                <li>
-                    <a
-                        href="<?= BASE_URL ?>farmer/analytics.php"
-                        class="<?= isActive(['analytics.php']) ?>"
-                    >
-                        <span class="nav-icon">
-                            <i data-lucide="chart-no-axes-combined"></i>
-                        </span>
-
-                        <span>Analytics</span>
-                    </a>
-                </li>
 
             </ul>
 
