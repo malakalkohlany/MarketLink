@@ -4,8 +4,6 @@ require_once __DIR__ . '/../includes/include.php';
 
 requireRole(R_ADMIN);
 
-
-
 $admin_id = getUserId();
 
 $errors = [];
@@ -13,6 +11,157 @@ $success = '';
 $announcements = [];
 
 
+/*
+ * Add announcement
+ */
+if (
+    $_SERVER['REQUEST_METHOD'] === 'POST' &&
+    isset($_POST['add_announcement'])
+) {
+
+    $title = trim($_POST['title'] ?? '');
+    $message = trim($_POST['message'] ?? '');
+    $status = $_POST['status'] ?? 'draft';
+    $expires_at = trim($_POST['expires_at'] ?? '');
+
+    if ($title === '') {
+        $errors[] = 'Announcement title is required.';
+    }
+
+    if ($message === '') {
+        $errors[] = 'Announcement message is required.';
+    }
+
+    if (!in_array($status, ['draft', 'published', 'archived'], true)) {
+        $errors[] = 'Invalid announcement status.';
+    }
+
+    if ($expires_at !== '') {
+
+        $date = DateTime::createFromFormat(
+            'Y-m-d\TH:i',
+            $expires_at
+        );
+
+        if (
+            !$date ||
+            $date->format('Y-m-d\TH:i') !== $expires_at
+        ) {
+            $errors[] = 'Invalid expiration date.';
+        }
+    }
+
+    if (empty($errors)) {
+
+        $expires_value = $expires_at !== ''
+            ? str_replace('T', ' ', $expires_at) . ':00'
+            : null;
+
+        $conn->begin_transaction();
+
+        try {
+
+            /*
+             * Insert announcement
+             */
+            $stmt = $conn->prepare("
+                INSERT INTO announcements
+                (
+                    admin_id,
+                    title,
+                    message,
+                    status,
+                    expires_at
+                )
+                VALUES (?, ?, ?, ?, ?)
+            ");
+
+            if (!$stmt) {
+                throw new Exception('Failed to prepare announcement.');
+            }
+
+            $stmt->bind_param(
+                'issss',
+                $admin_id,
+                $title,
+                $message,
+                $status,
+                $expires_value
+            );
+
+            if (!$stmt->execute()) {
+                $stmt->close();
+                throw new Exception('Failed to add announcement.');
+            }
+
+            $stmt->close();
+
+
+            /*
+             * If the announcement is published immediately,
+             * create notifications for customers and farmers.
+             */
+            if ($status === 'published') {
+
+                $notification_stmt = $conn->prepare("
+                    INSERT INTO notifications
+                    (
+                        user_id,
+                        type,
+                        title,
+                        message
+                    )
+                    SELECT
+                        id,
+                        'announcement',
+                        ?,
+                        ?
+                    FROM users
+                    WHERE role IN ('customer', 'farmer')
+                ");
+
+                if (!$notification_stmt) {
+                    throw new Exception(
+                        'Failed to prepare announcement notifications.'
+                    );
+                }
+
+                $notification_stmt->bind_param(
+                    'ss',
+                    $title,
+                    $message
+                );
+
+                if (!$notification_stmt->execute()) {
+                    $notification_stmt->close();
+
+                    throw new Exception(
+                        'Failed to create announcement notifications.'
+                    );
+                }
+
+                $notification_stmt->close();
+            }
+
+
+            $conn->commit();
+
+            $success = 'Announcement added successfully.';
+            $_POST = [];
+
+        } catch (Exception $e) {
+
+            $conn->rollback();
+
+            $errors[] = $e->getMessage();
+        }
+    }
+}
+
+
+/*
+ * Update announcement status
+ */
 if (
     $_SERVER['REQUEST_METHOD'] === 'POST' &&
     isset($_POST['update_status'])
@@ -30,7 +179,11 @@ if (
         $errors[] = 'Invalid announcement.';
     }
 
-    if (!in_array($new_status, ['draft', 'published', 'archived'], true)) {
+    if (!in_array(
+        $new_status,
+        ['draft', 'published', 'archived'],
+        true
+    )) {
         $errors[] = 'Invalid announcement status.';
     }
 
@@ -42,7 +195,10 @@ if (
          * this is a new publication.
          */
         $stmt = $conn->prepare("
-            SELECT status, title, message
+            SELECT
+                status,
+                title,
+                message
             FROM announcements
             WHERE id = ?
             AND admin_id = ?
@@ -73,7 +229,7 @@ if (
                 $old_status = $announcement['status'];
 
                 /*
-                 * Update announcement status
+                 * Update status
                  */
                 $stmt = $conn->prepare("
                     UPDATE announcements
@@ -133,6 +289,7 @@ if (
                                 );
 
                                 $notification_stmt->execute();
+
                                 $notification_stmt->close();
                             }
                         }
@@ -142,13 +299,16 @@ if (
 
                     } else {
 
-                        $errors[] = 'Failed to update announcement.';
+                        $errors[] =
+                            'Failed to update announcement.';
+
                         $stmt->close();
                     }
 
                 } else {
 
-                    $errors[] = 'Failed to prepare announcement update.';
+                    $errors[] =
+                        'Failed to prepare announcement update.';
                 }
             }
 
@@ -159,7 +319,68 @@ if (
     }
 }
 
-   
+
+/*
+ * Delete announcement
+ */
+if (
+    $_SERVER['REQUEST_METHOD'] === 'POST' &&
+    isset($_POST['delete_announcement'])
+) {
+
+    $announcement_id = filter_input(
+        INPUT_POST,
+        'id',
+        FILTER_VALIDATE_INT
+    );
+
+    if (!$announcement_id) {
+        $errors[] = 'Invalid announcement.';
+    }
+
+    if (empty($errors)) {
+
+        $stmt = $conn->prepare("
+            DELETE FROM announcements
+            WHERE id = ?
+            AND admin_id = ?
+        ");
+
+        if ($stmt) {
+
+            $stmt->bind_param(
+                'ii',
+                $announcement_id,
+                $admin_id
+            );
+
+            if ($stmt->execute()) {
+
+                $stmt->close();
+
+                header('Location: announcements.php');
+                exit;
+
+            } else {
+
+                $errors[] =
+                    'Failed to delete announcement.';
+
+                $stmt->close();
+            }
+
+        } else {
+
+            $errors[] =
+                'Failed to prepare announcement deletion.';
+        }
+    }
+}
+
+
+/*
+ * Load announcements
+ */
 $result = $conn->query("
     SELECT
         a.id,
