@@ -283,6 +283,10 @@ $stmt->close();
         rel="stylesheet"
         href="../assets/css/sidebar.css"
     >
+    <link
+        rel="stylesheet"
+        href="../assets/css/customer.css"
+    >
 
     <link
         rel="stylesheet"
@@ -296,145 +300,239 @@ $stmt->close();
 <?php include __DIR__ . '/../includes/navbar.php'; ?>
 <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-<main class="main-content">
+<main class="main-content customer-farmers-page">
 
-    <div class="favorites-container">
+    <div class="customer-page-hero">
+        <div class="customer-page-hero-copy">
+            <span class="eyebrow">
+                CUSTOMER / SAVED
+            </span>
 
-        <div class="page-header">
             <h1>
-                Favorites
+                The things you
+                <br>
+                want to <em>remember.</em>
             </h1>
 
             <p>
-                Products, farmers and markets you have saved to your favorites.
+                Keep your favorite products, farmers, and markets close at
+                hand so you can return to them whenever you shop.
             </p>
         </div>
 
-        <div class="favorites-section">
-            <h2 class="favorites-section-title">
-                Favorite Products
-            </h2>
+        <div class="customer-page-hero-mark">
+            04
+        </div>
+    </div>
 
-            <?php if (count($favoriteProducts) > 0): ?>
+    <section class="customer-farmers-intro">
+        <div class="customer-shopping-note">
+            <span class="customer-shopping-note-icon">
+                <i class="fa-solid fa-heart"></i>
+            </span>
 
-                <div class="favorites-grid">
+            <div>
+                <strong>
+                    Your saved places and products.
+                </strong>
 
-                    <?php foreach ($favoriteProducts as $product): ?>
+                <span>
+                    Everything you save from across MarketLink will appear
+                    here for easy access.
+                </span>
+            </div>
+        </div>
+    </section>
 
-                        <div class="favorite-card">
+    <section class="customer-farmers-list-section">
 
-                            <form
-                                method="POST"
-                                action="favorites.php"
-                                class="remove-favorite-form"
-                            >
+        <div class="customer-section-heading">
+            <div>
+                <span class="customer-section-number">
+                    01 / PRODUCTS
+                </span>
 
-                            <?= csrf_field() ?>
-                            
-                                <input
-                                    type="hidden"
-                                    name="product_id"
-                                    value="<?= (int) $product['id'] ?>"
-                                >
+                <h2>
+                    Favorite <em>products.</em>
+                </h2>
+            </div>
 
-                                <button
-                                    type="submit"
-                                    name="remove_product"
-                                    class="remove-favorite-button"
-                                    title="Remove from Favorites"
-                                    aria-label="Remove from Favorites"
-                                >
-                                    <i class="fa-solid fa-heart"></i>
-                                </button>
-                            </form>
+            <span class="customer-record-count">
+                <?= count($favoriteProducts) ?>
+                item<?= count($favoriteProducts) !== 1 ? 's' : '' ?>
+            </span>
+        </div>
 
-                            <div class="product-info">
+        <?php if (!empty($favoriteProducts)): ?>
 
-                                <div class="product-name">
-                                    <?= e($product['name']) ?>
-                                </div>
+            <div class="customer-farmers-grid">
 
-                                <div class="product-description">
-                                    <?= e(
-                                        $product['description']
-                                        ?? 'No description available.'
+                <?php foreach ($favoriteProducts as $product): ?>
+
+                    <article class="customer-product-card">
+
+                        <div class="customer-product-content">
+
+                            <div class="customer-farmer-card-top">
+
+                                <span class="customer-farmer-card-number">
+                                    <?= str_pad(
+                                        (string) $product['id'],
+                                        2,
+                                        '0',
+                                        STR_PAD_LEFT
                                     ) ?>
-                                </div>
+                                </span>
 
-                                <div class="product-price">
-                                    $
-                                    <?= number_format(
-                                        (float) $product['price'],
-                                        2
-                                    ) ?>
-                                </div>
+                                <form
+                                    method="POST"
+                                    action="favorites.php"
+                                    class="customer-farmer-favorite-form"
+                                >
+                                    <?= csrf_field() ?>
 
+                                    <input
+                                        type="hidden"
+                                        name="product_id"
+                                        value="<?= (int) $product['id'] ?>"
+                                    >
+
+                                    <button
+                                        type="submit"
+                                        name="remove_product"
+                                        class="customer-farmer-favorite is-favorite"
+                                        title="Remove from Favorites"
+                                        aria-label="Remove from Favorites"
+                                    >
+                                        <i class="fa-solid fa-heart"></i>
+                                    </button>
+                                </form>
+
+                            </div>
+
+                            <span class="customer-product-category">
+                                FAVORITE PRODUCT
+                            </span>
+
+                            <h3 class="customer-product-name">
+                                <?= e($product['name']) ?>
+                            </h3>
+
+                            <p class="customer-product-description">
+                                <?= e(
+                                    $product['description']
+                                    ?? 'No description available.'
+                                ) ?>
+                            </p>
+
+                            <div class="customer-product-meta">
                                 <?php if (!empty($product['unit'])): ?>
-                                    <div class="product-unit">
-                                        Per
-                                        <?= e($product['unit']) ?>
-                                    </div>
+                                    <span>
+                                        Per <?= e($product['unit']) ?>
+                                    </span>
                                 <?php endif; ?>
 
-                                <div class="product-stock">
+                                <span>
                                     Stock:
                                     <?= number_format(
                                         (float) $product['stock_quantity'],
                                         2
                                     ) ?>
                                     <?= e($product['unit']) ?>
-                                </div>
+                                </span>
+                            </div>
 
+                            <div class="customer-product-price">
+                                $
+                                <?= number_format(
+                                    (float) $product['price'],
+                                    2
+                                ) ?>
+                            </div>
+
+                            <div class="customer-product-actions">
                                 <a
                                     href="product_details.php?id=<?= (int) $product['id'] ?>"
-                                    class="view-button"
+                                    class="customer-product-details"
                                 >
-                                    View Details
+                                    View Product
+                                    <i class="fa-solid fa-arrow-right"></i>
                                 </a>
-
                             </div>
 
                         </div>
 
-                    <?php endforeach; ?>
+                    </article>
 
-                </div>
+                <?php endforeach; ?>
 
-            <?php else: ?>
+            </div>
 
-                <div class="empty-favorites">
-                    <h2>
-                        No Favorite Products
-                    </h2>
+        <?php else: ?>
 
-                    <p>
-                        Products you add to your favorites will appear here.
-                    </p>
-                </div>
+            <div class="customer-farmers-empty">
+                <span class="customer-farmers-empty-mark">
+                    <i class="fa-solid fa-heart"></i>
+                </span>
 
-            <?php endif; ?>
+                <strong>
+                    No favorite products yet.
+                </strong>
+
+                <span>
+                    Products you save will appear here when you add them
+                    to your favorites.
+                </span>
+            </div>
+
+        <?php endif; ?>
+
+    </section>
+
+    <section class="customer-farmers-list-section">
+
+        <div class="customer-section-heading">
+            <div>
+                <span class="customer-section-number">
+                    02 / FARMERS
+                </span>
+
+                <h2>
+                    Favorite <em>farmers.</em>
+                </h2>
+            </div>
+
+            <span class="customer-record-count">
+                <?= count($favoriteFarmers) ?>
+                farmer<?= count($favoriteFarmers) !== 1 ? 's' : '' ?>
+            </span>
         </div>
 
-        <div class="favorites-section">
-            <h2 class="favorites-section-title">
-                Favorite Farmers
-            </h2>
+        <?php if (!empty($favoriteFarmers)): ?>
 
-            <?php if (count($favoriteFarmers) > 0): ?>
+            <div class="customer-farmers-grid">
 
-                <div class="favorites-grid">
+                <?php foreach ($favoriteFarmers as $farmer): ?>
 
-                    <?php foreach ($favoriteFarmers as $farmer): ?>
+                    <article class="customer-farmer-card">
 
-                        <div class="favorite-card">
+                        <div class="customer-farmer-card-top">
+
+                            <span class="customer-farmer-card-number">
+                                <?= str_pad(
+                                    (string) $farmer['id'],
+                                    2,
+                                    '0',
+                                    STR_PAD_LEFT
+                                ) ?>
+                            </span>
 
                             <form
                                 method="POST"
                                 action="favorites.php"
-                                class="remove-favorite-form"
+                                class="customer-farmer-favorite-form"
                             >
-
-                            <?= csrf_field() ?>
+                                <?= csrf_field() ?>
 
                                 <input
                                     type="hidden"
@@ -445,7 +543,7 @@ $stmt->close();
                                 <button
                                     type="submit"
                                     name="remove_farmer"
-                                    class="remove-favorite-button"
+                                    class="customer-farmer-favorite is-favorite"
                                     title="Remove from Favorites"
                                     aria-label="Remove from Favorites"
                                 >
@@ -453,92 +551,132 @@ $stmt->close();
                                 </button>
                             </form>
 
-                            <div class="farmer-info">
+                        </div>
 
-                                <div class="farmer-name">
-                                    <?= e($farmer['stall_name']) ?>
+                        <div class="customer-farmer-card-content">
+
+                            <span class="customer-farmer-label">
+                                FAVORITE FARMER
+                            </span>
+
+                            <h3>
+                                <?= e($farmer['stall_name']) ?>
+                            </h3>
+
+                            <?php if (!empty($farmer['contact_person'])): ?>
+
+                                <div class="customer-farmer-meta">
+                                    <i class="fa-solid fa-user"></i>
+
+                                    <span>
+                                        <?= e($farmer['contact_person']) ?>
+                                    </span>
                                 </div>
 
-                                <?php if (!empty($farmer['contact_person'])): ?>
-                                    <div class="farmer-contact">
-                                        <strong>
-                                            Contact:
-                                        </strong>
-                                        <?= e(
-                                            $farmer['contact_person']
-                                        ) ?>
-                                    </div>
-                                <?php endif; ?>
+                            <?php endif; ?>
 
-                                <?php if (!empty($farmer['address'])): ?>
-                                    <div class="farmer-address">
-                                        <strong>
-                                            Address:
-                                        </strong>
-                                        <?= e(
-                                            $farmer['address']
-                                        ) ?>
-                                    </div>
-                                <?php endif; ?>
+                            <?php if (!empty($farmer['address'])): ?>
 
-                                <div class="farmer-description">
-                                    <?= e(
-                                        $farmer['description']
-                                        ?? 'No description available.'
-                                    ) ?>
+                                <div class="customer-farmer-meta">
+                                    <i class="fa-solid fa-location-dot"></i>
+
+                                    <span>
+                                        <?= e($farmer['address']) ?>
+                                    </span>
                                 </div>
 
+                            <?php endif; ?>
+
+                            <p class="customer-farmer-description">
+                                <?= e(
+                                    $farmer['description']
+                                    ?? 'No description available.'
+                                ) ?>
+                            </p>
+
+                            <div class="customer-farmer-card-footer">
                                 <a
                                     href="farmer_details.php?id=<?= (int) $farmer['id'] ?>"
-                                    class="view-button"
+                                    class="customer-farmer-details"
                                 >
-                                    View Details
+                                    View Farmer
+                                    <i class="fa-solid fa-arrow-right"></i>
                                 </a>
-
                             </div>
 
                         </div>
 
-                    <?php endforeach; ?>
+                    </article>
 
-                </div>
+                <?php endforeach; ?>
 
-            <?php else: ?>
+            </div>
 
-                <div class="empty-section">
-                    <h2>
-                        No Favorite Farmers
-                    </h2>
+        <?php else: ?>
 
-                    <p>
-                        Farmers you add to your favorites will appear here.
-                    </p>
-                </div>
+            <div class="customer-farmers-empty">
+                <span class="customer-farmers-empty-mark">
+                    <i class="fa-solid fa-seedling"></i>
+                </span>
 
-            <?php endif; ?>
+                <strong>
+                    No favorite farmers yet.
+                </strong>
 
+                <span>
+                    Farmers you save will appear here when you add them
+                    to your favorites.
+                </span>
+            </div>
+
+        <?php endif; ?>
+
+    </section>
+
+    <section class="customer-farmers-list-section">
+
+        <div class="customer-section-heading">
+            <div>
+                <span class="customer-section-number">
+                    03 / MARKETS
+                </span>
+
+                <h2>
+                    Favorite <em>markets.</em>
+                </h2>
+            </div>
+
+            <span class="customer-record-count">
+                <?= count($favoriteMarkets) ?>
+                market<?= count($favoriteMarkets) !== 1 ? 's' : '' ?>
+            </span>
         </div>
 
-        <div class="favorites-section">
-            <h2 class="favorites-section-title">
-                Favorite Markets
-            </h2>
+        <?php if (!empty($favoriteMarkets)): ?>
 
-            <?php if (count($favoriteMarkets) > 0): ?>
+            <div class="customer-farmers-grid">
 
-                <div class="favorites-grid">
+                <?php foreach ($favoriteMarkets as $market): ?>
 
-                    <?php foreach ($favoriteMarkets as $market): ?>
+                    <article class="customer-farmer-card">
 
-                        <div class="favorite-card">
+                        <div class="customer-farmer-card-top">
+
+                            <span class="customer-farmer-card-number">
+                                <?= str_pad(
+                                    (string) $market['id'],
+                                    2,
+                                    '0',
+                                    STR_PAD_LEFT
+                                ) ?>
+                            </span>
 
                             <form
                                 method="POST"
                                 action="favorites.php"
-                                class="remove-favorite-form"
+                                class="customer-farmer-favorite-form"
                             >
-
-                            <?= csrf_field() ?>
+                                <?= csrf_field() ?>
 
                                 <input
                                     type="hidden"
@@ -549,7 +687,7 @@ $stmt->close();
                                 <button
                                     type="submit"
                                     name="remove_market"
-                                    class="remove-favorite-button"
+                                    class="customer-farmer-favorite is-favorite"
                                     title="Remove from Favorites"
                                     aria-label="Remove from Favorites"
                                 >
@@ -557,78 +695,114 @@ $stmt->close();
                                 </button>
                             </form>
 
-                            <div class="market-info-container">
+                        </div>
 
-                                <div class="market-name">
-                                    <?= e($market['name']) ?>
+                        <div class="customer-farmer-card-content">
+
+                            <span class="customer-farmer-label">
+                                FAVORITE MARKET
+                            </span>
+
+                            <h3>
+                                <?= e($market['name']) ?>
+                            </h3>
+
+                            <?php if (!empty($market['address'])): ?>
+
+                                <div class="customer-farmer-meta">
+                                    <i class="fa-solid fa-location-dot"></i>
+
+                                    <span>
+                                        <?= e($market['address']) ?>
+                                    </span>
                                 </div>
 
-                                <div class="market-address">
-                                    <strong>
-                                        📍 Address:
-                                    </strong>
-                                    <?= e($market['address']) ?>
+                            <?php endif; ?>
+
+                            <?php if (!empty($market['operating_days'])): ?>
+
+                                <div class="customer-farmer-meta">
+                                    <i class="fa-solid fa-calendar-days"></i>
+
+                                    <span>
+                                        <?= e($market['operating_days']) ?>
+                                    </span>
                                 </div>
 
-                                <div class="market-time">
-                                    <strong>
-                                        Opening:
-                                    </strong>
-                                    <?= e($market['opening_time']) ?>
+                            <?php endif; ?>
+
+                            <?php if (
+                                !empty($market['opening_time'])
+                                && !empty($market['closing_time'])
+                            ): ?>
+
+                                <div class="customer-farmer-meta">
+                                    <i class="fa-solid fa-clock"></i>
+
+                                    <span>
+                                        <?= e(
+                                            date(
+                                                'g:i A',
+                                                strtotime($market['opening_time'])
+                                            )
+                                        ) ?>
+                                        -
+                                        <?= e(
+                                            date(
+                                                'g:i A',
+                                                strtotime($market['closing_time'])
+                                            )
+                                        ) ?>
+                                    </span>
                                 </div>
 
-                                <div class="market-time">
-                                    <strong>
-                                        Closing:
-                                    </strong>
-                                    <?= e($market['closing_time']) ?>
-                                </div>
+                            <?php endif; ?>
 
-                                <div class="market-days">
-                                    <strong>
-                                        Operating Days:
-                                    </strong>
-                                    <?= e($market['operating_days']) ?>
-                                </div>
+                            <p class="customer-farmer-description">
+                                <?= e(
+                                    $market['description']
+                                    ?? 'Local market offering fresh produce from nearby farmers.'
+                                ) ?>
+                            </p>
 
-                                <?php if (!empty($market['description'])): ?>
-                                    <div class="market-description">
-                                        <?= e($market['description']) ?>
-                                    </div>
-                                <?php endif; ?>
-
+                            <div class="customer-farmer-card-footer">
                                 <a
-                                    href="market-details.php?id=<?= (int) $market['id'] ?>"
-                                    class="view-button"
+                                    href="market_details.php?id=<?= (int) $market['id'] ?>"
+                                    class="customer-farmer-details"
                                 >
-                                    View Details
+                                    View Market
+                                    <i class="fa-solid fa-arrow-right"></i>
                                 </a>
-
                             </div>
 
                         </div>
 
-                    <?php endforeach; ?>
+                    </article>
 
-                </div>
+                <?php endforeach; ?>
 
-            <?php else: ?>
+            </div>
 
-                <div class="empty-section">
-                    <h2>
-                        No Favorite Markets
-                    </h2>
+        <?php else: ?>
 
-                    <p>
-                        Markets you add to your favorites will appear here.
-                    </p>
-                </div>
+            <div class="customer-farmers-empty">
+                <span class="customer-farmers-empty-mark">
+                    <i class="fa-solid fa-store"></i>
+                </span>
 
-            <?php endif; ?>
+                <strong>
+                    No favorite markets yet.
+                </strong>
 
-        </div>
+                <span>
+                    Markets you save will appear here when you add them
+                    to your favorites.
+                </span>
+            </div>
 
-    </div>
+        <?php endif; ?>
+
+    </section>
 
 </main>
 
