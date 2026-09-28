@@ -692,64 +692,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </main>
 
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
 <script>
-
-const savedLatitude =
-    <?= $latitude !== ''
-        ? (float) $latitude
-        : 15.3694 ?>;
-
-const savedLongitude =
-    <?= $longitude !== ''
-        ? (float) $longitude
-        : 44.1910 ?>;
-
-
-const map = L.map('market-map').setView(
-    [savedLatitude, savedLongitude],
-    13
-);
-
-
-L.tileLayer(
-    'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
-    {
-        maxZoom: 19,
-        attribution:
-            '&copy; OpenStreetMap contributors'
-    }
-).addTo(map);
-
-
-let marker = L.marker([
-    savedLatitude,
-    savedLongitude
-]).addTo(map);
-
-
-map.on('click', function(event) {
-
-    const latitude = event.latlng.lat;
-    const longitude = event.latlng.lng;
-
-
-    marker.setLatLng([
-        latitude,
-        longitude
-    ]);
-
-
-    document.getElementById('latitude').value =
-        latitude.toFixed(8);
-
-    document.getElementById('longitude').value =
-        longitude.toFixed(8);
-
-});
-
+    window.marketLocation = {
+        latitude: <?= $latitude !== '' ? (float)$latitude : 15.3694 ?>,
+        longitude: <?= $longitude !== '' ? (float)$longitude : 44.1910 ?>
+    };
 </script>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="../assets/js/leaflet.js"></script>
 
 </body>
 

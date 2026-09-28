@@ -309,54 +309,15 @@ $stmt->close();
         </form>
     </main>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
 <script>
-    const savedLatitude = <?php echo $farmer['latitude'] !== null ? $farmer['latitude'] : 15.3694; ?>;
-    const savedLongitude = <?php echo $farmer['longitude'] !== null ? $farmer['longitude'] : 44.1910; ?>;
-
-    const map = L.map('map').setView(
-        [savedLatitude, savedLongitude],
-        13
-    );
-
-    L.tileLayer(
-        'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
-        {
-            maxZoom: 19,
-            attribution: '&copy; OpenStreetMap contributors'
-        }
-    ).addTo(map);
-
-    let marker = L.marker([
-        savedLatitude,
-        savedLongitude
-    ]).addTo(map);
-
-    map.on('click', function(event) {
-
-        const latitude = event.latlng.lat;
-        const longitude = event.latlng.lng;
-
-        if (marker) {
-            marker.setLatLng([
-                latitude,
-                longitude
-            ]);
-        } else {
-            marker = L.marker([
-                latitude,
-                longitude
-            ]).addTo(map);
-        }
-
-        document.getElementById('latitude').value =
-            latitude.toFixed(8);
-
-        document.getElementById('longitude').value =
-            longitude.toFixed(8);
-    });
+    window.farmerLocation = {
+        latitude: <?= $farmer['latitude'] !== null ? $farmer['latitude'] : 15.3694 ?>,
+        longitude: <?= $farmer['longitude'] !== null ? $farmer['longitude'] : 44.1910 ?>
+    };
 </script>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="../assets/js/leaflet.js"></script>
 
 </body>
 </html>
