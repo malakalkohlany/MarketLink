@@ -322,5 +322,10 @@ $record_label = $total_products === 1 ? 'product' : 'products';
 
 </main>
 
+<script src="../assets/js/lucide.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+
 </body>
 </html>

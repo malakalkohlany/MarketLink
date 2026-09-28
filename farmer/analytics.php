@@ -512,6 +512,11 @@ $total_revenue = (float)($order_stats['total_revenue'] ?? 0);
 
     </main>
 
+    <script src="../assets/js/lucide.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>

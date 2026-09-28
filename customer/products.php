@@ -1207,6 +1207,11 @@ if (
 
 <?php endif; ?>
 
+<script src="../assets/js/lucide.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+
 <script src="../assets/js/app.js"></script>
 
 <script src="../assets/js/customer-products.js"></script>

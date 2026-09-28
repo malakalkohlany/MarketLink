@@ -510,17 +510,12 @@ $selectedRole = $role ?? '';
 </main>
 
 
-<!-- ==================================================
-     REGISTER JAVASCRIPT
-================================================== -->
-
 <script src="../assets/js/register.js"></script>
-
-
-<!-- ==================================================
-     RESTORE SELECTED ROLE AFTER VALIDATION ERROR
-================================================== -->
-
+<script src="../assets/js/lucide.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+    
 <?php if ($selectedRole !== ''): ?>
 
 <script>

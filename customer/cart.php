@@ -308,6 +308,10 @@ foreach ($cart as $item) {
 </main>
 
 <script src="../assets/js/cart.js"></script>
+<script src="../assets/js/lucide.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 
 </body>
 

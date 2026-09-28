@@ -481,5 +481,10 @@ unset($order);
     </section>
 </main>
 
+<script src="../assets/js/lucide.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+
 </body>
 </html>

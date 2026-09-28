@@ -633,6 +633,11 @@ $orders = $order_stmt->get_result();
 
 </main>
 
+<script src="../assets/js/lucide.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+
 <script src="../assets/js/app.js"></script>
 
 </body>

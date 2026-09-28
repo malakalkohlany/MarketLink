@@ -1659,6 +1659,10 @@ redirect('customer/orders.php');
     </section>
 
 </main>
+<script src="../assets/js/lucide.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 
 <script>
     const pickupDate =

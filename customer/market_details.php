@@ -730,6 +730,11 @@ mysqli_stmt_close($favoriteStmt);
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
 ></script>
 
+<script src="../assets/js/lucide.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+
 <script>
     const latitude =
         <?= (float)$market['latitude'] ?>;

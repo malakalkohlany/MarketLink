@@ -126,6 +126,10 @@ require_once 'login_process.php';
     </main>
 
     <script src="../assets/js/login.js"></script>
+    <script src="../assets/js/lucide.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 
 </body>
 </html>
