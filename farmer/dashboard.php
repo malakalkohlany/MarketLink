@@ -350,7 +350,7 @@ $stmt->close();
                                 <?php if (!empty($product['image'])): ?>
 
                                     <img
-                                        src="../uploads/products/<?= e($product['image']) ?>"
+                                        src="../<?= e($product['image']) ?>"
                                         alt="<?= e($product['name']) ?>"
                                     >
 
