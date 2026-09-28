@@ -642,6 +642,19 @@ function hasSubmenu(array $pages): bool
                     </a>
                 </li>
 
+                <li>
+                    <a
+                        href="<?= BASE_URL ?>admin/orders.php"
+                        class="<?= isActive(['orders.php']) ?>"
+                    >
+                        <span class="nav-icon">
+                            <i data-lucide="shopping-basket"></i>
+                        </span>
+
+                        <span>Orders</span>
+                    </a>
+                </li>
+
 
                 <!-- Categories -->
                 <li>
