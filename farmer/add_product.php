@@ -263,7 +263,6 @@ $categories = $category_stmt->get_result();
             </p>
         </div>
 
-        <div class="customer-page-hero-mark">02</div>
     </section>
 
     <?php if (isset($success_message)): ?>

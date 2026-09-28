@@ -87,9 +87,27 @@ foreach ($cart as $item) {
 
 <main class="main-content customer-cart-page">
 
-<span class="eyebrow">
+    <section class="customer-page-hero">
+
+            <div class="customer-page-hero-copy">
+
+                <span class="eyebrow">
                 CUSTOMER / SHOPPING CART
             </span>
+
+                <h1>
+                    Manage your <em>cart.</em>
+                </h1>
+
+            </div>
+
+            <div class="customer-page-hero-mark">
+                05
+            </div>
+
+        </section>
+
+
 
     <section class="customer-cart-section">
 
