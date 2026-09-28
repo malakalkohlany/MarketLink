@@ -45,7 +45,7 @@ if (
         $stmt->close();
     }
 
-    redirect('favorites.php');
+    redirect('customer/favorites.php');
 }
 
 if (
@@ -87,7 +87,7 @@ if (
         $stmt->close();
     }
 
-    redirect('favorites.php');
+    redirect('customer/favorites.php');
 }
 
 if (
@@ -129,7 +129,7 @@ if (
         $stmt->close();
     }
 
-    redirect('favorites.php');
+    redirect('customer/favorites.php');
 }
 
 $favoriteProducts = [];

@@ -62,7 +62,6 @@ $product_stmt = $conn->prepare("
         products.price,
         products.unit,
         products.stock_quantity,
-        products.image,
         products.is_available,
         products.moderation_status,
         categories.name AS category_name
@@ -100,7 +99,6 @@ $products = $product_stmt->get_result();
         <table border="1">
             <thead>
                 <tr>
-                    <th>Image</th>
                     <th>Product Name</th>
                     <th>Category</th>
                     <th>Price</th>
@@ -108,7 +106,6 @@ $products = $product_stmt->get_result();
                     <th>Stock Quantity</th>
                     <th>Status</th>
                     <th>Availability</th>
-                    <th>Actions</th>
                 </tr>
             </thead>
 
@@ -116,13 +113,6 @@ $products = $product_stmt->get_result();
 
         <tr>
 
-            <td>
-                <?php if (!empty($product['image'])): ?>
-                    <img src="../<?= e($product['image']) ?>" width="80">
-                <?php else: ?>
-                    No Image
-                <?php endif; ?>
-            </td>
 
             <td><?= e($product['name']) ?></td>
 
@@ -144,9 +134,6 @@ $products = $product_stmt->get_result();
                 <?php endif; ?>
             </td>
 
-            <td>
-                <a href="edit_product.php?id=<?=$product['id']?>">Edit</a>
-            </td>
 
         </tr>
         <?php endwhile; ?>
