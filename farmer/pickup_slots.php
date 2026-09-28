@@ -242,7 +242,7 @@ $orders = $order_stmt->get_result();
             </div>
 
             <div class="customer-page-hero-mark">
-                07
+                06
             </div>
         </section>
 

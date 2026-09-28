@@ -966,3 +966,403 @@
         border-radius: var(--radius-md);
     }
 }
+
+.farmer-dashboard-page {
+    background: var(--cream);
+}
+
+.farmer-dashboard-hero {
+    position: relative;
+    display: flex;
+    min-height: 280px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 35px 0 45px;
+}
+
+.farmer-dashboard-hero-copy {
+    max-width: 780px;
+}
+
+.farmer-dashboard-hero h1 {
+    margin: 0;
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: clamp(3rem, 6vw, 5.7rem);
+    font-weight: 700;
+    letter-spacing: -0.055em;
+    line-height: 0.94;
+}
+
+.farmer-dashboard-hero h1 em {
+    color: var(--sage-dark);
+    font-family: var(--font-serif);
+    font-weight: 500;
+}
+
+.farmer-dashboard-hero p {
+    max-width: 620px;
+    margin: 24px 0 0;
+    color: var(--text-soft);
+    font-size: 1rem;
+    line-height: 1.7;
+}
+
+.farmer-dashboard-hero-mark {
+    position: absolute;
+    right: 35px;
+    bottom: 20px;
+    color: var(--terracotta-light);
+    font-family: var(--font-serif);
+    font-size: clamp(8rem, 13vw, 13rem);
+    line-height: 0.8;
+    opacity: 0.17;
+    pointer-events: none;
+}
+
+.farmer-dashboard-overview {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    padding-bottom: 28px;
+}
+
+.farmer-dashboard-stat-card {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    box-shadow: var(--shadow-soft);
+    transition:
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+.farmer-dashboard-stat-card:hover {
+    transform: var(--lift-small);
+    box-shadow: var(--shadow-hover);
+}
+
+.farmer-dashboard-stat-icon {
+    display: flex;
+    width: 43px;
+    height: 43px;
+    flex: 0 0 43px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--terracotta-soft);
+    color: var(--terracotta-dark);
+    font-size: 0.85rem;
+}
+
+.dashboard-stat-icon-sage {
+    background: var(--sage-soft);
+    color: var(--sage-dark);
+}
+
+.dashboard-stat-icon-marigold {
+    background: var(--marigold-soft);
+    color: var(--marigold-dark);
+}
+
+.farmer-dashboard-stat-content {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+}
+
+.farmer-dashboard-stat-label {
+    color: var(--text-muted);
+    font-family: var(--font-main);
+    font-size: 0.57rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+}
+
+.farmer-dashboard-stat-content strong {
+    margin-top: 4px;
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 1.55rem;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+}
+
+.farmer-dashboard-stat-note {
+    margin-top: 2px;
+    color: var(--text-muted);
+    font-size: 0.64rem;
+    line-height: 1.4;
+}
+
+.farmer-dashboard-main-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    gap: 18px;
+    padding-bottom: 18px;
+}
+
+.farmer-dashboard-chart-card,
+.farmer-dashboard-panel {
+    min-width: 0;
+    padding: 24px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    box-shadow: var(--shadow-soft);
+}
+
+.farmer-dashboard-card-heading {
+    display: flex;
+    min-width: 0;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 22px;
+}
+
+.farmer-dashboard-card-heading > div {
+    min-width: 0;
+}
+
+.farmer-dashboard-card-heading h2 {
+    margin: 3px 0 0;
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: clamp(1.65rem, 3vw, 2.35rem);
+    font-weight: 700;
+    letter-spacing: -0.045em;
+    line-height: 1;
+}
+
+.farmer-dashboard-card-heading h2 em {
+    color: var(--sage-dark);
+    font-family: var(--font-serif);
+    font-weight: 500;
+}
+
+.farmer-dashboard-card-period {
+    flex-shrink: 0;
+    color: var(--text-muted);
+    font-family: var(--font-main);
+    font-size: 0.57rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.farmer-dashboard-chart {
+    position: relative;
+    width: 100%;
+    height: 285px;
+}
+
+.farmer-dashboard-top-products-chart {
+    height: 285px;
+}
+
+.farmer-dashboard-chart-empty {
+    display: flex;
+    min-height: 285px;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 35px;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface-alt);
+    text-align: center;
+}
+
+.farmer-dashboard-empty-mark {
+    display: flex;
+    width: 48px;
+    height: 48px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--sage-soft);
+    color: var(--sage-dark);
+    font-size: 0.85rem;
+}
+
+.farmer-dashboard-chart-empty h3 {
+    margin: 15px 0 5px;
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.farmer-dashboard-chart-empty p {
+    max-width: 300px;
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    line-height: 1.6;
+}
+
+.farmer-dashboard-secondary-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 18px;
+    padding-bottom: var(--space-section-small);
+}
+
+.farmer-dashboard-order-status-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.farmer-dashboard-order-status-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    min-height: 43px;
+    border-bottom: 1px solid var(--border);
+}
+
+.farmer-dashboard-order-status-row:last-child {
+    border-bottom: 0;
+}
+
+.farmer-dashboard-order-status-row span {
+    color: var(--text-soft);
+    font-size: 0.74rem;
+}
+
+.farmer-dashboard-order-status-row strong {
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.farmer-dashboard-product-health {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.farmer-dashboard-health-item {
+    min-width: 0;
+}
+
+.farmer-dashboard-health-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 8px;
+}
+
+.farmer-dashboard-health-header span {
+    color: var(--text-soft);
+    font-size: 0.74rem;
+}
+
+.farmer-dashboard-health-header strong {
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 0.72rem;
+}
+
+.farmer-dashboard-progress {
+    width: 100%;
+    height: 7px;
+    overflow: hidden;
+    border-radius: var(--radius-pill);
+    background: var(--terracotta-soft);
+}
+
+.farmer-dashboard-progress span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--terracotta);
+}
+
+.dashboard-progress-sage {
+    background: var(--sage-soft);
+}
+
+.dashboard-progress-sage span {
+    background: var(--sage);
+}
+
+.dashboard-progress-marigold {
+    background: var(--marigold-soft);
+}
+
+.dashboard-progress-marigold span {
+    background: var(--marigold);
+}
+
+@media (max-width: 1100px) {
+    .farmer-dashboard-overview {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .farmer-dashboard-main-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 800px) {
+    .farmer-dashboard-secondary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .farmer-dashboard-hero-mark {
+        right: 15px;
+    }
+}
+
+@media (max-width: 600px) {
+    .farmer-dashboard-overview {
+        grid-template-columns: 1fr;
+    }
+
+    .farmer-dashboard-hero {
+        min-height: 250px;
+    }
+
+    .farmer-dashboard-hero h1 {
+        font-size: clamp(2.7rem, 13vw, 4.2rem);
+    }
+
+    .farmer-dashboard-chart-card,
+    .farmer-dashboard-panel {
+        padding: 20px;
+    }
+
+    .farmer-dashboard-card-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .farmer-dashboard-card-period {
+        align-self: flex-start;
+    }
+}
+
+@media (max-width: 450px) {
+    .farmer-dashboard-stat-card {
+        padding: 17px;
+    }
+
+    .farmer-dashboard-chart {
+        height: 240px;
+    }
+
+    .farmer-dashboard-top-products-chart {
+        height: 250px;
+    }
+}

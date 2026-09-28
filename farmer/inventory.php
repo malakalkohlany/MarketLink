@@ -123,7 +123,7 @@ $products = $product_stmt->get_result();
         </div>
 
         <div class="customer-page-hero-mark">
-            04
+            03
         </div>
 
     </section>
