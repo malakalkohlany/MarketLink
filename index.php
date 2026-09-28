@@ -35,7 +35,7 @@ require_once __DIR__ . '/config/constants.php';
 
         <div class="home-nav-actions">
             <a href="auth/login.php" class="home-login">
-                Log in
+                Login
             </a>
 
             <a href="auth/register.php" class="home-join">
