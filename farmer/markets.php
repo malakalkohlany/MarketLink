@@ -118,7 +118,7 @@ $markets = $market_stmt->get_result();
                 </p>
             </div>
 
-            <div class="customer-page-hero-mark">05</div>
+            <div class="customer-page-hero-mark">06</div>
         </section>
 
         <section class="farmer-markets-section">

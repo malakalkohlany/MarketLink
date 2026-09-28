@@ -782,43 +782,57 @@ $stmt->close();
 
                     <div class="farmer-edit-profile-markets">
 
-                        <label for="market_ids">
+                        <label>
                             Markets where you sell
                         </label>
 
-                        <select
-                            id="market_ids"
-                            name="market_ids[]"
-                            multiple
-                            size="6"
-                        >
+                        <div class="farmer-edit-profile-market-list">
 
                             <?php foreach ($markets as $market): ?>
 
-                                <option
-                                    value="<?= (int) $market['id'] ?>"
-                                    <?= in_array(
-                                        (int) $market['id'],
-                                        $selected_markets,
-                                        true
-                                    ) ? 'selected' : '' ?>
-                                >
-                                    <?= e($market['name']) ?>
+                                <?php $market_id = (int) $market['id']; ?>
 
-                                    <?php if (!empty($market['address'])): ?>
+                                <label class="farmer-edit-profile-market-option">
 
-                                        - <?= e($market['address']) ?>
+                                    <input
+                                        type="checkbox"
+                                        name="market_ids[]"
+                                        value="<?= $market_id ?>"
+                                        <?= in_array(
+                                            $market_id,
+                                            $selected_markets,
+                                            true
+                                        ) ? 'checked' : '' ?>
+                                    >
 
-                                    <?php endif; ?>
+                                    <span class="farmer-edit-profile-market-check">
+                                        <i data-lucide="check"></i>
+                                    </span>
 
-                                </option>
+                                    <span class="farmer-edit-profile-market-info">
+
+                                        <strong>
+                                            <?= e($market['name']) ?>
+                                        </strong>
+
+                                        <?php if (!empty($market['address'])): ?>
+
+                                            <small>
+                                                <?= e($market['address']) ?>
+                                            </small>
+
+                                        <?php endif; ?>
+
+                                    </span>
+
+                                </label>
 
                             <?php endforeach; ?>
 
-                        </select>
+                        </div>
 
                         <small>
-                            Hold Ctrl on Windows or Command on Mac to select multiple markets.
+                            Select all markets where you currently sell.
                         </small>
 
                     </div>

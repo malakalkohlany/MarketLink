@@ -763,9 +763,103 @@
     padding-top: 20px;
 }
 
-.farmer-edit-profile-markets select {
-    min-height: 150px;
-    padding: 8px;
+.farmer-edit-profile-market-list {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface-alt);
+}
+
+.farmer-edit-profile-market-option {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 12px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    cursor: pointer;
+    transition:
+        background var(--transition-fast),
+        border-color var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+.farmer-edit-profile-market-option:hover {
+    border-color: var(--border);
+    background: var(--sage-soft);
+    transform: var(--lift-small);
+}
+
+.farmer-edit-profile-market-option input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.farmer-edit-profile-market-check {
+    display: flex;
+    width: 20px;
+    height: 20px;
+    flex: 0 0 20px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    background: var(--surface);
+    color: transparent;
+    transition:
+        background var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast);
+}
+
+.farmer-edit-profile-market-check svg {
+    width: 13px;
+    height: 13px;
+    stroke-width: 3;
+}
+
+.farmer-edit-profile-market-option input:checked + .farmer-edit-profile-market-check {
+    border-color: var(--sage);
+    background: var(--sage);
+    color: var(--text-on-sage);
+}
+
+.farmer-edit-profile-market-option:has(input:focus-visible) {
+    outline: 3px solid var(--sage-soft);
+}
+
+.farmer-edit-profile-market-info {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.farmer-edit-profile-market-info strong {
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: .7rem;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.farmer-edit-profile-market-info small {
+    margin: 0;
+    color: var(--text-muted);
+    font-family: var(--font-body);
+    font-size: .62rem;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
 }
 
 .farmer-edit-profile-markets option {

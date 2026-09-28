@@ -186,7 +186,7 @@ $total_revenue = (float)($order_stats['total_revenue'] ?? 0);
             </div>
 
             <div class="farmer-dashboard-hero-mark">
-                01
+                02
             </div>
 
         </section>

@@ -119,7 +119,7 @@ $record_label = $total_products === 1 ? 'product' : 'products';
             </p>
         </div>
 
-        <div class="customer-page-hero-mark">02</div>
+        <div class="customer-page-hero-mark">03</div>
     </section>
 
     <section class="customer-products-section">
