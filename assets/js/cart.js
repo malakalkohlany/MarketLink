@@ -25,20 +25,20 @@ function removeItem(productId) {
 const cartFloatingActions = document.getElementById('cartFloatingActions');
 const cartSummarySection = document.getElementById('cartSummarySection');
 
-if (cartFloatingActions && cartSummarySection) {
-    const summaryObserver = new IntersectionObserver(
-        (entries) => {
-            entries.forEach((entry) => {
-                cartFloatingActions.classList.toggle(
-                    'is-hidden',
-                    entry.isIntersecting
-                );
-            });
-        },
-        {
-            threshold: 0.1
-        }
-    );
+// if (cartFloatingActions && cartSummarySection) {
+//     const summaryObserver = new IntersectionObserver(
+//         (entries) => {
+//             entries.forEach((entry) => {
+//                 cartFloatingActions.classList.toggle(
+//                     'is-hidden',
+//                     entry.isIntersecting
+//                 );
+//             });
+//         },
+//         {
+//             threshold: 0.1
+//         }
+//     );
 
-    summaryObserver.observe(cartSummarySection);
-}
+//     summaryObserver.observe(cartSummarySection);
+// }
