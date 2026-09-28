@@ -538,11 +538,12 @@ if ($stmt) {
                     status.className =
                         'notification-read-status';
 
-                    const icon =
-                        document.createElement('i');
+                    const icon = document.createElement('i');
 
-                    icon.className =
-                        'fa-solid check';
+                    icon.setAttribute(
+                        'data-lucide',
+                        'check'
+                    );
 
                     status.appendChild(icon);
                     status.appendChild(
@@ -611,11 +612,12 @@ if ($stmt) {
                             status.className =
                                 'notification-read-status';
 
-                            const icon =
-                                document.createElement('i');
+                            const icon = document.createElement('i');
 
-                            icon.className =
-                                'fa-solid check';
+                            icon.setAttribute(
+                                'data-lucide',
+                                'check'
+                            );
 
                             status.appendChild(icon);
                             status.appendChild(
@@ -623,6 +625,12 @@ if ($stmt) {
                             );
 
                             button.replaceWith(status);
+
+                            
+                            lucide.createIcons({
+                                nodes: [icon]
+                            });
+
                         }
                     });
 
