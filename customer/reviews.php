@@ -511,9 +511,27 @@ $stmt->close();
 
 <main class="main-content customer-reviews-page">
 
-    <span class="eyebrow">
-        CUSTOMER / REVIEWS
-    </span>
+    <section class="customer-page-hero">
+
+            <div class="customer-page-hero-copy">
+
+                <span class="eyebrow">
+                    CUSTOMER / REVIEWS
+                </span>
+
+                <h1>
+                    Your <em>reviews.</em>
+                </h1>
+
+
+            </div>
+
+            <div class="customer-page-hero-mark">
+                07
+            </div>
+
+        </section>
+    
 
     <?php if (!empty($successMessage)): ?>
         <div class="customer-reviews-message customer-reviews-success">

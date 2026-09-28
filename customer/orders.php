@@ -134,9 +134,26 @@ unset($order);
     <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
     <main class="main-content customer-orders-page">
-    <span class="eyebrow">
-        CUSTOMER / ORDER HISTORY
-    </span>
+    
+    <section class="customer-page-hero">
+
+            <div class="customer-page-hero-copy">
+
+                <span class="eyebrow">
+                    CUSTOMER / ORDER HISTORY
+                </span>
+
+                <h1>
+                    Your order <em>history.</em>
+                </h1>
+
+            </div>
+
+            <div class="customer-page-hero-mark">
+                06
+            </div>
+
+        </section>
 
     <section class="customer-orders-section">
         <div class="customer-section-heading">
