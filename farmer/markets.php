@@ -86,97 +86,178 @@ $market_stmt->execute();
 $markets = $market_stmt->get_result();
 
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Markets</title>
-    <link
-        rel="stylesheet"
-        href="../assets/css/base.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="../assets/css/navbar.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="../assets/css/sidebar.css"
-    >
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
+    <link rel="stylesheet" href="../assets/css/customer.css">
+    <link rel="stylesheet" href="../assets/css/farmer.css">
 </head>
 <body>
 
     <?php include __DIR__ . '/../includes/navbar.php'; ?>
     <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-    <main class="main-content">
+    <main class="main-content farmer-markets-page">
 
-        <h1>My Markets</h1>
-        <p>Total Markets: <?= e($total_markets) ?></p>
+        <section class="customer-page-hero">
+            <div class="customer-page-hero-copy">
+                <span class="eyebrow">FARMER / MARKETS</span>
 
-        <?php if ($total_markets === 0): ?>
-            <p>No markets have been assigned to you yet.</p>
-        <?php else: ?>
+                <h1>
+                    Your local <em>markets.</em>
+                </h1>
 
-            <table border="1">
-                <thead>
-                    <tr>
-                        <th>Market Name</th>
-                        <th>Description</th>
-                        <th>Address</th>
-                        <th>Opening Time</th>
-                        <th>Closing Time</th>
-                        <th>Operating Days</th>
-                        <th>Map Provider</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
+                <p>
+                    View the markets assigned to you and keep track of where your products are available.
+                </p>
+            </div>
 
-                    <?php while ($market = $markets->fetch_assoc()): ?>
-                        <tr>
-                            <td><?= e($market['name']) ?></td>
-                            <td><?= e($market['description'] ?? '') ?></td>
-                            <td><?= e($market['address']) ?></td>
-                            <td><?= e($market['opening_time'] ?? '') ?></td>
-                            <td><?= e($market['closing_time'] ?? '') ?></td>
-                            <td><?= e($market['operating_days'] ?? '') ?></td>
-                            <td><?= e($market['map_provider']) ?></td>
-                            <td><?= e(ucfirst($market['status'])) ?></td>
-                        </tr>
-                    <?php endwhile; ?>
-                </tbody>
-            </table>
+            <div class="customer-page-hero-mark">06</div>
+        </section>
 
-            <?php if ($total_pages > 1): ?>
+        <section class="farmer-markets-section">
 
-                <div class="pagination">
+            <div class="customer-section-heading">
+                <div>
+                    <span class="customer-section-number">01 / MARKETS</span>
 
-                    <?php if ($page > 1): ?>
-                        <a href="?page=<?= $page - 1 ?>">Previous</a>
-                    <?php endif; ?>
-
-                    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                        <a href="?page=<?= $i ?>"
-                        <?= $i == $page ? 'class="active"' : '' ?>>
-                            <?= $i ?>
-                        </a>
-                    <?php endfor; ?>
-
-                    <?php if ($page < $total_pages): ?>
-                        <a href="?page=<?= $page + 1 ?>">Next</a>
-                    <?php endif; ?>
-
+                    <h2>
+                        Assigned <em>markets.</em>
+                    </h2>
                 </div>
+
+                <span class="customer-record-count">
+                    <?= e($total_markets) ?> MARKETS
+                </span>
+            </div>
+
+            <?php if ($total_markets === 0): ?>
+
+                <div class="customer-products-empty">
+                    <div class="customer-products-empty-mark">
+                        <i class="fa-solid fa-store"></i>
+                    </div>
+
+                    <h3>No markets assigned.</h3>
+
+                    <p>
+                        You have not been assigned to any markets yet.
+                    </p>
+                </div>
+
+            <?php else: ?>
+
+                <div class="farmer-markets-table-wrapper">
+                    <table class="farmer-markets-table">
+
+                        <thead>
+                            <tr>
+                                <th>Market Name</th>
+                                <th>Description</th>
+                                <th>Address</th>
+                                <th>Opening Time</th>
+                                <th>Closing Time</th>
+                                <th>Operating Days</th>
+                                <th>Map Provider</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <?php while ($market = $markets->fetch_assoc()): ?>
+
+                                <tr>
+                                    <td>
+                                        <span class="farmer-market-name">
+                                            <?= e($market['name']) ?>
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <?= e($market['description'] ?? '') ?>
+                                    </td>
+
+                                    <td>
+                                        <?= e($market['address']) ?>
+                                    </td>
+
+                                    <td>
+                                        <?= e($market['opening_time'] ?? '') ?>
+                                    </td>
+
+                                    <td>
+                                        <?= e($market['closing_time'] ?? '') ?>
+                                    </td>
+
+                                    <td>
+                                        <?= e($market['operating_days'] ?? '') ?>
+                                    </td>
+
+                                    <td>
+                                        <?= e($market['map_provider']) ?>
+                                    </td>
+
+                                    <td>
+                                        <span class="farmer-market-status status-<?= e($market['status']) ?>">
+                                            <?= e(ucfirst($market['status'])) ?>
+                                        </span>
+                                    </td>
+                                </tr>
+
+                            <?php endwhile; ?>
+
+                        </tbody>
+
+                    </table>
+                </div>
+
+                <?php if ($total_pages > 1): ?>
+
+                    <div class="product-pagination">
+
+                        <?php if ($page > 1): ?>
+
+                            <a href="?page=<?= $page - 1 ?>">
+                                <i class="fa-solid fa-chevron-left"></i>
+                            </a>
+
+                        <?php endif; ?>
+
+                        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+
+                            <a
+                                href="?page=<?= $i ?>"
+                                class="<?= $i == $page ? 'active' : '' ?>"
+                            >
+                                <?= $i ?>
+                            </a>
+
+                        <?php endfor; ?>
+
+                        <?php if ($page < $total_pages): ?>
+
+                            <a href="?page=<?= $page + 1 ?>">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </a>
+
+                        <?php endif; ?>
+
+                    </div>
+
+                <?php endif; ?>
+
             <?php endif; ?>
 
+        </section>
 
-        <?php endif; ?>
-    
     </main>
+
 </body>
 </html>

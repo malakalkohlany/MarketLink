@@ -725,3 +725,95 @@
         min-width: 300px;
     }
 }
+.farmer-markets-page {
+    background: var(--cream);
+}
+
+.farmer-markets-section {
+    padding-bottom: var(--space-section-small);
+}
+
+.farmer-markets-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    box-shadow: var(--shadow-soft);
+}
+
+.farmer-markets-table {
+    width: 100%;
+    min-width: 1050px;
+    border-collapse: collapse;
+}
+
+.farmer-markets-table th {
+    padding: 15px 18px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-alt);
+    color: var(--text-muted);
+    font-family: var(--font-main);
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-align: left;
+    text-transform: uppercase;
+}
+
+.farmer-markets-table td {
+    padding: 17px 18px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-soft);
+    font-size: 0.76rem;
+    line-height: 1.5;
+    vertical-align: middle;
+}
+
+.farmer-markets-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.farmer-markets-table tbody tr {
+    transition: background var(--transition-fast);
+}
+
+.farmer-markets-table tbody tr:hover {
+    background: var(--cream-light);
+}
+
+.farmer-market-name {
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.farmer-market-status {
+    display: inline-flex;
+    min-height: 25px;
+    align-items: center;
+    padding: 0 10px;
+    border-radius: var(--radius-pill);
+    font-family: var(--font-main);
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.farmer-market-status.status-active {
+    background: var(--sage-soft);
+    color: var(--sage-dark);
+}
+
+.farmer-market-status.status-inactive {
+    background: var(--terracotta-soft);
+    color: var(--terracotta-dark);
+}
+
+@media (max-width: 800px) {
+    .farmer-markets-table-wrapper {
+        border-radius: var(--radius-md);
+    }
+}
