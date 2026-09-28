@@ -7,7 +7,7 @@ requireApprovedFarmer();
 
 $user_id = getUserId();
 
-$sql = "SELECT 
+$sql = "SELECT
             users.name,
             users.email,
             users.phone,
@@ -34,7 +34,6 @@ $stmt->execute();
 $result = $stmt->get_result();
 $farmer = $result->fetch_assoc();
 
-// Profile Image
 $profile_image = '../assets/images/farmers/farmer_' . $user_id . '.jpg';
 
 if (file_exists(__DIR__ . '/../assets/images/farmers/farmer_' . $user_id . '.jpg')) {
@@ -46,98 +45,405 @@ if (file_exists(__DIR__ . '/../assets/images/farmers/farmer_' . $user_id . '.jpg
 } else {
     $profile_image = '../assets/images/farmers/default-farmer.png';
 }
+
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>farmer Profile | MarketLine</title>
-    <link rel="stylesheet" href="../assets/css/base.css">
-    <link rel="stylesheet" href="../assets/css/navbar.css">
-    <link rel="stylesheet" href="../assets/css/sidebar.css">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Farmer Profile | MarketLink</title>
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/base.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/components.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/navbar.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/sidebar.css"
+    >
+    <link
+        rel="stylesheet"
+        href="../assets/css/customer.css"
+    >
+    <link
+        rel="stylesheet"
+        href="../assets/css/farmer.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/profile.css"
+    >
+
 </head>
+
 <body>
-    
-    <?php include __DIR__ . '/../includes/navbar.php'; ?>
-    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-    <main class="main-content">
+    <?php require_once __DIR__ . '/../includes/navbar.php'; ?>
 
-        <div class="profile-container">
+    <?php require_once __DIR__ . '/../includes/sidebar.php'; ?>
 
-            <div class="profile-card">
+    <main class="main-content farmer-profile-page">
 
-                <h1>farmer Profile</h1>
-                <img src="<?= e($profile_image) ?>" alt="Farmer Profile Image">
-                <a href="edit_profile.php">Edit Profile</a>
+        <section class="customer-page-hero">
 
-                <section>
-                    <h2>Personal Information</h2>
-                    <p>
-                        <strong>Full Name:</strong>
-                        <?= e($farmer['name'])?>
-                    </p>
-                    <p>
-                        <strong>Email:</strong>
-                        <?= e($farmer['email'])?>
-                    </p>
-                    <p>
-                        <strong>Phone Number:</strong>
-                        <?= e($farmer['phone'])?>
-                    </p>
-                    <p>
-                        <strong>Address:</strong>
-                        <?= e($farmer['address'])?>
-                    </p>
-                </section>
+            <div class="customer-page-hero-copy">
 
-                <section>
-                    <h2>Farmer Information</h2>
-                    <p>
-                        <strong>Business / Stall Name:</strong>
-                        <?= e($farmer['stall_name']) ?>
-                    </p>
-                    <p>
-                        <strong>contact Person:</strong>
-                        <?= e($farmer['contact_person']) ?>
-                    </p>
-                    <p>
-                        <strong>Description:</strong>
-                        <?= e($farmer['description']) ?>
-                    </p>
-                    <p>
-                        <strong>Farmer Address:</strong>
-                        <?= e($farmer['farmer_address']) ?>
-                    </p>
-                </section>
-                <section>
-                    <h2>Account Information</h2>
+                <span class="eyebrow">
+                    FARMER / PROFILE
+                </span>
 
-                    <p>
-                    <strong>Role:</strong>
-                    <?php echo e($farmer['role']); ?>
-                    </p>
+                <h1>
+                    Your farmer <em>profile.</em>
+                </h1>
 
-                    <p>
-                    <strong>Account Status:</strong>
-                    <?php echo e($farmer['status']); ?>
-                    </p>
+                <p>
+                    Manage your personal details, farmer information, and MarketLink account from one place.
+                </p>
 
-                    <p> 
-                    <strong>Approval Status:</strong>
-                    <?php echo e($farmer['approval_status']); ?>
-                    </p>
-
-                    <p>
-                    <strong>Created At:</strong>
-                    <?php echo e($farmer['created_at']); ?>
-                    </p>
-                </section>
             </div>
-        </div>
+
+            <div class="customer-page-hero-mark">
+                07
+            </div>
+
+        </section>
+
+        <section class="farmer-profile-section">
+
+            <div class="farmer-profile-heading">
+
+                <div>
+
+                    <span class="customer-section-number">
+                        01 / PROFILE
+                    </span>
+
+                    <h2>
+                        Your MarketLink <em>identity.</em>
+                    </h2>
+
+                </div>
+
+                <a
+                    href="edit_profile.php"
+                    class="farmer-profile-edit"
+                >
+                    <i data-lucide="pen"></i>
+                    Edit profile
+                </a>
+
+            </div>
+
+            <div class="farmer-profile-layout">
+
+                <div class="farmer-profile-identity">
+
+                    <div class="farmer-profile-image">
+
+                        <img
+                            src="<?= e($profile_image) ?>"
+                            alt="Farmer Profile Image"
+                        >
+
+                    </div>
+
+                    <div class="farmer-profile-identity-content">
+
+                        <span class="farmer-profile-label">
+                            FARMER
+                        </span>
+
+                        <h3>
+                            <?= e($farmer['name']) ?>
+                        </h3>
+
+                        <p>
+                            <?= e($farmer['stall_name']) ?>
+                        </p>
+
+                        <div class="farmer-profile-status-row">
+
+                            <span class="farmer-profile-status approved">
+                                <?= e($farmer['approval_status']) ?>
+                            </span>
+
+                            <span class="farmer-profile-status">
+                                <?= e($farmer['status']) ?>
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="farmer-profile-details">
+
+                    <section class="farmer-profile-card">
+
+                        <div class="farmer-profile-card-heading">
+
+                            <div class="farmer-profile-card-icon">
+                                <i data-lucide="user"></i>
+                            </div>
+
+                            <div>
+
+                                <span class="farmer-profile-card-number">
+                                    01
+                                </span>
+
+                                <h3>
+                                    Personal information
+                                </h3>
+
+                            </div>
+
+                        </div>
+
+                        <div class="farmer-profile-info-grid">
+
+                            <div class="farmer-profile-info-item">
+
+                                <span>
+                                    Full Name
+                                </span>
+
+                                <strong>
+                                    <?= e($farmer['name']) ?>
+                                </strong>
+
+                            </div>
+
+                            <div class="farmer-profile-info-item">
+
+                                <span>
+                                    Email
+                                </span>
+
+                                <strong>
+                                    <?= e($farmer['email']) ?>
+                                </strong>
+
+                            </div>
+
+                            <div class="farmer-profile-info-item">
+
+                                <span>
+                                    Phone Number
+                                </span>
+
+                                <strong>
+                                    <?= e($farmer['phone']) ?>
+                                </strong>
+
+                            </div>
+
+                            <div class="farmer-profile-info-item">
+
+                                <span>
+                                    Address
+                                </span>
+
+                                <strong>
+                                    <?= e($farmer['address']) ?>
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                    <section class="farmer-profile-card">
+
+                        <div class="farmer-profile-card-heading">
+
+                            <div class="farmer-profile-card-icon">
+                                <i data-lucide="store"></i>
+                            </div>
+
+                            <div>
+
+                                <span class="farmer-profile-card-number">
+                                    02
+                                </span>
+
+                                <h3>
+                                    Farmer information
+                                </h3>
+
+                            </div>
+
+                        </div>
+
+                        <div class="farmer-profile-info-grid">
+
+                            <div class="farmer-profile-info-item">
+
+                                <span>
+                                    Business / Stall Name
+                                </span>
+
+                                <strong>
+                                    <?= e($farmer['stall_name']) ?>
+                                </strong>
+
+                            </div>
+
+                            <div class="farmer-profile-info-item">
+
+                                <span>
+                                    Contact Person
+                                </span>
+
+                                <strong>
+                                    <?= e($farmer['contact_person']) ?>
+                                </strong>
+
+                            </div>
+
+                            <div class="farmer-profile-info-item farmer-profile-info-full">
+
+                                <span>
+                                    Description
+                                </span>
+
+                                <strong>
+                                    <?= e($farmer['description']) ?>
+                                </strong>
+
+                            </div>
+
+                            <div class="farmer-profile-info-item farmer-profile-info-full">
+
+                                <span>
+                                    Farmer Address
+                                </span>
+
+                                <strong>
+                                    <?= e($farmer['farmer_address']) ?>
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                    <section class="farmer-profile-card">
+
+                        <div class="farmer-profile-card-heading">
+
+                            <div class="farmer-profile-card-icon">
+                                <i data-lucide="shield-check"></i>
+                            </div>
+
+                            <div>
+
+                                <span class="farmer-profile-card-number">
+                                    03
+                                </span>
+
+                                <h3>
+                                    Account information
+                                </h3>
+
+                            </div>
+
+                        </div>
+
+                        <div class="farmer-profile-info-grid">
+
+                            <div class="farmer-profile-info-item">
+
+                                <span>
+                                    Role
+                                </span>
+
+                                <strong>
+                                    <?= e($farmer['role']) ?>
+                                </strong>
+
+                            </div>
+
+                            <div class="farmer-profile-info-item">
+
+                                <span>
+                                    Account Status
+                                </span>
+
+                                <strong>
+                                    <?= e($farmer['status']) ?>
+                                </strong>
+
+                            </div>
+
+                            <div class="farmer-profile-info-item">
+
+                                <span>
+                                    Approval Status
+                                </span>
+
+                                <strong>
+                                    <?= e($farmer['approval_status']) ?>
+                                </strong>
+
+                            </div>
+
+                            <div class="farmer-profile-info-item">
+
+                                <span>
+                                    Created At
+                                </span>
+
+                                <strong>
+                                    <?= e($farmer['created_at']) ?>
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                </div>
+
+            </div>
+
+        </section>
+
     </main>
 
+    <script src="../assets/js/app.js"></script>
+
+    <script src="../assets/js/lucide.js"></script>
+
+    <script>
+        lucide.createIcons();
+    </script>
+
 </body>
+
 </html>
