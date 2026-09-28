@@ -225,7 +225,10 @@ function hasSubmenu(array $pages): bool
                 <li>
                     <a
                         href="<?= BASE_URL ?>customer/profile.php"
-                        class="<?= isActive(['profile.php']) ?>"
+                        class="<?= isActive([
+                            'profile.php',
+                            'edit_profile.php'
+                        ]) ?>"
                     >
                         <span class="nav-icon">
                             <i data-lucide="user-round"></i>
@@ -234,6 +237,28 @@ function hasSubmenu(array $pages): bool
                         <span>Profile</span>
                     </a>
                 </li>
+
+                <?php if (hasSubmenu([
+                        'profile.php',
+                        'edit_profile.php'
+                    ])): ?>
+
+                        <div class="sidebar-submenu">
+
+                            <a
+                                href="<?= BASE_URL ?>customer/edit_profile.php"
+                                class="sidebar-sublink <?= isSubActive('edit_profile.php') ?>"
+                            >
+                                <span class="nav-subicon">
+                                    <i data-lucide="user-pen"></i>
+                                </span>
+
+                                <span>Edit Profile</span>
+                            </a>
+
+                        </div>
+
+                    <?php endif; ?>
 
 
 

@@ -329,9 +329,6 @@ if (!$customer) {
 
             </div>
 
-            <div class="customer-page-hero-mark">
-                10
-            </div>
 
         </section>
 
