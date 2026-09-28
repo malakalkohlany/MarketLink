@@ -464,7 +464,6 @@ $stmt->close();
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -489,77 +488,114 @@ $stmt->close();
         href="../assets/css/sidebar.css"
     >
 
+    <link
+        rel="stylesheet"
+        href="../assets/css/customer.css"
+    >
 
+    <link
+        rel="stylesheet"
+        href="../assets/css/customer_n.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
 </head>
 
 <body>
 
 <?php include __DIR__ . '/../includes/navbar.php'; ?>
-
 <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
+<main class="main-content customer-reviews-page">
 
-<main class="main-content">
+    <span class="eyebrow">
+        CUSTOMER / REVIEWS
+    </span>
 
-    <div class="reviews-container">
-          <div class="page-header">
+    <?php if (!empty($successMessage)): ?>
+        <div class="customer-reviews-message customer-reviews-success">
+            <span class="customer-reviews-message-icon">
+                <i class="fa-solid fa-circle-check"></i>
+            </span>
 
-            <h1>Reviews</h1>
-
-            <p>
-                Share your experience with products and farmers.
-            </p>
-
-        </div>
-           <?php if (!empty($successMessage)): ?>
-
-            <div class="message success-message">
-
+            <span>
                 <?= e($successMessage) ?>
+            </span>
+        </div>
+    <?php endif; ?>
 
-            </div>
+    <?php if (!empty($errors)): ?>
+        <div class="customer-reviews-message customer-reviews-error">
+            <span class="customer-reviews-message-icon">
+                <i class="fa-solid fa-circle-exclamation"></i>
+            </span>
 
-        <?php endif; ?>
-
-
-        <?php if (!empty($errors)): ?>
-
-            <div class="message error-message">
-
+            <div>
                 <?php foreach ($errors as $error): ?>
-
                     <div>
                         <?= e($error) ?>
                     </div>
-
                 <?php endforeach; ?>
+            </div>
+        </div>
+    <?php endif; ?>
 
+    <section class="customer-reviews-write-section">
+
+        <div class="customer-section-heading">
+            <div>
+                <span class="customer-section-number">
+                    01 / WRITE A REVIEW
+                </span>
+
+                <h2>
+                    Share your <em>experience.</em>
+                </h2>
             </div>
 
-        <?php endif; ?>
+            <span class="customer-record-count">
+                <?= count($productOrders) + count($farmerOrders) ?>
+                option<?= count($productOrders) + count($farmerOrders) !== 1 ? 's' : '' ?>
+            </span>
+        </div>
 
-        <div class="review-grid">
-       <div class="review-card">
+        <div class="customer-reviews-grid">
 
-                <h2>Product Review</h2>
+            <article class="customer-review-form-card">
 
-                <div class="review-card-description">
+                <div class="customer-review-form-card-header">
+                    <span class="customer-review-card-icon">
+                        <i class="fa-solid fa-box-open"></i>
+                    </span>
 
-                    Review a product that you purchased
-                    and picked up through MarketLink.
+                    <div>
+                        <span class="customer-review-card-label">
+                            PRODUCT
+                        </span>
 
+                        <h3>
+                            Product <em>review.</em>
+                        </h3>
+
+                        <p>
+                            Review a product that you purchased
+                            and picked up through MarketLink.
+                        </p>
+                    </div>
                 </div>
-
 
                 <?php if (!empty($productOrders)): ?>
 
                     <form
                         method="POST"
-                        class="review-form"
+                        class="customer-review-form"
                         id="productReviewForm"
                     >
 
-                    <?= csrf_field() ?>
+                        <?= csrf_field() ?>
 
                         <input
                             type="hidden"
@@ -567,196 +603,227 @@ $stmt->close();
                             value="product"
                         >
 
+                        <div class="customer-review-field">
 
-                        <label for="productSelect">
-                            Product
-                        </label>
+                            <label
+                                for="productSelect"
+                                class="customer-review-label"
+                            >
+                                Product
+                            </label>
 
-                        <select
-                            name="product_id"
-                            id="productSelect"
-                            required
-                        >
-
-                            <option value="">
-                                Select a product
-                            </option>
-
-                            <?php foreach ($productOrders as $item): ?>
-
-                                <option
-                                    value="<?= (int) $item['product_id'] ?>"
-                                    data-order="<?= (int) $item['order_id'] ?>"
-                                >
-
-                                    <?= e($item['product_name']) ?>
-
-                                    -
-                                    Order #<?= (int) $item['order_id'] ?>
-
-                                </option>
-
-                            <?php endforeach; ?>
-
-                        </select>
-
-
-                        <label for="productOrderSelect">
-                            Order
-                        </label>
-
-                        <select
-                            name="order_id"
-                            id="productOrderSelect"
-                            required
-                        >
-
-                            <option value="">
-                                Select an order
-                            </option>
-
-                            <?php foreach ($productOrders as $item): ?>
-
-                                <option
-                                    value="<?= (int) $item['order_id'] ?>"
-                                    data-product="<?= (int) $item['product_id'] ?>"
-                                >
-
-                                    Order #<?= (int) $item['order_id'] ?>
-
-                                    -
-
-                                    <?= date(
-                                        'M d, Y',
-                                        strtotime($item['order_date'])
-                                    ) ?>
-
-                                </option>
-
-                            <?php endforeach; ?>
-
-                        </select>
-
-
-                        <label>
-                            Rating
-                        </label>
-
-                        <div class="rating-input">
-
-                            <input
-                                type="radio"
-                                id="product-star5"
-                                name="rating"
-                                value="5"
+                            <select
+                                name="product_id"
+                                id="productSelect"
+                                class="customer-review-select"
                                 required
                             >
+                                <option value="">
+                                    Select a product
+                                </option>
 
-                            <label for="product-star5">
-                                ★
-                            </label>
+                                <?php foreach ($productOrders as $item): ?>
 
+                                    <option
+                                        value="<?= (int)$item['product_id'] ?>"
+                                        data-order="<?= (int)$item['order_id'] ?>"
+                                    >
+                                        <?= e($item['product_name']) ?>
+                                        -
+                                        Order #<?= (int)$item['order_id'] ?>
+                                    </option>
 
-                            <input
-                                type="radio"
-                                id="product-star4"
-                                name="rating"
-                                value="4"
-                            >
+                                <?php endforeach; ?>
 
-                            <label for="product-star4">
-                                ★
-                            </label>
-
-
-                            <input
-                                type="radio"
-                                id="product-star3"
-                                name="rating"
-                                value="3"
-                            >
-
-                            <label for="product-star3">
-                                ★
-                            </label>
-
-
-                            <input
-                                type="radio"
-                                id="product-star2"
-                                name="rating"
-                                value="2"
-                            >
-
-                            <label for="product-star2">
-                                ★
-                            </label>
-
-
-                            <input
-                                type="radio"
-                                id="product-star1"
-                                name="rating"
-                                value="1"
-                            >
-
-                            <label for="product-star1">
-                                ★
-                            </label>
+                            </select>
 
                         </div>
 
+                        <div class="customer-review-field">
 
-                        <label for="productComment">
-                            Comment
-                        </label>
+                            <label
+                                for="productOrderSelect"
+                                class="customer-review-label"
+                            >
+                                Order
+                            </label>
 
-                        <textarea
-                            name="comment"
-                            id="productComment"
-                            maxlength="2000"
-                            placeholder="Write your experience..."
-                        ></textarea>
+                            <select
+                                name="order_id"
+                                id="productOrderSelect"
+                                class="customer-review-select"
+                                required
+                            >
+                                <option value="">
+                                    Select an order
+                                </option>
 
+                                <?php foreach ($productOrders as $item): ?>
+
+                                    <option
+                                        value="<?= (int)$item['order_id'] ?>"
+                                        data-product="<?= (int)$item['product_id'] ?>"
+                                    >
+                                        Order #<?= (int)$item['order_id'] ?>
+                                        -
+                                        <?= date(
+                                            'M d, Y',
+                                            strtotime($item['order_date'])
+                                        ) ?>
+                                    </option>
+
+                                <?php endforeach; ?>
+
+                            </select>
+
+                        </div>
+
+                        <div class="customer-review-field">
+
+                            <span class="customer-review-label">
+                                Rating
+                            </span>
+
+                            <div class="customer-review-rating-input">
+
+                                <input
+                                    type="radio"
+                                    id="product-star5"
+                                    name="rating"
+                                    value="5"
+                                    required
+                                >
+
+                                <label for="product-star5">
+                                    ★
+                                </label>
+
+                                <input
+                                    type="radio"
+                                    id="product-star4"
+                                    name="rating"
+                                    value="4"
+                                >
+
+                                <label for="product-star4">
+                                    ★
+                                </label>
+
+                                <input
+                                    type="radio"
+                                    id="product-star3"
+                                    name="rating"
+                                    value="3"
+                                >
+
+                                <label for="product-star3">
+                                    ★
+                                </label>
+
+                                <input
+                                    type="radio"
+                                    id="product-star2"
+                                    name="rating"
+                                    value="2"
+                                >
+
+                                <label for="product-star2">
+                                    ★
+                                </label>
+
+                                <input
+                                    type="radio"
+                                    id="product-star1"
+                                    name="rating"
+                                    value="1"
+                                >
+
+                                <label for="product-star1">
+                                    ★
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                        <div class="customer-review-field">
+
+                            <label
+                                for="productComment"
+                                class="customer-review-label"
+                            >
+                                Comment
+                            </label>
+
+                            <textarea
+                                name="comment"
+                                id="productComment"
+                                class="customer-review-textarea"
+                                maxlength="2000"
+                                placeholder="Write your experience..."
+                            ></textarea>
+
+                            <span class="customer-review-help">
+                                Optional. Maximum 2000 characters.
+                            </span>
+
+                        </div>
 
                         <button
                             type="submit"
-                            class="submit-review"
+                            class="customer-review-submit"
                         >
                             Submit Product Review
+                            <i class="fa-solid fa-arrow-right"></i>
                         </button>
 
                     </form>
 
                 <?php else: ?>
 
-                    <div class="empty-review-option">
+                    <div class="customer-review-empty-option">
+                        <span>
+                            <i class="fa-solid fa-circle-info"></i>
+                        </span>
 
-                        You do not have any completed products
-                        available for review yet.
-
+                        <p>
+                            You do not have any completed products
+                            available for review yet.
+                        </p>
                     </div>
 
                 <?php endif; ?>
 
-            </div>
-               <div class="review-card">
+            </article>
 
-                <h2>Farmer Review</h2>
+            <article class="customer-review-form-card">
 
-                <div class="review-card-description">
+                <div class="customer-review-form-card-header">
+                    <span class="customer-review-card-icon customer-review-card-icon-farmer">
+                        <i class="fa-solid fa-user"></i>
+                    </span>
 
-                    Review a farmer you purchased from
-                    through MarketLink.
+                    <div>
+                        <span class="customer-review-card-label">
+                            FARMER
+                        </span>
 
+                        <h3>
+                            Farmer <em>review.</em>
+                        </h3>
+
+                        <p>
+                            Review a farmer you purchased from
+                            through MarketLink.
+                        </p>
+                    </div>
                 </div>
-
 
                 <?php if (!empty($farmerOrders)): ?>
 
                     <form
                         method="POST"
-                        class="review-form"
+                        class="customer-review-form"
                         id="farmerReviewForm"
                     >
 
@@ -768,375 +835,338 @@ $stmt->close();
                             value="farmer"
                         >
 
+                        <div class="customer-review-field">
 
-                        <label for="farmerSelect">
-                            Farmer
-                        </label>
+                            <label
+                                for="farmerSelect"
+                                class="customer-review-label"
+                            >
+                                Farmer
+                            </label>
 
-                        <select
-                            name="farmer_id"
-                            id="farmerSelect"
-                            required
-                        >
-
-                            <option value="">
-                                Select a farmer
-                            </option>
-
-                            <?php foreach ($farmerOrders as $item): ?>
-
-                                <option
-                                    value="<?= (int) $item['farmer_id'] ?>"
-                                    data-order="<?= (int) $item['order_id'] ?>"
-                                >
-
-                                    <?= e($item['farmer_name']) ?>
-
-                                    -
-                                    Order #<?= (int) $item['order_id'] ?>
-
-                                </option>
-
-                            <?php endforeach; ?>
-
-                        </select>
-
-
-                        <label for="farmerOrderSelect">
-                            Order
-                        </label>
-
-                        <select
-                            name="order_id"
-                            id="farmerOrderSelect"
-                            required
-                        >
-
-                            <option value="">
-                                Select an order
-                            </option>
-
-                            <?php foreach ($farmerOrders as $item): ?>
-
-                                <option
-                                    value="<?= (int) $item['order_id'] ?>"
-                                    data-farmer="<?= (int) $item['farmer_id'] ?>"
-                                >
-
-                                    Order #<?= (int) $item['order_id'] ?>
-
-                                    -
-
-                                    <?= date(
-                                        'M d, Y',
-                                        strtotime($item['order_date'])
-                                    ) ?>
-
-                                </option>
-
-                            <?php endforeach; ?>
-
-                        </select>
-
-
-                        <label>
-                            Rating
-                        </label>
-
-                        <div class="rating-input">
-
-                            <input
-                                type="radio"
-                                id="farmer-star5"
-                                name="rating"
-                                value="5"
+                            <select
+                                name="farmer_id"
+                                id="farmerSelect"
+                                class="customer-review-select"
                                 required
                             >
+                                <option value="">
+                                    Select a farmer
+                                </option>
 
-                            <label for="farmer-star5">
-                                ★
-                            </label>
+                                <?php foreach ($farmerOrders as $item): ?>
 
+                                    <option
+                                        value="<?= (int)$item['farmer_id'] ?>"
+                                        data-order="<?= (int)$item['order_id'] ?>"
+                                    >
+                                        <?= e($item['farmer_name']) ?>
+                                        -
+                                        Order #<?= (int)$item['order_id'] ?>
+                                    </option>
 
-                            <input
-                                type="radio"
-                                id="farmer-star4"
-                                name="rating"
-                                value="4"
-                            >
+                                <?php endforeach; ?>
 
-                            <label for="farmer-star4">
-                                ★
-                            </label>
-
-
-                            <input
-                                type="radio"
-                                id="farmer-star3"
-                                name="rating"
-                                value="3"
-                            >
-
-                            <label for="farmer-star3">
-                                ★
-                            </label>
-
-
-                            <input
-                                type="radio"
-                                id="farmer-star2"
-                                name="rating"
-                                value="2"
-                            >
-
-                            <label for="farmer-star2">
-                                ★
-                            </label>
-
-
-                            <input
-                                type="radio"
-                                id="farmer-star1"
-                                name="rating"
-                                value="1"
-                            >
-
-                            <label for="farmer-star1">
-                                ★
-                            </label>
+                            </select>
 
                         </div>
 
+                        <div class="customer-review-field">
 
-                        <label for="farmerComment">
-                            Comment
-                        </label>
+                            <label
+                                for="farmerOrderSelect"
+                                class="customer-review-label"
+                            >
+                                Order
+                            </label>
 
-                        <textarea
-                            name="comment"
-                            id="farmerComment"
-                            maxlength="2000"
-                            placeholder="Write your experience..."
-                        ></textarea>
+                            <select
+                                name="order_id"
+                                id="farmerOrderSelect"
+                                class="customer-review-select"
+                                required
+                            >
+                                <option value="">
+                                    Select an order
+                                </option>
 
+                                <?php foreach ($farmerOrders as $item): ?>
+
+                                    <option
+                                        value="<?= (int)$item['order_id'] ?>"
+                                        data-farmer="<?= (int)$item['farmer_id'] ?>"
+                                    >
+                                        Order #<?= (int)$item['order_id'] ?>
+                                        -
+                                        <?= date(
+                                            'M d, Y',
+                                            strtotime($item['order_date'])
+                                        ) ?>
+                                    </option>
+
+                                <?php endforeach; ?>
+
+                            </select>
+
+                        </div>
+
+                        <div class="customer-review-field">
+
+                            <span class="customer-review-label">
+                                Rating
+                            </span>
+
+                            <div class="customer-review-rating-input">
+
+                                <input
+                                    type="radio"
+                                    id="farmer-star5"
+                                    name="rating"
+                                    value="5"
+                                    required
+                                >
+
+                                <label for="farmer-star5">
+                                    ★
+                                </label>
+
+                                <input
+                                    type="radio"
+                                    id="farmer-star4"
+                                    name="rating"
+                                    value="4"
+                                >
+
+                                <label for="farmer-star4">
+                                    ★
+                                </label>
+
+                                <input
+                                    type="radio"
+                                    id="farmer-star3"
+                                    name="rating"
+                                    value="3"
+                                >
+
+                                <label for="farmer-star3">
+                                    ★
+                                </label>
+
+                                <input
+                                    type="radio"
+                                    id="farmer-star2"
+                                    name="rating"
+                                    value="2"
+                                >
+
+                                <label for="farmer-star2">
+                                    ★
+                                </label>
+
+                                <input
+                                    type="radio"
+                                    id="farmer-star1"
+                                    name="rating"
+                                    value="1"
+                                >
+
+                                <label for="farmer-star1">
+                                    ★
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                        <div class="customer-review-field">
+
+                            <label
+                                for="farmerComment"
+                                class="customer-review-label"
+                            >
+                                Comment
+                            </label>
+
+                            <textarea
+                                name="comment"
+                                id="farmerComment"
+                                class="customer-review-textarea"
+                                maxlength="2000"
+                                placeholder="Write your experience..."
+                            ></textarea>
+
+                            <span class="customer-review-help">
+                                Optional. Maximum 2000 characters.
+                            </span>
+
+                        </div>
 
                         <button
                             type="submit"
-                            class="submit-review"
+                            class="customer-review-submit"
                         >
                             Submit Farmer Review
+                            <i class="fa-solid fa-arrow-right"></i>
                         </button>
 
                     </form>
 
                 <?php else: ?>
 
-                    <div class="empty-review-option">
+                    <div class="customer-review-empty-option">
+                        <span>
+                            <i class="fa-solid fa-circle-info"></i>
+                        </span>
 
-                        You do not have any completed orders
-                        with farmers available for review yet.
-
+                        <p>
+                            You do not have any completed orders
+                            with farmers available for review yet.
+                        </p>
                     </div>
 
                 <?php endif; ?>
 
-            </div>
+            </article>
 
         </div>
-           <div class="my-reviews-section">
 
-            <div class="my-reviews-header">
+    </section>
+
+    <section class="customer-my-reviews-section">
+
+        <div class="customer-section-heading">
+            <div>
+                <span class="customer-section-number">
+                    02 / YOUR REVIEWS
+                </span>
 
                 <h2>
-                    My Reviews
+                    My <em>reviews.</em>
                 </h2>
-
-                <div class="review-count">
-
-                    <?= $totalReviews ?>
-
-                    <?= $totalReviews === 1
-                        ? 'review'
-                        : 'reviews'
-                    ?>
-
-                </div>
-
             </div>
 
+            <span class="customer-record-count">
+                <?= $totalReviews ?>
+                review<?= $totalReviews === 1 ? '' : 's' ?>
+            </span>
+        </div>
 
-            <?php if (!empty($myReviews)): ?>
+        <?php if (!empty($myReviews)): ?>
+
+            <div class="customer-my-reviews-list">
 
                 <?php foreach ($myReviews as $review): ?>
 
                     <?php
- if (!empty($review['product_name'])) {
-
-                        $reviewTitle =
-                            $review['product_name'];
-
-                        $reviewType =
-                            'Product Review';
-
+                    if (!empty($review['product_name'])) {
+                        $reviewTitle = $review['product_name'];
+                        $reviewType = 'Product Review';
                     } elseif (!empty($review['farmer_name'])) {
-
-                        $reviewTitle =
-                            $review['farmer_name'];
-
-                        $reviewType =
-                            'Farmer Review';
-
+                        $reviewTitle = $review['farmer_name'];
+                        $reviewType = 'Farmer Review';
                     } else {
-
-                        $reviewTitle =
-                            'Review';
-
-                        $reviewType =
-                            'Review';
-
-                    }$rating =
-                        (int) $review['rating'];
-
-                    $stars = '';
-
-                    for ($i = 1; $i <= 5; $i++) {
-
-                        $stars .=
-                            $i <= $rating
-                                ? '★'
-                                : '☆';
+                        $reviewTitle = 'Review';
+                        $reviewType = 'Review';
                     }
-                    $statusClass =
-                        'status-pending';
+
+                    $rating = (int)$review['rating'];
+
+                    $statusClass = 'status-pending';
 
                     if ($review['status'] === 'approved') {
-
-                        $statusClass =
-                            'status-approved';
-
-                    } elseif (
-                        $review['status'] === 'rejected'
-                    ) {
-
-                        $statusClass =
-                            'status-rejected';
+                        $statusClass = 'status-approved';
+                    } elseif ($review['status'] === 'rejected') {
+                        $statusClass = 'status-rejected';
                     }
-
                     ?>
 
-                    <div class="my-review-item">
+                    <article class="customer-my-review-card">
 
-                        <div class="review-item-top">
+                        <div class="customer-my-review-top">
 
-                            <div>
+                            <div class="customer-my-review-heading">
 
-                                <div class="review-item-title">
-
-                                    <?= e($reviewTitle) ?>
-
-                                </div>
-
-                                <div class="review-item-type">
-
+                                <span class="customer-my-review-type">
                                     <?= e($reviewType) ?>
+                                </span>
 
-                                </div>
+                                <h3>
+                                    <?= e($reviewTitle) ?>
+                                </h3>
 
                             </div>
 
+                            <div class="customer-my-review-rating">
 
-                            <div class="stars-display">
+                                <?php for ($i = 1; $i <= 5; $i++): ?>
 
-                                <?= $stars ?>
+                                    <span class="<?= $i <= $rating ? 'is-filled' : '' ?>">
+                                        <?= $i <= $rating ? '★' : '☆' ?>
+                                    </span>
+
+                                <?php endfor; ?>
 
                             </div>
 
                         </div>
 
-
                         <?php if (!empty($review['comment'])): ?>
 
-                            <div class="review-comment">
-
-                                <?= nl2br(
-                                    e($review['comment'])
-                                ) ?>
-
+                            <div class="customer-my-review-comment">
+                                <?= nl2br(e($review['comment'])) ?>
                             </div>
 
                         <?php endif; ?>
 
+                        <div class="customer-my-review-meta">
 
-                        <div class="review-date">
+                            <span>
+                                Order #<?= (int)$review['order_id'] ?>
+                            </span>
 
-                            Order #<?= (int) $review['order_id'] ?>
+                            <span>
+                                <?= date(
+                                    'M d, Y',
+                                    strtotime($review['created_at'])
+                                ) ?>
+                            </span>
 
-                            &nbsp; • &nbsp;
-
-                            <?= date(
-                                'M d, Y',
-                                strtotime($review['created_at'])
-                            ) ?>
-
-                        </div>
-
-
-                        <div class="status <?= $statusClass ?>">
-
-                            <?= e(
-                                ucfirst(
-                                    $review['status']
-                                )
-                            ) ?>
+                            <span class="customer-my-review-status <?= htmlspecialchars($statusClass) ?>">
+                                <?= e(ucfirst($review['status'])) ?>
+                            </span>
 
                         </div>
 
+                        <?php if (!empty($review['farmer_response'])): ?>
 
-                        <!-- ================================= -->
-                        <!-- FARMER RESPONSE -->
-                        <!-- ================================= -->
+                            <div class="customer-farmer-response">
 
-                        <?php if (
-                            !empty($review['farmer_response'])
-                        ): ?>
+                                <div class="customer-farmer-response-header">
+                                    <span>
+                                        <i class="fa-solid fa-reply"></i>
+                                    </span>
 
-                            <div class="farmer-response">
-
-                                <div class="farmer-response-title">
-
-                                    Farmer Response
-
+                                    <strong>
+                                        Farmer response
+                                    </strong>
                                 </div>
 
-                                <div class="farmer-response-text">
-
+                                <div class="customer-farmer-response-text">
                                     <?= nl2br(
-                                        e(
-                                            $review['farmer_response']
-                                        )
+                                        e($review['farmer_response'])
                                     ) ?>
-
                                 </div>
 
+                                <?php if (!empty($review['farmer_response_at'])): ?>
 
-                                <?php if (
-                                    !empty(
-                                        $review['farmer_response_at']
-                                    )
-                                ): ?>
-
-                                    <div class="farmer-response-date">
-
+                                    <span class="customer-farmer-response-date">
                                         <?= date(
                                             'M d, Y · g:i A',
                                             strtotime(
-                                                $review[
-                                                    'farmer_response_at'
-                                                ]
+                                                $review['farmer_response_at']
                                             )
                                         ) ?>
-
-                                    </div>
+                                    </span>
 
                                 <?php endif; ?>
 
@@ -1144,29 +1174,36 @@ $stmt->close();
 
                         <?php endif; ?>
 
-                    </div>
+                    </article>
 
                 <?php endforeach; ?>
-                   <?php if ($totalPages > 1): ?>
 
-                    <div class="pagination">
+            </div>
 
-                        <?php if ($currentPage > 1): ?>
+            <?php if ($totalPages > 1): ?>
 
-                            <a
-                                href="?page=<?= $currentPage - 1 ?>"
-                            >
-                                Previous
-                            </a>
+                <div class="customer-reviews-pagination">
 
-                        <?php else: ?>
+                    <?php if ($currentPage > 1): ?>
 
-                            <span class="disabled">
-                                Previous
-                            </span>
+                        <a
+                            href="?page=<?= $currentPage - 1 ?>"
+                            class="customer-reviews-pagination-button"
+                        >
+                            <i class="fa-solid fa-arrow-left"></i>
+                            Previous
+                        </a>
 
-                        <?php endif; ?>
+                    <?php else: ?>
 
+                        <span class="customer-reviews-pagination-button is-disabled">
+                            <i class="fa-solid fa-arrow-left"></i>
+                            Previous
+                        </span>
+
+                    <?php endif; ?>
+
+                    <div class="customer-reviews-pagination-pages">
 
                         <?php for (
                             $page = 1;
@@ -1176,7 +1213,7 @@ $stmt->close();
 
                             <?php if ($page === $currentPage): ?>
 
-                                <span class="active">
+                                <span class="customer-reviews-pagination-page is-active">
                                     <?= $page ?>
                                 </span>
 
@@ -1184,6 +1221,7 @@ $stmt->close();
 
                                 <a
                                     href="?page=<?= $page ?>"
+                                    class="customer-reviews-pagination-page"
                                 >
                                     <?= $page ?>
                                 </a>
@@ -1192,50 +1230,54 @@ $stmt->close();
 
                         <?php endfor; ?>
 
-
-                        <?php if ($currentPage < $totalPages): ?>
-
-                            <a
-                                href="?page=<?= $currentPage + 1 ?>"
-                            >
-                                Next
-                            </a>
-
-                        <?php else: ?>
-
-                            <span class="disabled">
-                                Next
-                            </span>
-
-                        <?php endif; ?>
-
                     </div>
 
-                <?php endif; ?>
+                    <?php if ($currentPage < $totalPages): ?>
 
+                        <a
+                            href="?page=<?= $currentPage + 1 ?>"
+                            class="customer-reviews-pagination-button"
+                        >
+                            Next
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </a>
 
-            <?php else: ?>
+                    <?php else: ?>
 
-                <div class="no-reviews">
+                        <span class="customer-reviews-pagination-button is-disabled">
+                            Next
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </span>
 
-                    <h3>
-                        No reviews yet
-                    </h3>
-
-                    <p>
-                        Your submitted reviews will appear here.
-                    </p>
+                    <?php endif; ?>
 
                 </div>
 
             <?php endif; ?>
 
-        </div>
+        <?php else: ?>
 
-    </div>
+            <div class="customer-reviews-empty">
+
+                <span class="customer-reviews-empty-mark">
+                    <i class="fa-regular fa-star"></i>
+                </span>
+
+                <strong>
+                    No reviews yet.
+                </strong>
+
+                <span>
+                    Your submitted reviews will appear here.
+                </span>
+
+            </div>
+
+        <?php endif; ?>
+
+    </section>
 
 </main>
-
 
 <script src="../assets/js/app.js"></script>
 <script src="../assets/js/customer-reviews.js"></script>
