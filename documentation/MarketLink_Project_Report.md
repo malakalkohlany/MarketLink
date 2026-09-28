@@ -235,6 +235,7 @@ We didn't want to treat security as an afterthought, so a few things were built 
 * Input validation on forms and user-submitted data.
 * Session management to keep login state secure.
 * Protection on important form submissions.
+* CSRF protection.
 
 ---
 
