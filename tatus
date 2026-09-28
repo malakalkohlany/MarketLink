@@ -1,0 +1,92 @@
+:[1mdiff --git a/New Text Document.txt b/New Text Document.txt[m
+[1mindex 8c9d77c..cf67262 100644[m
+[1m--- a/New Text Document.txt[m	
+[1m+++ b/New Text Document.txt[m	
+[36m@@ -3,7 +3,6 @@[m
+ ## Local Farmers and Markets E-Commerce Platform[m
+ [m
+ ---------[m
+[31m-[m
+ # 1. Project Overview[m
+ [m
+ MarketLink is a web-based e-commerce platform that connects customers with local farmers and markets.[m
+[36m@@ -15,7 +14,6 @@[m [mFarmers can manage their products and orders, while administrators can manage th[m
+ The system was developed using PHP, MySQL/MariaDB, HTML, CSS, JavaScript, and XAMPP. phpMyAdmin was used as a database management tool.[m
+ [m
+ ---------[m
+[31m-[m
+ # 2. Problem Definition[m
+ [m
+ Local customers may have difficulty finding local farmers, agricultural products, prices, available stock, and nearby markets in one place.[m
+[36m@@ -25,7 +23,6 @@[m [mFarmers may also have difficulty presenting their products online, reaching cust[m
+ There is therefore a need for a centralized platform that connects customers, farmers, and markets and organizes the process of browsing products and placing orders.[m
+ [m
+ ---------[m
+[31m-[m
+ # 3. Proposed Solution[m
+ [m
+ MarketLink provides a centralized web platform connecting customers with local farmers and markets.[m
+[36m@@ -67,7 +64,6 @@[m [mAdministrators can:[m
+ The system provides separate interfaces for customers, farmers, and administrators according to their roles and permissions.[m
+ [m
+ ---------[m
+[31m-[m
+ # 4. Project Objectives[m
+ [m
+ 1. Connect customers with local farmers and markets.[m
+[36m@@ -80,7 +76,6 @@[m [mThe system provides separate interfaces for customers, farmers, and administrato[m
+ 8. Protect the system using authentication and role-based authorization.[m
+ [m
+ ---------[m
+[31m-[m
+ # 5. Design Specifications[m
+ [m
+ ## 5.1 Technologies[m
+[36m@@ -125,7 +120,6 @@[m [mThe main database tables are:[m
+ | `reports`                | Stores generated report information                 |[m
+ [m
+ [m
+[31m-[m
+ The database stores users, farmers, products, orders, reviews, markets, favorites, notifications, and other system information.[m
+ [m
+ ---------[m
+[36m@@ -188,7 +182,6 @@[m [mThe database also uses relationships such as one-to-many and many-to-many relati[m
+ Order information is separated between the orders and order_items tables, while order_status_history records changes made to an order's status. Weekly stock planning is handled through weekly_stock and reusable weekly_stock_templates tables.[m
+ [m
+ ---------[m
+[31m-[m
+ # 8. User Interface Design[m
+ [m
+ The MarketLink user interface is designed to provide a simple and organized experience for customers, farmers, and administrators.[m
+[36m@@ -196,6 +189,7 @@[m [mThe MarketLink user interface is designed to provide a simple and organized expe[m
+ Each user role has a separate interface based on its permissions and required functions.[m
+ [m
+ The interface includes navigation menus, product pages, order management pages, profile pages, and administrative management pages.[m
+[32m+[m
+ ---------[m
+ # 9. Implementation Steps[m
+ [m
+[36m@@ -208,6 +202,7 @@[m [mThe MarketLink system was implemented through several main stages:[m
+ 5. Implementing authentication and role-based access for customers, farmers, and administrators.[m
+ 6. Implementing product browsing, favorites, shopping cart, orders, and reviews.[m
+ 7. Testing the system and fixing errors during development.[m
+[32m+[m
+ ---------[m
+ # 10. Security[m
+ [m
+[36m@@ -221,6 +216,7 @@[m [mThe main security measures include:[m
+ * Input validation to reduce invalid or unsafe data.[m
+ * Session management to protect user accounts.[m
+ * CSRF protection for important form submissions.[m
+[32m+[m
+ ---------[m
+ # 11. Conclusion[m
+ [m
+[36m@@ -229,7 +225,6 @@[m [mMarketLink provides a centralized platform that connects customers with local fa[m
+ The system supports product browsing, searching, favorites, shopping cart, orders, reviews, and role-based management for customers, farmers, and administrators.[m
+ [m
+ The project demonstrates how web technologies and database systems can be used to provide an organized and efficient solution for connecting local agricultural businesses with customers.[m
+[31m-[m
+ ---------[m
+ [m
+ [m

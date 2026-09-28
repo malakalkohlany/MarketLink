@@ -19,9 +19,6 @@ try {
 
     $conn->begin_transaction();
 
-    // =========================================================
-    // 1. Get the order
-    // =========================================================
 
     $stmt = $conn->prepare("
         SELECT
@@ -71,29 +68,17 @@ try {
         );
     }
 
-    // =========================================================
-    // 2. Only pending orders can be modified
-    // =========================================================
-
     if ($order['status'] !== 'pending') {
         throw new Exception(
             'Only pending orders can be modified.'
         );
     }
 
-    // =========================================================
-    // 3. Check pickup date
-    // =========================================================
-
     if (empty($order['pickup_date'])) {
         throw new Exception(
             'This order does not have a pickup date.'
         );
     }
-
-    // =========================================================
-    // 4. Check cutoff
-    // =========================================================
 
     $cutoffDateTime = new DateTime(
         $order['pickup_date']
@@ -108,10 +93,6 @@ try {
             'The cutoff time for this order has already passed.'
         );
     }
-
-    // =========================================================
-    // 5. Get market information
-    // =========================================================
 
     $stmt = $conn->prepare("
         SELECT
@@ -154,10 +135,6 @@ try {
         );
     }
 
-    // =========================================================
-    // 6. Get farmer information
-    // =========================================================
-
     $stmt = $conn->prepare("
         SELECT
             f.id,
@@ -197,10 +174,6 @@ try {
             'The farmer for this order could not be found.'
         );
     }
-
-    // =========================================================
-    // 7. Get order items + current product information
-    // =========================================================
 
     $stmt = $conn->prepare("
         SELECT
@@ -258,10 +231,6 @@ try {
         );
     }
 
-    // =========================================================
-    // 8. Determine the week of the order
-    // =========================================================
-
     $createdAt = new DateTime(
         $order['created_at']
     );
@@ -272,9 +241,6 @@ try {
 
     $weekStart = $createdAt->format('Y-m-d');
 
-    // =========================================================
-    // 9. Build the cart
-    // =========================================================
 
     $newCart = [];
 
@@ -289,7 +255,6 @@ try {
             );
         }
 
-        // Make sure product belongs to the same farmer
         if (
             (int) $item['farmer_id']
             !== $farmerId
@@ -298,10 +263,6 @@ try {
                 'An order product does not belong to the original farmer.'
             );
         }
-
-        // =====================================================
-        // Restore weekly stock
-        // =====================================================
 
         $stmt = $conn->prepare("
             UPDATE weekly_stock
@@ -344,10 +305,6 @@ try {
         }
 
         $stmt->close();
-
-        // =====================================================
-        // Create cart item using EXACT add_to_cart structure
-        // =====================================================
 
         $price = (float) $item['price'];
 
@@ -393,10 +350,6 @@ try {
         ];
     }
 
-    // =========================================================
-    // 10. Delete old order status history
-    // =========================================================
-
     $stmt = $conn->prepare("
         DELETE FROM order_status_history
         WHERE order_id = ?
@@ -421,10 +374,6 @@ try {
 
     $stmt->close();
 
-    // =========================================================
-    // 11. Delete old order items
-    // =========================================================
-
     $stmt = $conn->prepare("
         DELETE FROM order_items
         WHERE order_id = ?
@@ -448,10 +397,6 @@ try {
     }
 
     $stmt->close();
-
-    // =========================================================
-    // 12. Delete old order
-    // =========================================================
 
     $stmt = $conn->prepare("
         DELETE FROM orders
@@ -486,18 +431,12 @@ try {
 
     $stmt->close();
 
-    // =========================================================
-    // 13. Commit everything
-    // =========================================================
 
     $conn->commit();
 
     // Only modify session after DB commit succeeds
     $_SESSION['cart'] = $newCart;
 
-    // =========================================================
-    // 14. Go to normal cart
-    // =========================================================
 
     redirect('customer/cart.php');
 

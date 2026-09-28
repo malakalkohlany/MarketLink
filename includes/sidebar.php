@@ -138,6 +138,7 @@ function hasSubmenu(array $pages): bool
                     </a>
                 </li>
 
+                <!-- favorites -->
                 <li>
                     <a
                         href="<?= BASE_URL ?>customer/favorites.php"
@@ -193,6 +194,7 @@ function hasSubmenu(array $pages): bool
                         <span>My Orders</span>
                     </a>
                 </li>
+                <!-- reviews-->
                 <li>
                     <a
                         href="<?= BASE_URL ?>customer/reviews.php"
