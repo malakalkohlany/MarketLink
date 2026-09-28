@@ -414,440 +414,429 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         content="width=device-width, initial-scale=1.0"
     >
     <title>Add to Cart - MarketLink</title>
+
     <link
         rel="stylesheet"
         href="../assets/css/base.css"
     >
+
     <link
         rel="stylesheet"
         href="../assets/css/navbar.css"
     >
+
     <link
         rel="stylesheet"
         href="../assets/css/sidebar.css"
     >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/customer.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/customer_n.css"
+    >
+
     <link
         rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
     >
-    <style>
-        .add-cart-page {
-            max-width: 850px;
-            margin: 0 auto;
-        }
-
-        .page-header {
-            margin-bottom: 25px;
-        }
-
-        .page-header h1 {
-            margin: 0 0 8px;
-            font-size: 30px;
-        }
-
-        .page-header p {
-            margin: 0;
-            color: #666;
-        }
-
-        .add-cart-card {
-            display: grid;
-            grid-template-columns: 280px 1fr;
-            gap: 30px;
-            background: #ffffff;
-            border: 1px solid #e5e5e5;
-            border-radius: 16px;
-            padding: 25px;
-            box-shadow:
-                0 6px 18px
-                rgba(0, 0, 0, 0.05);
-        }
-
-        .product-preview {
-            background: #f5f5f5;
-            border-radius: 12px;
-            overflow: hidden;
-            min-height: 280px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .product-preview img {
-            width: 100%;
-            height: 280px;
-            object-fit: cover;
-        }
-
-        .product-preview-placeholder {
-            color: #bbb;
-            font-size: 50px;
-        }
-
-        .product-info h2 {
-            margin: 0 0 8px;
-            font-size: 25px;
-        }
-
-        .farmer-name {
-            color: #72583E;
-            font-weight: 600;
-            margin-bottom: 18px;
-        }
-
-        .price {
-            font-size: 21px;
-            font-weight: 700;
-            margin-bottom: 25px;
-        }
-
-        .field {
-            margin-bottom: 20px;
-        }
-
-        .field label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            color: #4f4136;
-        }
-
-        .market-options {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .market-option {
-            position: relative;
-        }
-
-        .market-option input {
-            position: absolute;
-            opacity: 0;
-        }
-
-        .market-option label {
-            display: block;
-            padding: 13px 15px;
-            border: 1px solid #d7cec4;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: 0.2s ease;
-            background: #fff;
-        }
-
-        .market-option label:hover {
-            background: #f8f3ee;
-            border-color: #b9a99b;
-        }
-
-        .market-option input:checked + label {
-            background: #f5f0eb;
-            border-color: #72583E;
-            box-shadow:
-                0 0 0 1px #72583E;
-        }
-
-        .market-name {
-            display: block;
-            color: #3e3026;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        .market-days {
-            display: block;
-            color: #777;
-            font-size: 12px;
-        }
-
-        .quantity-input {
-            width: 150px;
-            box-sizing: border-box;
-            padding: 11px 12px;
-            border: 1px solid #d7cec4;
-            border-radius: 8px;
-            font-family: inherit;
-            font-size: 15px;
-        }
-
-        .quantity-input:focus {
-            outline: none;
-            border-color: #72583E;
-            box-shadow:
-                0 0 0 2px
-                rgba(114, 88, 62, 0.10);
-        }
-
-        .stock-note {
-            margin-top: 6px;
-            font-size: 12px;
-            color: #777;
-        }
-
-        .error-message {
-            margin-bottom: 20px;
-            padding: 12px 15px;
-            background: #f8e8e5;
-            border: 1px solid #dfb9b2;
-            border-radius: 8px;
-            color: #8a382d;
-            font-size: 14px;
-        }
-
-        .actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 25px;
-        }
-
-        .submit-button,
-        .cancel-button {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 11px 18px;
-            border-radius: 8px;
-            font-family: inherit;
-            font-size: 14px;
-            font-weight: 600;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .submit-button {
-            border: none;
-            background: #72583E;
-            color: #fff;
-            flex: 1;
-        }
-
-        .submit-button:hover {
-            background: #5f4833;
-        }
-
-        .cancel-button {
-            border: 1px solid #d7cec4;
-            background: #fff;
-            color: #72583E;
-        }
-
-        .cancel-button:hover {
-            background: #f5f0eb;
-        }
-
-        @media (max-width: 750px) {
-            .add-cart-card {
-                grid-template-columns: 1fr;
-            }
-
-            .product-preview {
-                min-height: 220px;
-            }
-
-            .product-preview img {
-                height: 220px;
-            }
-        }
-    </style>
 </head>
+
 <body>
+
 <?php include __DIR__ . '/../includes/navbar.php'; ?>
+
 <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-<main class="main-content">
-    <div class="add-cart-page">
-        <div class="page-header">
-            <h1>Add to Cart</h1>
-            <p>Choose where you want to pick up this product.</p>
+<main class="main-content customer-add-cart-page">
+
+    <div class="customer-page-hero customer-add-cart-hero">
+        <div class="customer-page-hero-copy">
+
+            <span class="eyebrow">
+                CUSTOMER / ADD TO CART
+            </span>
+
+            <h1>
+                Choose where<br>
+                to pick up <em>fresh.</em>
+            </h1>
+
+            <p>
+                Select your market, choose how much you need, and add
+                this product to your shopping cart.
+            </p>
+
+        </div>
+
+        <div class="customer-page-hero-mark">
+            05
+        </div>
+    </div>
+
+    <section class="customer-add-cart-intro">
+
+        <div class="customer-shopping-note">
+
+            <span class="customer-shopping-note-icon">
+                <i class="fa-solid fa-cart-plus"></i>
+            </span>
+
+            <div>
+
+                <strong>
+                    One market for every order.
+                </strong>
+
+                <span>
+                    Choose where you want to collect your products.
+                    Your cart can only be assigned to one market at a time.
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <section class="customer-add-cart-section">
+
+        <div class="customer-section-heading">
+
+            <div>
+
+                <span class="customer-section-number">
+                    01 / PRODUCT
+                </span>
+
+                <h2>
+                    Add this <em>product.</em>
+                </h2>
+
+            </div>
+
+            <span class="customer-record-count">
+                <?= e($farmerName) ?>
+            </span>
+
         </div>
 
         <?php if ($errorMessage !== ''): ?>
-            <div class="error-message">
-                <i class="fa-solid fa-circle-exclamation"></i>
-                <?= e($errorMessage) ?>
+
+            <div class="customer-add-cart-error">
+
+                <span class="customer-add-cart-error-icon">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                </span>
+
+                <span>
+                    <?= e($errorMessage) ?>
+                </span>
+
             </div>
+
         <?php endif; ?>
 
-        <div class="add-cart-card">
-            <div class="product-preview">
-                <?php if (!empty($product['image'])): ?>
-                    <img
-                        src="../<?= e($product['image']) ?>"
-                        alt="<?= e($productName) ?>"
-                    >
-                <?php else: ?>
-                    <div class="product-preview-placeholder">
-                        <i class="fa-solid fa-image"></i>
+        <div class="customer-add-cart-card">
+
+            <div class="customer-add-cart-product">
+
+                <div class="customer-add-cart-image">
+
+                    <?php if (!empty($product['image'])): ?>
+
+                        <img
+                            src="../<?= e($product['image']) ?>"
+                            alt="<?= e($productName) ?>"
+                        >
+
+                    <?php else: ?>
+
+                        <div class="customer-add-cart-image-placeholder">
+
+                            <i class="fa-solid fa-image"></i>
+
+                        </div>
+
+                    <?php endif; ?>
+
+                </div>
+
+                <div class="customer-add-cart-product-info">
+
+                    <span class="customer-add-cart-product-label">
+                        LOCAL PRODUCE
+                    </span>
+
+                    <h3>
+                        <?= e($productName) ?>
+                    </h3>
+
+                    <div class="customer-add-cart-product-farmer">
+
+                        <i class="fa-solid fa-store"></i>
+
+                        <span>
+                            <?= e($farmerName) ?>
+                        </span>
+
                     </div>
-                <?php endif; ?>
+
+                    <div class="customer-add-cart-product-price">
+
+                        <?= formatPrice($price) ?>
+
+                        <?php if ($unit !== ''): ?>
+
+                            <span>
+                                / <?= e($unit) ?>
+                            </span>
+
+                        <?php endif; ?>
+
+                    </div>
+
+                </div>
+
             </div>
 
-            <div class="product-info">
-                <h2><?= e($productName) ?></h2>
-
-                <div class="farmer-name">
-                    <i class="fa-solid fa-store"></i>
-                    <?= e($farmerName) ?>
-                </div>
-
-                <div class="price">
-                    $<?= formatPrice($price) ?>
-                    <?php if ($unit !== ''): ?>
-                        <span style="font-size:14px;color:#777;">
-                            / <?= e($unit) ?>
-                        </span>
-                    <?php endif; ?>
-                </div>
-
-                <form
-                    method="POST"
-                    action="add_to_cart.php?id=<?= $productId ?>"
-                >
+            <form
+                method="POST"
+                action="add_to_cart.php?id=<?= $productId ?>"
+                class="customer-add-cart-form"
+            >
 
                 <?= csrf_field() ?>
-                
-                    <input
-                        type="hidden"
-                        name="product_id"
-                        value="<?= $productId ?>"
-                    >
 
-                    <div class="field">
-                        <label>Choose Market</label>
+                <input
+                    type="hidden"
+                    name="product_id"
+                    value="<?= $productId ?>"
+                >
 
-                        <div class="market-options">
-                            <?php foreach ($markets as $market): ?>
-                                <?php
-                                $marketId = (int)$market['id'];
-                                $isCurrentCartMarket =
-                                    $cartMarketId !== null
-                                    && $cartMarketId === $marketId;
-                                $isSelected =
-                                    $isCurrentCartMarket
-                                    || (
-                                        isset($_POST['market_id'])
-                                        && (int)$_POST['market_id'] === $marketId
-                                    );
-                                $isDisabled =
-                                    $cartMarketId !== null
-                                    && !$isCurrentCartMarket;
-                                ?>
+                <div class="customer-add-cart-field">
 
-                                <div class="market-option">
-                                    <input
-                                        type="radio"
-                                        id="market_<?= $marketId ?>"
-                                        name="market_id"
-                                        value="<?= $marketId ?>"
-                                        <?= $isSelected ? 'checked' : '' ?>
-                                        <?= $isDisabled ? 'disabled' : '' ?>
-                                        required
-                                    >
+                    <div class="customer-add-cart-field-heading">
 
-                                    <label for="market_<?= $marketId ?>">
-                                        <span class="market-name">
+                        <label>
+                            Choose market
+                        </label>
+
+                        <span>
+                            <i class="fa-solid fa-location-dot"></i>
+                            Pickup location
+                        </span>
+
+                    </div>
+
+                    <div class="customer-add-cart-markets">
+
+                        <?php foreach ($markets as $market): ?>
+
+                            <?php
+
+                            $marketId = (int)$market['id'];
+
+                            $isCurrentCartMarket =
+                                $cartMarketId !== null
+                                && $cartMarketId === $marketId;
+
+                            $isSelected =
+                                $isCurrentCartMarket
+                                || (
+                                    isset($_POST['market_id'])
+                                    && (int)$_POST['market_id'] === $marketId
+                                );
+
+                            $isDisabled =
+                                $cartMarketId !== null
+                                && !$isCurrentCartMarket;
+
+                            ?>
+
+                            <div class="customer-add-cart-market">
+
+                                <input
+                                    type="radio"
+                                    id="market_<?= $marketId ?>"
+                                    name="market_id"
+                                    value="<?= $marketId ?>"
+                                    <?= ($isSelected || count($markets) === 1) ? 'checked' : '' ?>
+                                    <?= $isDisabled ? 'disabled' : '' ?>
+                                    required
+                                >
+
+                                <label
+                                    for="market_<?= $marketId ?>"
+                                >
+
+                                    <span class="customer-add-cart-market-main">
+
+                                        <span class="customer-add-cart-market-name">
+
                                             <i class="fa-solid fa-location-dot"></i>
+
                                             <?= e($market['name']) ?>
+
                                         </span>
 
                                         <?php if (!empty($market['operating_days'])): ?>
-                                            <span class="market-days">
+
+                                            <span class="customer-add-cart-market-days">
                                                 <?= e($market['operating_days']) ?>
                                             </span>
+
                                         <?php endif; ?>
 
-                                        <?php if ($isCurrentCartMarket): ?>
-                                            <span
-                                                style="
-                                                    display:block;
-                                                    margin-top:5px;
-                                                    color:#6F7C59;
-                                                    font-size:12px;
-                                                    font-weight:600;
-                                                "
-                                            >
-                                                <i class="fa-solid fa-check"></i>
-                                                Current cart market
-                                            </span>
-                                        <?php endif; ?>
-                                    </label>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
+                                    </span>
+
+                                    <?php if ($isCurrentCartMarket): ?>
+
+                                        <span class="customer-add-cart-current-market">
+
+                                            <i class="fa-solid fa-check"></i>
+
+                                            Current cart market
+
+                                        </span>
+
+                                    <?php elseif ($isDisabled): ?>
+
+                                        <span class="customer-add-cart-disabled-market">
+
+                                            Cart assigned to another market
+
+                                        </span>
+
+                                    <?php endif; ?>
+
+                                </label>
+
+                            </div>
+
+                        <?php endforeach; ?>
+
                     </div>
 
-                    <div class="field">
-                        <label for="quantity">Quantity</label>
+                </div>
 
-                        <input
-                            type="number"
-                            id="quantity"
-                            name="quantity"
-                            class="quantity-input"
-                            min="0.1"
-                            max="<?= e($stock) ?>"
-                            step="0.1"
-                            value="<?= e(
-                                $_POST['quantity']
-                                ?? '1'
-                            ) ?>"
-                            required
-                        >
+                <div class="customer-add-cart-field">
 
-                        <div class="stock-note">
-                            <?php if ($stockStatus === 'unavailable'): ?>
-                                Currently unavailable this week.
-                            <?php elseif ($stockStatus === 'sold_out'): ?>
-                                Sold out for this week.
-                            <?php else: ?>
-                                Available this week:
-                                <?= e($stock) ?>
-                                <?= e($unit) ?>
-                            <?php endif; ?>
-                        </div>
+                    <div class="customer-add-cart-field-heading">
+
+                        <label for="quantity">
+                            Quantity
+                        </label>
+
+                        <span>
+                            <i class="fa-solid fa-scale-balanced"></i>
+                            In <?= e($unit) ?>
+                        </span>
+
                     </div>
 
-                    <div class="actions">
-                        <a
-                            href="customer/products.php"
-                            class="cancel-button"
-                        >
-                            Cancel
-                        </a>
+                    <input
+                        type="number"
+                        id="quantity"
+                        name="quantity"
+                        class="customer-add-cart-quantity"
+                        min="0.1"
+                        max="<?= e($stock) ?>"
+                        step="0.1"
+                        value="<?= e(
+                            $_POST['quantity'] ?? '1'
+                        ) ?>"
+                        required
+                    >
 
-                        <button
-                            type="submit"
-                            class="submit-button"
-                            <?= (
-                                $stock <= 0 ||
-                                $stockStatus !== 'available' ||
-                                !$cartMarketAllowed
-                            ) ? 'disabled' : '' ?>
-                        >
-                            <i class="fa-solid fa-cart-plus"></i>
+                    <div class="customer-add-cart-stock">
 
-                            <?php if (!$cartMarketAllowed): ?>
-                                Cannot Add From This Market
-                            <?php elseif ($stockStatus === 'unavailable'): ?>
-                                Currently Unavailable
-                            <?php elseif ($stockStatus === 'sold_out' || $stock <= 0): ?>
-                                Sold Out This Week
-                            <?php else: ?>
-                                Add to Cart
-                            <?php endif; ?>
-                        </button>
+                        <?php if ($stockStatus === 'unavailable'): ?>
+
+                            <i class="fa-solid fa-circle-xmark"></i>
+
+                            Currently unavailable this week.
+
+                        <?php elseif ($stockStatus === 'sold_out'): ?>
+
+                            <i class="fa-solid fa-circle-xmark"></i>
+
+                            Sold out for this week.
+
+                        <?php else: ?>
+
+                            <i class="fa-solid fa-circle-check"></i>
+
+                            Available this week:
+                            <?= e($stock) ?>
+                            <?= e($unit) ?>
+
+                        <?php endif; ?>
+
                     </div>
-                </form>
-            </div>
+
+                </div>
+
+                <div class="customer-add-cart-actions">
+
+                    <a
+                        href="customer/products.php"
+                        class="customer-add-cart-cancel"
+                    >
+                        <i class="fa-solid fa-arrow-left"></i>
+                        Cancel
+                    </a>
+
+                    <button
+                        type="submit"
+                        class="customer-add-cart-submit"
+                        <?= (
+                            $stock <= 0 ||
+                            $stockStatus !== 'available' ||
+                            !$cartMarketAllowed
+                        ) ? 'disabled' : '' ?>
+                    >
+
+                        <i class="fa-solid fa-cart-plus"></i>
+
+                        <?php if (!$cartMarketAllowed): ?>
+
+                            Cannot Add From This Market
+
+                        <?php elseif ($stockStatus === 'unavailable'): ?>
+
+                            Currently Unavailable
+
+                        <?php elseif (
+                            $stockStatus === 'sold_out' ||
+                            $stock <= 0
+                        ): ?>
+
+                            Sold Out This Week
+
+                        <?php else: ?>
+
+                            Add to Cart
+
+                        <?php endif; ?>
+
+                    </button>
+
+                </div>
+
+            </form>
+
         </div>
-    </div>
+
+    </section>
+
 </main>
 
-
 <script src="../assets/js/app.js"></script>
+
 </body>
 </html>
