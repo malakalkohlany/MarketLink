@@ -114,7 +114,8 @@ The database is called:
 marketlink
 ```
 
-and the SQL files you need are in:
+create the database, and import 1) the database structure (marketlink.sql), and 2) seed data (seed.sql).
+And the SQL files you need are in:
 
 ```text
 MarketLink/database/

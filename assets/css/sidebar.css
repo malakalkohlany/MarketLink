@@ -266,7 +266,11 @@
         box-shadow: 12px 0 35px rgba(62, 48, 38, 0.18);
     }
 
-    .sidebar.open {
+    .sidebar.closed {
+        transform: translateX(-100%);
+    }
+
+    .sidebar:not(.closed) {
         transform: translateX(0);
     }
 }
