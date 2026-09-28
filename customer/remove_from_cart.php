@@ -9,7 +9,7 @@ $productId = isset($_GET['product_id'])
     : 0;
 
 if ($productId <= 0) {
-    redirect('cart.php');
+    redirect('customer/cart.php');
 }
 
 if (
@@ -24,4 +24,4 @@ if (
 // --------------------------------------------------
 // Return To Cart
 // --------------------------------------------------
-redirect('cart.php');
+redirect('customer/cart.php');

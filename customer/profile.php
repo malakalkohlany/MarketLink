@@ -50,7 +50,7 @@ if (
         if ($stmt->execute()) {
             $_SESSION['name'] = $name;
             $stmt->close();
-            redirect('profile.php?updated=1');
+            redirect('customer/profile.php?updated=1');
         } else {
             $error = "Failed to update profile.";
             $stmt->close();
@@ -125,7 +125,7 @@ if (
 
             if ($stmt->execute()) {
                 $stmt->close();
-                redirect('profile.php?password_changed=1');
+                redirect('customer/profile.php?password_changed=1');
             } else {
                 $error = "Failed to change password.";
                 $stmt->close();

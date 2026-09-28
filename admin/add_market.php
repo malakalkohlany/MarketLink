@@ -231,7 +231,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $_SESSION['success_message'] = 'Market added successfully.';
 
-                redirect('markets.php');
+                redirect('admin/markets.php');
             }
 
         } catch (mysqli_sql_exception $e) {

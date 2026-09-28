@@ -6,7 +6,7 @@ $customerId = (int)getUserId();
 $marketId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 if ($marketId <= 0) {
-    redirect('markets.php');
+    redirect('customer/markets.php');
 }
 
 if (
@@ -14,7 +14,7 @@ if (
     isset($_POST['toggle_favorite'])
 ) {
     if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
-        redirect('market_details.php?id=' . $marketId);
+        redirect('customer/market_details.php?id=' . $marketId);
     }
 
     $checkStmt = mysqli_prepare(
@@ -124,7 +124,7 @@ if (
         mysqli_stmt_close($insertStmt);
     }
 
-    redirect('market_details.php?id=' . $marketId);
+    redirect('customer/market_details.php?id=' . $marketId);
 }
 
 $stmt = mysqli_prepare(
@@ -173,7 +173,7 @@ $market = mysqli_fetch_assoc($result);
 mysqli_stmt_close($stmt);
 
 if (!$market) {
-    redirect('markets.php');
+    redirect('customer/markets.php');
 }
 
 $farmersStmt = mysqli_prepare(

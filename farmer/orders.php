@@ -295,7 +295,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ? (int)$_GET['page']
         : 1;
 
-    redirect('orders.php?page=' . max(1, $redirect_page));
+    redirect('farmer/orders.php?page=' . max(1, $redirect_page));
 }
 
 $items_per_page = 10;

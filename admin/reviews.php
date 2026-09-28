@@ -6,7 +6,7 @@ requireRole(R_ADMIN);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
-        redirect('reviews.php');
+        redirect('admin/reviews.php');
     }
 
     $reviewId = (int) ($_POST['review_id'] ?? 0);
@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    redirect('reviews.php');
+    redirect('admin/reviews.php');
 }
 
 $reviews = [];

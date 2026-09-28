@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    redirect('customers.php');
+    redirect('admin/customers.php');
 }
 
 

@@ -11,7 +11,7 @@ if (
     && isset($_POST['toggle_favorite'])
 ) {
     if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
-        redirect('farmers.php');
+        redirect('customer/farmers.php');
     }
 
     $farmerId = filter_input(
@@ -21,7 +21,7 @@ if (
     );
 
     if (!$farmerId || !$customerId) {
-        redirect('farmers.php');
+        redirect('customer/farmers.php');
     }
 
     $checkStmt = mysqli_prepare(
@@ -108,7 +108,7 @@ if (
         mysqli_stmt_close($insertStmt);
     }
 
-    redirect('farmers.php');
+    redirect('customer/farmers.php');
 }
 
 $favoriteFarmers = [];

@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    redirect('markets.php');
+    redirect('admin/markets.php');
 }
 
 $stmt = $conn->prepare("

@@ -237,7 +237,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $conn->commit();
 
-        redirect('profile.php');
+        redirect('farmer/profile.php');
 
     } catch (Exception $e) {
 

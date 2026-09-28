@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $_SESSION['farmer_error'] = 'Invalid CSRF token.';
 
-        redirect('farmers.php');
+        redirect('admin/farmers.php');
     }
 
     $farmerId = filter_input(
@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $_SESSION['farmer_error'] = 'Invalid farmer.';
 
-        redirect('farmers.php');
+        redirect('admin/farmers.php');
     }
 
     $action = $_POST['action'] ?? '';
@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $_SESSION['farmer_error'] = 'Invalid action.';
 
-        redirect('farmers.php');
+        redirect('admin/farmers.php');
     }
 
     $newStatus = $action === 'approve'
@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['farmer_error'] =
             'Failed to prepare farmer lookup.';
 
-        redirect('farmers.php');
+        redirect('admin/farmers.php');
     }
 
     $stmt->bind_param(
@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['farmer_error'] =
             'Failed to load farmer.';
 
-        redirect('farmers.php');
+        redirect('admin/farmers.php');
     }
 
     $result = $stmt->get_result();
@@ -98,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['farmer_error'] =
             'Farmer not found.';
 
-        redirect('farmers.php');
+        redirect('admin/farmers.php');
     }
 
     if ($farmer['approval_status'] !== 'pending') {
@@ -106,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['farmer_error'] =
             'This farmer has already been processed.';
 
-        redirect('farmers.php');
+        redirect('admin/farmers.php');
     }
 
     $updateStmt = $conn->prepare("
@@ -121,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['farmer_error'] =
             'Failed to prepare approval update.';
 
-        redirect('farmers.php');
+        redirect('admin/farmers.php');
     }
 
     $updateStmt->bind_param(
@@ -137,7 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['farmer_error'] =
             'Failed to update farmer.';
 
-        redirect('farmers.php');
+        redirect('admin/farmers.php');
     }
 
     if ($updateStmt->affected_rows !== 1) {
@@ -148,7 +148,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'The farmer could not be updated. '
             . 'They may have already been processed.';
 
-        redirect('farmers.php');
+        redirect('admin/farmers.php');
     }
 
     $updateStmt->close();
@@ -190,7 +190,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 : 'Farmer rejected successfully.';
     }
 
-    redirect('farmers.php');
+    redirect('admin/farmers.php');
 }
 
 $farmers = [];

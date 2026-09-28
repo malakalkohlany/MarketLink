@@ -279,7 +279,7 @@ if (
 
                     $conn->commit();
 
-                    redirect('announcements.php');
+                    redirect('admin/announcements.php');
                 } catch (Exception $e) {
                     $conn->rollback();
                     $errors[] = $e->getMessage();
@@ -326,7 +326,7 @@ if (
             if ($stmt->execute()) {
                 $stmt->close();
 
-                redirect('announcements.php');
+                redirect('admin/announcements.php');
             } else {
                 $errors[] = 'Failed to delete announcement.';
                 $stmt->close();

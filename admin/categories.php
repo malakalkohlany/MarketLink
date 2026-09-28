@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $stmt->execute();
                         $stmt->close();
 
-                        redirect('categories.php?success=added');
+                        redirect('admin/categories.php?success=added');
 
                     } catch (mysqli_sql_exception $e) {
 
@@ -134,7 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $stmt->execute();
                         $stmt->close();
 
-                        redirect('categories.php?success=updated');
+                        redirect('admin/categories.php?success=updated');
 
                     } catch (mysqli_sql_exception $e) {
 
@@ -196,7 +196,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $stmt->execute();
                             $stmt->close();
 
-                            redirect('categories.php?success=deleted');
+                            redirect('admin/categories.php?success=deleted');
                         }
                     }
                 }

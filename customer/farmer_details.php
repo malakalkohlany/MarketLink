@@ -9,7 +9,7 @@ $farmerId = isset($_GET['id'])
     : 0;
 
 if ($farmerId <= 0) {
-    redirect('farmers.php');
+    redirect('customer/farmers.php');
 }
 
 $farmerStmt = $conn->prepare("
