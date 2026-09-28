@@ -191,183 +191,265 @@ $categories = $category_stmt->get_result();
 ?>
 
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
-<meta charset="UTF-8">
-
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
-
-<title>Edit Product | MarketLink</title>
-
-<link rel="stylesheet" href="../assets/css/base.css">
-<link rel="stylesheet" href="../assets/css/navbar.css">
-<link rel="stylesheet" href="../assets/css/sidebar.css">
-
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+    <title>Edit Product | MarketLink</title>
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
+    <link rel="stylesheet" href="../assets/css/customer.css">
+    <link rel="stylesheet" href="../assets/css/farmer.css">
 </head>
-
 <body>
 
 <?php include __DIR__ . '/../includes/navbar.php'; ?>
-
 <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-<main class="main-content">
+<main class="main-content farmer-add-product-page">
 
-    <h1>Edit Product</h1>
+    <section class="customer-page-hero">
+        <div class="customer-page-hero-copy">
+            <span class="eyebrow">FARMER / PRODUCTS</span>
 
-    <form
-        method="POST"
-        enctype="multipart/form-data"
-    >
-
-            <?= csrf_field() ?>
-
-        <label for="name">
-            Product Name
-        </label>
-
-        <input
-            type="text"
-            id="name"
-            name="name"
-            value="<?= htmlspecialchars($product['name']) ?>"
-            required
-        >
-
-        <br><br>
-
-        <label for="category_id">
-            Category:
-        </label>
-
-        <select
-            id="category_id"
-            name="category_id"
-            required
-        >
-
-            <option value="">
-                Select Category
-            </option>
-
-            <?php while ($category = $categories->fetch_assoc()): ?>
-
-                <option
-                    value="<?= (int) $category['id'] ?>"
-                    <?= (int) $category['id'] === (int) $product['category_id']
-                        ? 'selected'
-                        : ''
-                    ?>
-                >
-                    <?= htmlspecialchars($category['name']) ?>
-                </option>
-
-            <?php endwhile; ?>
-
-        </select>
-
-        <br><br>
-
-        <label for="description">
-            Description:
-        </label>
-
-        <textarea
-            id="description"
-            name="description"
-            rows="5"
-        ><?= htmlspecialchars($product['description'] ?? '') ?></textarea>
-
-        <br><br>
-
-        <label for="price">
-            Price:
-        </label>
-
-        <input
-            type="number"
-            id="price"
-            name="price"
-            step="0.1"
-            min="0"
-            value="<?= htmlspecialchars($product['price']) ?>"
-            required
-        >
-
-        <br><br>
-
-        <label for="unit">
-            Unit:
-        </label>
-
-        <input
-            type="text"
-            id="unit"
-            name="unit"
-            value="<?= htmlspecialchars($product['unit']) ?>"
-            required
-        >
-
-        <br><br>
-
-        <label for="stock_quantity">
-            Stock Quantity:
-        </label>
-
-        <input
-            type="number"
-            id="stock_quantity"
-            name="stock_quantity"
-            step="0.1"
-            min="0"
-            value="<?= htmlspecialchars($product['stock_quantity']) ?>"
-            required
-        >
-
-        <br><br>
-
-        <label for="image">
-            Product Image:
-        </label>
-
-        <input
-            type="file"
-            id="image"
-            name="image"
-            accept="image/jpeg,image/png,image/webp"
-        >
-
-        <br><br>
-
-        <?php if (!empty($product['image'])): ?>
+            <h1>
+                Refine your <em>produce.</em>
+            </h1>
 
             <p>
-                Current Image:
+                Update your product details, stock, pricing, or image to keep your MarketLink listing current.
             </p>
+        </div>
 
-            <img
-                src="../<?= htmlspecialchars($product['image']) ?>"
-                alt="Current product image"
-                width="120"
+        <div class="customer-page-hero-mark">
+            03
+        </div>
+    </section>
+
+    <section class="farmer-add-product-section">
+
+        <div class="customer-section-heading">
+            <div>
+                <span class="customer-section-number">
+                    01 / PRODUCT DETAILS
+                </span>
+
+                <h2>
+                    Edit your <em>listing.</em>
+                </h2>
+            </div>
+        </div>
+
+        <div class="farmer-product-form-card">
+
+            <form
+                class="farmer-product-form"
+                method="POST"
+                enctype="multipart/form-data"
             >
 
-        <?php endif; ?>
+                <?= csrf_field() ?>
 
-        <br><br>
+                <div class="farmer-form-grid">
 
-        <button type="submit">
-            Update Product
-        </button>
+                    <div class="farmer-form-field farmer-form-field-full">
+                        <label for="name">
+                            Product Name
+                        </label>
 
-    </form>
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            value="<?= htmlspecialchars($product['name']) ?>"
+                            required
+                        >
+                    </div>
+
+                    <div class="farmer-form-field">
+                        <label for="category_id">
+                            Category
+                        </label>
+
+                        <select
+                            id="category_id"
+                            name="category_id"
+                            required
+                        >
+                            <option value="">
+                                Select Category
+                            </option>
+
+                            <?php while ($category = $categories->fetch_assoc()): ?>
+
+                                <option
+                                    value="<?= (int) $category['id'] ?>"
+                                    <?= (int) $category['id'] === (int) $product['category_id'] ? 'selected' : '' ?>
+                                >
+                                    <?= htmlspecialchars($category['name']) ?>
+                                </option>
+
+                            <?php endwhile; ?>
+                        </select>
+                    </div>
+
+                    <div class="farmer-form-field">
+                        <label for="unit">
+                            Unit
+                        </label>
+
+                        <input
+                            type="text"
+                            id="unit"
+                            name="unit"
+                            value="<?= htmlspecialchars($product['unit']) ?>"
+                            placeholder="kg, piece, box"
+                            required
+                        >
+                    </div>
+
+                    <div class="farmer-form-field">
+                        <label for="stock_quantity">
+                            Stock Quantity
+                        </label>
+
+                        <input
+                            type="number"
+                            id="stock_quantity"
+                            name="stock_quantity"
+                            step="0.1"
+                            min="0"
+                            value="<?= htmlspecialchars($product['stock_quantity']) ?>"
+                            required
+                        >
+                    </div>
+
+                    <div class="farmer-form-field">
+                        <label for="price">
+                            Price
+                        </label>
+
+                        <input
+                            type="number"
+                            id="price"
+                            name="price"
+                            step="0.1"
+                            min="0"
+                            value="<?= htmlspecialchars($product['price']) ?>"
+                            required
+                        >
+                    </div>
+
+                    <div class="farmer-form-field farmer-form-field-full">
+                        <label for="image">
+                            Product Image
+                        </label>
+
+                        <label class="farmer-file-input" for="image">
+
+                            <input
+                                type="file"
+                                id="image"
+                                name="image"
+                                accept="image/jpeg,image/png,image/webp"
+                            >
+
+                            <span class="farmer-file-input-icon">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                            </span>
+
+                            <strong>
+                                Choose a product image
+                            </strong>
+
+                            <span class="farmer-file-input-note">
+                                Click anywhere here to replace the current image.
+                            </span>
+
+                            <span class="farmer-file-input-name" id="farmerFileName">
+                                No new image selected
+                            </span>
+
+                        </label>
+
+                        <?php if (!empty($product['image'])): ?>
+
+                            <div class="farmer-current-image">
+
+                                <span class="farmer-current-image-label">
+                                    Current Image
+                                </span>
+
+                                <img
+                                    src="../<?= htmlspecialchars($product['image']) ?>"
+                                    alt="Current product image"
+                                >
+
+                            </div>
+
+                        <?php endif; ?>
+
+                    </div>
+
+                    <div class="farmer-form-field farmer-form-field-full">
+                        <label for="description">
+                            Description
+                        </label>
+
+                        <textarea
+                            id="description"
+                            name="description"
+                        ><?= htmlspecialchars($product['description'] ?? '') ?></textarea>
+                    </div>
+
+                </div>
+
+                <div class="farmer-form-actions">
+
+                    <a
+                        href="products.php"
+                        class="farmer-form-cancel"
+                    >
+                        Cancel
+                    </a>
+
+                    <button
+                        type="submit"
+                        class="farmer-form-submit"
+                    >
+                        <i class="fa-solid fa-check"></i>
+                        Update Product
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </section>
 
 </main>
+
+<script src="../assets/js/app.js"></script>
+
+<script>
+const imageInput = document.getElementById('image');
+const fileName = document.getElementById('farmerFileName');
+
+if (imageInput && fileName) {
+    imageInput.addEventListener('change', function () {
+        fileName.textContent = this.files.length
+            ? this.files[0].name
+            : 'No new image selected';
+    });
+}
+</script>
+
 </body>
 </html>
 

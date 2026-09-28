@@ -3,7 +3,6 @@
 ## Local Farmers and Markets E-Commerce Platform
 
 ---------
-
 # 1. Project Overview
 
 MarketLink is a web-based e-commerce platform that connects customers with local farmers and markets.
@@ -15,7 +14,6 @@ Farmers can manage their products and orders, while administrators can manage th
 The system was developed using PHP, MySQL/MariaDB, HTML, CSS, JavaScript, and XAMPP. phpMyAdmin was used as a database management tool.
 
 ---------
-
 # 2. Problem Definition
 
 Local customers may have difficulty finding local farmers, agricultural products, prices, available stock, and nearby markets in one place.
@@ -25,7 +23,6 @@ Farmers may also have difficulty presenting their products online, reaching cust
 There is therefore a need for a centralized platform that connects customers, farmers, and markets and organizes the process of browsing products and placing orders.
 
 ---------
-
 # 3. Proposed Solution
 
 MarketLink provides a centralized web platform connecting customers with local farmers and markets.
@@ -67,7 +64,6 @@ Administrators can:
 The system provides separate interfaces for customers, farmers, and administrators according to their roles and permissions.
 
 ---------
-
 # 4. Project Objectives
 
 1. Connect customers with local farmers and markets.
@@ -80,7 +76,6 @@ The system provides separate interfaces for customers, farmers, and administrato
 8. Protect the system using authentication and role-based authorization.
 
 ---------
-
 # 5. Design Specifications
 
 ## 5.1 Technologies
@@ -102,25 +97,27 @@ Database name: `marketlink`
 
 The main database tables are:
 
-users
-farmers
-categories
-products
-orders
-order_items
-order_status_history
-reports
-reviews
-markets
-markets_farmer
-favorite_products
-favorite_farmers
-favorite_markets
-notifications
-announcements
-pickup_slots
-weekly_stock
-weekly_stock_templates
+| Table                    | Purpose                                             |
+| ------------------------ | --------------------------------------------------- |
+| `users`                  | Stores customer, farmer, and administrator accounts |
+| `farmers`                | Stores farmer profiles and approval information     |
+| `categories`             | Stores product categories                           |
+| `products`               | Stores agricultural products and stock information  |
+| `markets`                | Stores local market information                     |
+| `market_farmer`          | Links farmers with markets                          |
+| `favorite_products`      | Stores customer product favorites                   |
+| `favorite_farmers`       | Stores customer farmer favorites                    |
+| `favorite_markets`       | Stores customer market favorites                    |
+| `orders`                 | Stores customer orders                              |
+| `order_items`            | Stores products included in orders                  |
+| `order_status_history`   | Stores order status changes                         |
+| `pickup_slots`           | Stores farmer pickup schedules                      |
+| `weekly_stock`           | Stores weekly planned and actual stock              |
+| `weekly_stock_templates` | Stores reusable weekly stock templates              |
+| `reviews`                | Stores customer reviews and ratings                 |
+| `notifications`          | Stores user notifications                           |
+| `announcements`          | Stores administrator announcements                  |
+| `reports`                | Stores generated report information                 |
 
 
 The database stores users, farmers, products, orders, reviews, markets, favorites, notifications, and other system information.
@@ -174,14 +171,17 @@ The system supports three main roles:
 ---------
 # 7. Database Design
 
-The MarketLink database uses a relational database structure to store and organize the system's data.
+The MarketLink database uses a relational database structure to store and organize the information required by the system.
 
-The database contains tables for users, farmers, products, categories, orders, reviews, markets, favorites, notifications, and other system operations.
+The database contains 19 related tables covering user accounts, farmer profiles, products, categories, markets, favorites, orders, pickup scheduling, weekly stock management, reviews, notifications, announcements, and reports.
 
-Primary keys and foreign keys are used to connect related tables and maintain data consistency.
+Primary keys are used to uniquely identify records, while foreign keys establish relationships between related tables and help maintain referential integrity.
+
+The database also uses relationships such as one-to-many and many-to-many relationships. For example, a farmer can manage multiple products, while farmers and markets have a many-to-many relationship through the market_farmer table. Customers can also maintain separate favorites for products, farmers, and markets.
+
+Order information is separated between the orders and order_items tables, while order_status_history records changes made to an order's status. Weekly stock planning is handled through weekly_stock and reusable weekly_stock_templates tables.
 
 ---------
-
 # 8. User Interface Design
 
 The MarketLink user interface is designed to provide a simple and organized experience for customers, farmers, and administrators.
@@ -189,6 +189,7 @@ The MarketLink user interface is designed to provide a simple and organized expe
 Each user role has a separate interface based on its permissions and required functions.
 
 The interface includes navigation menus, product pages, order management pages, profile pages, and administrative management pages.
+
 ---------
 # 9. Implementation Steps
 
@@ -201,6 +202,7 @@ The MarketLink system was implemented through several main stages:
 5. Implementing authentication and role-based access for customers, farmers, and administrators.
 6. Implementing product browsing, favorites, shopping cart, orders, and reviews.
 7. Testing the system and fixing errors during development.
+
 ---------
 # 10. Security
 
@@ -214,6 +216,7 @@ The main security measures include:
 * Input validation to reduce invalid or unsafe data.
 * Session management to protect user accounts.
 * CSRF protection for important form submissions.
+
 ---------
 # 11. Conclusion
 
@@ -222,7 +225,6 @@ MarketLink provides a centralized platform that connects customers with local fa
 The system supports product browsing, searching, favorites, shopping cart, orders, reviews, and role-based management for customers, farmers, and administrators.
 
 The project demonstrates how web technologies and database systems can be used to provide an organized and efficient solution for connecting local agricultural businesses with customers.
-
 ---------
 
 
