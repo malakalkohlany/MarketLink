@@ -784,7 +784,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="customer-add-cart-actions">
 
                     <a
-                        href="customer/products.php"
+                        href="products.php"
                         class="customer-add-cart-cancel"
                     >
                         <i data-lucide=" arrow-left"></i>
@@ -837,6 +837,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </main>
 
 <script src="../assets/js/app.js"></script>
+
+
 <script src="../assets/js/lucide.js"></script>
     <script>
         lucide.createIcons();

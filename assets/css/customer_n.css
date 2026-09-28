@@ -606,7 +606,7 @@
     box-shadow: var(--shadow-soft);
 }
 
-.customer-add-cart-market input:checked + .customer-add-cart-market-main {
+.customer-add-cart-market input:checked + label .customer-add-cart-market-main {
     background: var(--sage-soft);
     border-color: var(--sage);
     box-shadow: var(--shadow-soft);
@@ -2296,6 +2296,7 @@
     margin-top: 2rem;
 }
 
+
 .customer-reviews-pagination-button,
 .customer-reviews-pagination-page {
     display: inline-flex;
@@ -2391,3 +2392,4 @@
         min-width: 34px;
     }
 }
+
