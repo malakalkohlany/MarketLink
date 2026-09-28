@@ -1,0 +1,199 @@
+.farmer-products-page {
+    background: var(--cream);
+}
+
+.farmer-product-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+}
+
+.farmer-product-status-label {
+    color: var(--text-muted);
+    font-family: var(--font-main);
+    font-size: 0.57rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.farmer-product-status-value {
+    display: inline-flex;
+    min-height: 25px;
+    align-items: center;
+    padding: 0 10px;
+    border-radius: var(--radius-pill);
+    font-family: var(--font-main);
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.status-approved {
+    background: var(--sage-soft);
+    color: var(--sage-dark);
+}
+
+.status-pending {
+    background: var(--marigold-soft);
+    color: var(--marigold-dark);
+}
+
+.status-rejected {
+    background: var(--terracotta-soft);
+    color: var(--terracotta-dark);
+}
+
+@media (max-width: 500px) {
+    .farmer-product-status {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 7px;
+    }
+}
+
+.farmer-products-heading-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.farmer-add-product,
+.farmer-empty-add-product,
+.farmer-product-edit {
+    display: inline-flex;
+    min-height: 39px;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border-radius: var(--radius-pill);
+    font-family: var(--font-main);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition:
+        transform var(--transition-fast),
+        background var(--transition-fast),
+        border-color var(--transition-fast);
+}
+
+.farmer-add-product {
+    padding: 0 16px;
+    border: 1px solid var(--terracotta);
+    background: var(--terracotta);
+    color: var(--text-on-terracotta);
+}
+
+.farmer-add-product:hover {
+    background: var(--terracotta-dark);
+    transform: var(--lift-small);
+}
+
+.farmer-product-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 18px;
+}
+
+.farmer-product-edit {
+    width: 100%;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-soft);
+}
+
+.farmer-product-edit:hover {
+    background: var(--surface-alt);
+    color: var(--text);
+    transform: var(--lift-small);
+}
+
+.farmer-empty-add-product {
+    margin-top: 18px;
+    padding: 0 17px;
+    border: 1px solid var(--terracotta);
+    background: var(--terracotta);
+    color: var(--text-on-terracotta);
+}
+
+.farmer-empty-add-product:hover {
+    background: var(--terracotta-dark);
+    transform: var(--lift-small);
+}
+
+.farmer-product-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+}
+
+.farmer-product-status-label {
+    color: var(--text-muted);
+    font-family: var(--font-main);
+    font-size: 0.57rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.farmer-product-status-value {
+    display: inline-flex;
+    min-height: 25px;
+    align-items: center;
+    padding: 0 10px;
+    border-radius: var(--radius-pill);
+    font-family: var(--font-main);
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.status-approved {
+    background: var(--sage-soft);
+    color: var(--sage-dark);
+}
+
+.status-pending {
+    background: var(--marigold-soft);
+    color: var(--marigold-dark);
+}
+
+.status-rejected {
+    background: var(--terracotta-soft);
+    color: var(--terracotta-dark);
+}
+
+@media (max-width: 700px) {
+    .farmer-products-heading-actions {
+        width: 100%;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .farmer-add-product {
+        width: 100%;
+    }
+}
+
+@media (max-width: 500px) {
+    .farmer-product-status {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 7px;
+    }
+}
