@@ -568,7 +568,7 @@ $stmt->close();
 
                 <div class="customer-review-form-card-header">
                     <span class="customer-review-card-icon">
-                        <i data-lucide=" fa-box-open"></i>
+                        <i data-lucide="package-open"></i>
                     </span>
 
                     <div>
@@ -783,7 +783,7 @@ $stmt->close();
 
                     <div class="customer-review-empty-option">
                         <span>
-                            <i data-lucide=" fa-circle-info"></i>
+                            <i data-lucide="info"></i>
                         </span>
 
                         <p>
@@ -800,7 +800,7 @@ $stmt->close();
 
                 <div class="customer-review-form-card-header">
                     <span class="customer-review-card-icon customer-review-card-icon-farmer">
-                        <i data-lucide=" fa-user"></i>
+                        <i data-lucide="user"></i>
                     </span>
 
                     <div>
@@ -1015,7 +1015,7 @@ $stmt->close();
 
                     <div class="customer-review-empty-option">
                         <span>
-                            <i data-lucide=" fa-circle-info"></i>
+                            <i data-lucide="info"></i>
                         </span>
 
                         <p>
@@ -1143,7 +1143,7 @@ $stmt->close();
 
                                 <div class="customer-farmer-response-header">
                                     <span>
-                                        <i data-lucide=" fa-reply"></i>
+                                        <i data-lucide="reply"></i>
                                     </span>
 
                                     <strong>
@@ -1260,7 +1260,7 @@ $stmt->close();
             <div class="customer-reviews-empty">
 
                 <span class="customer-reviews-empty-mark">
-                    <i data-lucide=" fa-star"></i>
+                    <i data-lucide="star"></i>
                 </span>
 
                 <strong>

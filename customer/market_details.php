@@ -675,7 +675,7 @@ mysqli_stmt_close($favoriteStmt);
                             class="market-farmer-card"
                         >
                             <div class="market-farmer-icon">
-                                <i data-lucide=" fa-wheat-awn"></i>
+                                <i data-lucide="wheat"></i>
                             </div>
 
                             <div class="market-farmer-info">
@@ -708,7 +708,7 @@ mysqli_stmt_close($favoriteStmt);
                             <div class="market-farmer-arrow">
                                 <i
                                     data-lucide="
-                                    fa-chevron-right"
+                                   chevron-right"
                                 ></i>
                             </div>
                         </a>

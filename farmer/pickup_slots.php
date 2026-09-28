@@ -382,7 +382,7 @@ $orders = $order_stmt->get_result();
                             type="submit"
                             class="farmer-form-submit"
                         >
-                            <i data-lucide=" fa-plus"></i>
+                            <i data-lucide="plus"></i>
                             Add Pickup Slot
                         </button>
                     </div>

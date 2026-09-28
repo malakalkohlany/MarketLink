@@ -1362,7 +1362,7 @@ redirect('customer/orders.php');
                         <?php else: ?>
 
                             <div class="customer-confirm-order-item-image customer-confirm-order-item-placeholder">
-                                <i data-lucide=" fa-leaf"></i>
+                                <i data-lucide="leaf"></i>
                             </div>
 
                         <?php endif; ?>

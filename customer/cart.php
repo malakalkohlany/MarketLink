@@ -123,7 +123,7 @@ foreach ($cart as $item) {
 
                 <span class="customer-farmers-empty-mark">
 
-                    <i data-lucide=" fa-basket-shopping"></i>
+                    <i data-lucide="shopping-basket"></i>
 
                 </span>
 
@@ -245,7 +245,7 @@ foreach ($cart as $item) {
                                 onclick="removeItem(<?= $productId ?>)"
                                 aria-label="Remove <?= e($item['name']) ?>"
                             >
-                                <i data-lucide=" fa-xmark"></i>
+                                <i data-lucide="check"></i>
                             </button>
 
                         </article>

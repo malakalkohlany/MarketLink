@@ -1,0 +1,198 @@
+# Query: " fa-
+# Excluding: .css, .js
+# ContextLines: 1
+
+44 results - 17 files
+
+customer\cart.php:
+  125  
+  126:                     <i data-lucide=" fa-basket-shopping"></i>
+  127  
+
+customer\farmer_details.php:
+   623                          <span>
+   624:                             <i data-lucide=" fa-user"></i>
+   625                              Contact Person
+
+   655                          <span>
+   656:                             <i data-lucide=" fa-calendar"></i>
+   657                              Joined MarketLink
+
+  1409  
+  1410:                                     <i data-lucide=" fa-reply"></i>
+  1411  
+
+customer\farmers.php:
+  304  
+  305:                     <i data-lucide=" fa-magnifying-glass"></i>
+  306  
+
+  324                  >
+  325:                     <i data-lucide=" fa-location-crosshairs"></i>
+  326                      Find Farmers Near Me
+
+  334                  >
+  335:                     <i data-lucide=" fa-rotate-left"></i>
+  336                      Show All Farmers
+
+  387                  <span class="customer-farmers-no-match-icon">
+  388:                     <i data-lucide=" fa-magnifying-glass"></i>
+  389                  </span>
+
+  474  
+  475:                                     <i data-lucide=" fa-user"></i>
+  476  
+
+customer\favorites.php:
+  568                                  <div class="customer-farmer-meta">
+  569:                                     <i data-lucide=" fa-user"></i>
+  570  
+
+customer\market_details.php:
+  677                              <div class="market-farmer-icon">
+  678:                                 <i data-lucide=" fa-wheat-awn"></i>
+  679                              </div>
+
+customer\markets.php:
+  289                  <div class="customer-farmer-input-wrap">
+  290:                     <i data-lucide=" fa-magnifying-glass"></i>
+  291  
+
+  327                  >
+  328:                     <i data-lucide=" fa-location-crosshairs"></i>
+  329                      Find Markets Near Me
+
+  337                  >
+  338:                     <i data-lucide=" fa-rotate-left"></i>
+  339                      Show All Markets
+
+  385                  <span class="customer-farmers-no-match-icon">
+  386:                     <i data-lucide=" fa-magnifying-glass"></i>
+  387                  </span>
+
+customer\orders.php:
+  161                  <span class="customer-orders-empty-mark">
+  162:                     <i data-lucide=" fa-receipt"></i>
+  163                  </span>
+
+  365                                          Reorder
+  366:                                         <i data-lucide=" fa-rotate-right"></i>
+  367                                      </a>
+
+customer\product_details.php:
+  592  
+  593:                                     <i data-lucide=" fa-calendar-xmark"></i>
+  594                                      Weekly Stock Not Set
+
+  600  
+  601:                                     <i data-lucide=" fa-box-open"></i>
+  602                                      Sold Out This Week
+
+  605  
+  606:                                     <i data-lucide=" fa-ban"></i>
+  607                                      Currently Unavailable
+
+  822              >
+  823:                 <i data-lucide=" fa-pen"></i>
+  824                  Write a Review
+
+  905  
+  906:                                     <i data-lucide=" fa-reply"></i>
+  907  
+
+customer\products.php:
+   551              <span class="customer-shopping-note-icon">
+   552:                 <i data-lucide=" fa-basket-shopping"></i>
+   553              </span>
+
+   624  
+   625:                     <i data-lucide=" fa-magnifying-glass"></i>
+   626  
+
+  1195  
+  1196:         <i data-lucide=" fa-cart-shopping"></i>
+  1197  
+
+customer\reviews.php:
+   570                      <span class="customer-review-card-icon">
+   571:                         <i data-lucide=" fa-box-open"></i>
+   572                      </span>
+
+   785                          <span>
+   786:                             <i data-lucide=" fa-circle-info"></i>
+   787                          </span>
+
+   802                      <span class="customer-review-card-icon customer-review-card-icon-farmer">
+   803:                         <i data-lucide=" fa-user"></i>
+   804                      </span>
+
+  1017                          <span>
+  1018:                             <i data-lucide=" fa-circle-info"></i>
+  1019                          </span>
+
+  1145                                      <span>
+  1146:                                         <i data-lucide=" fa-reply"></i>
+  1147                                      </span>
+
+  1262                  <span class="customer-reviews-empty-mark">
+  1263:                     <i data-lucide=" fa-star"></i>
+  1264                  </span>
+
+farmer\add_product.php:
+  423                      >
+  424:                         <i data-lucide=" fa-plus"></i>
+  425                          Add Product
+
+farmer\analytics.php:
+  198                  <div class="farmer-dashboard-stat-icon">
+  199:                     <i data-lucide=" fa-box-open"></i>
+  200                  </div>
+
+  246                  <div class="farmer-dashboard-stat-icon dashboard-stat-icon-marigold">
+  247:                     <i data-lucide=" fa-chart-line"></i>
+  248                  </div>
+
+  270                  <div class="farmer-dashboard-stat-icon dashboard-stat-icon-sage">
+  271:                     <i data-lucide=" fa-coins"></i>
+  272                  </div>
+
+  319                          <div class="farmer-dashboard-empty-mark">
+  320:                             <i data-lucide=" fa-chart-line"></i>
+  321                          </div>
+
+farmer\edit_product.php:
+  361                              <span class="farmer-file-input-icon">
+  362:                                 <i data-lucide=" fa-cloud-arrow-up"></i>
+  363                              </span>
+
+farmer\markets.php:
+  227                              <a href="?page=<?= $page - 1 ?>">
+  228:                                 <i data-lucide=" fa-chevron-left"></i>
+  229                              </a>
+
+  246                              <a href="?page=<?= $page + 1 ?>">
+  247:                                 <i data-lucide=" fa-chevron-right"></i>
+  248                              </a>
+
+farmer\notifications.php:
+  318  
+  319:                                     <i data-lucide=" fa-star"></i>
+  320  
+
+farmer\pickup_slots.php:
+  384                          >
+  385:                             <i data-lucide=" fa-plus"></i>
+  386                              Add Pickup Slot
+
+farmer\products.php:
+  139                  <a href="add_product.php" class="farmer-add-product">
+  140:                     <i data-lucide=" fa-plus"></i>
+  141                      Add Product
+
+  159                  <a href="add_product.php" class="farmer-empty-add-product">
+  160:                     <i data-lucide=" fa-plus"></i>
+  161                      Add Product
+
+  263                                  >
+  264:                                     <i data-lucide=" fa-pen"></i>
+  265                                      Edit Product

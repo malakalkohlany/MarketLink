@@ -316,7 +316,7 @@ if ($stmt) {
 
                                 <?php elseif ($type === 'review'): ?>
 
-                                    <i data-lucide=" fa-star"></i>
+                                    <i data-lucide="star"></i>
 
                                 <?php elseif ($type === 'announcement'): ?>
 

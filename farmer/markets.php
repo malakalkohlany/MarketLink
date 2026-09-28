@@ -225,7 +225,7 @@ $markets = $market_stmt->get_result();
                         <?php if ($page > 1): ?>
 
                             <a href="?page=<?= $page - 1 ?>">
-                                <i data-lucide=" fa-chevron-left"></i>
+                                <i data-lucide="chevron-left"></i>
                             </a>
 
                         <?php endif; ?>
@@ -244,7 +244,7 @@ $markets = $market_stmt->get_result();
                         <?php if ($page < $total_pages): ?>
 
                             <a href="?page=<?= $page + 1 ?>">
-                                <i data-lucide=" fa-chevron-right"></i>
+                                <i data-lucide="chevron-right"></i>
                             </a>
 
                         <?php endif; ?>

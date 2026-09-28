@@ -621,7 +621,7 @@ $roundedRating = (int) round($averageRating);
                     <div class="customer-farmer-profile-row">
 
                         <span>
-                            <i data-lucide=" fa-user"></i>
+                            <i data-lucide="user"></i>
                             Contact Person
                         </span>
 
@@ -653,7 +653,7 @@ $roundedRating = (int) round($averageRating);
                     <div class="customer-farmer-profile-row">
 
                         <span>
-                            <i data-lucide=" fa-calendar"></i>
+                            <i data-lucide="calendar"></i>
                             Joined MarketLink
                         </span>
 
@@ -1407,7 +1407,7 @@ $roundedRating = (int) round($averageRating);
 
                                 <div class="customer-farmer-response-title">
 
-                                    <i data-lucide=" fa-reply"></i>
+                                    <i data-lucide="reply"></i>
 
                                     Farmer Response
 

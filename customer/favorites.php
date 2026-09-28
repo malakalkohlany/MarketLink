@@ -566,7 +566,7 @@ $stmt->close();
                             <?php if (!empty($farmer['contact_person'])): ?>
 
                                 <div class="customer-farmer-meta">
-                                    <i data-lucide=" fa-user"></i>
+                                    <i data-lucide="user"></i>
 
                                     <span>
                                         <?= e($farmer['contact_person']) ?>

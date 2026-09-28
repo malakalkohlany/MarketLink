@@ -549,7 +549,7 @@ if (
         <div class="customer-shopping-note">
 
             <span class="customer-shopping-note-icon">
-                <i data-lucide=" fa-basket-shopping"></i>
+                <i data-lucide="shopping-basket"></i>
             </span>
 
             <div>
@@ -622,7 +622,7 @@ if (
 
                 <div class="customer-product-input-wrap">
 
-                    <i data-lucide=" fa-magnifying-glass"></i>
+                    <i data-lucide="search"></i>
 
                     <input
                         type="text"
@@ -1193,7 +1193,7 @@ if (
         class="customer-floating-cart"
     >
 
-        <i data-lucide=" fa-cart-shopping"></i>
+        <i data-lucide="shopping-cart"></i>
 
         <span>
             Cart

@@ -359,7 +359,7 @@ $categories = $category_stmt->get_result();
                             >
 
                             <span class="farmer-file-input-icon">
-                                <i data-lucide=" fa-cloud-arrow-up"></i>
+                                <i data-lucide="cloud-upload"></i>
                             </span>
 
                             <strong>

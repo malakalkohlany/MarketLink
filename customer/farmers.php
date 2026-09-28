@@ -302,7 +302,7 @@ $farmerCount = count($farmers);
 
                 <div class="customer-farmer-input-wrap">
 
-                    <i data-lucide=" fa-magnifying-glass"></i>
+                    <i data-lucide="search"></i>
 
                     <input
                         type="text"
@@ -322,7 +322,7 @@ $farmerCount = count($farmers);
                     id="findNearbyFarmers"
                     class="customer-farmer-location-button"
                 >
-                    <i data-lucide=" fa-location-crosshairs"></i>
+                    <i data-lucide="locate-fixed"></i>
                     Find Farmers Near Me
                 </button>
 
@@ -332,7 +332,7 @@ $farmerCount = count($farmers);
                     class="customer-farmer-show-all"
                     style="display: none;"
                 >
-                    <i data-lucide=" fa-rotate-left"></i>
+                    <i data-lucide="rotate-ccw"></i>
                     Show All Farmers
                 </button>
 
@@ -385,7 +385,7 @@ $farmerCount = count($farmers);
                 id="farmerNoMatch"
             >
                 <span class="customer-farmers-no-match-icon">
-                    <i data-lucide=" fa-magnifying-glass"></i>
+                    <i data-lucide="search"></i>
                 </span>
 
                 <strong>
@@ -472,7 +472,7 @@ $farmerCount = count($farmers);
 
                                 <div class="customer-farmer-meta">
 
-                                    <i data-lucide=" fa-user"></i>
+                                    <i data-lucide="user"></i>
 
                                     <span>
                                         <?= e($farmer['contact_person']) ?>

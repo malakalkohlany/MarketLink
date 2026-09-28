@@ -590,7 +590,7 @@ $roundedRating =
 
                                 <?php if (!$hasWeeklyStock): ?>
 
-                                    <i data-lucide=" fa-calendar-xmark"></i>
+                                    <i data-lucide="calendar-x"></i>
                                     Weekly Stock Not Set
 
                                 <?php elseif (
@@ -598,12 +598,12 @@ $roundedRating =
                                     || $weeklyActualQuantity <= 0
                                 ): ?>
 
-                                    <i data-lucide=" fa-box-open"></i>
+                                    <i data-lucide="package-open"></i>
                                     Sold Out This Week
 
                                 <?php else: ?>
 
-                                    <i data-lucide=" fa-ban"></i>
+                                    <i data-lucide="ban"></i>
                                     Currently Unavailable
 
                                 <?php endif; ?>
@@ -793,7 +793,7 @@ $roundedRating =
                     <i
                         class="<?= $i <= $roundedRating
                             ? 'fa-solid'
-                            : 'fa-regular' ?> fa-star"
+                            : 'fa-regular' ?>star"
                     ></i>
 
                 <?php endfor; ?>
@@ -820,7 +820,7 @@ $roundedRating =
                 href="reviews.php?product_id=<?= (int) $product['id'] ?>"
                 class="customer-product-add customer-product-review-button"
             >
-                <i data-lucide=" fa-pen"></i>
+                <i data-lucide="pen"></i>
                 Write a Review
             </a>
 
@@ -861,7 +861,7 @@ $roundedRating =
                                         <i
                                             class="<?= $i <= $reviewRating
                                                 ? 'fa-solid'
-                                                : 'fa-regular' ?> fa-star"
+                                                : 'fa-regular' ?>star"
                                         ></i>
 
                                     <?php endfor; ?>
@@ -903,7 +903,7 @@ $roundedRating =
 
                                 <div>
 
-                                    <i data-lucide=" fa-reply"></i>
+                                    <i data-lucide="reply"></i>
 
                                     <strong>
                                         Farmer Response

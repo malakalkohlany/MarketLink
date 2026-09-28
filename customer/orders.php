@@ -159,7 +159,7 @@ unset($order);
 
             <div class="customer-orders-empty">
                 <span class="customer-orders-empty-mark">
-                    <i data-lucide=" fa-receipt"></i>
+                    <i data-lucide="receipt"></i>
                 </span>
 
                 <strong>
@@ -246,7 +246,7 @@ unset($order);
                                         <?php else: ?>
 
                                             <div class="customer-order-item-image customer-order-item-placeholder">
-                                                <i data-lucide=" fa-leaf"></i>
+                                                <i data-lucide="leaf"></i>
                                             </div>
 
                                         <?php endif; ?>
@@ -363,7 +363,7 @@ unset($order);
                                         class="customer-order-action customer-order-reorder"
                                     >
                                         Reorder
-                                        <i data-lucide=" fa-rotate-right"></i>
+                                        <i data-lucide="rotate-cw"></i>
                                     </a>
 
                                 <?php endif; ?>

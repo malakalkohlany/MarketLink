@@ -421,7 +421,7 @@ $categories = $category_stmt->get_result();
                         name="add_product"
                         class="farmer-form-submit"
                     >
-                        <i data-lucide=" fa-plus"></i>
+                        <i data-lucide="plus"></i>
                         Add Product
                     </button>
 
