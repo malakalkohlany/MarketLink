@@ -351,22 +351,6 @@ $endItem = min(
 
                                 <div class="admin-product-name">
 
-                                    <div class="admin-product-mark">
-
-                                        <?php if (!empty($product['image'])): ?>
-
-                                            <img
-                                                src="../<?= e($product['image']) ?>"
-                                                alt="<?= e($product['name'] ?? 'Product') ?>"
-                                            >
-
-                                        <?php else: ?>
-
-                                            <span>✦</span>
-
-                                        <?php endif; ?>
-
-                                    </div>
 
                                     <div>
 

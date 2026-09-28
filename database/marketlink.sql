@@ -73,16 +73,6 @@ CREATE TABLE `farmers` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `farmers`
---
-
-INSERT INTO `farmers` (`id`, `user_id`, `stall_name`, `contact_person`, `description`, `address`, `latitude`, `longitude`, `approval_status`, `created_at`, `updated_at`) VALUES
-(1, 5, 'Morgan Valley Farms', 'Oliver Thompson', 'A small family farm specializing in seasonal vegetables, herbs, and fresh eggs.', 'Seattle, Washington, USA', 47.60620000, -122.33210000, 'approved', '2026-09-27 06:11:04', '2026-09-27 06:11:04'),
-(2, 6, 'Green Meadow Organics', 'Grace Anderson', 'Organic produce grown using sustainable farming practices with a focus on seasonal crops.', 'Denver, Colorado, USA', 39.73920000, -104.99030000, 'approved', '2026-09-27 06:11:04', '2026-09-27 06:11:04'),
-(3, 7, 'Parker Family Farm', 'Liam Parker', 'Family-owned farm producing fresh vegetables, fruit, honey, and artisan products.', 'Chicago, Illinois, USA', 41.87810000, -87.62980000, 'approved', '2026-09-27 06:11:04', '2026-09-27 06:11:04'),
-(4, 8, 'Sunrise Harvest Co.', 'Mia Richardson', 'A coastal farm offering fresh seasonal produce, herbs, citrus, and natural honey.', 'San Diego, California, USA', 32.71570000, -117.16110000, 'approved', '2026-09-27 06:11:04', '2026-09-27 06:11:04');
-
 -- --------------------------------------------------------
 
 --
@@ -312,21 +302,6 @@ CREATE TABLE `users` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `users`
---
-
-INSERT INTO `users` (`id`, `name`, `email`, `password_hash`, `phone`, `address`, `role`, `status`, `created_at`, `updated_at`) VALUES
-(1, 'Alex Morgan', 'alex.morgan@example.com', '$2y$10$GBCQn0E9tKL/wy6gc30AK.gDRyxDANNzWTpetmguhxMU6GyYHhl6W', '+1-202-555-0101', 'Brooklyn, New York, USA', 'customer', 'active', '2026-09-27 06:11:04', '2026-09-27 06:11:04'),
-(2, 'Sophie Bennett', 'sophie.bennett@example.com', '$2y$10$GBCQn0E9tKL/wy6gc30AK.gDRyxDANNzWTpetmguhxMU6GyYHhl6W', '+1-202-555-0102', 'Cambridge, Massachusetts, USA', 'customer', 'active', '2026-09-27 06:11:04', '2026-09-27 06:11:04'),
-(3, 'Daniel Carter', 'daniel.carter@example.com', '$2y$10$GBCQn0E9tKL/wy6gc30AK.gDRyxDANNzWTpetmguhxMU6GyYHhl6W', '+1-202-555-0103', 'Austin, Texas, USA', 'customer', 'active', '2026-09-27 06:11:04', '2026-09-27 06:11:04'),
-(4, 'Emma Wilson', 'emma.wilson@example.com', '$2y$10$GBCQn0E9tKL/wy6gc30AK.gDRyxDANNzWTpetmguhxMU6GyYHhl6W', '+1-202-555-0104', 'Portland, Oregon, USA', 'customer', 'active', '2026-09-27 06:11:04', '2026-09-27 06:11:04'),
-(5, 'Oliver Thompson', 'oliver.thompson@example.com', '$2y$10$GBCQn0E9tKL/wy6gc30AK.gDRyxDANNzWTpetmguhxMU6GyYHhl6W', '+1-202-555-0105', 'Seattle, Washington, USA', 'farmer', 'active', '2026-09-27 06:11:04', '2026-09-27 06:11:04'),
-(6, 'Grace Anderson', 'grace.anderson@example.com', '$2y$10$GBCQn0E9tKL/wy6gc30AK.gDRyxDANNzWTpetmguhxMU6GyYHhl6W', '+1-202-555-0106', 'Denver, Colorado, USA', 'farmer', 'active', '2026-09-27 06:11:04', '2026-09-27 06:11:04'),
-(7, 'Liam Parker', 'liam.parker@example.com', '$2y$10$GBCQn0E9tKL/wy6gc30AK.gDRyxDANNzWTpetmguhxMU6GyYHhl6W', '+1-202-555-0107', 'Chicago, Illinois, USA', 'farmer', 'active', '2026-09-27 06:11:04', '2026-09-27 06:11:04'),
-(8, 'Mia Richardson', 'mia.richardson@example.com', '$2y$10$GBCQn0E9tKL/wy6gc30AK.gDRyxDANNzWTpetmguhxMU6GyYHhl6W', '+1-202-555-0108', 'San Diego, California, USA', 'farmer', 'active', '2026-09-27 06:11:04', '2026-09-27 06:11:04'),
-(9, 'James Mitchell', 'james.mitchell@example.com', '$2y$10$GBCQn0E9tKL/wy6gc30AK.gDRyxDANNzWTpetmguhxMU6GyYHhl6W', '+1-202-555-0109', 'Boston, Massachusetts, USA', 'admin', 'active', '2026-09-27 06:11:04', '2026-09-27 06:11:04');
-
 -- --------------------------------------------------------
 
 --
@@ -547,31 +522,31 @@ ALTER TABLE `announcements`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `farmers`
 --
 ALTER TABLE `farmers`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `markets`
 --
 ALTER TABLE `markets`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `order_items`
@@ -589,13 +564,13 @@ ALTER TABLE `order_status_history`
 -- AUTO_INCREMENT for table `pickup_slots`
 --
 ALTER TABLE `pickup_slots`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `reports`
@@ -613,7 +588,7 @@ ALTER TABLE `reviews`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `weekly_stock`
