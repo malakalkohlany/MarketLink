@@ -49,8 +49,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     } elseif ($phone === '') {
 
-        $error = 'Please enter your phone number.';
+    $error = 'Please enter your phone number.';
 
+    } elseif (!preg_match('/^\+?[0-9][0-9\s\-()]{7,19}$/', $phone)) {
+
+        $error = 'Please enter a valid phone number.';
+        
     } elseif ($address === '') {
 
         $error = 'Please enter your address.';

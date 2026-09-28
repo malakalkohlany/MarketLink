@@ -622,7 +622,6 @@ if (
 
                 <div class="customer-product-input-wrap">
 
-                    <i data-lucide="search"></i>
 
                     <input
                         type="text"
