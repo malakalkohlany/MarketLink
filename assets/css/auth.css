@@ -466,3 +466,55 @@
         grid-template-columns: 1fr;
     }
 }
+
+.auth-home-link {
+    position: fixed !important;
+    top: 28px !important;
+    left: 30px !important;
+    z-index: 9999 !important;
+    display: inline-flex !important;
+    align-items: center;
+    gap: 0.55rem;
+    width: max-content;
+    min-height: 40px;
+    margin: 0 !important;
+    padding: 0.55rem 0.9rem 0.55rem 0.75rem !important;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--sage);
+    color: var(--text-on-sage);
+    box-shadow: var(--shadow-soft);
+    font-family: var(--font-main);
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition:
+        background var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast),
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+.auth-home-link i {
+    font-size: 0.68rem;
+}
+
+.auth-home-link:hover {
+    background: var(--sage-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-soft);
+}
+
+@media (max-width: 600px) {
+    .auth-home-link {
+        top: 18px !important;
+        left: 18px !important;
+        min-height: 38px;
+        padding: 0.5rem 0.8rem 0.5rem 0.7rem !important;
+        font-size: 0.6rem;
+    }
+}
