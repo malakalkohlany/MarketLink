@@ -20,187 +20,477 @@ $stmt->execute();
 $result = $stmt->get_result();
 $farmer = $result->fetch_assoc();
 
+$stmt->close();
+
 if (!$farmer) {
     die("Farmer account not found.");
 }
 
-$farmer_id = $farmer['id'];
+$farmer_id = (int)$farmer['id'];
 
-$stmt->close();
-$market_stmt = $conn->prepare("
-    SELECT
-        id,
-        name
-    FROM markets
-    ORDER BY name ASC
+
+/*
+|--------------------------------------------------------------------------
+| Automatically Complete Expired Orders
+|--------------------------------------------------------------------------
+*/
+
+$expired_orders_stmt = $conn->prepare("
+    UPDATE orders
+    INNER JOIN pickup_slots
+        ON orders.pickup_slot_id = pickup_slots.id
+    SET
+        orders.status = 'completed',
+        orders.updated_at = CURRENT_TIMESTAMP
+    WHERE orders.farmer_id = ?
+      AND orders.pickup_date IS NOT NULL
+      AND orders.status NOT IN ('completed', 'cancelled')
+      AND CONCAT(
+            orders.pickup_date,
+            ' ',
+            pickup_slots.end_time
+          ) < CURRENT_TIMESTAMP
 ");
 
-$market_stmt->execute();
+$expired_orders_stmt->bind_param(
+    "i",
+    $farmer_id
+);
 
-$markets = $market_stmt->get_result();
+$expired_orders_stmt->execute();
+
+$expired_orders_stmt->close();
+
+
+/*
+|--------------------------------------------------------------------------
+| Update Order Status
+|--------------------------------------------------------------------------
+*/
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
-        header('Location: pickup_slots.php');
+        header('Location: orders.php');
         exit;
     }
 
-    $market_id = (int) $_POST['market_id'];
-    $day_of_week = trim($_POST['day_of_week']);
-    $start_time = $_POST['start_time'];
-    $end_time = $_POST['end_time'];
-    $cutoff_time = $_POST['cutoff_time'];
-    $max_orders = (int) $_POST['max_orders'];
 
-    if (
-        $market_id <= 0 ||
-        empty($day_of_week) ||
-        empty($start_time) ||
-        empty($end_time) ||
-        empty($cutoff_time) ||
-        $max_orders <= 0
-    ) {
-        die("Please enter valid pickup slot information.");
+    $order_id = isset($_POST['order_id'])
+        ? (int)$_POST['order_id']
+        : 0;
+
+    $new_status = isset($_POST['status'])
+        ? trim($_POST['status'])
+        : '';
+
+
+    $allowed_statuses = [
+        'accepted',
+        'preparing',
+        'ready',
+        'completed',
+        'cancelled'
+    ];
+
+
+    if ($order_id <= 0) {
+
+        $_SESSION['error'] = 'Invalid order.';
+
+    } elseif (!in_array($new_status, $allowed_statuses, true)) {
+
+        $_SESSION['error'] = 'Invalid order status.';
+
+    } else {
+
+        $order_stmt = $conn->prepare("
+            SELECT
+                orders.id,
+                orders.customer_id,
+                orders.status,
+                orders.pickup_date,
+                pickup_slots.start_time,
+                pickup_slots.end_time,
+                CONCAT(
+                    orders.pickup_date,
+                    ' ',
+                    pickup_slots.end_time
+                ) < CURRENT_TIMESTAMP AS pickup_expired
+            FROM orders
+            INNER JOIN pickup_slots
+                ON orders.pickup_slot_id = pickup_slots.id
+            WHERE orders.id = ?
+              AND orders.farmer_id = ?
+            LIMIT 1
+        ");
+
+        $order_stmt->bind_param(
+            "ii",
+            $order_id,
+            $farmer_id
+        );
+
+        $order_stmt->execute();
+
+        $order_result = $order_stmt->get_result();
+        $order = $order_result->fetch_assoc();
+
+        $order_stmt->close();
+
+
+        if (!$order) {
+
+            $_SESSION['error'] = 'Order not found.';
+
+        } else {
+
+            $old_status = $order['status'];
+            $customer_id = (int)$order['customer_id'];
+            $pickup_expired = (bool)$order['pickup_expired'];
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Prevent Modification After Pickup Time
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                $pickup_expired &&
+                !in_array(
+                    $old_status,
+                    ['completed', 'cancelled'],
+                    true
+                )
+            ) {
+
+                $complete_stmt = $conn->prepare("
+                    UPDATE orders
+                    SET
+                        status = 'completed',
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE id = ?
+                      AND farmer_id = ?
+                      AND status NOT IN ('completed', 'cancelled')
+                ");
+
+                $complete_stmt->bind_param(
+                    "ii",
+                    $order_id,
+                    $farmer_id
+                );
+
+                $complete_stmt->execute();
+
+                $complete_stmt->close();
+
+
+                $_SESSION['error'] =
+                    "Order #{$order_id} can no longer be modified because the pickup time has passed.";
+
+            } else {
+
+                $valid_transitions = [
+
+                    'pending' => [
+                        'accepted',
+                        'cancelled'
+                    ],
+
+                    'accepted' => [
+                        'preparing',
+                        'cancelled'
+                    ],
+
+                    'preparing' => [
+                        'ready',
+                        'cancelled'
+                    ],
+
+                    'ready' => [
+                        'completed'
+                    ],
+
+                    'completed' => [],
+
+                    'cancelled' => []
+                ];
+
+
+                if (
+                    !isset($valid_transitions[$old_status]) ||
+                    !in_array(
+                        $new_status,
+                        $valid_transitions[$old_status],
+                        true
+                    )
+                ) {
+
+                    $_SESSION['error'] =
+                        "Cannot change order from '{$old_status}' to '{$new_status}'.";
+
+                } else {
+
+                    $conn->begin_transaction();
+
+                    try {
+
+                        $update_stmt = $conn->prepare("
+                            UPDATE orders
+                            SET
+                                status = ?,
+                                updated_at = CURRENT_TIMESTAMP
+                            WHERE id = ?
+                              AND farmer_id = ?
+                        ");
+
+                        $update_stmt->bind_param(
+                            "sii",
+                            $new_status,
+                            $order_id,
+                            $farmer_id
+                        );
+
+                        if (!$update_stmt->execute()) {
+                            throw new Exception(
+                                'Failed to update order status.'
+                            );
+                        }
+
+                        if ($update_stmt->affected_rows !== 1) {
+                            throw new Exception(
+                                'Order status was not updated.'
+                            );
+                        }
+
+                        $update_stmt->close();
+
+
+                        $history_stmt = $conn->prepare("
+                            INSERT INTO order_status_history (
+                                order_id,
+                                status,
+                                changed_by
+                            )
+                            VALUES (?, ?, ?)
+                        ");
+
+                        $history_stmt->bind_param(
+                            "isi",
+                            $order_id,
+                            $new_status,
+                            $user_id
+                        );
+
+                        if (!$history_stmt->execute()) {
+                            throw new Exception(
+                                'Failed to record order status history.'
+                            );
+                        }
+
+                        $history_stmt->close();
+
+
+                        switch ($new_status) {
+
+                            case 'accepted':
+
+                                $notification_title =
+                                    'Order Accepted';
+
+                                $notification_message =
+                                    "Your order #{$order_id} has been accepted by the market.";
+
+                                break;
+
+
+                            case 'preparing':
+
+                                $notification_title =
+                                    'Order Being Prepared';
+
+                                $notification_message =
+                                    "Your order #{$order_id} is now being prepared.";
+
+                                break;
+
+
+                            case 'ready':
+
+                                $notification_title =
+                                    'Order Ready for Pickup';
+
+                                $notification_message =
+                                    "Your order #{$order_id} is ready for pickup.";
+
+                                break;
+
+
+                            case 'completed':
+
+                                $notification_title =
+                                    'Order Completed';
+
+                                $notification_message =
+                                    "Your order #{$order_id} has been completed.";
+
+                                break;
+
+
+                            case 'cancelled':
+
+                                $notification_title =
+                                    'Order Cancelled';
+
+                                $notification_message =
+                                    "Your order #{$order_id} has been cancelled by the market.";
+
+                                break;
+
+
+                            default:
+
+                                $notification_title =
+                                    'Order Status Updated';
+
+                                $notification_message =
+                                    "The status of your order #{$order_id} has been updated.";
+                        }
+
+
+                        if (!createNotification(
+                            $conn,
+                            $customer_id,
+                            'order_status',
+                            $notification_title,
+                            $notification_message
+                        )) {
+
+                            throw new Exception(
+                                'Failed to create customer notification.'
+                            );
+                        }
+
+
+                        $conn->commit();
+
+
+                        $_SESSION['success'] =
+                            "Order #{$order_id} updated successfully.";
+
+                    } catch (Throwable $e) {
+
+                        $conn->rollback();
+
+                        $_SESSION['error'] =
+                            'Failed to update the order. Please try again.';
+                    }
+                }
+            }
+        }
     }
 
-    $stmt = $conn->prepare("
-        INSERT INTO pickup_slots
-        (
-            farmer_id,
-            market_id,
-            day_of_week,
-            start_time,
-            end_time,
-            cutoff_time,
-            max_orders
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    ");
 
-    $stmt->bind_param(
-        "iissssi",
-        $farmer_id,
-        $market_id,
-        $day_of_week,
-        $start_time,
-        $end_time,
-        $cutoff_time,
-        $max_orders
-    );
+    $redirect_page = isset($_GET['page'])
+        ? (int)$_GET['page']
+        : 1;
 
-    if (!$stmt->execute()) {
-        die("Insert failed.");
-    }
-
-    $stmt->close();
-    $success_message = "Pickup slot added successfully.";
-
-}
-   $slots_per_page = 10;
-
-   $slots_page = isset($_GET['slots_page']) ? (int)$_GET['slots_page'] : 1;
-
-   if ($slots_page < 1) {
-       $slots_page = 1;
+    redirect('orders.php?page=' . max(1, $redirect_page));
 }
 
-$slots_offset = ($slots_page - 1) * $slots_per_page;
-$count_slots_stmt = $conn->prepare("
-    SELECT COUNT(*) AS total_slots
-    FROM pickup_slots
-    WHERE farmer_id = ?
-");
 
-$count_slots_stmt->bind_param("i", $farmer_id);
-$count_slots_stmt->execute();
+/*
+|--------------------------------------------------------------------------
+| Pagination
+|--------------------------------------------------------------------------
+*/
 
-$count_slots_result = $count_slots_stmt->get_result();
-$total_slots = $count_slots_result->fetch_assoc()['total_slots'];
+$items_per_page = 10;
 
-$count_slots_stmt->close();
+$page = isset($_GET['page'])
+    ? (int)$_GET['page']
+    : 1;
 
-$total_slots_pages = ceil($total_slots / $slots_per_page);
-
-if ($total_slots_pages > 0 && $slots_page > $total_slots_pages) {
-    $slots_page = $total_slots_pages;
-    $slots_offset = ($slots_page - 1) * $slots_per_page;
-}    
-
-$orders_per_page = 10;
-
-$orders_page = isset($_GET['orders_page']) ? (int)$_GET['orders_page'] : 1;
-
-if ($orders_page < 1) {
-    $orders_page = 1;
+if ($page < 1) {
+    $page = 1;
 }
 
-$orders_offset = ($orders_page - 1) * $orders_per_page;
+$offset = ($page - 1) * $items_per_page;
 
 
-$count_orders_stmt = $conn->prepare("
+$count_stmt = $conn->prepare("
     SELECT COUNT(*) AS total_orders
     FROM orders
     WHERE farmer_id = ?
 ");
 
-$count_orders_stmt->bind_param("i", $farmer_id);
-$count_orders_stmt->execute();
+$count_stmt->bind_param(
+    "i",
+    $farmer_id
+);
 
-$count_orders_result = $count_orders_stmt->get_result();
-$total_orders = $count_orders_result->fetch_assoc()['total_orders'];
+$count_stmt->execute();
 
-$count_orders_stmt->close();
+$count_result = $count_stmt->get_result();
 
-$total_orders_pages = ceil($total_orders / $orders_per_page);
+$total_orders = (int)$count_result
+    ->fetch_assoc()['total_orders'];
 
-if ($total_orders_pages > 0 && $orders_page > $total_orders_pages) {
-    $orders_page = $total_orders_pages;
-    $orders_offset = ($orders_page - 1) * $orders_per_page;
+$count_stmt->close();
+
+
+$total_pages = $total_orders > 0
+    ? (int)ceil($total_orders / $items_per_page)
+    : 0;
+
+
+if ($total_pages > 0 && $page > $total_pages) {
+
+    $page = $total_pages;
+
+    $offset = ($page - 1) * $items_per_page;
 }
 
-$slot_stmt = $conn->prepare("
-    SELECT
-        pickup_slots.id,
-        pickup_slots.day_of_week,
-        pickup_slots.start_time,
-        pickup_slots.end_time,
-        pickup_slots.cutoff_time,
-        pickup_slots.max_orders,
-        pickup_slots.is_available,
-        markets.name AS market_name
-    FROM pickup_slots
-    INNER JOIN markets
-        ON pickup_slots.market_id = markets.id
-    WHERE pickup_slots.farmer_id = ?
-    ORDER BY pickup_slots.day_of_week ASC, pickup_slots.start_time ASC
-    LIMIT ? OFFSET ?
-");
 
-$slot_stmt->bind_param("iii", $farmer_id, $slots_per_page, $slots_offset);
-$slot_stmt->execute();
+/*
+|--------------------------------------------------------------------------
+| Get Orders
+|--------------------------------------------------------------------------
+*/
 
-$slots = $slot_stmt->get_result();
 $order_stmt = $conn->prepare("
     SELECT
-        orders.id AS order_id,
+        orders.id,
+        orders.customer_id,
         orders.status,
+        orders.subtotal,
+        orders.notes,
         orders.created_at,
-        pickup_slots.day_of_week,
+        orders.updated_at,
+        orders.pickup_date,
         pickup_slots.start_time,
         pickup_slots.end_time,
-        markets.name AS market_name
+        users.name AS customer_name
     FROM orders
+    INNER JOIN users
+        ON orders.customer_id = users.id
     INNER JOIN pickup_slots
         ON orders.pickup_slot_id = pickup_slots.id
-    INNER JOIN markets
-        ON orders.market_id = markets.id
     WHERE orders.farmer_id = ?
-    ORDER BY pickup_slots.day_of_week ASC, pickup_slots.start_time ASC
+    ORDER BY orders.created_at DESC
     LIMIT ? OFFSET ?
 ");
 
-$order_stmt->bind_param("iii", $farmer_id, $orders_per_page, $orders_offset);
+$order_stmt->bind_param(
+    "iii",
+    $farmer_id,
+    $items_per_page,
+    $offset
+);
+
 $order_stmt->execute();
+
 $orders = $order_stmt->get_result();
 
 ?>
