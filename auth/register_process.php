@@ -239,15 +239,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // ==================================================
 
                 if ($role === 'customer') {
-
-                    header(
-                        'Location: ' .
-                        BASE_URL .
-                        'customer/dashboard.php'
-                    );
-
-                    exit;
-                }
+    redirect(BASE_URL . 'customer/dashboard.php');
+}
 
 
                 // ==================================================
@@ -255,17 +248,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // ==================================================
 
                 if ($role === 'farmer') {
+    $_SESSION['farmer_id'] = $farmer_id;
 
-                    $_SESSION['farmer_id'] = $farmer_id;
-
-                    header(
-                        'Location: ' .
-                        BASE_URL .
-                        'farmer/pending.php'
-                    );
-
-                    exit;
-                }
+    redirect(BASE_URL . 'farmer/pending.php');
+}
 
             } catch (Exception $e) {
 

@@ -21,8 +21,7 @@ if (
     );
 
     if (!$marketId || !$customerId) {
-        header('Location: markets.php');
-        exit;
+        redirect('markets.php');
     }
 
     $checkStmt = mysqli_prepare(
@@ -127,8 +126,8 @@ if (
         mysqli_stmt_close($insertStmt);
     }
 
-    header('Location: markets.php');
-    exit;
+// Return to Markets page
+redirect('markets.php');
 }
 
 $favoriteMarkets = [];

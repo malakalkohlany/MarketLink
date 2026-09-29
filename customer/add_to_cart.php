@@ -18,8 +18,7 @@ if (!$productId) {
 }
 
 if (!$productId) {
-    header('Location: products.php');
-    exit;
+    redirect('products.php');
 }
 
 $today = new DateTime();
@@ -403,12 +402,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ];
         }
 
-        if ($errorMessage === '') {
-            header(
-                'Location: products.php'
-            );
-            exit;
-        }
+     if ($errorMessage === '') {
+    redirect('products.php');
+       }
     }
 }
 }

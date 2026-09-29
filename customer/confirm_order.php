@@ -14,8 +14,7 @@ if (
 }
 
 if (empty($cart)) {
-    header('Location: cart.php');
-    exit;
+    redirect('cart.php');
 }
 
 $error = '';
@@ -1223,8 +1222,11 @@ if (
                 $orderId .
                 ' has been placed successfully.';
 
-            header('Location: orders.php');
-            exit;
+// ==================================================
+// Redirect
+// ==================================================
+redirect('orders.php');
+
         } catch (Throwable $e) {
             if ($transactionStarted) {
                 $conn->rollback();

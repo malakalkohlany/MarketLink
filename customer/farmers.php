@@ -23,8 +23,7 @@ if (
     );
 
     if (!$farmerId || !$customerId) {
-        header('Location: farmers.php');
-        exit;
+        redirect('farmers.php');
     }
 
     $checkStmt = mysqli_prepare(
@@ -130,8 +129,7 @@ if (
         mysqli_stmt_close($insertStmt);
     }
 
-    header('Location: farmers.php');
-    exit;
+    redirect('farmers.php');
 }
 
 $favoriteFarmers = [];

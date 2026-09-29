@@ -11,8 +11,7 @@ function e($value): string
 
 function redirect(string $path): never
 {
-    header('Location: ' . BASE_URL . ltrim($path, '/'));
-    exit;
+    redirect(BASE_URL . ltrim($path, '/'));
 }
 
 function formatPrice(float|int $price): string

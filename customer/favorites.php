@@ -45,8 +45,7 @@ if (
         $stmt->close();
     }
 
-    header('Location: favorites.php');
-    exit;
+    redirect('favorites.php');
 }
 
 if (
@@ -88,8 +87,7 @@ if (
         $stmt->close();
     }
 
-    header('Location: favorites.php');
-    exit;
+    redirect('favorites.php');
 }
 
 if (
@@ -131,8 +129,7 @@ if (
         $stmt->close();
     }
 
-    header('Location: favorites.php');
-    exit;
+    redirect('favorites.php');
 }
 
 $favoriteProducts = [];

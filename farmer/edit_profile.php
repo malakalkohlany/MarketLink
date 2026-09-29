@@ -158,8 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $stmt->close();
 
-    header("Location: profile.php");
-    exit;
+    redirect('profile.php');
 }
 
 // Load current farmer information

@@ -47,8 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    header('Location: customers.php');
-    exit;
+    redirect('customers.php');
 }
 
 $stmt = $conn->prepare("

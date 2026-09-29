@@ -9,8 +9,7 @@ $productId = isset($_GET['product_id'])
     : 0;
 
 if ($productId <= 0) {
-    header('Location: cart.php');
-    exit;
+    redirect('cart.php');
 }
 
 if (
@@ -22,5 +21,7 @@ if (
     unset($_SESSION['cart'][$productId]);
 }
 
-header('Location: cart.php');
-exit;
+// --------------------------------------------------
+// Return To Cart
+// --------------------------------------------------
+redirect('cart.php');

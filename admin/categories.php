@@ -54,8 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt->execute();
                     $stmt->close();
 
-                    header('Location: categories.php?success=added');
-                    exit;
+                    redirect('categories.php?success=added');
 
                 } catch (mysqli_sql_exception $e) {
 
@@ -120,8 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt->execute();
                     $stmt->close();
 
-                    header('Location: categories.php?success=updated');
-                    exit;
+                   redirect('categories.php?success=updated');
 
                 } catch (mysqli_sql_exception $e) {
 
@@ -183,8 +181,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_category'])) {
                     $stmt->execute();
                     $stmt->close();
 
-                    header('Location: categories.php?success=deleted');
-                    exit;
+                    redirect('categories.php?success=deleted');
                 }
             }
         }

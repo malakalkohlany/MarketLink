@@ -7,8 +7,7 @@ if (
     isset($_POST['clear_cart'])
 ) {
     $_SESSION['cart'] = [];
-    header('Location: cart.php');
-    exit;
+    redirect('cart.php');
 }
 
 $cart = [];

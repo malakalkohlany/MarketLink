@@ -171,8 +171,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $stmt->close();
 
-    header("Location: inventory.php");
-    exit;
+
+    redirect('inventory.php');
 }
 
 $category_stmt = $conn->prepare("
