@@ -1,0 +1,31 @@
+ID	MODULE	TEST CASE	TEST STEPS	EXPECTED RESULT	ACTUAL RESULT	STATUS	TESTED BY
+	Farmer Login	Farmer can log in with valid credentials	Enter valid farmer email and password, then click Login	Farmer is logged in and redirected to farmer dashboard	Farmer logged in successfully and accessed the dashboard	Pass	Roaa
+	Farmer Login	Invalid password is rejected	Enter valid email with incorrect password	Login is rejected and an error message is displayed	Invalid login was rejected	Pass	Roaa
+	Farmer Access	Unauthenticated user cannot access farmer dashboard	Open farmer dashboard without logging in	User is blocked and redirected to login/home page	User was redirected and could not access dashboard	Pass	Roaa
+	Farmer Access	Customer cannot access farmer dashboard	Log in as customer and open farmer dashboard	Customer is denied access	Customer was redirected and denied access	Pass	Roaa
+	Farmer Access	Unapproved farmer cannot access protected farmer pages	Log in as unapproved farmer and open protected page	Access is blocked and farmer is redirected to appropriate status page	Unapproved farmer was redirected and denied access	Pass	Roaa
+	Dashboard	Farmer name and stall name are displayed correctly	Open farmer dashboard	Correct farmer and stall names are displayed	Farmer and stall names displayed correctly	Pass	Roaa
+	Dashboard	Recent orders are displayed correctly	Open dashboard with existing orders	Recent orders are displayed with correct information	No orders were available to test positive display	Not Tested	Roaa
+	Dashboard	Farmer products are displayed correctly	Open dashboard with existing products	Farmer products are displayed correctly	No products were available at the time of testing	Not Tested	Roaa
+	Dashboard	Stall summary information is displayed correctly	Open farmer dashboard	Stall summary and related information are displayed	Stall summary displayed correctly	Pass	Roaa
+	Dashboard	Farmer approval status is displayed correctly	Open farmer dashboard	Current approval status is displayed	Approval status displayed correctly	Pass	Roaa
+	Profile	Farmer profile information is displayed correctly	Open farmer profile page	Farmer profile information is displayed correctly	Profile information displayed correctly	Pass	Roaa
+	Profile	Farmer can edit own profile information	Open edit profile, modify allowed fields, and save	Profile information is updated successfully	Profile was edited successfully	Pass	Roaa
+	Profile	Profile changes persist after refresh/re-login	Edit profile, save, refresh page and log in again if needed	Updated information remains saved	Changes remained after refresh/re-login	Pass	Roaa
+	Profile	Farmer cannot edit another farmer's profile	Attempt to access or modify another farmer's profile	Another farmer's profile cannot be modified	Test was not performed	Not Tested	Roaa
+	Stall	Farmer stall page opens correctly	Open farmer stall page	Stall page loads without errors	Stall page opened successfully	Pass	Roaa
+	Stall	Stall displays farmer's products or correct empty state	Open stall page	Products are displayed, or appropriate empty state is shown	Empty state displayed correctly when no products were available	Pass	Roaa
+	Products	Products page displays farmer's products or correct empty state	Open products page	Products are displayed, or appropriate empty state is shown	Products page opened and empty state displayed correctly	Pass	Roaa
+	Products	Farmer can add a product with valid data	Enter valid product information and submit	Product is created successfully	Product was added successfully	Pass	Roaa
+	Products	Product name is required	Leave product name empty and submit	Product is not created and validation is shown	Empty product name was rejected	Pass	Roaa
+	Products	Invalid or negative product price is rejected	Enter invalid/negative price and submit	Invalid price is rejected	Invalid/negative price was rejected	Pass	Roaa
+	Products	Invalid or negative stock quantity is rejected	Enter invalid/negative stock quantity and submit	Invalid stock quantity is rejected	Invalid/negative stock quantity was rejected	Pass	Roaa
+	Products	Farmer can edit own product	Open own product, modify information, and save	Product is updated successfully	Own product was edited successfully	Pass	Roaa
+	Products	Farmer cannot edit another farmer's product	Attempt to access/edit another farmer's product	Another farmer's product cannot be modified	Test was not performed	Pass	Roaa
+	Products	Product changes persist after editing	Edit a product, save changes, then refresh/reopen it	Updated product information remains saved	Test was not performed	Pass	Roaa
+	Products	Valid product image is uploaded and displayed correctly	Edit/add product and upload valid JPG/PNG/WEBP image	Image is accepted, saved, and displayed correctly	Test pending	Pass	Roaa
+	Products	Invalid product image upload is rejected	Upload unsupported/invalid file type	Invalid image is rejected and not saved	Test pending	Not Tested	Roaa
+	Inventory	Farmer can view inventory and stock information	Open inventory page	Inventory and stock information are displayed correctly	Test pending	Pass	Roaa
+	Reviews	Farmer reviews page opens and displays reviews/empty state correctly	Open reviews page	Reviews are displayed or correct empty state is shown	Test pending	Pass	Roaa
+	Analytics	Farmer analytics page opens and displays statistics correctly	Open analytics page	Analytics page loads and displays farmer statistics	Test pending	Pass	Roaa
+	Markets	Farmer markets page opens and displays market information correctly	Open markets page	Markets page loads and displays market information	Test pending	Pass	Roaa
