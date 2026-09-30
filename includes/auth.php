@@ -8,7 +8,7 @@ function isLoggedIn(): bool
 function requireLogin(): void
 {
     if (!isLoggedIn()) {
-        redirect(BASE_URL . 'auth/login.php');
+        redirect('auth/login.php');
     }
 }
 
@@ -37,7 +37,7 @@ function requireRole(string $role): void
     requireLogin();
 
     if (getUserRole() !== $role) {
-        redirect(BASE_URL . 'index.php');
+        redirect('index.php');
     }
 }
 
@@ -53,14 +53,14 @@ function requireApprovedFarmer(): void
 
     if (($_SESSION['approval_status'] ?? null) !== 'approved') {
         if (($_SESSION['approval_status'] ?? null) === 'pending') {
-            redirect(BASE_URL . 'farmer/pending.php');
+            redirect('farmer/pending.php');
         }
 
         if (($_SESSION['approval_status'] ?? null) === 'rejected') {
-            redirect(BASE_URL . 'farmer/rejected.php');
+            redirect('farmer/rejected.php');
         }
 
 // Unexpected approval status
-redirect(BASE_URL . 'index.php');
+redirect('index.php');
     }
 }
