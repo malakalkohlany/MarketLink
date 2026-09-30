@@ -49,8 +49,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     } elseif ($phone === '') {
 
-        $error = 'Please enter your phone number.';
+    $error = 'Please enter your phone number.';
 
+    } elseif (!preg_match('/^\+?[0-9][0-9\s\-()]{7,19}$/', $phone)) {
+
+        $error = 'Please enter a valid phone number.';
+        
     } elseif ($address === '') {
 
         $error = 'Please enter your address.';
@@ -239,7 +243,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // ==================================================
 
                 if ($role === 'customer') {
-    redirect(BASE_URL . 'customer/dashboard.php');
+    redirect('customer/dashboard.php');
 }
 
 
@@ -250,7 +254,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($role === 'farmer') {
     $_SESSION['farmer_id'] = $farmer_id;
 
-    redirect(BASE_URL . 'farmer/pending.php');
+    redirect('farmer/pending.php');
 }
 
             } catch (Exception $e) {

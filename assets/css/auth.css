@@ -77,12 +77,15 @@
     font-size: 42px;
     line-height: 1.02;
     letter-spacing: -0.04em;
+    display: block;
+    color: var(--sage-dark);
 }
 
 .auth-heading h1 em {
     color: var(--sage-dark);
     font-family: var(--font-serif);
     font-weight: 400;
+  
 }
 
 .auth-heading p {

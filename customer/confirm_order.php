@@ -1354,7 +1354,7 @@ redirect('customer/orders.php');
                         <?php if (!empty($item['image'])): ?>
 
                             <img
-                                src="../uploads/products/<?= htmlspecialchars($item['image']) ?>"
+                                src="../<?= htmlspecialchars($item['image']) ?>"
                                 alt="<?= htmlspecialchars($item['name']) ?>"
                                 class="customer-confirm-order-item-image"
                             >

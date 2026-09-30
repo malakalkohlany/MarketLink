@@ -9,11 +9,11 @@ requireRole(R_FARMER);
 if ($_SESSION['approval_status'] !== 'rejected') {
 
     if ($_SESSION['approval_status'] === 'approved') {
-     redirect(BASE_URL . 'farmer/dashboard.php');
+     redirect('farmer/dashboard.php');
     }
 
     if ($_SESSION['approval_status'] === 'pending') {
-        redirect(BASE_URL . 'farmer/pending.php');
+        redirect('farmer/pending.php');
     }
 }
 

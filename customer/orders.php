@@ -255,7 +255,7 @@ unset($order);
                                         <?php if (!empty($item['product_image'])): ?>
 
                                             <img
-                                                src="../uploads/products/<?= htmlspecialchars($item['product_image']) ?>"
+                                                src="../<?= htmlspecialchars($item['product_image']) ?>"
                                                 alt="<?= htmlspecialchars($item['product_name'] ?? 'Product') ?>"
                                                 class="customer-order-item-image"
                                             >
