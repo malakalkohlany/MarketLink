@@ -195,12 +195,12 @@
 
 .admin-farmers-table th:nth-child(3),
 .admin-farmers-table td:nth-child(3) {
-    width: 12%;
+    width: 10%;
 }
 
 .admin-farmers-table th:nth-child(4),
 .admin-farmers-table td:nth-child(4) {
-    width: 17%;
+    width: 20%;
 }
 
 .admin-farmers-table th:nth-child(5),
@@ -215,12 +215,7 @@
 
 .admin-farmers-table th:nth-child(7),
 .admin-farmers-table td:nth-child(7) {
-    width: 10%;
-}
-
-.admin-farmers-table th:nth-child(8),
-.admin-farmers-table td:nth-child(8) {
-    width: 13%;
+    width: 22%;
 }
 
 .admin-farmers-table thead {
@@ -241,7 +236,7 @@
 }
 
 .admin-farmers-table td {
-    padding: 18px 20px;
+    padding: 10px 15px;
     border-bottom: 1px solid var(--border-light);
     color: var(--text-soft);
     font-size: .82rem;
