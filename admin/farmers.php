@@ -18,6 +18,20 @@ if ($errorMessage !== '') {
     $errors[] = $errorMessage;
 }
 
+$perPage = 8;
+
+$currentPage = filter_input(
+    INPUT_GET,
+    'page',
+    FILTER_VALIDATE_INT,
+    [
+        'options' => [
+            'default' => 1,
+            'min_range' => 1
+        ]
+    ]
+);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
@@ -193,6 +207,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect('admin/farmers.php');
 }
 
+$totalFarmers = 0;
+
+$totalPages = max(1, (int) ceil($totalFarmers / $perPage));
+
+if ($currentPage > $totalPages) {
+    $currentPage = $totalPages;
+}
+
+$offset = ($currentPage - 1) * $perPage;
+
 $farmers = [];
 
 $stmt = $conn->prepare("
@@ -214,31 +238,42 @@ $stmt = $conn->prepare("
             ELSE 2
         END,
         f.created_at DESC
+        LIMIT ? OFFSET ?
 ");
 
 if ($stmt) {
 
+    $stmt->bind_param(
+        "ii",
+        $perPage,
+        $offset
+    );
+
     if ($stmt->execute()) {
 
         $result = $stmt->get_result();
-
-        $farmers = $result->fetch_all(
-            MYSQLI_ASSOC
-        );
+        $farmers = $result->fetch_all(MYSQLI_ASSOC);
 
     } else {
 
-        $errors[] =
-            'Failed to load farmers.';
+        $errors[] = 'Failed to load farmers.';
     }
 
     $stmt->close();
 
 } else {
 
-    $errors[] =
-        'Failed to prepare farmer query.';
+    $errors[] = 'Failed to prepare product query.';
 }
+
+$startItem = $totalFarmers > 0
+    ? $offset + 1
+    : 0;
+
+$endItem = min(
+    $offset + $perPage,
+    $totalFarmers
+);
 
 ?>
 
@@ -619,6 +654,148 @@ if ($stmt) {
                 </table>
 
             </div>
+
+
+            <?php if ($totalPages > 1): ?>
+
+                <div class="admin-pagination">
+
+                    <div class="admin-pagination-info">
+
+                        Showing
+                        <strong><?= $startItem ?></strong>
+                        –
+                        <strong><?= $endItem ?></strong>
+                        of
+                        <strong><?= $totalFarmers ?></strong>
+
+                    </div>
+
+
+                    <div class="admin-pagination-controls">
+
+                        <?php if ($currentPage > 1): ?>
+
+                            <a
+                                href="?page=<?= $currentPage - 1 ?>"
+                                class="admin-pagination-arrow"
+                            >
+                                Previous
+                            </a>
+
+                        <?php else: ?>
+
+                            <span class="admin-pagination-arrow disabled">
+                                Previous
+                            </span>
+
+                        <?php endif; ?>
+
+
+                        <?php
+
+                        $paginationStart = max(
+                            1,
+                            $currentPage - 2
+                        );
+
+                        $paginationEnd = min(
+                            $totalPages,
+                            $currentPage + 2
+                        );
+
+                        ?>
+
+                        <?php if ($paginationStart > 1): ?>
+
+                            <a
+                                href="?page=1"
+                                class="admin-pagination-number"
+                            >
+                                1
+                            </a>
+
+                            <?php if ($paginationStart > 2): ?>
+
+                                <span class="admin-pagination-dots">
+                                    …
+                                </span>
+
+                            <?php endif; ?>
+
+                        <?php endif; ?>
+
+
+                        <?php for (
+                            $page = $paginationStart;
+                            $page <= $paginationEnd;
+                            $page++
+                        ): ?>
+
+                            <?php if ($page === $currentPage): ?>
+
+                                <span
+                                    class="admin-pagination-number active"
+                                >
+                                    <?= $page ?>
+                                </span>
+
+                            <?php else: ?>
+
+                                <a
+                                    href="?page=<?= $page ?>"
+                                    class="admin-pagination-number"
+                                >
+                                    <?= $page ?>
+                                </a>
+
+                            <?php endif; ?>
+
+                        <?php endfor; ?>
+
+
+                        <?php if ($paginationEnd < $totalPages): ?>
+
+                            <?php if ($paginationEnd < $totalPages - 1): ?>
+
+                                <span class="admin-pagination-dots">
+                                    …
+                                </span>
+
+                            <?php endif; ?>
+
+                            <a
+                                href="?page=<?= $totalPages ?>"
+                                class="admin-pagination-number"
+                            >
+                                <?= $totalPages ?>
+                            </a>
+
+                        <?php endif; ?>
+
+
+                        <?php if ($currentPage < $totalPages): ?>
+
+                            <a
+                                href="?page=<?= $currentPage + 1 ?>"
+                                class="admin-pagination-arrow"
+                            >
+                                Next
+                            </a>
+
+                        <?php else: ?>
+
+                            <span class="admin-pagination-arrow disabled">
+                                Next
+                            </span>
+
+                        <?php endif; ?>
+
+                    </div>
+
+                </div>
+
+            <?php endif; ?>
 
         </section>
 
