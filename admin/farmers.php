@@ -667,11 +667,6 @@ $endItem = min(
 
             </div>
 
-            <p>
-    Page: <?= (int) $currentPage ?> |
-    Total pages: <?= (int) $totalPages ?>
-</p>
-
 
             <?php if ($totalPages > 1): ?>
                 <div class="admin-pagination">
