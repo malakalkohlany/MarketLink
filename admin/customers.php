@@ -52,6 +52,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect('admin/customers.php');
 }
 
+$perPage = 8;
+
+$pageInput = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT);
+$currentPage = ($pageInput !== false && $pageInput !== null && $pageInput > 0)
+    ? $pageInput
+    : 1;
+
+$totalCustomers = 0;
+
+$countStmt = $conn->prepare("
+    SELECT COUNT(*) AS total
+    FROM users
+    WHERE role = 'customer'
+");
+
+if ($countStmt) {
+    if ($countStmt->execute()) {
+        $countResult = $countStmt->get_result();
+        $totalCustomers = (int) $countResult->fetch_assoc()['total'];
+    } else {
+        $errors[] = 'Failed to count customers.';
+    }
+
+    $countStmt->close();
+} else {
+    $errors[] = 'Failed to prepare customer count query.';
+}
+
+$totalPages = max(1, (int) ceil($totalCustomers / $perPage));
+$currentPage = min($currentPage, $totalPages);
+$offset = ($currentPage - 1) * $perPage;
 
 $stmt = $conn->prepare("
     SELECT
@@ -65,27 +96,26 @@ $stmt = $conn->prepare("
     FROM users
     WHERE role = 'customer'
     ORDER BY created_at DESC
+    LIMIT ? OFFSET ?
 ");
 
 if ($stmt) {
+    $stmt->bind_param('ii', $perPage, $offset);
 
     if ($stmt->execute()) {
-
         $result = $stmt->get_result();
-
         $customers = $result->fetch_all(MYSQLI_ASSOC);
-
     } else {
-
         $errors[] = 'Failed to load customers.';
     }
 
     $stmt->close();
-
 } else {
-
     $errors[] = 'Failed to prepare customer query.';
 }
+
+$startItem = $totalCustomers > 0 ? $offset + 1 : 0;
+$endItem = min($offset + count($customers), $totalCustomers);
 
 ?>
 
@@ -192,9 +222,9 @@ if ($stmt) {
 
             <span class="admin-record-count">
 
-                <?= count($customers) ?>
+                <?= $totalCustomers ?>
 
-                <?= count($customers) === 1
+                <?= $totalCustomers === 1
                     ? 'customer'
                     : 'customers'
                 ?>
@@ -410,6 +440,53 @@ if ($stmt) {
             </table>
 
         </div>
+
+        <?php if ($totalPages > 1): ?>
+    <div class="admin-pagination">
+        <div class="admin-pagination-info">
+            Showing <?= $startItem ?>–<?= $endItem ?>
+            of <?= $totalCustomers ?> customers
+        </div>
+
+        <div class="admin-pagination-controls">
+            <?php if ($currentPage > 1): ?>
+                <a
+                    href="?page=<?= $currentPage - 1 ?>"
+                    class="admin-pagination-arrow"
+                >
+                    Previous
+                </a>
+            <?php else: ?>
+                <span class="admin-pagination-arrow disabled">
+                    Previous
+                </span>
+            <?php endif; ?>
+
+            <?php for ($page = 1; $page <= $totalPages; $page++): ?>
+                <a
+                    href="?page=<?= $page ?>"
+                    class="admin-pagination-number <?= $page === $currentPage ? 'active' : '' ?>"
+                    <?= $page === $currentPage ? 'aria-current="page"' : '' ?>
+                >
+                    <?= $page ?>
+                </a>
+            <?php endfor; ?>
+
+            <?php if ($currentPage < $totalPages): ?>
+                <a
+                    href="?page=<?= $currentPage + 1 ?>"
+                    class="admin-pagination-arrow"
+                >
+                    Next
+                </a>
+            <?php else: ?>
+                <span class="admin-pagination-arrow disabled">
+                    Next
+                </span>
+            <?php endif; ?>
+        </div>
+    </div>
+<?php endif; ?>
 
 
         <div class="admin-customers-footer">
