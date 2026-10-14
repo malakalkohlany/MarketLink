@@ -207,9 +207,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect('admin/farmers.php');
 }
 
-$totalFarmers = 0;
+$countStmt = $conn->prepare("
+    SELECT COUNT(*) AS total
+    FROM farmers
+");
 
-$totalPages = max(1, (int) ceil($totalFarmers / $perPage));
+if ($countStmt && $countStmt->execute()) {
+    $countResult = $countStmt->get_result();
+    $totalFarmers = (int) $countResult->fetch_assoc()['total'];
+    $countStmt->close();
+} else {
+    $totalFarmers = 0;
+    $errors[] = 'Failed to count farmers.';
+
+    if ($countStmt) {
+        $countStmt->close();
+    }
+}
+
+$totalPages = max(
+    1,
+    (int) ceil($totalFarmers / $perPage)
+);
 
 if ($currentPage > $totalPages) {
     $currentPage = $totalPages;
@@ -238,11 +257,10 @@ $stmt = $conn->prepare("
             ELSE 2
         END,
         f.created_at DESC
-        LIMIT ? OFFSET ?
+    LIMIT ? OFFSET ?
 ");
 
 if ($stmt) {
-
     $stmt->bind_param(
         "ii",
         $perPage,
@@ -250,20 +268,15 @@ if ($stmt) {
     );
 
     if ($stmt->execute()) {
-
         $result = $stmt->get_result();
         $farmers = $result->fetch_all(MYSQLI_ASSOC);
-
     } else {
-
         $errors[] = 'Failed to load farmers.';
     }
 
     $stmt->close();
-
 } else {
-
-    $errors[] = 'Failed to prepare product query.';
+    $errors[] = 'Failed to prepare farmer query.';
 }
 
 $startItem = $totalFarmers > 0
@@ -297,8 +310,47 @@ $endItem = min(
     <link rel="stylesheet" href="../assets/css/admin.css">
     <link rel="stylesheet" href="../assets/css/customer.css">
     <link rel="stylesheet" href="../assets/css/admin_ann.css">
+<style>
+    .admin-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+}
 
+.admin-pagination-controls {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+}
+
+.admin-pagination-number,
+.admin-pagination-arrow {
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    box-sizing: border-box;
+}
+
+.admin-pagination-number {
+    width: 34px;
+    flex-shrink: 0;
+}
+
+.admin-pagination-arrow {
+    padding: 0 13px;
+    white-space: nowrap;
+}
+</style>
 </head>
+
 
 <body>
 
@@ -657,144 +709,53 @@ $endItem = min(
 
 
             <?php if ($totalPages > 1): ?>
-
                 <div class="admin-pagination">
-
                     <div class="admin-pagination-info">
-
-                        Showing
-                        <strong><?= $startItem ?></strong>
-                        –
-                        <strong><?= $endItem ?></strong>
-                        of
-                        <strong><?= $totalFarmers ?></strong>
-
+                        Showing <strong><?= $startItem ?></strong>–<strong><?= $endItem ?></strong>
+                        of <strong><?= $totalFarmers ?></strong>
                     </div>
 
-
                     <div class="admin-pagination-controls">
-
                         <?php if ($currentPage > 1): ?>
-
-                            <a
-                                href="?page=<?= $currentPage - 1 ?>"
-                                class="admin-pagination-arrow"
-                            >
-                                Previous
-                            </a>
-
+                            <a href="<?= e(farmerPageUrl($currentPage - 1)) ?>" class="admin-pagination-arrow">Previous</a>
                         <?php else: ?>
-
-                            <span class="admin-pagination-arrow disabled">
-                                Previous
-                            </span>
-
+                            <span class="admin-pagination-arrow disabled">Previous</span>
                         <?php endif; ?>
 
-
                         <?php
-
-                        $paginationStart = max(
-                            1,
-                            $currentPage - 2
-                        );
-
-                        $paginationEnd = min(
-                            $totalPages,
-                            $currentPage + 2
-                        );
-
+                        $paginationStart = max(1, $currentPage - 2);
+                        $paginationEnd = min($totalPages, $currentPage + 2);
                         ?>
 
                         <?php if ($paginationStart > 1): ?>
-
-                            <a
-                                href="?page=1"
-                                class="admin-pagination-number"
-                            >
-                                1
-                            </a>
-
+                            <a href="<?= e(farmerPageUrl(1)) ?>" class="admin-pagination-number">1</a>
                             <?php if ($paginationStart > 2): ?>
-
-                                <span class="admin-pagination-dots">
-                                    …
-                                </span>
-
+                                <span class="admin-pagination-dots">…</span>
                             <?php endif; ?>
-
                         <?php endif; ?>
 
-
-                        <?php for (
-                            $page = $paginationStart;
-                            $page <= $paginationEnd;
-                            $page++
-                        ): ?>
-
+                        <?php for ($page = $paginationStart; $page <= $paginationEnd; $page++): ?>
                             <?php if ($page === $currentPage): ?>
-
-                                <span
-                                    class="admin-pagination-number active"
-                                >
-                                    <?= $page ?>
-                                </span>
-
+                                <span class="admin-pagination-number active" aria-current="page"><?= $page ?></span>
                             <?php else: ?>
-
-                                <a
-                                    href="?page=<?= $page ?>"
-                                    class="admin-pagination-number"
-                                >
-                                    <?= $page ?>
-                                </a>
-
+                                <a href="<?= e(farmerPageUrl($page)) ?>" class="admin-pagination-number"><?= $page ?></a>
                             <?php endif; ?>
-
                         <?php endfor; ?>
 
-
                         <?php if ($paginationEnd < $totalPages): ?>
-
                             <?php if ($paginationEnd < $totalPages - 1): ?>
-
-                                <span class="admin-pagination-dots">
-                                    …
-                                </span>
-
+                                <span class="admin-pagination-dots">…</span>
                             <?php endif; ?>
-
-                            <a
-                                href="?page=<?= $totalPages ?>"
-                                class="admin-pagination-number"
-                            >
-                                <?= $totalPages ?>
-                            </a>
-
+                            <a href="<?= e(farmerPageUrl($totalPages)) ?>" class="admin-pagination-number"><?= $totalPages ?></a>
                         <?php endif; ?>
-
 
                         <?php if ($currentPage < $totalPages): ?>
-
-                            <a
-                                href="?page=<?= $currentPage + 1 ?>"
-                                class="admin-pagination-arrow"
-                            >
-                                Next
-                            </a>
-
+                            <a href="<?= e(farmerPageUrl($currentPage + 1)) ?>" class="admin-pagination-arrow">Next</a>
                         <?php else: ?>
-
-                            <span class="admin-pagination-arrow disabled">
-                                Next
-                            </span>
-
+                            <span class="admin-pagination-arrow disabled">Next</span>
                         <?php endif; ?>
-
                     </div>
-
                 </div>
-
             <?php endif; ?>
 
         </section>
@@ -802,5 +763,4 @@ $endItem = min(
     </main>
 
 </body>
-
 </html>
