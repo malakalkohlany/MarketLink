@@ -337,7 +337,37 @@ if (
     }
 }
 
-$result = $conn->query("
+$perPage = 8;
+
+$currentPage = filter_input(
+    INPUT_GET,
+    'page',
+    FILTER_VALIDATE_INT,
+    ['options' => ['default' => 1, 'min_range' => 1]]
+);
+
+$totalAnnouncements = 0;
+
+$stmt = $conn->prepare("
+    SELECT COUNT(*) AS total
+    FROM announcements a
+    INNER JOIN users u
+        ON a.admin_id = u.id
+");
+
+if ($stmt) {
+    $stmt->execute();
+    $totalAnnouncements = (int) $stmt->get_result()->fetch_assoc()['total'];
+    $stmt->close();
+} else {
+    $errors[] = 'Failed to count announcements.';
+}
+
+$totalPages = max(1, (int) ceil($totalAnnouncements / $perPage));
+$currentPage = min($currentPage ?: 1, $totalPages);
+$offset = ($currentPage - 1) * $perPage;
+
+$stmt = $conn->prepare("
     SELECT
         a.id,
         a.admin_id,
@@ -351,11 +381,21 @@ $result = $conn->query("
     INNER JOIN users u
         ON a.admin_id = u.id
     ORDER BY a.created_at DESC
+    LIMIT ? OFFSET ?
 ");
 
-if ($result) {
+if ($stmt) {
+    $stmt->bind_param('ii', $perPage, $offset);
+    $stmt->execute();
+    $result = $stmt->get_result();
     $announcements = $result->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+} else {
+    $errors[] = 'Failed to load announcements.';
 }
+
+$startItem = $totalAnnouncements > 0 ? $offset + 1 : 0;
+$endItem = min($offset + count($announcements), $totalAnnouncements);
 
 ?>
 <!DOCTYPE html>
@@ -404,7 +444,7 @@ if ($result) {
 
             <div>
                 <?php foreach ($errors as $error): ?>
-                    <p><?= htmlspecialchars($error) ?></p>
+                    <p><?= e($error) ?></p>
                 <?php endforeach; ?>
             </div>
         </div>
@@ -415,7 +455,7 @@ if ($result) {
             <span class="admin-alert-mark">✓</span>
 
             <div>
-                <?= htmlspecialchars($success) ?>
+                <?= e($success) ?>
             </div>
         </div>
     <?php endif; ?>
@@ -458,7 +498,7 @@ if ($result) {
                             id="title"
                             name="title"
                             maxlength="150"
-                            value="<?= htmlspecialchars(
+                            value="<?= e(
                                 $_POST['title'] ?? ''
                             ) ?>"
                             placeholder="Enter a clear announcement title"
@@ -477,7 +517,7 @@ if ($result) {
                             rows="6"
                             placeholder="Write the announcement message..."
                             required
-                        ><?= htmlspecialchars(
+                        ><?= e(
                             $_POST['message'] ?? ''
                         ) ?></textarea>
                     </div>
@@ -529,7 +569,7 @@ if ($result) {
                             type="datetime-local"
                             id="expires_at"
                             name="expires_at"
-                            value="<?= htmlspecialchars(
+                            value="<?= e(
                                 $_POST['expires_at'] ?? ''
                             ) ?>"
                         >
@@ -569,8 +609,8 @@ if ($result) {
             </div>
 
             <span class="admin-record-count">
-                <?= count($announcements) ?>
-                <?= count($announcements) === 1 ? 'announcement' : 'announcements' ?>
+                <?= $totalAnnouncements ?>
+                <?= $totalAnnouncements === 1 ? 'announcement' : 'announcements' ?>
             </span>
         </div>
 
@@ -606,13 +646,13 @@ if ($result) {
                                     <div class="admin-announcement-content">
 
                                         <span class="admin-announcement-title">
-                                            <?= htmlspecialchars(
+                                            <?= e(
                                                 $announcement['title']
                                             ) ?>
                                         </span>
 
                                         <span class="admin-announcement-message">
-                                            <?= htmlspecialchars(
+                                            <?= e(
                                                 $announcement['message']
                                             ) ?>
                                         </span>
@@ -622,7 +662,7 @@ if ($result) {
 
                                 <td>
                                     <span
-                                        class="admin-status admin-announcement-status admin-status-<?= htmlspecialchars(
+                                        class="admin-status admin-announcement-status admin-status-<?= e(
                                             $announcement['status']
                                         ) ?>"
                                     >
@@ -636,7 +676,7 @@ if ($result) {
 
                                 <td>
                                     <span class="admin-announcement-admin">
-                                        <?= htmlspecialchars(
+                                        <?= e(
                                             $announcement['admin_name']
                                         ) ?>
                                     </span>
@@ -848,6 +888,20 @@ if ($result) {
             </table>
 
         </div>
+
+        <?php
+
+        $pagination = [
+            'total_pages' => $totalPages,
+            'current_page' => $currentPage,
+            'total_items' => $totalAnnouncements,
+            'start_item' => $startItem,
+            'end_item' => $endItem
+        ];
+
+        require __DIR__ . '/../includes/pagination.php';
+
+        ?>
 
     </section>
 

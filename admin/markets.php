@@ -44,6 +44,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect('admin/markets.php');
 }
 
+$perPage = 8;
+
+$currentPage = filter_input(
+    INPUT_GET,
+    'page',
+    FILTER_VALIDATE_INT,
+    ['options' => ['default' => 1, 'min_range' => 1]]
+);
+
+$stmt = $conn->prepare("
+    SELECT COUNT(*) AS total
+    FROM markets
+");
+
+$totalMarkets = 0;
+
+if ($stmt) {
+    $stmt->execute();
+    $totalMarkets = (int) $stmt->get_result()->fetch_assoc()['total'];
+    $stmt->close();
+} else {
+    $errors[] = 'Failed to count markets.';
+}
+
+$totalPages = max(1, (int) ceil($totalMarkets / $perPage));
+$currentPage = min($currentPage ?: 1, $totalPages);
+$offset = ($currentPage - 1) * $perPage;
+
 $stmt = $conn->prepare("
     SELECT
         id,
@@ -55,9 +83,11 @@ $stmt = $conn->prepare("
         created_at
     FROM markets
     ORDER BY created_at DESC
+    LIMIT ? OFFSET ?
 ");
 
 if ($stmt) {
+    $stmt->bind_param('ii', $perPage, $offset);
     $stmt->execute();
     $result = $stmt->get_result();
     $markets = $result->fetch_all(MYSQLI_ASSOC);
@@ -65,6 +95,9 @@ if ($stmt) {
 } else {
     $errors[] = 'Failed to load markets.';
 }
+
+$startItem = $totalMarkets > 0 ? $offset + 1 : 0;
+$endItem = min($offset + count($markets), $totalMarkets);
 
 ?>
 
@@ -117,7 +150,7 @@ if ($stmt) {
 
                 <div>
                     <?php foreach ($errors as $error): ?>
-                        <p><?= htmlspecialchars($error) ?></p>
+                        <p><?= e($error) ?></p>
                     <?php endforeach; ?>
                 </div>
             </div>
@@ -139,7 +172,7 @@ if ($stmt) {
                 </div>
 
                 <div class="admin-record-count">
-                    <?= count($markets) ?>
+                    <?= $totalMarkets ?>
                     <span>markets</span>
                 </div>
             </div>
@@ -185,7 +218,7 @@ if ($stmt) {
 
                                             <div>
                                                 <strong>
-                                                    <?= htmlspecialchars($market['name']) ?>
+                                                    <?= e($market['name']) ?>
                                                 </strong>
 
                                                 <span>
@@ -196,7 +229,7 @@ if ($stmt) {
                                     </td>
 
                                     <td class="admin-market-address">
-                                        <?= htmlspecialchars(
+                                        <?= e(
                                             $market['address'] ?? 'N/A'
                                         ) ?>
                                     </td>
@@ -208,11 +241,11 @@ if ($stmt) {
                                         ): ?>
 
                                             <span class="admin-hours-main">
-                                                <?= htmlspecialchars(
+                                                <?= e(
                                                     $market['opening_time'] ?? 'N/A'
                                                 ) ?>
                                                 —
-                                                <?= htmlspecialchars(
+                                                <?= e(
                                                     $market['closing_time'] ?? 'N/A'
                                                 ) ?>
                                             </span>
@@ -236,7 +269,7 @@ if ($stmt) {
                                             <span class="admin-status-dot"></span>
 
                                             <?= ucfirst(
-                                                htmlspecialchars(
+                                                e(
                                                     $status ?: 'N/A'
                                                 )
                                             ) ?>
@@ -348,6 +381,20 @@ if ($stmt) {
                 </table>
 
             </div>
+
+            <?php
+
+            $pagination = [
+                'total_pages' => $totalPages,
+                'current_page' => $currentPage,
+                'total_items' => $totalMarkets,
+                'start_item' => $startItem,
+                'end_item' => $endItem
+            ];
+
+            require __DIR__ . '/../includes/pagination.php';
+
+            ?>
 
         </section>
 

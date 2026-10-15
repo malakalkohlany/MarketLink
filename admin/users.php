@@ -898,52 +898,19 @@ if ($stmt) {
                 </div>
 
             </div>
-            <?php if ($total_pages > 1): ?>
-                <div class="admin-pagination">
-                    <div class="admin-pagination-info">
-                        Showing <strong><?= $offset + 1 ?></strong>–<strong><?= min($offset + count($users), $total_users) ?></strong>
-                        of <strong><?= $total_users ?></strong>
-                    </div>
+            <?php
 
-                    <div class="admin-pagination-controls">
-                        <?php if ($page > 1): ?>
-                            <a
-                                href="?<?= http_build_query(array_merge($_GET, ['page' => $page - 1])) ?>"
-                                class="admin-pagination-arrow"
-                            >
-                                Previous
-                            </a>
-                        <?php else: ?>
-                            <span class="admin-pagination-arrow disabled">
-                                Previous
-                            </span>
-                        <?php endif; ?>
+            $pagination = [
+                'total_pages' => $total_pages,
+                'current_page' => $page,
+                'total_items' => $total_users,
+                'start_item' => $total_users > 0 ? $offset + 1 : 0,
+                'end_item' => min($offset + count($users), $total_users)
+            ];
 
-                        <?php for ($pageNumber = 1; $pageNumber <= $total_pages; $pageNumber++): ?>
-                            <a
-                                href="?<?= http_build_query(array_merge($_GET, ['page' => $pageNumber])) ?>"
-                                class="admin-pagination-number <?= $pageNumber === $page ? 'active' : '' ?>"
-                                <?= $pageNumber === $page ? 'aria-current="page"' : '' ?>
-                            >
-                                <?= $pageNumber ?>
-                            </a>
-                        <?php endfor; ?>
+            require __DIR__ . '/../includes/pagination.php';
 
-                        <?php if ($page < $total_pages): ?>
-                            <a
-                                href="?<?= http_build_query(array_merge($_GET, ['page' => $page + 1])) ?>"
-                                class="admin-pagination-arrow"
-                            >
-                                Next
-                            </a>
-                        <?php else: ?>
-                            <span class="admin-pagination-arrow disabled">
-                                Next
-                            </span>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            <?php endif; ?>
+            ?>
 
         </section>
 

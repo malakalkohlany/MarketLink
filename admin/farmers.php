@@ -667,47 +667,19 @@ $endItem = min(
 
             </div>
 
+            <?php
 
-            <?php if ($totalPages > 1): ?>
-                <div class="admin-pagination">
-                    <div class="admin-pagination-info">
-                        Showing <strong><?= $startItem ?></strong>–<strong><?= $endItem ?></strong>
-                        of <strong><?= $totalFarmers ?></strong>
-                    </div>
+            $pagination = [
+                'total_pages' => $totalPages,
+                'current_page' => $currentPage,
+                'total_items' => $totalFarmers,
+                'start_item' => $startItem,
+                'end_item' => $endItem
+            ];
 
-                    <div class="admin-pagination-controls">
-                        <?php if ($currentPage > 1): ?>
-                            <a href="?page=<?= $currentPage - 1 ?>" class="admin-pagination-arrow">
-                                Previous
-                            </a>
-                        <?php else: ?>
-                            <span class="admin-pagination-arrow disabled">
-                                Previous
-                            </span>
-                        <?php endif; ?>
+            require __DIR__ . '/../includes/pagination.php';
 
-                        <?php for ($page = 1; $page <= $totalPages; $page++): ?>
-                            <a
-                                href="?page=<?= $page ?>"
-                                class="admin-pagination-number <?= $page === $currentPage ? 'active' : '' ?>"
-                                <?= $page === $currentPage ? 'aria-current="page"' : '' ?>
-                            >
-                                <?= $page ?>
-                            </a>
-                        <?php endfor; ?>
-
-                        <?php if ($currentPage < $totalPages): ?>
-                            <a href="?page=<?= $currentPage + 1 ?>" class="admin-pagination-arrow">
-                                Next
-                            </a>
-                        <?php else: ?>
-                            <span class="admin-pagination-arrow disabled">
-                                Next
-                            </span>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            <?php endif; ?>
+            ?>
 
         </section>
 

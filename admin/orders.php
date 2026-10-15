@@ -470,55 +470,19 @@ if ($stmt) {
                 </div>
 
             </div>
+            <?php
 
-            <?php if ($total_pages > 1): ?>
+            $pagination = [
+                'total_pages' => $total_pages,
+                'current_page' => $page,
+                'total_items' => $total_orders,
+                'start_item' => $total_orders > 0 ? $offset + 1 : 0,
+                'end_item' => min($offset + count($orders), $total_orders)
+            ];
 
-                <div class="admin-orders-pagination">
+            require __DIR__ . '/../includes/pagination.php';
 
-                    <?php if ($page > 1): ?>
-
-                        <a
-                            href="?page=<?= $page - 1 ?>"
-                            aria-label="Previous page"
-                        >
-
-                            <i data-lucide="chevron-left"></i>
-
-                        </a>
-
-                    <?php endif; ?>
-
-                    <?php for (
-                        $i = 1;
-                        $i <= $total_pages;
-                        $i++
-                    ): ?>
-
-                        <a
-                            href="?page=<?= $i ?>"
-                            class="<?= $i === $page ? 'active' : '' ?>"
-                        >
-                            <?= $i ?>
-                        </a>
-
-                    <?php endfor; ?>
-
-                    <?php if ($page < $total_pages): ?>
-
-                        <a
-                            href="?page=<?= $page + 1 ?>"
-                            aria-label="Next page"
-                        >
-
-                            <i data-lucide="chevron-right"></i>
-
-                        </a>
-
-                    <?php endif; ?>
-
-                </div>
-
-            <?php endif; ?>
+            ?>
 
         </section>
 
