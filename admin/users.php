@@ -898,50 +898,51 @@ if ($stmt) {
                 </div>
 
             </div>
-
             <?php if ($total_pages > 1): ?>
+                <div class="admin-pagination">
+                    <div class="admin-pagination-info">
+                        Showing <strong><?= $offset + 1 ?></strong>–<strong><?= min($offset + count($users), $total_users) ?></strong>
+                        of <strong><?= $total_users ?></strong>
+                    </div>
 
-                <div class="product-pagination">
+                    <div class="admin-pagination-controls">
+                        <?php if ($page > 1): ?>
+                            <a
+                                href="?<?= http_build_query(array_merge($_GET, ['page' => $page - 1])) ?>"
+                                class="admin-pagination-arrow"
+                            >
+                                Previous
+                            </a>
+                        <?php else: ?>
+                            <span class="admin-pagination-arrow disabled">
+                                Previous
+                            </span>
+                        <?php endif; ?>
 
-                    <?php if ($page > 1): ?>
+                        <?php for ($pageNumber = 1; $pageNumber <= $total_pages; $pageNumber++): ?>
+                            <a
+                                href="?<?= http_build_query(array_merge($_GET, ['page' => $pageNumber])) ?>"
+                                class="admin-pagination-number <?= $pageNumber === $page ? 'active' : '' ?>"
+                                <?= $pageNumber === $page ? 'aria-current="page"' : '' ?>
+                            >
+                                <?= $pageNumber ?>
+                            </a>
+                        <?php endfor; ?>
 
-                        <a
-                            href="?page=<?= $page - 1 ?>&search=<?= urlencode($search) ?>&role=<?= urlencode($roleFilter) ?>&status=<?= urlencode($statusFilter) ?>"
-                            aria-label="Previous page"
-                        >
-                            <i data-lucide="chevron-left"></i>
-                        </a>
-
-                    <?php endif; ?>
-
-                    <?php for (
-                        $i = 1;
-                        $i <= $total_pages;
-                        $i++
-                    ): ?>
-
-                        <a
-                            href="?page=<?= $i ?>&search=<?= urlencode($search) ?>&role=<?= urlencode($roleFilter) ?>&status=<?= urlencode($statusFilter) ?>"
-                            class="<?= $i === $page ? 'active' : '' ?>"
-                        >
-                            <?= $i ?>
-                        </a>
-
-                    <?php endfor; ?>
-
-                    <?php if ($page < $total_pages): ?>
-
-                        <a
-                            href="?page=<?= $page + 1 ?>&search=<?= urlencode($search) ?>&role=<?= urlencode($roleFilter) ?>&status=<?= urlencode($statusFilter) ?>"
-                            aria-label="Next page"
-                        >
-                            <i data-lucide="chevron-right"></i>
-                        </a>
-
-                    <?php endif; ?>
-
+                        <?php if ($page < $total_pages): ?>
+                            <a
+                                href="?<?= http_build_query(array_merge($_GET, ['page' => $page + 1])) ?>"
+                                class="admin-pagination-arrow"
+                            >
+                                Next
+                            </a>
+                        <?php else: ?>
+                            <span class="admin-pagination-arrow disabled">
+                                Next
+                            </span>
+                        <?php endif; ?>
+                    </div>
                 </div>
-
             <?php endif; ?>
 
         </section>
