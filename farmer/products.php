@@ -40,6 +40,7 @@ $count_products_stmt = $conn->prepare("
     SELECT COUNT(*) AS total_products
     FROM products
     WHERE farmer_id = ?
+    AND is_removed = 0
 ");
 $count_products_stmt->bind_param("i", $farmer_id);
 $count_products_stmt->execute();
