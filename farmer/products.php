@@ -265,7 +265,30 @@ $record_label = $total_products === 1 ? 'product' : 'products';
                                     Edit Product
                                 </a>
 
+                                <form
+                                    method="POST"
+                                    action="delete_product.php"
+                                    onsubmit="return confirm('This product will be moved to trash bin. Do you want to proceed?');"
+                                >
 
+                                    <?= csrf_field() ?>
+
+                                    <input
+                                        type="hidden"
+                                        name="product_id"
+                                        value="<?= (int)$product['id'] ?>"
+                                    >
+
+
+                                    <button
+                                        type="submit"
+                                        class="farmer-product-delete"
+                                    >
+                                        <i class="fa-solid fa-trash"></i>
+                                        Remove Product
+                                    </button>
+
+                                </form>
                                 
 
                             </div>
