@@ -154,6 +154,17 @@ if ($stmt) {
     $errors[] = 'Failed to prepare notifications query.';
 }
 
+$total_items = $total_notifications;
+
+$start_item = $total_items > 0
+    ? $offset + 1
+    : 0;
+
+$end_item = min(
+    $offset + count($adminNotifications),
+    $total_items
+);
+
 $unread_stmt = $conn->prepare("
     SELECT COUNT(*) AS total
     FROM notifications
@@ -694,103 +705,19 @@ $query_string = http_build_query([
 
         </div>
 
-        <?php if ($total_pages > 1): ?>
+        <?php
 
-            <div class="admin-pagination">
+$pagination = [
+    'total_pages' => $total_pages,
+    'current_page' => $page,
+    'total_items' => $total_items,
+    'start_item' => $start_item,
+    'end_item' => $end_item
+];
 
-                <div class="admin-pagination-info">
-                    Page <?= $page ?>
-                    of <?= $total_pages ?>
-                </div>
+require __DIR__ . '/../includes/pagination.php';
 
-                <div class="admin-pagination-controls">
-
-                    <?php if ($page > 1): ?>
-
-                        <a
-                            href="?page=<?= $page - 1 ?>&<?= $query_string ?>"
-                            class="admin-pagination-arrow"
-                        >
-                            Previous
-                        </a>
-
-                    <?php endif; ?>
-
-                    <?php
-                    $start_page = max(1, $page - 2);
-                    $end_page = min(
-                        $total_pages,
-                        $page + 2
-                    );
-                    ?>
-
-                    <?php if ($start_page > 1): ?>
-
-                        <a
-                            href="?page=1&<?= $query_string ?>"
-                            class="admin-pagination-number"
-                        >
-                            1
-                        </a>
-
-                        <?php if ($start_page > 2): ?>
-                            <span class="admin-pagination-dots">
-                                ...
-                            </span>
-                        <?php endif; ?>
-
-                    <?php endif; ?>
-
-                    <?php for (
-                        $i = $start_page;
-                        $i <= $end_page;
-                        $i++
-                    ): ?>
-
-                        <a
-                            href="?page=<?= $i ?>&<?= $query_string ?>"
-                            class="admin-pagination-number <?= $i === $page
-                                ? 'active'
-                                : '' ?>"
-                        >
-                            <?= $i ?>
-                        </a>
-
-                    <?php endfor; ?>
-
-                    <?php if ($end_page < $total_pages): ?>
-
-                        <?php if ($end_page < $total_pages - 1): ?>
-                            <span class="admin-pagination-dots">
-                                ...
-                            </span>
-                        <?php endif; ?>
-
-                        <a
-                            href="?page=<?= $total_pages ?>&<?= $query_string ?>"
-                            class="admin-pagination-number"
-                        >
-                            <?= $total_pages ?>
-                        </a>
-
-                    <?php endif; ?>
-
-                    <?php if ($page < $total_pages): ?>
-
-                        <a
-                            href="?page=<?= $page + 1 ?>&<?= $query_string ?>"
-                            class="admin-pagination-arrow"
-                        >
-                            Next
-                        </a>
-
-                    <?php endif; ?>
-
-                </div>
-
-            </div>
-
-        <?php endif; ?>
+?>
 
     </section>
 

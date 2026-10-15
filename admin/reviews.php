@@ -44,6 +44,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect('admin/reviews.php');
 }
 
+$itemsPerPage = 10;
+$currentPage = max(1, (int) ($_GET['page'] ?? 1));
+
+$totalReviews = 0;
+
+$countStmt = $conn->prepare("
+    SELECT COUNT(*) AS total
+    FROM reviews
+");
+
+if ($countStmt) {
+    if ($countStmt->execute()) {
+        $countResult = $countStmt->get_result()->fetch_assoc();
+        $totalReviews = (int) ($countResult['total'] ?? 0);
+    }
+
+    $countStmt->close();
+}
+
+$totalPages = (int) ceil($totalReviews / $itemsPerPage);
+$currentPage = $totalPages > 0
+    ? min($currentPage, $totalPages)
+    : 1;
+
+$offset = ($currentPage - 1) * $itemsPerPage;
+
+$startItem = $totalReviews > 0
+    ? $offset + 1
+    : 0;
+
 $reviews = [];
 
 $stmt = $conn->prepare("
@@ -71,9 +101,12 @@ $stmt = $conn->prepare("
             ELSE 3
         END,
         r.created_at DESC
+    LIMIT ? OFFSET ?
 ");
 
 if ($stmt) {
+    $stmt->bind_param("ii", $itemsPerPage, $offset);
+
     if ($stmt->execute()) {
         $reviews = $stmt
             ->get_result()
@@ -83,7 +116,11 @@ if ($stmt) {
     $stmt->close();
 }
 
-$totalReviews = count($reviews);
+$endItem = min(
+    $offset + count($reviews),
+    $totalReviews
+);
+
 $pendingReviews = 0;
 $approvedReviews = 0;
 $rejectedReviews = 0;
@@ -97,6 +134,29 @@ foreach ($reviews as $review) {
         $rejectedReviews++;
     }
 }
+
+$statusStmt = $conn->prepare("
+    SELECT
+        SUM(status = 'pending') AS pending,
+        SUM(status = 'approved') AS approved,
+        SUM(status = 'rejected') AS rejected
+    FROM reviews
+");
+
+if ($statusStmt) {
+    if ($statusStmt->execute()) {
+        $statusCounts = $statusStmt
+            ->get_result()
+            ->fetch_assoc();
+
+        $pendingReviews = (int) ($statusCounts['pending'] ?? 0);
+        $approvedReviews = (int) ($statusCounts['approved'] ?? 0);
+        $rejectedReviews = (int) ($statusCounts['rejected'] ?? 0);
+    }
+
+    $statusStmt->close();
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -554,6 +614,18 @@ foreach ($reviews as $review) {
             </table>
 
         </div>
+
+        <?php
+        $pagination = [
+            'total_pages' => $totalPages,
+            'current_page' => $currentPage,
+            'total_items' => $totalReviews,
+            'start_item' => $startItem,
+            'end_item' => $endItem
+        ];
+
+        require __DIR__ . '/../includes/pagination.php';
+        ?>
 
     </section>
 
